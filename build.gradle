@@ -18,6 +18,10 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven {
+        name = "Vaadin Addons"
+        url = "https://maven.vaadin.com/vaadin-addons"
+    }
 }
 
 ext {
@@ -27,10 +31,13 @@ ext {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'com.vaadin:vaadin-spring-boot-starter'
+    implementation 'org.jetbrains:annotations:24.0.0'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    //vaadin directory plugins
 }
 
 dependencyManagement {

@@ -1,0 +1,45 @@
+.content {
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+#container {
+  min-height: 100vh;
+  background: linear-gradient(302deg, #e12885, #137a7f, #86cecb);
+  background-size: 600% 600%;
+
+  -webkit-animation: backgroundAnimation 37s ease infinite;
+  -moz-animation: backgroundAnimation 37s ease infinite;
+  -o-animation: backgroundAnimation 37s ease infinite;
+  animation: backgroundAnimation 37s ease infinite;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-gap: 1rem;
+  padding: 1rem;
+}
+
+@-webkit-keyframes backgroundAnimation {
+  0%{background-position:0% 7%}
+  50%{background-position:100% 94%}
+  100%{background-position:0% 7%}
+}
+@-moz-keyframes backgroundAnimation {
+  0%{background-position:0% 7%}
+  50%{background-position:100% 94%}
+  100%{background-position:0% 7%}
+}
+@-o-keyframes backgroundAnimation {
+  0%{background-position:0% 7%}
+  50%{background-position:100% 94%}
+  100%{background-position:0% 7%}
+}
+@keyframes backgroundAnimation {
+  0%{background-position:0% 7%}
+  50%{background-position:100% 94%}
+  100%{background-position:0% 7%}
+}
