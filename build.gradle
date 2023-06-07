@@ -38,6 +38,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     //vaadin directory plugins
+    implementation 'in.virit:viritin:2.0.1'
 }
 
 dependencyManagement {

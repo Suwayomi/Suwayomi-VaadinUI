@@ -53,5 +53,17 @@ public class StandardLayout extends VerticalLayout {
     this.content.add(content);
   }
 
+  protected void fullScreen() {
+    this.content.setClassName("content-fullscreen");
+    this.navBar.setVisible(false);
+    addClassName("fullscreen");
+  }
+
+  protected void windowed() {
+    this.content.setClassName("content");
+    this.navBar.setVisible(true);
+    removeClassName("fullscreen");
+  }
+
 
 }

@@ -2,6 +2,7 @@ package online.hatsunemiku.tachideskvaadinui.view;
 
 import static org.springframework.http.HttpMethod.GET;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
@@ -11,6 +12,8 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteParam;
+import com.vaadin.flow.router.RouteParameters;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -126,6 +129,17 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
       uploadDateDiv.setText(uploadDate);
 
       layout.add(titleDiv, uploadDateDiv);
+
+      layout.addClickListener(e -> {
+        int chapterId = c.getIndex();
+
+        RouteParam mangaParam = new RouteParam("mangaId", mangaId);
+        RouteParam chapterParam = new RouteParam("chapterId", String.valueOf(chapterId));
+
+        RouteParameters params = new RouteParameters(mangaParam, chapterParam);
+
+        UI.getCurrent().navigate(ReadingView.class, params);
+      });
 
       chapters.add(layout);
     }
