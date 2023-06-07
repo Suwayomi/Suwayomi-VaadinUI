@@ -22,7 +22,7 @@ import org.vaadin.firitin.components.orderedlayout.VScroller;
 @CssImport("./css/reading.css")
 public class ReadingView extends StandardLayout implements BeforeEnterObserver {
 
-  private RestTemplate client;
+  private final RestTemplate client;
   private String mangaId;
   private int currentChapterIndex;
   private Div mangaImages;
@@ -88,9 +88,9 @@ public class ReadingView extends StandardLayout implements BeforeEnterObserver {
 
     addChapterImages(settings, mangaId, chapter, chapterObj);
 
-    UI.getCurrent().access(() -> {
-      UI.getCurrent().getPage().executeJs("document.body.style.overflow = 'hidden';");
-    });
+    UI.getCurrent().access(() -> UI.getCurrent()
+        .getPage()
+        .executeJs("document.body.style.overflow = 'hidden';"));
 
     VScroller scroller = new VScroller();
     scroller.addClassName("chapter-scroller");
@@ -98,9 +98,7 @@ public class ReadingView extends StandardLayout implements BeforeEnterObserver {
     scroller.setContent(mangaImages);
     setContent(scroller);
 
-    scroller.addScrollToEndListener(e -> {
-      loadNextChapter();
-    });
+    scroller.addScrollToEndListener(e -> loadNextChapter());
   }
 
   private void addChapterImages(Settings settings, String id, String chapter, Chapter chapterObj) {

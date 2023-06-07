@@ -23,16 +23,13 @@ import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.utils.MangaDataUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
 
 @Route("manga/:id(\\d+)")
 @CssImport("./css/manga.css")
 public class MangaView extends StandardLayout implements BeforeEnterObserver {
 
-  private static final Logger logger = LoggerFactory.getLogger(MangaView.class);
-  private RestTemplate client;
+  private final RestTemplate client;
 
   public MangaView(RestTemplate client) {
     super("Manga");
