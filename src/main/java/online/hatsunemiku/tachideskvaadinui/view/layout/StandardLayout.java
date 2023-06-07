@@ -15,6 +15,7 @@ public class StandardLayout extends VerticalLayout {
   private H1 title;
   private HorizontalLayout navBar;
   private VerticalLayout content;
+  private Footer footer;
 
   public StandardLayout(String title) {
     setId("container");
@@ -24,6 +25,7 @@ public class StandardLayout extends VerticalLayout {
     content.setClassName("content");
 
     var footer = getFooter();
+    this.footer = footer;
 
     this.add(navBar, content, footer);
   }
@@ -56,12 +58,14 @@ public class StandardLayout extends VerticalLayout {
   protected void fullScreen() {
     this.content.setClassName("content-fullscreen");
     this.navBar.setVisible(false);
+    this.footer.setVisible(false);
     addClassName("fullscreen");
   }
 
   protected void windowed() {
     this.content.setClassName("content");
     this.navBar.setVisible(true);
+    this.footer.setVisible(true);
     removeClassName("fullscreen");
   }
 

@@ -8,26 +8,31 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.Route;
+import java.util.Collections;
+import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.data.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
+import online.hatsunemiku.tachideskvaadinui.utils.MangaDataUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import org.springframework.web.client.RestTemplate;
 import org.vaadin.firitin.components.orderedlayout.VScroller;
 
-@Route("reading/:mangaId(\\d+)/:chapterId(\\d+)")
+@Route("reading/:mangaId(\\d+)/:chapterId(\\d+(?:\\.\\d+)?)")
 @CssImport("./css/reading.css")
 public class ReadingView extends StandardLayout implements BeforeEnterObserver {
 
   private RestTemplate client;
   private String mangaId;
-  private int currentChapter;
+  private int currentChapterIndex;
   private Div mangaImages;
+  private List<Chapter> chapterList;
 
   public ReadingView(RestTemplate client) {
     super("Reading");
 
     this.client = client;
+
     fullScreen();
   }
 
@@ -54,24 +59,34 @@ public class ReadingView extends StandardLayout implements BeforeEnterObserver {
       return;
     }
 
-    String id = idparam.get();
+    String mangaId = idparam.get();
     String chapter = chapterparam.get();
 
-    Chapter chapterObj = getChapter(settings, id, chapter);
+    chapterList = MangaDataUtils.getChapterList(settings, mangaId, client);
+    Collections.reverse(chapterList);
+
+    Chapter chapterObj = getChapter(settings, mangaId, chapter);
 
     if (chapterObj == null) {
       event.rerouteToError(NotFoundException.class, "Chapter not found");
       return;
     }
 
-    currentChapter = Integer.parseInt(chapter);
-    mangaId = id;
+    this.mangaId = mangaId;
 
+    for (int i = 0; i < chapterList.size(); i++) {
+      Chapter c = chapterList.get(i);
+
+      if (c.getId() == chapterObj.getId()) {
+        currentChapterIndex = i;
+        break;
+      }
+    }
 
     mangaImages = new Div();
     mangaImages.addClassName("chapter-images");
 
-    addChapterImages(settings, id, chapter, chapterObj);
+    addChapterImages(settings, mangaId, chapter, chapterObj);
 
     UI.getCurrent().access(() -> {
       UI.getCurrent().getPage().executeJs("document.body.style.overflow = 'hidden';");
@@ -108,13 +123,38 @@ public class ReadingView extends StandardLayout implements BeforeEnterObserver {
   }
 
   private void loadNextChapter() {
+    currentChapterIndex++;
+
+    if (currentChapterIndex >= chapterList.size()) {
+      return;
+    }
+
     Settings settings = SerializationUtils.deseralizeSettings();
-    currentChapter++;
 
-    String chapter = String.valueOf(currentChapter);
+    Chapter chapterObj = chapterList.get(currentChapterIndex);
+    String chapter = String.valueOf(chapterObj.getIndex());
 
-    Chapter chapterObj = getChapter(settings, mangaId, chapter);
+    addNewChapter(settings, mangaId, chapter, chapterObj);
+  }
 
-    addChapterImages(settings, mangaId, chapter, chapterObj);
+  private void addNewChapter(Settings settings, String id, String chapter, Chapter chapterObj) {
+    Div nextChapterAnnouncement = new Div();
+    nextChapterAnnouncement.addClassName("next-chapter-announcement");
+
+    String format = "Chapter %s";
+    String nextChapterText = String.format(format, chapterObj.getIndex());
+
+    Div announcement = new Div();
+    announcement.addClassName("announcement-title");
+    announcement.setText("Next Chapter!");
+
+    Div announcementText = new Div();
+    announcementText.addClassName("announcement-chapter-number");
+    announcementText.setText(nextChapterText);
+
+    nextChapterAnnouncement.add(announcement, announcementText);
+
+    mangaImages.add(nextChapterAnnouncement);
+    addChapterImages(settings, id, chapter, chapterObj);
   }
 }

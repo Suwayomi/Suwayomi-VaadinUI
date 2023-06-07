@@ -1,7 +1,5 @@
 package online.hatsunemiku.tachideskvaadinui.view;
 
-import static org.springframework.http.HttpMethod.GET;
-
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
@@ -22,11 +20,11 @@ import java.util.Optional;
 import online.hatsunemiku.tachideskvaadinui.data.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
+import online.hatsunemiku.tachideskvaadinui.utils.MangaDataUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.client.RestTemplate;
 
 @Route("manga/:id(\\d+)")
@@ -95,15 +93,8 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
   }
 
   private List<HorizontalLayout> getChapters(Settings settings, String mangaId) {
-    String chapterEndpoint = settings.getUrl() + "/api/v1/manga/" + mangaId + "/chapters";
 
-    var typeRef = new ParameterizedTypeReference<List<Chapter>>() {};
-    var chapter = client.exchange(chapterEndpoint, GET, null, typeRef)
-        .getBody();
-
-    if (chapter == null) {
-      return new ArrayList<>();
-    }
+    List<Chapter> chapter = MangaDataUtils.getChapterList(settings, mangaId, client);
 
     List<HorizontalLayout> chapters = new ArrayList<>();
 
