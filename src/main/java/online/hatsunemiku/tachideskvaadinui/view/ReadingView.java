@@ -6,6 +6,8 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.BeforeLeaveEvent;
+import com.vaadin.flow.router.BeforeLeaveObserver;
 import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.Route;
 import java.util.Collections;
@@ -20,7 +22,8 @@ import org.vaadin.firitin.components.orderedlayout.VScroller;
 
 @Route("reading/:mangaId(\\d+)/:chapterId(\\d+(?:\\.\\d+)?)")
 @CssImport("./css/reading.css")
-public class ReadingView extends StandardLayout implements BeforeEnterObserver {
+public class ReadingView extends StandardLayout implements BeforeEnterObserver,
+    BeforeLeaveObserver {
 
   private final RestTemplate client;
   private String mangaId;
@@ -154,5 +157,12 @@ public class ReadingView extends StandardLayout implements BeforeEnterObserver {
 
     mangaImages.add(nextChapterAnnouncement);
     addChapterImages(settings, id, chapter, chapterObj);
+  }
+
+  @Override
+  public void beforeLeave(BeforeLeaveEvent event) {
+    UI.getCurrent().access(() -> UI.getCurrent()
+        .getPage()
+        .executeJs("document.body.style.overflow = 'auto';"));
   }
 }

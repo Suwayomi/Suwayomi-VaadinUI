@@ -1,0 +1,29 @@
+/* Hatsune Miku theme */
+
+html {
+    --lumo-header-text-color: #fff;
+}
+
+#container {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(302deg, #e12885, #137a7f, #86cecb);
+    background-size: 600% 600%;
+
+    min-height: 100vh;
+
+    animation: gradient 60s ease infinite;
+
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}

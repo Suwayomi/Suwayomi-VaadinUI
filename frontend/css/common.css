@@ -5,17 +5,6 @@
   flex-grow: 1;
 }
 
-#container {
-  min-height: 100vh;
-  background: linear-gradient(302deg, #e12885, #137a7f, #86cecb);
-  background-size: 600% 600%;
-
-  -webkit-animation: backgroundAnimation 37s ease infinite;
-  -moz-animation: backgroundAnimation 37s ease infinite;
-  -o-animation: backgroundAnimation 37s ease infinite;
-  animation: backgroundAnimation 37s ease infinite;
-}
-
 .content-fullscreen {
   height: 100vh;
   width: 100vw;
@@ -34,23 +23,10 @@
   padding: 1rem;
 }
 
-@-webkit-keyframes backgroundAnimation {
-  0%{background-position:0% 7%}
-  50%{background-position:100% 94%}
-  100%{background-position:0% 7%}
+h1 {
+  color: aliceblue;
 }
-@-moz-keyframes backgroundAnimation {
-  0%{background-position:0% 7%}
-  50%{background-position:100% 94%}
-  100%{background-position:0% 7%}
-}
-@-o-keyframes backgroundAnimation {
-  0%{background-position:0% 7%}
-  50%{background-position:100% 94%}
-  100%{background-position:0% 7%}
-}
-@keyframes backgroundAnimation {
-  0%{background-position:0% 7%}
-  50%{background-position:100% 94%}
-  100%{background-position:0% 7%}
+
+footer {
+  color: aliceblue;
 }
