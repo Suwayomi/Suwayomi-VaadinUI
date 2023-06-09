@@ -5,6 +5,8 @@ import static org.springframework.http.HttpMethod.GET;
 
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.tabs.TabSheet;
+import com.vaadin.flow.component.tabs.TabSheetVariant;
 import com.vaadin.flow.router.Route;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,20 +30,14 @@ public class RootView extends StandardLayout {
 
     this.client = client;
     Settings settings = SerializationUtils.deseralizeSettings();
+
     var categories = getCategories(settings);
-    var manga = getManga(categories, settings);
 
-    Div grid = new Div();
-    grid.addClassName("grid");
+    TabSheet tabs = new TabSheet();
+    tabs.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
+    addCategoryTabs(categories, tabs, settings);
 
-
-
-    for (Manga m : manga) {
-      MangaCard card = new MangaCard(settings, m);
-      grid.add(card);
-    }
-
-    setContent(grid);
+    setContent(tabs);
   }
 
   private List<Category> getCategories(Settings settings) {
@@ -58,25 +54,34 @@ public class RootView extends StandardLayout {
     return list;
   }
 
-  private List<Manga> getManga(List<Category> list, Settings settings) {
-    List<Manga> manga = new ArrayList<>();
+  private List<Manga> getManga(Category category, Settings settings) {
+    String template = "%s/api/v1/category/%d";
+    String categoryMangaEndpoint = String.format(template, settings.getUrl(), category.getId());
 
-    for (Category c : list) {
-      String template = "%s/api/v1/category/%d";
-      String categoryMangaEndpoint = String.format(template, settings.getUrl(), c.getId());
+    ParameterizedTypeReference<List<Manga>> typeRef = new ParameterizedTypeReference<>() {};
+    List<Manga> mangaList = client.exchange(categoryMangaEndpoint, GET, null, typeRef).getBody();
 
-      ParameterizedTypeReference<List<Manga>> typeRef = new ParameterizedTypeReference<>() {};
-      List<Manga> mangaList = client.exchange(categoryMangaEndpoint, GET, null, typeRef).getBody();
-
-      if (mangaList == null) {
-        continue;
-      }
-
-      manga.addAll(mangaList);
+    if (mangaList == null) {
+      return new ArrayList<>();
     }
 
-    return manga;
+    return mangaList;
   }
 
+  private void addCategoryTabs(List<Category> categories, TabSheet tabs, Settings settings) {
+    for (Category c : categories) {
+      List<Manga> manga = getManga(c, settings);
+
+      Div grid = new Div();
+      grid.addClassName("grid");
+
+      for (Manga m : manga) {
+        MangaCard card = new MangaCard(settings, m);
+        grid.add(card);
+      }
+
+      tabs.add(c.getName(), grid);
+    }
+  }
 
 }

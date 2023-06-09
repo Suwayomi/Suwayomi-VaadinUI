@@ -1,0 +1,35 @@
+vaadin-tab[selected] {
+  color: var(--miku-selected-color);
+}
+
+vaadin-tab[selected]::before {
+  background-color: var(--miku-selected-color);
+}
+
+vaadin-tab[active] {
+  color: var(--miku-selected-color);
+}
+
+vaadin-tab[active]::before {
+  background-color: var(--miku-selected-color);
+}
+
+vaadin-tab {
+  color: var(--miku-unselected-color);
+}
+
+vaadin-tab::before {
+  background-color: var(--miku-unselected-color);
+}
+
+vaadin-tab:hover {
+  background: var(--miku-frosted-glass);
+}
+
+vaadin-tabs:not([orientation="vertical"]) {
+  border-bottom: 1px solid var(--miku-selected-color);
+}
+
+vaadin-tabsheet {
+  border: 1px solid var(--miku-selected-color);
+}

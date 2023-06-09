@@ -1,9 +1,13 @@
 /* Hatsune Miku theme */
 @import "./components/list-box.css";
+@import "./components/tab-sheets.css";
 
 html {
-    --lumo-header-text-color: #fff;
+    --lumo-header-text-color: hsl(193, 62%, 89%);
     --miku-highlight-color: rgba(108, 225, 180, 0.5);
+    --miku-selected-color: hsl(193, 62%, 89%);
+    --miku-unselected-color: rgb(55, 59, 62);
+    --miku-frosted-glass: rgba(255, 255, 255, 0.1);
 }
 
 #container {
