@@ -4,6 +4,7 @@
   grid-gap: 1rem;
   padding: 1rem;
   max-width: 100%;
+  min-height: 50.5vh;
 }
 
 .delete-category-button {
