@@ -16,13 +16,14 @@ import com.vaadin.flow.router.Route;
 import java.util.ArrayList;
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.component.card.MangaCard;
-import online.hatsunemiku.tachideskvaadinui.component.dialog.CategoryDialog;
+import online.hatsunemiku.tachideskvaadinui.component.dialog.category.CategoryDialog;
 import online.hatsunemiku.tachideskvaadinui.data.Category;
 import online.hatsunemiku.tachideskvaadinui.data.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.utils.CategoryUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.client.RestTemplate;
 
@@ -32,6 +33,7 @@ import org.springframework.web.client.RestTemplate;
 public class RootView extends StandardLayout {
 
   private final RestTemplate client;
+  private TabSheet tabs;
 
   public RootView(RestTemplate client) {
     super("Library");
@@ -41,9 +43,9 @@ public class RootView extends StandardLayout {
 
     var categories = getCategories(settings);
 
-    TabSheet tabs = new TabSheet();
+    tabs = new TabSheet();
     tabs.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
-    addCategoryTabs(categories, tabs, settings);
+    addCategoryTabs(categories, settings);
 
     Button createButton = new Button(VaadinIcon.PLUS.create());
     createButton.addClickListener(e -> {
@@ -57,6 +59,13 @@ public class RootView extends StandardLayout {
         }
       });
 
+      dialog.addOnCategoryCreationListener(event -> {
+        Category c = event.getCategory();
+
+        Settings s = SerializationUtils.deseralizeSettings();
+
+        addCategoryTab(s, c);
+      });
 
       dialog.open();
     });
@@ -94,39 +103,59 @@ public class RootView extends StandardLayout {
     return mangaList;
   }
 
-  private void addCategoryTabs(List<Category> categories, TabSheet tabs, Settings settings) {
+  private void addCategoryTabs(List<Category> categories, Settings settings) {
     for (Category c : categories) {
-      Tab tab = new Tab(c.getName());
-      List<Manga> manga = getManga(c, settings);
+      addCategoryTab(settings, c);
+    }
+  }
 
-      Div grid = new Div();
-      grid.addClassName("grid");
+  private void addCategoryTab(Settings settings, Category c) {
+    Tab tab = new Tab(c.getName());
 
-      for (Manga m : manga) {
-        MangaCard card = new MangaCard(settings, m);
-        grid.add(card);
+    Div grid = createMangaGrid(settings, c);
+
+    if (c.getId() != 0) {
+      Button deleteButton = createCategoryDeleteButton(c, tab);
+      tab.add(deleteButton);
+    }
+
+    tabs.add(tab, grid);
+  }
+
+  @NotNull
+  private Button createCategoryDeleteButton(Category c, Tab tab) {
+    Button deleteButton = new Button(VaadinIcon.TRASH.create());
+
+    deleteButton.addClassName("delete-category-button");
+
+    deleteButton.addClickListener(e -> {
+      Settings s = SerializationUtils.deseralizeSettings();
+      if (CategoryUtils.deleteCategory(client, s, c.getId())) {
+        tabs.remove(tab);
+      } else {
+        Notification notification = new Notification("Failed to delete category", 3000);
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.open();
       }
+    });
+    return deleteButton;
+  }
 
-      if (c.getId() != 0) {
-        Button deleteButton = new Button(VaadinIcon.TRASH.create());
+  @NotNull
+  private Div createMangaGrid(Settings settings, Category c) {
+    List<Manga> manga = getManga(c, settings);
 
-        deleteButton.addClassName("delete-category-button");
+    Div grid = new Div();
+    grid.addClassName("grid");
 
-        deleteButton.addClickListener(e -> {
-          Settings s = SerializationUtils.deseralizeSettings();
-          if (CategoryUtils.deleteCategory(client, s, c.getId())) {
-            tabs.remove(tab);
-          } else {
-            Notification notification = new Notification("Failed to delete category", 3000);
-            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-            notification.open();
-          }
-        });
+    fillMangaGrid(settings, manga, grid);
+    return grid;
+  }
 
-        tab.add(deleteButton);
-      }
-
-      tabs.add(tab, grid);
+  private static void fillMangaGrid(Settings settings, List<Manga> manga, Div grid) {
+    for (Manga m : manga) {
+      MangaCard card = new MangaCard(settings, m);
+      grid.add(card);
     }
   }
 
