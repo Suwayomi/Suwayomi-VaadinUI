@@ -1,0 +1,18 @@
+vaadin-dialog-overlay::part(backdrop) {
+  background-color: var(--miku-frosted-glass);
+  filter: blur(5px);
+}
+
+vaadin-dialog-overlay::part(overlay) {
+  background: var(--miku-background);
+  background-size: 120% 120%;
+}
+
+vaadin-dialog-overlay::part(header) {
+  background: var(--miku-frosted-glass-blue);
+  border-radius: 10px 10px 0 0;
+}
+
+vaadin-dialog-overlay > [slot="title"] {
+  color: var(--miku-unselected-color);
+}

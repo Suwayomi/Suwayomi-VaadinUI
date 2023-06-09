@@ -1,0 +1,19 @@
+vaadin-text-field {
+  color: var(--miku-unselected-color);
+}
+
+vaadin-text-field[invalid]::part(input-field) {
+  background-color: var(--miku-error-color-50);
+}
+
+vaadin-text-field[invalid][focused]::part(input-field) {
+  color: var(--miku-error-color-dark);
+}
+
+vaadin-text-field[focused]::part(label) {
+  color: var(--miku-highlight-color-dark);
+}
+
+vaadin-text-field > input {
+  color: var(--miku-selected-color);
+}

@@ -3,17 +3,22 @@ package online.hatsunemiku.tachideskvaadinui.view;
 
 import static org.springframework.http.HttpMethod.GET;
 
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.TabSheetVariant;
 import com.vaadin.flow.router.Route;
 import java.util.ArrayList;
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.component.card.MangaCard;
+import online.hatsunemiku.tachideskvaadinui.component.dialog.CategoryDialog;
 import online.hatsunemiku.tachideskvaadinui.data.Category;
 import online.hatsunemiku.tachideskvaadinui.data.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
+import online.hatsunemiku.tachideskvaadinui.utils.CategoryUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import org.springframework.core.ParameterizedTypeReference;
@@ -36,6 +41,24 @@ public class RootView extends StandardLayout {
     TabSheet tabs = new TabSheet();
     tabs.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
     addCategoryTabs(categories, tabs, settings);
+
+    Button createButton = new Button(VaadinIcon.PLUS.create());
+    createButton.addClickListener(e -> {
+      CategoryDialog dialog = new CategoryDialog(client);
+
+      dialog.addOpenedChangeListener(event -> {
+        if (!event.isOpened()) {
+          removeClassName("blur");
+        } else {
+          addClassName("blur");
+        }
+      });
+
+
+      dialog.open();
+    });
+
+    tabs.setSuffixComponent(createButton);
 
     setContent(tabs);
   }
@@ -70,6 +93,7 @@ public class RootView extends StandardLayout {
 
   private void addCategoryTabs(List<Category> categories, TabSheet tabs, Settings settings) {
     for (Category c : categories) {
+      Tab tab = new Tab(c.getName());
       List<Manga> manga = getManga(c, settings);
 
       Div grid = new Div();
@@ -80,7 +104,21 @@ public class RootView extends StandardLayout {
         grid.add(card);
       }
 
-      tabs.add(c.getName(), grid);
+      if (c.getId() != 0) {
+        Button deleteButton = new Button(VaadinIcon.TRASH.create());
+
+        deleteButton.addClassName("delete-category-button");
+
+        deleteButton.addClickListener(e -> {
+          Settings s = SerializationUtils.deseralizeSettings();
+          CategoryUtils.deleteCategory(client, s, c.getId());
+          tabs.remove(tab);
+        });
+
+        tab.add(deleteButton);
+      }
+
+      tabs.add(tab, grid);
     }
   }
 

@@ -5,3 +5,15 @@
   padding: 1rem;
   max-width: 100%;
 }
+
+.delete-category-button {
+  color: var(--miku-unselected-color);
+  background-color: transparent;
+  border: transparent;
+  padding: 0;
+  margin-left: 5px;
+}
+
+.delete-category-button:hover {
+  border: transparent;
+}

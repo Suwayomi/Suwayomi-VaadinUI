@@ -1,35 +1,58 @@
 /* Hatsune Miku theme */
 @import "./components/list-box.css";
 @import "./components/tab-sheets.css";
+@import "./components/dialog.css";
+@import "./components/text-field.css";
+@import "./components/buttons.css";
 
 html {
-    --lumo-header-text-color: hsl(193, 62%, 89%);
-    --miku-highlight-color: rgba(108, 225, 180, 0.5);
-    --miku-selected-color: hsl(193, 62%, 89%);
-    --miku-unselected-color: rgb(55, 59, 62);
-    --miku-frosted-glass: rgba(255, 255, 255, 0.1);
+
+  --lumo-header-text-color: hsl(193, 62%, 89%);
+
+  --miku-background: linear-gradient(302deg, #e12885, #137a7f, #86cecb);
+
+  --miku-highlight-color: rgba(108, 225, 180, 0.5);
+  --miku-selected-color: hsl(193, 62%, 89%);
+  --miku-unselected-color: rgb(55, 59, 62);
+
+  --miku-frosted-glass: rgba(255, 255, 255, 0.1);
+  --miku-frosted-glass-80: rgba(255, 255, 255, 0.8);
+
+  --miku-frosted-glass-blue: rgb(0, 255, 246, 0.2);
+
+  --miku-error-color-10: rgba(225, 40, 133, 0.1);
+  --miku-error-color-20: rgba(225, 40, 133, 0.2);
+  --miku-error-color-50: rgba(225, 40, 133, 0.5);
+
+
+  /*dark*/
+  --miku-selected-dark-color: hsl(193, 62%, 29%);
+
+  --miku-highlight-color-dark: rgb(19, 93, 65);
+
+  --miku-error-color-dark: rgba(140, 19, 80, 0.2);
 }
 
 #container {
-    display: flex;
-    flex-direction: column;
-    background: linear-gradient(302deg, #e12885, #137a7f, #86cecb);
-    background-size: 600% 600%;
+  display: flex;
+  flex-direction: column;
+  background: var(--miku-background);
+  background-size: 600% 600%;
 
-    min-height: 100vh;
+  min-height: 100vh;
 
-    animation: gradient 45s ease infinite;
+  animation: gradient 45s ease infinite;
 
 }
 
 @keyframes gradient {
-    0% {
-        background-position: 0 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0 50%;
-    }
+  0% {
+    background-position: 0 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
 }

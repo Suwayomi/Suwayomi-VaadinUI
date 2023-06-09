@@ -26,10 +26,25 @@ vaadin-tab:hover {
   background: var(--miku-frosted-glass);
 }
 
-vaadin-tabs:not([orientation="vertical"]) {
-  border-bottom: 1px solid var(--miku-selected-color);
-}
-
 vaadin-tabsheet {
   border: 1px solid var(--miku-selected-color);
+  width: 100%;
+}
+
+/*select vaadin-button with property slot="suffix"*/
+vaadin-tabsheet > vaadin-button[slot="suffix"] {
+  color: var(--miku-unselected-color);
+  background-color: transparent;
+  border: 1px solid var(--miku-unselected-color);
+}
+
+vaadin-tabsheet > vaadin-button[slot="suffix"]:hover {
+  color: var(--miku-selected-color);
+  background-color: var(--miku-frosted-glass);
+  border: 1px solid var(--miku-selected-color);
+}
+
+/*select div inside shadow-root inside vaadin-tabsheet*/
+vaadin-tabsheet::part(tabs-container) {
+  border-bottom: 1px solid var(--miku-selected-color);
 }
