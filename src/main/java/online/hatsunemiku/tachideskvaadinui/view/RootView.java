@@ -21,7 +21,7 @@ import org.springframework.web.client.RestTemplate;
 
 public class RootView extends StandardLayout {
 
-  private RestTemplate client;
+  private final RestTemplate client;
 
   public RootView(RestTemplate client) {
     super("Library");
