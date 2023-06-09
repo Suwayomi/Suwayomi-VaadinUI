@@ -1,7 +1,9 @@
 /* Hatsune Miku theme */
+@import "./components/list-box.css";
 
 html {
     --lumo-header-text-color: #fff;
+    --miku-highlight-color: rgba(108, 225, 180, 0.5);
 }
 
 #container {

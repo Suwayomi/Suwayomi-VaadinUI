@@ -1,22 +1,17 @@
 package online.hatsunemiku.tachideskvaadinui.view;
 
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouteParam;
-import com.vaadin.flow.router.RouteParameters;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import online.hatsunemiku.tachideskvaadinui.component.listbox.ChapterListBox;
 import online.hatsunemiku.tachideskvaadinui.data.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
@@ -67,12 +62,9 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
 
     container.add(imageContainer);
 
-    List<HorizontalLayout> chapters = getChapters(settings, id);
+    ListBox<Chapter> chapters = getChapters(settings, id);
 
-    for (HorizontalLayout c : chapters) {
-      container.add(c);
-    }
-
+    container.add(chapters);
     setContent(container);
   }
 
@@ -89,49 +81,10 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     return manga;
   }
 
-  private List<HorizontalLayout> getChapters(Settings settings, String mangaId) {
+  private ListBox<Chapter> getChapters(Settings settings, String mangaId) {
 
     List<Chapter> chapter = MangaDataUtils.getChapterList(settings, mangaId, client);
 
-    List<HorizontalLayout> chapters = new ArrayList<>();
-
-    for (Chapter c : chapter) {
-      HorizontalLayout layout = new HorizontalLayout();
-      layout.addClassName("chapter");
-
-      String title = "Chapter " + c.getChapterNumber();
-
-      Date date = new Date(c.getUploadDate());
-
-      SimpleDateFormat formatter = new SimpleDateFormat("dd/MMMM/yyyy");
-
-      String uploadDate = "Released on " + formatter.format(date);
-
-
-      Div titleDiv = new Div();
-      titleDiv.addClassName("chapter-title");
-      titleDiv.setText(title);
-
-      Div uploadDateDiv = new Div();
-      uploadDateDiv.addClassName("chapter-upload-date");
-      uploadDateDiv.setText(uploadDate);
-
-      layout.add(titleDiv, uploadDateDiv);
-
-      layout.addClickListener(e -> {
-        int chapterId = c.getIndex();
-
-        RouteParam mangaParam = new RouteParam("mangaId", mangaId);
-        RouteParam chapterParam = new RouteParam("chapterId", String.valueOf(chapterId));
-
-        RouteParameters params = new RouteParameters(mangaParam, chapterParam);
-
-        UI.getCurrent().navigate(ReadingView.class, params);
-      });
-
-      chapters.add(layout);
-    }
-
-    return chapters;
+    return new ChapterListBox(chapter);
   }
 }

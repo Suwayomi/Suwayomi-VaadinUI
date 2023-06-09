@@ -1,0 +1,18 @@
+vaadin-item {
+  display: flex;
+  width: 100%;
+}
+
+vaadin-list-box {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+vaadin-item:hover {
+  background-color: var(--miku-highlight-color);
+}
+
+vaadin-item::part(checkmark)::before {
+  visibility: hidden;
+}

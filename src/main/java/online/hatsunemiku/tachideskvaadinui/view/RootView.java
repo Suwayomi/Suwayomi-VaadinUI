@@ -8,7 +8,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.router.Route;
 import java.util.ArrayList;
 import java.util.List;
-import online.hatsunemiku.tachideskvaadinui.component.MangaCard;
+import online.hatsunemiku.tachideskvaadinui.component.card.MangaCard;
 import online.hatsunemiku.tachideskvaadinui.data.Category;
 import online.hatsunemiku.tachideskvaadinui.data.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;

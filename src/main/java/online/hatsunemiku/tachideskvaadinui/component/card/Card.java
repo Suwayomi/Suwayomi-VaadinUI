@@ -1,4 +1,4 @@
-package online.hatsunemiku.tachideskvaadinui.component;
+package online.hatsunemiku.tachideskvaadinui.component.card;
 
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
