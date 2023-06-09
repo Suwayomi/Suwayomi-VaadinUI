@@ -7,6 +7,8 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.TabSheetVariant;
@@ -23,6 +25,7 @@ import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.client.RestTemplate;
+
 @Route("/")
 @CssImport("css/root.css")
 
@@ -111,8 +114,13 @@ public class RootView extends StandardLayout {
 
         deleteButton.addClickListener(e -> {
           Settings s = SerializationUtils.deseralizeSettings();
-          CategoryUtils.deleteCategory(client, s, c.getId());
-          tabs.remove(tab);
+          if (CategoryUtils.deleteCategory(client, s, c.getId())) {
+            tabs.remove(tab);
+          } else {
+            Notification notification = new Notification("Failed to delete category", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.open();
+          }
         });
 
         tab.add(deleteButton);
