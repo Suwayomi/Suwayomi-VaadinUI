@@ -46,3 +46,7 @@ footer {
   border: 0.1rem solid var(--miku-selected-color);
   flex-grow: 1;
 }
+
+.nav-btn {
+  margin-left: 0.5rem;
+}
