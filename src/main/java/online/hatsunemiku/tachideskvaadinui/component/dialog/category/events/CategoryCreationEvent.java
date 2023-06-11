@@ -2,7 +2,7 @@ package online.hatsunemiku.tachideskvaadinui.component.dialog.category.events;
 
 import com.vaadin.flow.component.ComponentEvent;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.category.CategoryDialog;
-import online.hatsunemiku.tachideskvaadinui.data.Category;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Category;
 
 public class CategoryCreationEvent extends ComponentEvent<CategoryDialog> {
 

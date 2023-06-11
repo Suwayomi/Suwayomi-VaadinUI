@@ -1,7 +1,7 @@
 package online.hatsunemiku.tachideskvaadinui.component.card;
 
 import com.vaadin.flow.router.RouteParameters;
-import online.hatsunemiku.tachideskvaadinui.data.Manga;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.view.MangaView;
 

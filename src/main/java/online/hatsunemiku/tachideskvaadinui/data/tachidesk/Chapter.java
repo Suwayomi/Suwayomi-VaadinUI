@@ -1,4 +1,4 @@
-package online.hatsunemiku.tachideskvaadinui.data;
+package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

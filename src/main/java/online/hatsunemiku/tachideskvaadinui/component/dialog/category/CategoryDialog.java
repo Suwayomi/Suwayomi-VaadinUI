@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.category.events.CategoryCreationEvent;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.category.events.CategoryCreationListener;
-import online.hatsunemiku.tachideskvaadinui.data.Category;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Category;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.utils.CategoryUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;

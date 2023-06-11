@@ -5,7 +5,7 @@ import static org.springframework.http.HttpMethod.GET;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.experimental.UtilityClass;
-import online.hatsunemiku.tachideskvaadinui.data.Chapter;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.client.RestTemplate;

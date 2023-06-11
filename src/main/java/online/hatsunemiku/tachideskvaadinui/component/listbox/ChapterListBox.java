@@ -6,7 +6,7 @@ import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.router.RouteParam;
 import com.vaadin.flow.router.RouteParameters;
 import java.util.List;
-import online.hatsunemiku.tachideskvaadinui.data.Chapter;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.view.ReadingView;
 
 @CssImport("./css/components/chapter-list-box.css")

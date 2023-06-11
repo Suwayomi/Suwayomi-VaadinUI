@@ -5,7 +5,7 @@ import static org.springframework.http.HttpMethod.GET;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.experimental.UtilityClass;
-import online.hatsunemiku.tachideskvaadinui.data.Category;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Category;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

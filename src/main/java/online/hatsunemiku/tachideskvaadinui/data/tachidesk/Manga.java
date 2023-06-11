@@ -1,4 +1,4 @@
-package online.hatsunemiku.tachideskvaadinui.data;
+package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
 
 import com.vaadin.flow.component.page.Meta;
 import java.util.List;

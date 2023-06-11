@@ -5,7 +5,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import online.hatsunemiku.tachideskvaadinui.data.Chapter;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 
 public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter> {
 
