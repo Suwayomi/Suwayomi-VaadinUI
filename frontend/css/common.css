@@ -34,3 +34,15 @@ h1 {
 footer {
   color: aliceblue;
 }
+
+.navbar {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.btn-container {
+  border: 0.1rem solid var(--miku-selected-color);
+  flex-grow: 1;
+}

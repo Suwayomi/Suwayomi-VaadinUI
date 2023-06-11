@@ -43,7 +43,13 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
 
     String id = idParam.get();
 
-    Manga manga = getManga(settings, id);
+    Manga manga;
+    try {
+      manga = getManga(settings, id);
+    } catch (Exception e) {
+      event.rerouteTo(ServerStartView.class);
+      return;
+    }
 
     VerticalLayout container = new VerticalLayout();
     container.addClassName("manga-container");

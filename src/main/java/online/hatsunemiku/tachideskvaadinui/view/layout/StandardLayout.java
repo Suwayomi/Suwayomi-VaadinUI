@@ -1,12 +1,16 @@
 package online.hatsunemiku.tachideskvaadinui.view.layout;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.time.LocalDate;
+import online.hatsunemiku.tachideskvaadinui.view.RootView;
 import org.jetbrains.annotations.NotNull;
 
 @CssImport("css/common.css")
@@ -34,9 +38,31 @@ public class StandardLayout extends VerticalLayout {
     this.title = new H1(title);
 
     navBar = new HorizontalLayout();
+    navBar.setClassName("navbar");
     navBar.add(this.title);
 
-    navBar.setClassName("navbar");
+    Div btnContainer = new Div();
+    btnContainer.setClassName("btn-container");
+
+    if (!(this instanceof RootView)) {
+      addRootBtn(btnContainer);
+    }
+
+    navBar.add(btnContainer);
+  }
+
+  private void addRootBtn(Div btnContainer) {
+    Button rootButton = new Button("Library", VaadinIcon.BOOK.create());
+    rootButton.addClickListener(e -> {
+      getUI().ifPresent(ui -> ui.navigate(RootView.class));
+    });
+
+    addBtn(btnContainer, rootButton);
+  }
+
+  private void addBtn(Div btnContainer, Button btn) {
+    btn.addClassName("nav-btn");
+    btnContainer.add(btn);
   }
 
   @NotNull
