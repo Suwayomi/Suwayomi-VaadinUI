@@ -1,0 +1,39 @@
+.extension-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--miku-frosted-glass);
+  min-height: 5vh;
+  border: 1px solid var(--miku-unselected-color);
+  border-radius: 1rem;
+}
+
+.extension-icon {
+  margin: 1rem;
+}
+
+.extension-icon-image {
+  width: 3rem;
+  height: 3rem;
+}
+
+.extension-name {
+
+}
+
+.extension-version {
+  margin-right: 1rem;
+}
+
+.extension-install-btn {
+  margin-right: 1rem;
+}
+
+.extension-data {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 18%;
+}

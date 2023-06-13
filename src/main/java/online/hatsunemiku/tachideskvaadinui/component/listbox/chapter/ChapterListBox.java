@@ -1,4 +1,4 @@
-package online.hatsunemiku.tachideskvaadinui.component.listbox;
+package online.hatsunemiku.tachideskvaadinui.component.listbox.chapter;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;

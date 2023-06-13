@@ -1,0 +1,8 @@
+.extension-scroller-content {
+  min-width: 100%;
+}
+
+.extension-scroller {
+  width: 100%;
+  max-height: 75vh;
+}

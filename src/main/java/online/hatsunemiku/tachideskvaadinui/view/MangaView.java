@@ -11,7 +11,7 @@ import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.Route;
 import java.util.List;
 import java.util.Optional;
-import online.hatsunemiku.tachideskvaadinui.component.listbox.ChapterListBox;
+import online.hatsunemiku.tachideskvaadinui.component.listbox.chapter.ChapterListBox;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;

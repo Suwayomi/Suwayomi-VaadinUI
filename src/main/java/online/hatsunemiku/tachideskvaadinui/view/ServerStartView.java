@@ -114,6 +114,7 @@ public class ServerStartView extends VerticalLayout {
 
         if (optUi.isEmpty()) {
           logger.error("Couldn't access UI");
+          executor.shutdownNow();
           return;
         }
 

@@ -10,6 +10,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.time.LocalDate;
+import online.hatsunemiku.tachideskvaadinui.view.ExtensionsView;
 import online.hatsunemiku.tachideskvaadinui.view.RootView;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,20 +45,40 @@ public class StandardLayout extends VerticalLayout {
     Div btnContainer = new Div();
     btnContainer.setClassName("btn-container");
 
-    if (!(this instanceof RootView)) {
-      addRootBtn(btnContainer);
-    }
+
+    addRootBtn(btnContainer);
+    addExtensionsBtn(btnContainer);
+
 
     navBar.add(btnContainer);
   }
 
   private void addRootBtn(Div btnContainer) {
+
+    if (this instanceof RootView) {
+      return;
+    }
+
     Button rootButton = new Button("Library", VaadinIcon.BOOK.create());
     rootButton.addClickListener(e -> {
       getUI().ifPresent(ui -> ui.navigate(RootView.class));
     });
 
     addBtn(btnContainer, rootButton);
+  }
+
+  private void addExtensionsBtn(Div btnContainer) {
+
+    if (this instanceof ExtensionsView) {
+      return;
+    }
+
+    Button extensionsButton = new Button("Extensions", VaadinIcon.PUZZLE_PIECE.create());
+    extensionsButton.addClickListener(e -> {
+      getUI().ifPresent(ui -> ui.navigate(ExtensionsView.class));
+    });
+
+    addBtn(btnContainer, extensionsButton);
   }
 
   private void addBtn(Div btnContainer, Button btn) {
