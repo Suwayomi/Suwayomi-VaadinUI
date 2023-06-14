@@ -2,6 +2,8 @@ package online.hatsunemiku.tachideskvaadinui.component.scroller;
 
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.component.ExtensionItem;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
@@ -30,7 +32,8 @@ public class ExtensionScroller extends VScroller {
 
     Settings settings = SerializationUtils.deseralizeSettings();
 
-    List<Extension> extensions = service.getExtensions();
+    List<Extension> extensions = new ArrayList<>(service.getExtensions());
+    extensions.sort((ext1, ext2) -> getComparator().compare(ext1, ext2));
 
     maxPage = extensions.size() / LIST_SIZE;
 
@@ -66,7 +69,7 @@ public class ExtensionScroller extends VScroller {
     content.setClassName("extension-scroller-content");
 
     for (Extension extension : subList) {
-      content.add(new ExtensionItem(extension, settings));
+      content.add(new ExtensionItem(extension, settings, service));
     }
 
     setContent(content);
@@ -102,4 +105,12 @@ public class ExtensionScroller extends VScroller {
       return name.contains(searchLower);
     }).toList();
   }
+
+  private Comparator<Extension> getComparator() {
+    Comparator<Extension> comparator = Comparator.comparing(Extension::isInstalled).reversed();
+    comparator = comparator.thenComparing(Extension::getPkgName);
+
+    return comparator;
+  }
+
 }

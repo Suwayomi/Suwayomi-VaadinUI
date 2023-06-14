@@ -8,6 +8,7 @@ import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.ServerStartView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -42,5 +43,19 @@ public class ExtensionService {
     }
 
     return List.of(extensions);
+  }
+
+  public HttpStatusCode installExtension(String pkgName) {
+    Settings settings = SerializationUtils.deseralizeSettings();
+
+    String url = settings.getUrl() + "/api/v1/extension/install/" + pkgName;
+
+    try {
+      var response = client.getForEntity(url, Void.class);
+
+      return response.getStatusCode();
+    } catch (RestClientException e) {
+      return HttpStatusCode.valueOf(500);
+    }
   }
 }
