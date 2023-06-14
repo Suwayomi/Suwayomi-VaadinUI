@@ -1,0 +1,14 @@
+.extension-buttons {
+  display: flex;
+  flex-direction: row;
+  min-width: 20vw;
+  justify-content: space-evenly;
+}
+
+.extension-install-btn {
+  min-width: 40%;
+}
+
+.extension-installed-btn {
+  color: var(--miku-selected-color-50);
+}

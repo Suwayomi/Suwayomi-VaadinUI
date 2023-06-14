@@ -1,5 +1,6 @@
 package online.hatsunemiku.tachideskvaadinui.view;
 
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Route("extensions")
+@CssImport("./css/views/extensions.css")
 public class ExtensionsView extends StandardLayout {
 
   private static final Logger logger = LoggerFactory.getLogger(ExtensionsView.class);

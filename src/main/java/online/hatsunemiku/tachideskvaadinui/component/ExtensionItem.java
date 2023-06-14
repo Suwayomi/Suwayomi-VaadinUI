@@ -45,16 +45,67 @@ public class ExtensionItem extends BlurryItem {
 
     extensionData.add(icon, name, version);
 
+    Div buttons = new Div();
+    buttons.setClassName("extension-buttons");
+
     Button installBtn = new Button("Install");
+    Button uninstallBtn = new Button("Uninstall");
+
+    configureInstallBtn(extension, service, uninstallBtn, installBtn);
+    configureUninstallBtn(extension, service, installBtn, uninstallBtn);
+
+    buttons.add(uninstallBtn);
+    buttons.add(installBtn);
+
+    if (extension.isInstalled()) {
+      setBtnInstalled(installBtn, uninstallBtn);
+    } else {
+      setBtnUninstalled(installBtn, uninstallBtn);
+    }
+
+    add(extensionData, buttons);
+  }
+
+  private void configureUninstallBtn(Extension extension, ExtensionService service, Button installBtn, Button uninstallBtn) {
+    uninstallBtn.setClassName("extension-uninstall-btn");
+
+    uninstallBtn.addClickListener(e -> {
+      uninstallBtn.setEnabled(false);
+      var status = service.uninstallExtension(extension.getPkgName());
+      uninstallBtn.setEnabled(true);
+
+      Notification notification = new Notification();
+
+      if (status.is2xxSuccessful()) {
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        notification.setText("Extension uninstalled successfully");
+      } else if (status.is3xxRedirection()) {
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.setText("Extension exists, but couldn't be uninstalled");
+      } else if (status.is4xxClientError()) {
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.setText("Extension doesn't exist");
+      } else {
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.setText("Extension couldn't be uninstalled");
+      }
+
+      notification.setDuration(3000);
+      notification.open();
+      setBtnUninstalled(installBtn, uninstallBtn);
+    });
+  }
+
+  private void configureInstallBtn(Extension extension, ExtensionService service, Button uninstallBtn, Button installBtn) {
     installBtn.setClassName("extension-install-btn");
 
-    updateStatus(extension, installBtn);
+    updateStatus(extension, installBtn, uninstallBtn);
 
     installBtn.addClickListener(event -> {
       installBtn.setEnabled(false);
       var status = service.installExtension(extension.getPkgName());
       installBtn.setEnabled(true);
-      updateStatus(extension, installBtn);
+      updateStatus(extension, installBtn, uninstallBtn);
       Notification notification = new Notification();
 
       if (status.is2xxSuccessful()) {
@@ -70,16 +121,27 @@ public class ExtensionItem extends BlurryItem {
 
       notification.setDuration(3000);
       notification.open();
+      setBtnInstalled(installBtn, uninstallBtn);
     });
-
-    add(extensionData, installBtn);
   }
 
-  private void updateStatus(Extension extension, Button installBtn) {
+  private void updateStatus(Extension extension, Button installBtn, Button uninstallBtn) {
     if (extension.isInstalled()) {
-      installBtn.setEnabled(false);
-      installBtn.setText("Installed");
+      setBtnInstalled(installBtn, uninstallBtn);
     }
   }
 
+  private void setBtnInstalled(Button installBtn, Button uninstallBtn) {
+    installBtn.setEnabled(false);
+    installBtn.setText("Installed");
+    installBtn.addClassName("extension-installed-btn");
+    uninstallBtn.setVisible(true);
+  }
+
+  private void setBtnUninstalled(Button installBtn, Button uninstallBtn) {
+    installBtn.setEnabled(true);
+    installBtn.setText("Install");
+    installBtn.removeClassName("extension-installed-btn");
+    uninstallBtn.setVisible(false);
+  }
 }
