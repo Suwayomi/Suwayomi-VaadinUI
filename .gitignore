@@ -36,3 +36,18 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### everything in the server folder except server/data/server.conf ###
+server/**
+!server/data/
+server/data/**
+!server/data/server.conf
+
+### Frontend generated Vaadin ###
+frontend/**
+!frontend/generated
+
+### target folder ###
+target/
+
+meta.json
