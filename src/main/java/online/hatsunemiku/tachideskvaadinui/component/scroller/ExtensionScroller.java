@@ -5,7 +5,7 @@ import com.vaadin.flow.component.html.Div;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import online.hatsunemiku.tachideskvaadinui.component.ExtensionItem;
+import online.hatsunemiku.tachideskvaadinui.component.items.ExtensionItem;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Extension;
 import online.hatsunemiku.tachideskvaadinui.services.ExtensionService;

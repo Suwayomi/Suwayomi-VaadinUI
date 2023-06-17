@@ -44,8 +44,7 @@ server/data/**
 !server/data/server.conf
 
 ### Frontend generated Vaadin ###
-frontend/**
-!frontend/generated
+frontend/generated
 
 ### target folder ###
 target/

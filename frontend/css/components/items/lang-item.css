@@ -1,0 +1,16 @@
+.lang-item {
+  display: flex;
+  background-color: var(--miku-frosted-glass);
+  border-radius: 1rem;
+  border: 0.1rem solid var(--miku-unselected-color);
+  margin: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.lang-item-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0.5rem;
+  color: var(--miku-selected-color);
+}

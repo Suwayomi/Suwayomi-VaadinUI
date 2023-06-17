@@ -12,6 +12,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.time.LocalDate;
 import online.hatsunemiku.tachideskvaadinui.view.ExtensionsView;
 import online.hatsunemiku.tachideskvaadinui.view.RootView;
+import online.hatsunemiku.tachideskvaadinui.view.SourcesView;
 import org.jetbrains.annotations.NotNull;
 
 @CssImport("css/common.css")
@@ -48,9 +49,24 @@ public class StandardLayout extends VerticalLayout {
 
     addRootBtn(btnContainer);
     addExtensionsBtn(btnContainer);
+    addSourcesBtn(btnContainer);
 
 
     navBar.add(btnContainer);
+  }
+
+  private void addSourcesBtn(Div btnContainer) {
+
+      if (this instanceof SourcesView) {
+        return;
+      }
+
+      Button sourcesButton = new Button("Sources", VaadinIcon.GLOBE.create());
+      sourcesButton.addClickListener(e -> {
+        getUI().ifPresent(ui -> ui.navigate(SourcesView.class));
+      });
+
+      addBtn(btnContainer, sourcesButton);
   }
 
   private void addRootBtn(Div btnContainer) {
