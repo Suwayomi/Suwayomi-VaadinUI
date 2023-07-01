@@ -1,10 +1,10 @@
-package online.hatsunemiku.tachideskvaadinui.component.scroller.source;
+package online.hatsunemiku.tachideskvaadinui.component.events.source;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.textfield.TextField;
 import lombok.Getter;
 
-public class SourceFilterChangeEvent extends ComponentEvent<TextField> {
+public class SourceFilterUpdateEvent extends ComponentEvent<TextField> {
 
   @Getter
   private final String filterText;
@@ -15,7 +15,7 @@ public class SourceFilterChangeEvent extends ComponentEvent<TextField> {
    * @param source     the source component
    *
    */
-  public SourceFilterChangeEvent(TextField source, String filterText) {
+  public SourceFilterUpdateEvent(TextField source, String filterText) {
     super(source, false);
     this.filterText = filterText;
   }

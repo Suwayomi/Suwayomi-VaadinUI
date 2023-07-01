@@ -20,7 +20,7 @@ import org.springframework.web.client.RestTemplate;
 
 public class CategoryDialog extends Dialog {
 
-  private Binder<CategoryNameDTO> binder = new Binder<>();
+  private final Binder<CategoryNameDTO> binder = new Binder<>();
 
   public CategoryDialog(RestTemplate client) {
     setHeaderTitle("Create Category");

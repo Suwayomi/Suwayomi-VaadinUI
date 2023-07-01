@@ -6,7 +6,7 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Category;
 
 public class CategoryCreationEvent extends ComponentEvent<CategoryDialog> {
 
-  private Category category;
+  private final Category category;
 
   /**
    * Creates a new event using the given source and indicator whether the event originated from the

@@ -49,7 +49,13 @@ public class TachideskMaintainer {
 
     logger.info("Current jar file: {}", oldServer.getJarName());
 
-    String jarUrl = TachideskUtils.getNewestJarUrl(client);
+    String jarUrl;
+    try {
+      jarUrl = TachideskUtils.getNewestJarUrl(client);
+    } catch (Exception e) {
+      logger.error("Failed to check for updates", e);
+      return;
+    }
 
     if (jarUrl == null) {
       logger.info("No new version found");

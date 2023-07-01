@@ -1,11 +1,14 @@
 package online.hatsunemiku.tachideskvaadinui.view;
 
+import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
-import online.hatsunemiku.tachideskvaadinui.component.scroller.source.SourceFilterChangeEvent;
+import online.hatsunemiku.tachideskvaadinui.component.combo.LangComboBox;
+import online.hatsunemiku.tachideskvaadinui.component.events.source.SourceFilterUpdateEvent;
 import online.hatsunemiku.tachideskvaadinui.component.scroller.source.SourceScroller;
 import online.hatsunemiku.tachideskvaadinui.services.SourceService;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
@@ -19,26 +22,31 @@ public class SourcesView extends StandardLayout {
 
     VerticalLayout content = new VerticalLayout();
 
-    HorizontalLayout searches = new HorizontalLayout();
+    HorizontalLayout filters = new HorizontalLayout();
+    filters.addClassName("sources-filters");
 
-    TextField search = new TextField("Search by name");
-    search.setPlaceholder("LHTranslation");
-    search.addValueChangeListener(e -> {
+    TextField nameFilter = new TextField("Search by name");
+    nameFilter.setPlaceholder("LHTranslation");
+    nameFilter.addValueChangeListener(e -> {
       String filterText = e.getValue();
       if (filterText == null) {
         return;
       }
 
-      SourceFilterChangeEvent event = new SourceFilterChangeEvent(search, filterText);
-      fireEvent(event);
+      SourceFilterUpdateEvent event = new SourceFilterUpdateEvent(nameFilter, filterText);
+      ComponentUtil.fireEvent(UI.getCurrent(), event);
     });
 
-    searches.add(search);
+    LangComboBox langFilter = new LangComboBox();
+    langFilter.addClassName("source-lang-filter");
+    langFilter.setAllowCustomValue(false);
+
+    filters.add(nameFilter, langFilter);
 
     SourceScroller scroller = new SourceScroller(sources);
-    addListener(SourceFilterChangeEvent.class, scroller);
+    scroller.addLangUpdateEventListener(langFilter);
 
-    content.add(searches, scroller);
+    content.add(filters, scroller);
     content.addClassName("sources-content");
 
     setContent(content);

@@ -20,8 +20,8 @@ public class StandardLayout extends VerticalLayout {
 
   private H1 title;
   private HorizontalLayout navBar;
-  private VerticalLayout content;
-  private Footer footer;
+  private final VerticalLayout content;
+  private final Footer footer;
 
   public StandardLayout(String title) {
     setId("container");
