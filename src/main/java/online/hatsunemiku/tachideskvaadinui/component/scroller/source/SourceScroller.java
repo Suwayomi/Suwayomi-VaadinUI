@@ -1,5 +1,6 @@
-package online.hatsunemiku.tachideskvaadinui.component.scroller;
+package online.hatsunemiku.tachideskvaadinui.component.scroller.source;
 
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import java.util.ArrayList;
@@ -16,11 +17,11 @@ import online.hatsunemiku.tachideskvaadinui.view.ServerStartView;
 import org.vaadin.firitin.components.orderedlayout.VScroller;
 
 @CssImport("./css/components/source-scroller.css")
-public class SourceScroller extends VScroller {
+public class SourceScroller extends VScroller implements ComponentEventListener<SourceFilterChangeEvent> {
 
   private final SourceService service;
   private final List<List<Source>> filteredSources;
-  private final List<String> languages;
+  private List<String> languages;
   private final Div content;
   private int currentIndex = 0;
   private int languageIndex = 0;
@@ -46,17 +47,9 @@ public class SourceScroller extends VScroller {
     List<Source> sources = new ArrayList<>(sourceList);
 
     languages = new ArrayList<>(getLanguages(sources));
-    languages.sort((o1, o2) -> {
-      if (o1.equals("localsourcelang")) {
-        return -1;
-      }
-      if (o2.equals("localsourcelang")) {
-        return 1;
-      }
-      return o1.compareTo(o2);
-    });
 
     this.content = new Div();
+    content.setClassName("source-scroller-content");
     this.filteredSources = new ArrayList<>();
 
     sort(sources);
@@ -82,6 +75,18 @@ public class SourceScroller extends VScroller {
 
   private void sort(List<Source> sources) {
     sources.sort(Comparator.comparing(Source::getName));
+  }
+
+  private Comparator<String> getLangComp() {
+    return (o1, o2) -> {
+      if (o1.equals("localsourcelang")) {
+        return -1;
+      }
+      if (o2.equals("localsourcelang")) {
+        return 1;
+      }
+      return o1.compareTo(o2);
+    };
   }
 
   private void addNextContent(Settings settings) {
@@ -159,7 +164,7 @@ public class SourceScroller extends VScroller {
     return sources.parallelStream()
         .map(Source::getLang)
         .distinct()
-        .sorted()
+        .sorted(getLangComp())
         .toList();
   }
 
@@ -177,5 +182,40 @@ public class SourceScroller extends VScroller {
     return sources.parallelStream()
         .filter(source -> source.getName().toLowerCase().contains(search.toLowerCase()))
         .toList();
+  }
+
+  @Override
+  public void onComponentEvent(SourceFilterChangeEvent event) {
+    content.removeAll();
+    currentIndex = 0;
+    languageIndex = 0;
+    isDone = false;
+
+    List<Source> sources = new ArrayList<>(service.getSources());
+
+    sort(sources);
+
+    if (!event.getFilterText().isBlank()) {
+      sources = filterSources(event.getFilterText(), sources);
+    }
+
+    languages = new ArrayList<>(getLanguages(sources));
+
+    filteredSources.clear();
+
+    for (String language : languages) {
+
+      List<Source> filtered = filterLang(language, sources);
+
+      if (filtered.isEmpty()) {
+        continue;
+      }
+
+      filteredSources.add(filtered);
+    }
+
+    Settings settings = SerializationUtils.deseralizeSettings();
+
+    addNextContent(settings);
   }
 }
