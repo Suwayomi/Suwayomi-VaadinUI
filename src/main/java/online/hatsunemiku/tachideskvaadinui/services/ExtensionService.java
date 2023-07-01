@@ -22,7 +22,6 @@ public class ExtensionService {
     this.client = client;
   }
 
-
   public List<Extension> getExtensions() {
 
     Settings settings = SerializationUtils.deseralizeSettings();

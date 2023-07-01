@@ -31,7 +31,8 @@ public class TachideskStarter {
     File serverDirFile = new File(serverDir);
     File dataDirFile = new File(serverDirFile, "data");
 
-    String dataDirArg = "-Dsuwayomi.tachidesk.config.server.rootDir=" + dataDirFile.getAbsolutePath();
+    String dataDirArg =
+        "-Dsuwayomi.tachidesk.config.server.rootDir=" + dataDirFile.getAbsolutePath();
 
     ProcessBuilder processBuilder = new ProcessBuilder("java", dataDirArg, "-jar", jarLocation);
     processBuilder.inheritIO();

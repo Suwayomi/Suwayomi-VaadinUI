@@ -12,8 +12,8 @@ import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.Route;
 import java.util.Collections;
 import java.util.List;
-import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.utils.MangaDataUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
@@ -22,8 +22,8 @@ import org.vaadin.firitin.components.orderedlayout.VScroller;
 
 @Route("reading/:mangaId(\\d+)/:chapterId(\\d+(?:\\.\\d+)?)")
 @CssImport("./css/reading.css")
-public class ReadingView extends StandardLayout implements BeforeEnterObserver,
-    BeforeLeaveObserver {
+public class ReadingView extends StandardLayout
+    implements BeforeEnterObserver, BeforeLeaveObserver {
 
   private final RestTemplate client;
   private String mangaId;
@@ -91,9 +91,9 @@ public class ReadingView extends StandardLayout implements BeforeEnterObserver,
 
     addChapterImages(settings, mangaId, chapter, chapterObj);
 
-    UI.getCurrent().access(() -> UI.getCurrent()
-        .getPage()
-        .executeJs("document.body.style.overflow = 'hidden';"));
+    UI.getCurrent()
+        .access(
+            () -> UI.getCurrent().getPage().executeJs("document.body.style.overflow = 'hidden';"));
 
     VScroller scroller = new VScroller();
     scroller.addClassName("chapter-scroller");
@@ -161,8 +161,8 @@ public class ReadingView extends StandardLayout implements BeforeEnterObserver,
 
   @Override
   public void beforeLeave(BeforeLeaveEvent event) {
-    UI.getCurrent().access(() -> UI.getCurrent()
-        .getPage()
-        .executeJs("document.body.style.overflow = 'auto';"));
+    UI.getCurrent()
+        .access(
+            () -> UI.getCurrent().getPage().executeJs("document.body.style.overflow = 'auto';"));
   }
 }

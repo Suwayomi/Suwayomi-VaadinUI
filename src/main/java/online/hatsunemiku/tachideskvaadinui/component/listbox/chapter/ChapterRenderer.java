@@ -37,6 +37,4 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
 
     return container;
   }
-
-
 }

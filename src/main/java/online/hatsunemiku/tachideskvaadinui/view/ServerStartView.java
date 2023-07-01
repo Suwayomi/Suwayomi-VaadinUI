@@ -45,7 +45,6 @@ public class ServerStartView extends VerticalLayout {
     executor.scheduleAtFixedRate(this::update, 500, 500, MILLISECONDS);
     setId("server-start-view");
 
-
     Div progressContainer = new Div();
     progressContainer.setClassName("waiting-progress-container");
 
@@ -87,19 +86,26 @@ public class ServerStartView extends VerticalLayout {
 
       String updateText = "%.2f%%".formatted(maintainer.getProgress());
 
-      getUI().ifPresent(ui -> ui.access(() -> {
-        updateNotice.setVisible(true);
-        progress.setValue(maintainer.getProgress());
-        downloadLabel.setText(updateText);
-        progress.setIndeterminate(false);
-      }));
+      getUI()
+          .ifPresent(
+              ui ->
+                  ui.access(
+                      () -> {
+                        updateNotice.setVisible(true);
+                        progress.setValue(maintainer.getProgress());
+                        downloadLabel.setText(updateText);
+                        progress.setIndeterminate(false);
+                      }));
     } else {
-      getUI().ifPresent(ui -> ui.access(() -> {
-        updateNotice.setVisible(false);
-        progress.setIndeterminate(true);
-      }));
+      getUI()
+          .ifPresent(
+              ui ->
+                  ui.access(
+                      () -> {
+                        updateNotice.setVisible(false);
+                        progress.setIndeterminate(true);
+                      }));
     }
-
   }
 
   private void checkConnection() {

@@ -79,5 +79,4 @@ public class SerializationUtils {
       throw new RuntimeException(e);
     }
   }
-
 }

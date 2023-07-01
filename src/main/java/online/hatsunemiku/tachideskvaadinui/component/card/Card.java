@@ -25,8 +25,5 @@ public class Card extends Div {
     add(img, p);
 
     addClickListener(e -> logger.info("Clicked on card"));
-
-
   }
-
 }

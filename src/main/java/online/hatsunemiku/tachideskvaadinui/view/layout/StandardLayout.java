@@ -45,10 +45,8 @@ public class StandardLayout extends VerticalLayout {
     Div btnContainer = new Div();
     btnContainer.setClassName("btn-container");
 
-
     addRootBtn(btnContainer);
     addExtensionsBtn(btnContainer);
-
 
     navBar.add(btnContainer);
   }
@@ -60,9 +58,10 @@ public class StandardLayout extends VerticalLayout {
     }
 
     Button rootButton = new Button("Library", VaadinIcon.BOOK.create());
-    rootButton.addClickListener(e -> {
-      getUI().ifPresent(ui -> ui.navigate(RootView.class));
-    });
+    rootButton.addClickListener(
+        e -> {
+          getUI().ifPresent(ui -> ui.navigate(RootView.class));
+        });
 
     addBtn(btnContainer, rootButton);
   }
@@ -74,9 +73,10 @@ public class StandardLayout extends VerticalLayout {
     }
 
     Button extensionsButton = new Button("Extensions", VaadinIcon.PUZZLE_PIECE.create());
-    extensionsButton.addClickListener(e -> {
-      getUI().ifPresent(ui -> ui.navigate(ExtensionsView.class));
-    });
+    extensionsButton.addClickListener(
+        e -> {
+          getUI().ifPresent(ui -> ui.navigate(ExtensionsView.class));
+        });
 
     addBtn(btnContainer, extensionsButton);
   }
@@ -97,7 +97,6 @@ public class StandardLayout extends VerticalLayout {
     return footer;
   }
 
-
   protected void setContent(Component content) {
     this.content.add(content);
   }
@@ -115,6 +114,4 @@ public class StandardLayout extends VerticalLayout {
     this.footer.setVisible(true);
     removeClassName("fullscreen");
   }
-
-
 }

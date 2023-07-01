@@ -12,9 +12,9 @@ import com.vaadin.flow.router.Route;
 import java.util.List;
 import java.util.Optional;
 import online.hatsunemiku.tachideskvaadinui.component.listbox.chapter.ChapterListBox;
+import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
-import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.utils.MangaDataUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
@@ -73,7 +73,6 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     container.add(chapters);
     setContent(container);
   }
-
 
   private Manga getManga(Settings settings, String id) {
     String mangaEndpoint = settings.getUrl() + "/api/v1/manga/" + id;
