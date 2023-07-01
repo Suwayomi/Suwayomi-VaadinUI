@@ -14,9 +14,9 @@
 }
 
 .waiting-update {
-  color: var(--miku-selected-color);
+  color: var(--miku-main-color);
   font-size: 1.2rem;
-  border: 0.1rem solid var(--miku-selected-color);
+  border: 0.1rem solid var(--miku-main-color);
   margin-top: 1rem;
 }
 
@@ -31,7 +31,7 @@
 }
 
 .waiting-label {
-  color: var(--miku-selected-color);
+  color: var(--miku-main-color);
   font-size: 1.2rem;
   margin-top: 1rem;
 }
@@ -41,11 +41,11 @@
 }
 
 .waiting-bar::part(value) {
-  --lumo-progress-indeterminate-progress-bar-background: linear-gradient(to left, var(--miku-selected-color), var(--miku-selected-color));
-  --lumo-progress-indeterminate-progress-bar-background-reverse: linear-gradient(to right, var(--miku-selected-color), var(--miku-selected-color));
-  background-color: var(--miku-selected-color);
+  --lumo-progress-indeterminate-progress-bar-background: linear-gradient(to left, var(--miku-main-color), var(--miku-main-color));
+  --lumo-progress-indeterminate-progress-bar-background-reverse: linear-gradient(to right, var(--miku-main-color), var(--miku-main-color));
+  background-color: var(--miku-main-color);
 }
 
 .waiting-bar::part(value)::before {
-  background-color: var(--miku-selected-color);
+  background-color: var(--miku-main-color);
 }

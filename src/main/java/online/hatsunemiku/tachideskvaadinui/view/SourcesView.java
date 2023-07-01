@@ -25,6 +25,7 @@ public class SourcesView extends StandardLayout {
     HorizontalLayout filters = new HorizontalLayout();
     filters.addClassName("sources-filters");
 
+    //TODO: Style Label of TextField
     TextField nameFilter = new TextField("Search by name");
     nameFilter.setPlaceholder("LHTranslation");
     nameFilter.addValueChangeListener(e -> {
@@ -37,6 +38,7 @@ public class SourcesView extends StandardLayout {
       ComponentUtil.fireEvent(UI.getCurrent(), event);
     });
 
+    //TODO: Style ComboBox to fit with the rest of the UI
     LangComboBox langFilter = new LangComboBox();
     langFilter.addClassName("source-lang-filter");
     langFilter.setAllowCustomValue(false);

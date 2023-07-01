@@ -1,11 +1,11 @@
 vaadin-button {
-  color: var(--miku-selected-color);
+  color: var(--miku-main-color);
   background-color: transparent;
-  border: 1px solid var(--miku-selected-color);
+  border: 1px solid var(--miku-main-color);
 }
 
 vaadin-button:hover {
-  color: var(--miku-selected-color);
+  color: var(--miku-main-color);
   background-color: var(--miku-frosted-glass);
-  border: 1px solid var(--miku-selected-color);
+  border: 1px solid var(--miku-main-color);
 }

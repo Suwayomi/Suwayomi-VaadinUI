@@ -4,6 +4,7 @@
 @import "./components/dialog.css";
 @import "./components/text-field.css";
 @import "./components/buttons.css";
+@import "./components/combo-box.css";
 
 html {
 
@@ -12,7 +13,7 @@ html {
   --miku-background: linear-gradient(302deg, #e12885, #137a7f, #86cecb);
 
   --miku-highlight-color: rgba(108, 225, 180, 0.5);
-  --miku-selected-color: rgb(210, 237, 244);
+  --miku-main-color: rgb(210, 237, 244);
   --miku-selected-color-10: rgba(210, 237, 244, 0.1);
   --miku-selected-color-20: rgba(210, 237, 244, 0.2);
   --miku-selected-color-50: rgba(210, 237, 244, 0.5);
