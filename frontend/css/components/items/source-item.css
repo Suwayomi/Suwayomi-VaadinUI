@@ -6,6 +6,7 @@
   border: 0.1rem solid var(--miku-unselected-color);
   margin: 0.5rem;
   align-items: center;
+  justify-content: space-between;
 }
 
 .source-item-icon .source-item-icon-img {
@@ -18,4 +19,15 @@
   font-weight: bold;
   margin: 1rem;
   color: var(--miku-main-color);
+}
+
+.source-item-infos {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 1rem;
+}
+
+.source-item-buttons {
+  margin-right: 2rem;
 }

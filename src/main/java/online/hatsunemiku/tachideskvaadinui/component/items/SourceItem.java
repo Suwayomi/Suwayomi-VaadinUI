@@ -1,5 +1,6 @@
 package online.hatsunemiku.tachideskvaadinui.component.items;
 
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
@@ -26,7 +27,27 @@ public class SourceItem extends BlurryItem {
 
     icon.add(iconImg);
 
-    container.add(icon, title);
+    Div buttons = new Div();
+    buttons.addClassName("source-item-buttons");
+
+    Button exploreBtn = new Button("Explore");
+    exploreBtn.addClassName("source-item-explore-btn");
+    exploreBtn.addClickListener(e -> {
+      var possibleUi = getUI();
+      if (possibleUi.isPresent()) {
+        var ui = possibleUi.get();
+        ui.navigate("source/explore/" + source.getId());
+      }
+    });
+
+    buttons.add(exploreBtn);
+
+    Div infos = new Div();
+    infos.add(icon, title);
+    infos.setClassName("source-item-infos");
+
+    container.add(infos, buttons);
+
     add(container);
   }
 }
