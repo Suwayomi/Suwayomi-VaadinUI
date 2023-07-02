@@ -7,14 +7,13 @@ import online.hatsunemiku.tachideskvaadinui.component.scroller.source.SourceScro
 
 public class SourceLangUpdateEvent extends ComponentEvent<SourceScroller> {
 
-  @Getter
-  private final List<String> languages;
+  @Getter private final List<String> languages;
 
   /**
    * Creates a new event using the given source and indicator whether the event originated from the
    * client side or the server side.
    *
-   * @param source    the source component
+   * @param source the source component
    * @param languages the new List of languages
    */
   public SourceLangUpdateEvent(SourceScroller source, List<String> languages) {

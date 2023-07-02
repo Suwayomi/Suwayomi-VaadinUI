@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Optional;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.category.events.CategoryCreationEvent;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.category.events.CategoryCreationListener;
-import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Category;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Category;
 import online.hatsunemiku.tachideskvaadinui.utils.CategoryUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import org.springframework.web.client.RestTemplate;
@@ -34,7 +34,8 @@ public class CategoryDialog extends Dialog {
     nameInput.setRequired(true);
 
     binder.setBean(categoryNameDTO);
-    binder.forField(nameInput)
+    binder
+        .forField(nameInput)
         .withValidator(name -> name.length() > 0, "Name cannot be empty")
         .bind(CategoryNameDTO::getName, CategoryNameDTO::setName);
 
@@ -67,9 +68,10 @@ public class CategoryDialog extends Dialog {
 
     List<Category> categories = CategoryUtils.getCategories(template, settings);
 
-    Optional<Category> c = categories.stream()
-        .filter(category -> category.getName().equals(name))
-        .max(Comparator.comparingInt(Category::getId));
+    Optional<Category> c =
+        categories.stream()
+            .filter(category -> category.getName().equals(name))
+            .max(Comparator.comparingInt(Category::getId));
 
     if (c.isEmpty()) {
       UI.getCurrent().getPage().reload();
@@ -85,5 +87,4 @@ public class CategoryDialog extends Dialog {
   public void addOnCategoryCreationListener(CategoryCreationListener listener) {
     addListener(CategoryCreationEvent.class, listener);
   }
-
 }

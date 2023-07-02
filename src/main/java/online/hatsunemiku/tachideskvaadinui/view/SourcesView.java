@@ -27,15 +27,16 @@ public class SourcesView extends StandardLayout {
 
     TextField nameFilter = new TextField("Search by name");
     nameFilter.setPlaceholder("LHTranslation");
-    nameFilter.addValueChangeListener(e -> {
-      String filterText = e.getValue();
-      if (filterText == null) {
-        return;
-      }
+    nameFilter.addValueChangeListener(
+        e -> {
+          String filterText = e.getValue();
+          if (filterText == null) {
+            return;
+          }
 
-      SourceFilterUpdateEvent event = new SourceFilterUpdateEvent(nameFilter, filterText);
-      ComponentUtil.fireEvent(UI.getCurrent(), event);
-    });
+          SourceFilterUpdateEvent event = new SourceFilterUpdateEvent(nameFilter, filterText);
+          ComponentUtil.fireEvent(UI.getCurrent(), event);
+        });
 
     LangComboBox langFilter = new LangComboBox();
     langFilter.addClassName("source-lang-filter");

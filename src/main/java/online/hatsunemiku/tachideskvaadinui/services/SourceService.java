@@ -29,6 +29,5 @@ public class SourceService {
     }
 
     return List.of(sources);
-
   }
 }

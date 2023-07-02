@@ -18,5 +18,4 @@ public class LangItem extends BlurryItem {
 
     setContent(container);
   }
-
 }

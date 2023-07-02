@@ -32,13 +32,14 @@ public class SourceItem extends BlurryItem {
 
     Button exploreBtn = new Button("Explore");
     exploreBtn.addClassName("source-item-explore-btn");
-    exploreBtn.addClickListener(e -> {
-      var possibleUi = getUI();
-      if (possibleUi.isPresent()) {
-        var ui = possibleUi.get();
-        ui.navigate("source/explore/" + source.getId());
-      }
-    });
+    exploreBtn.addClickListener(
+        e -> {
+          var possibleUi = getUI();
+          if (possibleUi.isPresent()) {
+            var ui = possibleUi.get();
+            ui.navigate("source/explore/" + source.getId());
+          }
+        });
 
     buttons.add(exploreBtn);
 

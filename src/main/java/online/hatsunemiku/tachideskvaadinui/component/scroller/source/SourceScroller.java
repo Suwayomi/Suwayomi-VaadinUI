@@ -78,11 +78,11 @@ public class SourceScroller extends VScroller {
 
     addScrollToEndListener(e -> addNextContent(settings));
 
-
-    ComponentUtil.addListener(UI.getCurrent(), SourceFilterUpdateEvent.class, this::onComponentEvent);
-    ComponentUtil.addListener(UI.getCurrent(), SourceLangFilterUpdateEvent.class, this::onComponentEvent);
+    ComponentUtil.addListener(
+        UI.getCurrent(), SourceFilterUpdateEvent.class, this::onComponentEvent);
+    ComponentUtil.addListener(
+        UI.getCurrent(), SourceLangFilterUpdateEvent.class, this::onComponentEvent);
   }
-
 
   private void sort(List<Source> sources) {
     sources.sort(Comparator.comparing(Source::getName));
@@ -177,17 +177,11 @@ public class SourceScroller extends VScroller {
       return List.of(filterLanguage);
     }
 
-    return sources.parallelStream()
-        .map(Source::getLang)
-        .distinct()
-        .sorted(getLangComp())
-        .toList();
+    return sources.parallelStream().map(Source::getLang).distinct().sorted(getLangComp()).toList();
   }
 
   private List<Source> filterLang(String lang, List<Source> sources) {
-    return sources.parallelStream()
-        .filter(source -> source.getLang().equals(lang))
-        .toList();
+    return sources.parallelStream().filter(source -> source.getLang().equals(lang)).toList();
   }
 
   private List<Source> filterSources(String search, List<Source> sources) {
@@ -200,7 +194,6 @@ public class SourceScroller extends VScroller {
         .toList();
   }
 
-
   private void setLanguages(List<String> languages) {
     this.languages = new ArrayList<>(languages);
     SourceLangUpdateEvent event = new SourceLangUpdateEvent(this, languages);
@@ -210,7 +203,7 @@ public class SourceScroller extends VScroller {
   public void addLangUpdateEventListener(ComponentEventListener<SourceLangUpdateEvent> listener) {
     addListener(SourceLangUpdateEvent.class, listener);
 
-    //makes sure the new listener gets the current languages
+    // makes sure the new listener gets the current languages
     var event = new SourceLangUpdateEvent(this, languages);
     fireEvent(event);
   }

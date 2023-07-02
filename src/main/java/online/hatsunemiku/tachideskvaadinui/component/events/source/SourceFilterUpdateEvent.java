@@ -6,14 +6,13 @@ import lombok.Getter;
 
 public class SourceFilterUpdateEvent extends ComponentEvent<TextField> {
 
-  @Getter
-  private final String filterText;
+  @Getter private final String filterText;
+
   /**
    * Creates a new event using the given source and indicator whether the event originated from the
    * client side or the server side.
    *
-   * @param source     the source component
-   *
+   * @param source the source component
    */
   public SourceFilterUpdateEvent(TextField source, String filterText) {
     super(source, false);

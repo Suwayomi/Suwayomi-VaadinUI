@@ -7,21 +7,23 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import online.hatsunemiku.tachideskvaadinui.component.events.source.SourceLangFilterUpdateEvent;
 import online.hatsunemiku.tachideskvaadinui.component.events.source.SourceLangUpdateEvent;
 
-public class LangComboBox extends ComboBox<String> implements ComponentEventListener<SourceLangUpdateEvent> {
+public class LangComboBox extends ComboBox<String>
+    implements ComponentEventListener<SourceLangUpdateEvent> {
 
   public LangComboBox() {
     super("Language");
 
-    addValueChangeListener(e -> {
-      String newVal = e.getValue();
+    addValueChangeListener(
+        e -> {
+          String newVal = e.getValue();
 
-      if (newVal == null) {
-        newVal = "";
-      }
+          if (newVal == null) {
+            newVal = "";
+          }
 
-      var filterUpdateEvent = new SourceLangFilterUpdateEvent(this, newVal);
-      ComponentUtil.fireEvent(UI.getCurrent(), filterUpdateEvent);
-    });
+          var filterUpdateEvent = new SourceLangFilterUpdateEvent(this, newVal);
+          ComponentUtil.fireEvent(UI.getCurrent(), filterUpdateEvent);
+        });
   }
 
   @Override

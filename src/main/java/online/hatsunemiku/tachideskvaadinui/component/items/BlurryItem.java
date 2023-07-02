@@ -7,9 +7,7 @@ import com.vaadin.flow.component.html.Div;
 @CssImport("./css/components/items/blurry-item.css")
 public class BlurryItem extends Div {
 
-  public BlurryItem() {
-
-  }
+  public BlurryItem() {}
 
   protected void setContent(Component component) {
     Div blurryBackground = new Div();
@@ -22,5 +20,4 @@ public class BlurryItem extends Div {
 
     add(content, blurryBackground);
   }
-
 }
