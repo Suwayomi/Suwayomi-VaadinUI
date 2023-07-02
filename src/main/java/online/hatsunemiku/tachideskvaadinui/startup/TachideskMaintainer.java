@@ -27,10 +27,8 @@ public class TachideskMaintainer {
   private static final Logger logger = LoggerFactory.getLogger(TachideskMaintainer.class);
   private final RestTemplate client;
   private final TachideskStarter starter;
-  @Getter
-  private boolean updating = false;
-  @Getter
-  private double progress = 0;
+  @Getter private boolean updating = false;
+  @Getter private double progress = 0;
 
   public TachideskMaintainer(RestTemplate client, TachideskStarter starter) {
     this.client = client;
@@ -49,7 +47,13 @@ public class TachideskMaintainer {
 
     logger.info("Current jar file: {}", oldServer.getJarName());
 
-    String jarUrl = TachideskUtils.getNewestJarUrl(client);
+    String jarUrl;
+    try {
+      jarUrl = TachideskUtils.getNewestJarUrl(client);
+    } catch (Exception e) {
+      logger.error("Failed to check for updates", e);
+      return;
+    }
 
     if (jarUrl == null) {
       logger.info("No new version found");
@@ -133,7 +137,8 @@ public class TachideskMaintainer {
     int size = connection.getContentLength();
 
     ReadableByteChannel rbc = Channels.newChannel(url.openStream());
-    var progressChannel = new ReadableProgressByteChannel(rbc, read -> this.progress = (double) read / size);
+    var progressChannel =
+        new ReadableProgressByteChannel(rbc, read -> this.progress = (double) read / size);
     try (FileOutputStream fos = new FileOutputStream(serverFile)) {
       fos.getChannel().transferFrom(progressChannel, 0, Long.MAX_VALUE);
     }
@@ -142,6 +147,7 @@ public class TachideskMaintainer {
 
   /**
    * Checks if the server directory exists and creates it if it doesn't
+   *
    * @param serverDir The {@link File} object representing the server directory
    * @return True if the server directory exists or was created successfully, false otherwise
    */

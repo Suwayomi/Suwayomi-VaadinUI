@@ -15,5 +15,9 @@ vaadin-text-field[focused]::part(label) {
 }
 
 vaadin-text-field > input {
-  color: var(--miku-selected-color);
+  color: var(--miku-main-color);
+}
+
+vaadin-text-field > label {
+  color: var(--miku-main-color);
 }

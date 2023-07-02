@@ -5,7 +5,7 @@ import com.vaadin.flow.component.html.Div;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import online.hatsunemiku.tachideskvaadinui.component.ExtensionItem;
+import online.hatsunemiku.tachideskvaadinui.component.items.ExtensionItem;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Extension;
 import online.hatsunemiku.tachideskvaadinui.services.ExtensionService;
@@ -38,14 +38,14 @@ public class ExtensionScroller extends VScroller {
     maxPage = extensions.size() / LIST_SIZE;
 
     addExtensions(extensions, settings);
-    addScrollToEndListener(e -> {
-      if (page < maxPage) {
-        page++;
-        addExtensions(extensions, settings);
-      }
-    });
+    addScrollToEndListener(
+        e -> {
+          if (page < maxPage) {
+            page++;
+            addExtensions(extensions, settings);
+          }
+        });
   }
-
 
   private void addExtensions(List<Extension> extensions, Settings settings) {
 
@@ -94,16 +94,19 @@ public class ExtensionScroller extends VScroller {
   }
 
   private List<Extension> filterExtensions(String search, List<Extension> extensions) {
-    return extensions.stream().filter(extension -> {
-      if (search == null) {
-        return true;
-      }
+    return extensions.stream()
+        .filter(
+            extension -> {
+              if (search == null) {
+                return true;
+              }
 
-      String name = extension.getName().toLowerCase();
-      String searchLower = search.toLowerCase();
+              String name = extension.getName().toLowerCase();
+              String searchLower = search.toLowerCase();
 
-      return name.contains(searchLower);
-    }).toList();
+              return name.contains(searchLower);
+            })
+        .toList();
   }
 
   private Comparator<Extension> getComparator() {
@@ -112,5 +115,4 @@ public class ExtensionScroller extends VScroller {
 
     return comparator;
   }
-
 }

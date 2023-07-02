@@ -1,15 +1,13 @@
-package online.hatsunemiku.tachideskvaadinui.component;
+package online.hatsunemiku.tachideskvaadinui.component.items;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 
-@CssImport("./css/components/blurry-item.css")
+@CssImport("./css/components/items/blurry-item.css")
 public class BlurryItem extends Div {
 
-  public BlurryItem() {
-
-  }
+  public BlurryItem() {}
 
   protected void setContent(Component component) {
     Div blurryBackground = new Div();
@@ -22,5 +20,4 @@ public class BlurryItem extends Div {
 
     add(content, blurryBackground);
   }
-
 }

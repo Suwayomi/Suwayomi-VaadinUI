@@ -1,17 +1,17 @@
 vaadin-tab[selected] {
-  color: var(--miku-selected-color);
+  color: var(--miku-main-color);
 }
 
 vaadin-tab[selected]::before {
-  background-color: var(--miku-selected-color);
+  background-color: var(--miku-main-color);
 }
 
 vaadin-tab[active] {
-  color: var(--miku-selected-color);
+  color: var(--miku-main-color);
 }
 
 vaadin-tab[active]::before {
-  background-color: var(--miku-selected-color);
+  background-color: var(--miku-main-color);
 }
 
 vaadin-tab {
@@ -27,7 +27,7 @@ vaadin-tab:hover {
 }
 
 vaadin-tabsheet {
-  border: 1px solid var(--miku-selected-color);
+  border: 1px solid var(--miku-main-color);
   width: 100%;
 }
 
@@ -39,12 +39,12 @@ vaadin-tabsheet > vaadin-button[slot="suffix"] {
 }
 
 vaadin-tabsheet > vaadin-button[slot="suffix"]:hover {
-  color: var(--miku-selected-color);
+  color: var(--miku-main-color);
   background-color: var(--miku-frosted-glass);
-  border: 1px solid var(--miku-selected-color);
+  border: 1px solid var(--miku-main-color);
 }
 
 /*select div inside shadow-root inside vaadin-tabsheet*/
 vaadin-tabsheet::part(tabs-container) {
-  border-bottom: 1px solid var(--miku-selected-color);
+  border-bottom: 1px solid var(--miku-main-color);
 }

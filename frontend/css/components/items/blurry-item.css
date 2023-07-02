@@ -1,5 +1,7 @@
 .blurry-background {
-  position: absolute;
+  position: relative;
+  display: flex;
+  flex-direction: row;
   width: 100%;
   height: 100%;
   background: var(--miku-frosted-glass);

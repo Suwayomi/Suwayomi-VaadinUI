@@ -1,0 +1,7 @@
+vaadin-combo-box > input {
+  color: var(--miku-main-color);
+}
+
+vaadin-combo-box > label {
+  color: var(--miku-main-color);
+}

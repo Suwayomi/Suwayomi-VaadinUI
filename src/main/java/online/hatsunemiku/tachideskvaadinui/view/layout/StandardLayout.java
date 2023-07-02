@@ -12,6 +12,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.time.LocalDate;
 import online.hatsunemiku.tachideskvaadinui.view.ExtensionsView;
 import online.hatsunemiku.tachideskvaadinui.view.RootView;
+import online.hatsunemiku.tachideskvaadinui.view.SourcesView;
 import org.jetbrains.annotations.NotNull;
 
 @CssImport("css/common.css")
@@ -19,8 +20,8 @@ public class StandardLayout extends VerticalLayout {
 
   private H1 title;
   private HorizontalLayout navBar;
-  private VerticalLayout content;
-  private Footer footer;
+  private final VerticalLayout content;
+  private final Footer footer;
 
   public StandardLayout(String title) {
     setId("container");
@@ -45,12 +46,26 @@ public class StandardLayout extends VerticalLayout {
     Div btnContainer = new Div();
     btnContainer.setClassName("btn-container");
 
-
     addRootBtn(btnContainer);
     addExtensionsBtn(btnContainer);
-
+    addSourcesBtn(btnContainer);
 
     navBar.add(btnContainer);
+  }
+
+  private void addSourcesBtn(Div btnContainer) {
+
+    if (this instanceof SourcesView) {
+      return;
+    }
+
+    Button sourcesButton = new Button("Sources", VaadinIcon.GLOBE.create());
+    sourcesButton.addClickListener(
+        e -> {
+          getUI().ifPresent(ui -> ui.navigate(SourcesView.class));
+        });
+
+    addBtn(btnContainer, sourcesButton);
   }
 
   private void addRootBtn(Div btnContainer) {
@@ -60,9 +75,10 @@ public class StandardLayout extends VerticalLayout {
     }
 
     Button rootButton = new Button("Library", VaadinIcon.BOOK.create());
-    rootButton.addClickListener(e -> {
-      getUI().ifPresent(ui -> ui.navigate(RootView.class));
-    });
+    rootButton.addClickListener(
+        e -> {
+          getUI().ifPresent(ui -> ui.navigate(RootView.class));
+        });
 
     addBtn(btnContainer, rootButton);
   }
@@ -74,9 +90,10 @@ public class StandardLayout extends VerticalLayout {
     }
 
     Button extensionsButton = new Button("Extensions", VaadinIcon.PUZZLE_PIECE.create());
-    extensionsButton.addClickListener(e -> {
-      getUI().ifPresent(ui -> ui.navigate(ExtensionsView.class));
-    });
+    extensionsButton.addClickListener(
+        e -> {
+          getUI().ifPresent(ui -> ui.navigate(ExtensionsView.class));
+        });
 
     addBtn(btnContainer, extensionsButton);
   }
@@ -97,7 +114,6 @@ public class StandardLayout extends VerticalLayout {
     return footer;
   }
 
-
   protected void setContent(Component content) {
     this.content.add(content);
   }
@@ -115,6 +131,4 @@ public class StandardLayout extends VerticalLayout {
     this.footer.setVisible(true);
     removeClassName("fullscreen");
   }
-
-
 }

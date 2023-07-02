@@ -43,7 +43,7 @@ footer {
 }
 
 .btn-container {
-  border: 0.1rem solid var(--miku-selected-color);
+  border: 0.1rem solid var(--miku-main-color);
   flex-grow: 1;
 }
 

@@ -1,4 +1,4 @@
-package online.hatsunemiku.tachideskvaadinui.component;
+package online.hatsunemiku.tachideskvaadinui.component.items;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -66,63 +66,67 @@ public class ExtensionItem extends BlurryItem {
     add(extensionData, buttons);
   }
 
-  private void configureUninstallBtn(Extension extension, ExtensionService service, Button installBtn, Button uninstallBtn) {
+  private void configureUninstallBtn(
+      Extension extension, ExtensionService service, Button installBtn, Button uninstallBtn) {
     uninstallBtn.setClassName("extension-uninstall-btn");
 
-    uninstallBtn.addClickListener(e -> {
-      uninstallBtn.setEnabled(false);
-      var status = service.uninstallExtension(extension.getPkgName());
-      uninstallBtn.setEnabled(true);
+    uninstallBtn.addClickListener(
+        e -> {
+          uninstallBtn.setEnabled(false);
+          var status = service.uninstallExtension(extension.getPkgName());
+          uninstallBtn.setEnabled(true);
 
-      Notification notification = new Notification();
+          Notification notification = new Notification();
 
-      if (status.is2xxSuccessful()) {
-        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-        notification.setText("Extension uninstalled successfully");
-      } else if (status.is3xxRedirection()) {
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        notification.setText("Extension exists, but couldn't be uninstalled");
-      } else if (status.is4xxClientError()) {
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        notification.setText("Extension doesn't exist");
-      } else {
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        notification.setText("Extension couldn't be uninstalled");
-      }
+          if (status.is2xxSuccessful()) {
+            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            notification.setText("Extension uninstalled successfully");
+          } else if (status.is3xxRedirection()) {
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.setText("Extension exists, but couldn't be uninstalled");
+          } else if (status.is4xxClientError()) {
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.setText("Extension doesn't exist");
+          } else {
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.setText("Extension couldn't be uninstalled");
+          }
 
-      notification.setDuration(3000);
-      notification.open();
-      setBtnUninstalled(installBtn, uninstallBtn);
-    });
+          notification.setDuration(3000);
+          notification.open();
+          setBtnUninstalled(installBtn, uninstallBtn);
+        });
   }
 
-  private void configureInstallBtn(Extension extension, ExtensionService service, Button uninstallBtn, Button installBtn) {
+  private void configureInstallBtn(
+      Extension extension, ExtensionService service, Button uninstallBtn, Button installBtn) {
     installBtn.setClassName("extension-install-btn");
 
     updateStatus(extension, installBtn, uninstallBtn);
 
-    installBtn.addClickListener(event -> {
-      installBtn.setEnabled(false);
-      var status = service.installExtension(extension.getPkgName());
-      installBtn.setEnabled(true);
-      updateStatus(extension, installBtn, uninstallBtn);
-      Notification notification = new Notification();
+    installBtn.addClickListener(
+        event -> {
+          installBtn.setEnabled(false);
+          var status = service.installExtension(extension.getPkgName());
+          installBtn.setEnabled(true);
+          updateStatus(extension, installBtn, uninstallBtn);
+          Notification notification = new Notification();
 
-      if (status.is2xxSuccessful()) {
-        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-        notification.setText("Extension installed successfully");
-      } else if (status.is3xxRedirection()) {
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        notification.setText("Extension exists, but couldn't be installed");
-      } else {
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        notification.setText("Extension couldn't be installed");
-      }
+          if (status.is2xxSuccessful()) {
+            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            notification.setText("Extension installed successfully");
+          } else if (status.is3xxRedirection()) {
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.setText("Extension exists, but couldn't be installed");
+          } else {
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.setText("Extension couldn't be installed");
+          }
 
-      notification.setDuration(3000);
-      notification.open();
-      setBtnInstalled(installBtn, uninstallBtn);
-    });
+          notification.setDuration(3000);
+          notification.open();
+          setBtnInstalled(installBtn, uninstallBtn);
+        });
   }
 
   private void updateStatus(Extension extension, Button installBtn, Button uninstallBtn) {
