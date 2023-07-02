@@ -18,6 +18,6 @@ public class SourceLangUpdateEvent extends ComponentEvent<SourceScroller> {
    */
   public SourceLangUpdateEvent(SourceScroller source, List<String> languages) {
     super(source, false);
-    this.languages = languages;
+    this.languages = List.copyOf(languages);
   }
 }
