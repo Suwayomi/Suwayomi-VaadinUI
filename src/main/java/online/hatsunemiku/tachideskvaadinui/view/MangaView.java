@@ -13,9 +13,9 @@ import com.vaadin.flow.router.Route;
 import java.util.List;
 import java.util.Optional;
 import online.hatsunemiku.tachideskvaadinui.component.listbox.chapter.ChapterListBox;
+import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
-import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.utils.MangaDataUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
@@ -76,17 +76,18 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     buttons.addClassName("manga-buttons");
 
     Button libraryBtn = new Button();
-    libraryBtn.addClickListener(e -> {
-      if (manga.isInLibrary()) {
-        mangaService.removeMangaFromLibrary(manga.getId());
-        libraryBtn.setText("Add to library");
-        manga.setInLibrary(false);
-      } else {
-        mangaService.addMangaToLibrary(manga.getId());
-        libraryBtn.setText("Remove from library");
-        manga.setInLibrary(true);
-      }
-    });
+    libraryBtn.addClickListener(
+        e -> {
+          if (manga.isInLibrary()) {
+            mangaService.removeMangaFromLibrary(manga.getId());
+            libraryBtn.setText("Add to library");
+            manga.setInLibrary(false);
+          } else {
+            mangaService.addMangaToLibrary(manga.getId());
+            libraryBtn.setText("Remove from library");
+            manga.setInLibrary(true);
+          }
+        });
 
     if (manga.isInLibrary()) {
       libraryBtn.setText("Remove from library");
@@ -99,7 +100,6 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     container.add(imageContainer, buttons, chapters);
     setContent(container);
   }
-
 
   private Manga getManga(Settings settings, String id) {
     String mangaEndpoint = settings.getUrl() + "/api/v1/manga/" + id;

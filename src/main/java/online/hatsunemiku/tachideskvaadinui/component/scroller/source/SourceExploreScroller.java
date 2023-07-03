@@ -18,6 +18,7 @@ public class SourceExploreScroller extends VScroller {
   private final ExploreType type;
   private final long sourceId;
   private final Div content = new Div();
+
   public SourceExploreScroller(SourceService sourceService, ExploreType type, long sourceId) {
     super();
     this.sourceService = sourceService;
@@ -35,10 +36,11 @@ public class SourceExploreScroller extends VScroller {
   }
 
   private void loadNextPage() {
-    var manga = switch (type) {
-      case POPULAR -> loadPopularPage();
-      case LATEST -> loadLatestPage();
-    };
+    var manga =
+        switch (type) {
+          case POPULAR -> loadPopularPage();
+          case LATEST -> loadLatestPage();
+        };
 
     if (manga.isEmpty()) {
       return;
@@ -57,7 +59,6 @@ public class SourceExploreScroller extends VScroller {
     var manga = sourceService.getPopularManga(sourceId, currentPage);
 
     return manga.orElseGet(List::of);
-
   }
 
   private List<Manga> loadLatestPage() {

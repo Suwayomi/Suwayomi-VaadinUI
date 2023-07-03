@@ -16,5 +16,4 @@ public class TachideskVaadinUiApplication implements AppShellConfigurator {
   public static void main(String[] args) {
     SpringApplication.run(TachideskVaadinUiApplication.class, args);
   }
-
 }

@@ -32,5 +32,4 @@ public class MangaService {
 
     mangaClient.removeMangaFromLibrary(baseUrl, mangaId);
   }
-
 }

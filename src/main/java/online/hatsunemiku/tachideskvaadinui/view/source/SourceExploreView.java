@@ -17,11 +17,12 @@ import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 
 @Route("source/explore/:id(\\d+)")
 @CssImport("./css/views/source-explore.css")
-public class SourceExploreView extends StandardLayout implements BeforeEnterObserver,
-    BeforeLeaveObserver {
+public class SourceExploreView extends StandardLayout
+    implements BeforeEnterObserver, BeforeLeaveObserver {
 
   private final SourceService sourceService;
   private SourceExploreScroller scroller;
+
   public SourceExploreView(SourceService sourceService) {
     super("Source Explore");
     this.sourceService = sourceService;
@@ -47,13 +48,12 @@ public class SourceExploreView extends StandardLayout implements BeforeEnterObse
     }
 
     fullScreenNoHide();
-    UI.getCurrent().access(() -> UI.getCurrent()
-        .getPage()
-        .executeJs("document.body.style.overflow = 'hidden';"));
+    UI.getCurrent()
+        .access(
+            () -> UI.getCurrent().getPage().executeJs("document.body.style.overflow = 'hidden';"));
 
     setContent(content(sourceId));
   }
-
 
   private Div content(long sourceId) {
     Div content = new Div();
@@ -65,29 +65,29 @@ public class SourceExploreView extends StandardLayout implements BeforeEnterObse
     Button popular = new Button("Popular");
     Button latest = new Button("Latest");
 
-    latest.addClickListener(e -> {
+    latest.addClickListener(
+        e -> {
+          if (scroller.getType() == ExploreType.LATEST) {
+            return;
+          }
 
-      if (scroller.getType() == ExploreType.LATEST) {
-        return;
-      }
+          switchOutScroller(content, ExploreType.LATEST, sourceId);
 
-      switchOutScroller(content, ExploreType.LATEST, sourceId);
+          disableButton(latest);
+          enableButton(popular);
+        });
 
-      disableButton(latest);
-      enableButton(popular);
-    });
+    popular.addClickListener(
+        e -> {
+          if (scroller.getType() == ExploreType.POPULAR) {
+            return;
+          }
 
-    popular.addClickListener(e -> {
+          switchOutScroller(content, ExploreType.POPULAR, sourceId);
 
-      if (scroller.getType() == ExploreType.POPULAR) {
-        return;
-      }
-
-      switchOutScroller(content, ExploreType.POPULAR, sourceId);
-
-      disableButton(popular);
-      enableButton(latest);
-    });
+          disableButton(popular);
+          enableButton(latest);
+        });
 
     buttons.add(popular, latest);
 
@@ -116,11 +116,10 @@ public class SourceExploreView extends StandardLayout implements BeforeEnterObse
     content.add(scroller);
   }
 
-
   @Override
   public void beforeLeave(BeforeLeaveEvent event) {
-    UI.getCurrent().access(() -> UI.getCurrent()
-        .getPage()
-        .executeJs("document.body.style.overflow = 'auto';"));
+    UI.getCurrent()
+        .access(
+            () -> UI.getCurrent().getPage().executeJs("document.body.style.overflow = 'auto';"));
   }
 }

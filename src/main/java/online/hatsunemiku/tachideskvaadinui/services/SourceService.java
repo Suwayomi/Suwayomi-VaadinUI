@@ -56,17 +56,17 @@ public class SourceService {
 
   public Optional<List<Manga>> getLatestManga(long sourceId, int page) {
 
-      Settings settings = SerializationUtils.deseralizeSettings();
+    Settings settings = SerializationUtils.deseralizeSettings();
 
-      URI baseUrl = URI.create(settings.getUrl() + "/api/v1");
+    URI baseUrl = URI.create(settings.getUrl() + "/api/v1");
 
-      SourceMangaList list;
-      try {
-        list = sourceClient.getLatestManga(baseUrl, sourceId, page);
-      } catch (Exception e) {
-        return Optional.empty();
-      }
+    SourceMangaList list;
+    try {
+      list = sourceClient.getLatestManga(baseUrl, sourceId, page);
+    } catch (Exception e) {
+      return Optional.empty();
+    }
 
-      return Optional.ofNullable(list.getMangaList());
+    return Optional.ofNullable(list.getMangaList());
   }
 }
