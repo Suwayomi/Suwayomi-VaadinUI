@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.1.0'
+    id 'org.springframework.boot' version '3.0.0'
     id 'io.spring.dependency-management' version '1.1.0'
     id 'org.graalvm.buildtools.native' version '0.9.20'
     id 'com.vaadin' version '24.0.5'
@@ -34,6 +34,8 @@ dependencies {
     implementation 'org.jetbrains:annotations:24.0.0'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'com.github.ben-manes.caffeine:caffeine:3.1.5'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.0.1'
+    implementation 'io.github.openfeign:feign-jackson:12.2'
 
 
     compileOnly 'org.projectlombok:lombok'

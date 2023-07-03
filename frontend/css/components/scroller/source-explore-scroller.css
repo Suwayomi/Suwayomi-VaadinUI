@@ -1,0 +1,12 @@
+.explore-scroller-manga-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-gap: 1rem;
+  width: 100%;
+}
+
+.explore-scroller {
+  width: 100%;
+  overflow-x: hidden;
+  max-height: 88vh;
+}

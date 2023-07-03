@@ -12,7 +12,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.time.LocalDate;
 import online.hatsunemiku.tachideskvaadinui.view.ExtensionsView;
 import online.hatsunemiku.tachideskvaadinui.view.RootView;
-import online.hatsunemiku.tachideskvaadinui.view.SourcesView;
+import online.hatsunemiku.tachideskvaadinui.view.source.SourcesView;
 import org.jetbrains.annotations.NotNull;
 
 @CssImport("css/common.css")
@@ -122,6 +122,11 @@ public class StandardLayout extends VerticalLayout {
     this.content.setClassName("content-fullscreen");
     this.navBar.setVisible(false);
     this.footer.setVisible(false);
+    addClassName("fullscreen");
+  }
+
+  protected void fullScreenNoHide() {
+    this.content.setClassName("content-fullscreen");
     addClassName("fullscreen");
   }
 

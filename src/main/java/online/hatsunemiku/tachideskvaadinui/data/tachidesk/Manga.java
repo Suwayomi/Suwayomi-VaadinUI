@@ -1,8 +1,8 @@
 package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
 
-import com.vaadin.flow.component.page.Meta;
-import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
+import lombok.Setter;
 
 public class Manga {
 
@@ -54,6 +54,7 @@ public class Manga {
 	@JsonProperty("lastFetchedAt")
 	private int lastFetchedAt;
 
+	@Setter
 	@JsonProperty("inLibrary")
 	private boolean inLibrary;
 
