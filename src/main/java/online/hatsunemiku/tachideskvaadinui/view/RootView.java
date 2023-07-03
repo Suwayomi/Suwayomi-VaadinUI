@@ -18,11 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.component.card.MangaCard;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.category.CategoryDialog;
+import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Category;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
-import online.hatsunemiku.tachideskvaadinui.data.Settings;
+import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.utils.CategoryUtils;
-import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.ParameterizedTypeReference;
@@ -35,13 +35,16 @@ import org.springframework.web.client.RestTemplate;
 public class RootView extends StandardLayout {
 
   private final RestTemplate client;
+  private final SettingsService settingsService;
   private TabSheet tabs;
 
-  public RootView(RestTemplate client) {
+  public RootView(RestTemplate client, SettingsService settingsService) {
     super("Library");
 
     this.client = client;
-    Settings settings = SerializationUtils.deseralizeSettings();
+    this.settingsService = settingsService;
+
+    Settings settings = settingsService.getSettings();
 
 
     List<Category> categories;
@@ -61,7 +64,7 @@ public class RootView extends StandardLayout {
 
     Button createButton = new Button(VaadinIcon.PLUS.create());
     createButton.addClickListener(e -> {
-      CategoryDialog dialog = new CategoryDialog(client);
+      CategoryDialog dialog = new CategoryDialog(client, settingsService);
 
       dialog.addOpenedChangeListener(event -> {
         if (!event.isOpened()) {
@@ -74,7 +77,7 @@ public class RootView extends StandardLayout {
       dialog.addOnCategoryCreationListener(event -> {
         Category c = event.getCategory();
 
-        Settings s = SerializationUtils.deseralizeSettings();
+        Settings s = settingsService.getSettings();
 
         addCategoryTab(s, c);
       });
@@ -127,7 +130,7 @@ public class RootView extends StandardLayout {
     deleteButton.addClassName("delete-category-button");
 
     deleteButton.addClickListener(e -> {
-      Settings s = SerializationUtils.deseralizeSettings();
+      Settings s = settingsService.getSettings();
       if (CategoryUtils.deleteCategory(client, s, c.getId())) {
         tabs.remove(tab);
       } else {

@@ -14,9 +14,8 @@ import com.vaadin.flow.router.Route;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import online.hatsunemiku.tachideskvaadinui.data.Settings;
+import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.startup.TachideskMaintainer;
-import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
@@ -29,16 +28,16 @@ public class ServerStartView extends VerticalLayout {
   private static final Logger logger = LoggerFactory.getLogger(ServerStartView.class);
   ScheduledExecutorService executor;
   private final RestTemplate client;
-  private final Settings settings;
   private final TachideskMaintainer maintainer;
+  private final SettingsService settingsService;
   private final Div updateNotice;
   private final ProgressBar progress;
   private final Label downloadLabel;
 
-  public ServerStartView(RestTemplate client, TachideskMaintainer maintainer) {
+  public ServerStartView(RestTemplate client, TachideskMaintainer maintainer, SettingsService settingsService) {
 
     this.client = client;
-    this.settings = SerializationUtils.deseralizeSettings();
+    this.settingsService = settingsService;
     this.executor = Executors.newSingleThreadScheduledExecutor();
     this.maintainer = maintainer;
 
@@ -103,7 +102,7 @@ public class ServerStartView extends VerticalLayout {
   }
 
   private void checkConnection() {
-    String url = settings.getUrl() + "/api/v1/meta";
+    String url = settingsService.getSettings().getUrl() + "/api/v1/meta";
 
     try {
       var response = client.getForEntity(url, Void.class);

@@ -9,7 +9,7 @@ import online.hatsunemiku.tachideskvaadinui.component.items.ExtensionItem;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Extension;
 import online.hatsunemiku.tachideskvaadinui.services.ExtensionService;
-import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
+import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import org.vaadin.firitin.components.html.VDiv;
 import org.vaadin.firitin.components.orderedlayout.VScroller;
 
@@ -22,15 +22,17 @@ public class ExtensionScroller extends VScroller {
   private int maxPage;
   private final Div content;
   private String search;
+  private final SettingsService settingsService;
 
-  public ExtensionScroller(ExtensionService service) {
+  public ExtensionScroller(ExtensionService service, SettingsService settingsService) {
     super();
     this.service = service;
+    this.settingsService = settingsService;
     this.content = new VDiv();
 
     setClassName("extension-scroller");
 
-    Settings settings = SerializationUtils.deseralizeSettings();
+    Settings settings = settingsService.getSettings();
 
     List<Extension> extensions = new ArrayList<>(service.getExtensions());
     extensions.sort((ext1, ext2) -> getComparator().compare(ext1, ext2));
@@ -80,7 +82,7 @@ public class ExtensionScroller extends VScroller {
     content.removeAll();
     page = 0;
     var extensions = service.getExtensions();
-    var settings = SerializationUtils.deseralizeSettings();
+    var settings = settingsService.getSettings();
     addExtensions(extensions, settings);
   }
 
@@ -89,7 +91,7 @@ public class ExtensionScroller extends VScroller {
     page = 0;
     this.search = null;
     var extensions = service.getExtensions();
-    var settings = SerializationUtils.deseralizeSettings();
+    var settings = settingsService.getSettings();
     addExtensions(extensions, settings);
   }
 
