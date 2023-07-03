@@ -1,5 +1,6 @@
 package online.hatsunemiku.tachideskvaadinui.view;
 
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
@@ -12,9 +13,10 @@ import com.vaadin.flow.router.Route;
 import java.util.List;
 import java.util.Optional;
 import online.hatsunemiku.tachideskvaadinui.component.listbox.chapter.ChapterListBox;
+import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
-import online.hatsunemiku.tachideskvaadinui.data.Settings;
+import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.utils.MangaDataUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
@@ -25,10 +27,12 @@ import org.springframework.web.client.RestTemplate;
 public class MangaView extends StandardLayout implements BeforeEnterObserver {
 
   private final RestTemplate client;
+  private final MangaService mangaService;
 
-  public MangaView(RestTemplate client) {
+  public MangaView(RestTemplate client, MangaService mangaService) {
     super("Manga");
     this.client = client;
+    this.mangaService = mangaService;
   }
 
   @Override
@@ -66,14 +70,36 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     imageContainer.addClassName("manga-image-container");
     imageContainer.add(image);
 
-    container.add(imageContainer);
-
     ListBox<Chapter> chapters = getChapters(settings, id);
 
-    container.add(chapters);
+    Div buttons = new Div();
+    buttons.addClassName("manga-buttons");
+
+    Button libraryBtn = new Button();
+    libraryBtn.addClickListener(
+        e -> {
+          if (manga.isInLibrary()) {
+            mangaService.removeMangaFromLibrary(manga.getId());
+            libraryBtn.setText("Add to library");
+            manga.setInLibrary(false);
+          } else {
+            mangaService.addMangaToLibrary(manga.getId());
+            libraryBtn.setText("Remove from library");
+            manga.setInLibrary(true);
+          }
+        });
+
+    if (manga.isInLibrary()) {
+      libraryBtn.setText("Remove from library");
+    } else {
+      libraryBtn.setText("Add to library");
+    }
+
+    buttons.add(libraryBtn);
+
+    container.add(imageContainer, buttons, chapters);
     setContent(container);
   }
-
 
   private Manga getManga(Settings settings, String id) {
     String mangaEndpoint = settings.getUrl() + "/api/v1/manga/" + id;

@@ -64,7 +64,8 @@
   "@vaadin/virtual-list": "24.0.3",
   "construct-style-sheets-polyfill": "3.1.0",
   "date-fns": "2.29.3",
-  "lit": "2.6.1"
+  "lit": "2.6.1",
+  "lumo-css-framework": "3.0.11"
  },
  "npmModules": {
   "@lit/reactive-element": "1.6.2",
@@ -130,12 +131,16 @@
   "date-fns": "2.29.3",
   "lit-element": "3.3.2",
   "lit-html": "2.7.4",
+  "lumo-css-framework": "3.0.11",
   "tslib": "2.5.3"
  },
  "bundleImports": [
   "@vaadin/vaadin-themable-mixin",
-  "Frontend/css/card.css",
-  "Frontend/css/common.css",
+  "Frontend/generated/jar-resources/org/vaadin/firitin/layouts/appframework.css",
+  "lumo-css-framework/all-classes.css",
+  "Frontend/generated/jar-resources/org/vaadin/firitin/components/tree.css",
+  "Frontend/generated/jar-resources/org/vaadin/firitin/bytearrayuploadfield.css",
+  "Frontend/generated/jar-resources/org/vaadin/firitin/padding-fix-for-dialog.css",
   "@vaadin/grid/theme/lumo/vaadin-grid.js",
   "@vaadin/tooltip/theme/lumo/vaadin-tooltip.js",
   "@vaadin/grid/theme/lumo/vaadin-grid-column.js",
@@ -212,6 +217,7 @@
   "Frontend/generated/jar-resources/lumo-includes.ts",
   "Frontend/generated/jar-resources/menubarConnector.js",
   "Frontend/generated/jar-resources/messageListConnector.js",
+  "Frontend/generated/jar-resources/org/vaadin/firitin/layouts/border-layout.js",
   "Frontend/generated/jar-resources/selectConnector.js",
   "Frontend/generated/jar-resources/tooltip.ts",
   "Frontend/generated/jar-resources/vaadin-big-decimal-field.js",
@@ -220,8 +226,10 @@
   "Frontend/generated/jar-resources/virtualListConnector.js"
  ],
  "frontendHashes": {
-  "css/card.css": "82ba69f5972492b15395bda9f494c0c709a4c4226ad516f3ad425249578d22f9",
-  "css/common.css": "83935e784f810ccf9947c15a4025ea57df2f092eec7524281b2e2e9b2a2e68a5",
+  "org/vaadin/firitin/layouts/appframework.css": "1117add98f9806b91eaa6658fccbf6ada8e8df79c05b52b2f4739a1c1879957b",
+  "org/vaadin/firitin/components/tree.css": "5068debaa0055b0cdda8d1553c46c04eab861532ddb56868f202d0b732d9f720",
+  "org/vaadin/firitin/bytearrayuploadfield.css": "d0386375730412c41dd2ab1ddd30c00ad513a4ba790d06ce52cba2fa4c9b3486",
+  "org/vaadin/firitin/padding-fix-for-dialog.css": "a3dc3fb0dc060701ddad84cf65775aacbd8d57e74313b99117657286ed167051",
   "comboBoxConnector.js": "1d004c3dae9c76f8bcc68678abe1b8f7bdc8b456f5c9c4c7f190df8ed25d66cd",
   "contextMenuConnector.js": "25a200f8086461635ddd92316ebeb5a868294c8650a190efbae120edb1088f4f",
   "contextMenuTargetConnector.js": "870f67643988dd5618c247bd3c28d843f70aa026ee89f44c3c7556b5e70856af",
@@ -233,6 +241,7 @@
   "lumo-includes.ts": "be2372586a5d7de41ae33e60d9b882eba8b7f751d314cfae1672c32ee8fd09ea",
   "menubarConnector.js": "8ddac5a87155632c516fd16c9402bd9a2fe6d965998169743744842aacdfd412",
   "messageListConnector.js": "480d7092b9fe42aab45756eb4287b2c4b0d6e5d38514e967543bc5c317948c18",
+  "org/vaadin/firitin/layouts/border-layout.js": "147c86186db87a48024eef4b29ff53f32a517ad6508a409192e52c7c1a19533f",
   "selectConnector.js": "bd4277e735d390853603351ddd963233349b702789ddf8ce000df5179bb30523",
   "tooltip.ts": "b7e9af67169277b94cab722d244340c3a9d463bcf4de2aaa84dddcebbd59447b",
   "vaadin-big-decimal-field.js": "0e0f4e3bb8928c708d02e77d07ede09525102440511942e3b24721702352f140",
@@ -242,8 +251,8 @@
  },
  "themeJsonContents": {},
  "entryScripts": [
-  "VAADIN/build/indexhtml-bee5c189.js"
+  "VAADIN/build/indexhtml-0b919b7f.js"
  ],
  "webComponents": [],
- "packageJsonHash": "a89b689ec344ccdc7b126a3605399c2171141918d2911a0efd1d21aa157c62b8"
+ "packageJsonHash": "a8ce8611f2cd56ff6e4adf7f64808277a91fad1f7286b99fa4508895cb5ff30d"
 }
