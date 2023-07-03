@@ -18,7 +18,6 @@ import org.jetbrains.annotations.NotNull;
 @CssImport("css/common.css")
 public class StandardLayout extends VerticalLayout {
 
-  private H1 title;
   private HorizontalLayout navBar;
   private final VerticalLayout content;
   private final Footer footer;
@@ -37,11 +36,11 @@ public class StandardLayout extends VerticalLayout {
   }
 
   private void getNavBar(String title) {
-    this.title = new H1(title);
+    H1 title1 = new H1(title);
 
     navBar = new HorizontalLayout();
     navBar.setClassName("navbar");
-    navBar.add(this.title);
+    navBar.add(title1);
 
     Div btnContainer = new Div();
     btnContainer.setClassName("btn-container");

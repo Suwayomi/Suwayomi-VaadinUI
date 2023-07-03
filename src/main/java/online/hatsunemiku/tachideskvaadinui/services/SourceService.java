@@ -16,7 +16,7 @@ import org.springframework.web.client.RestTemplate;
 public class SourceService {
 
   private final RestTemplate client;
-  private SourceClient sourceClient;
+  private final SourceClient sourceClient;
 
   public SourceService(RestTemplate client, SourceClient sourceClient) {
     this.client = client;

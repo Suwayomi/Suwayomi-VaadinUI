@@ -20,7 +20,7 @@ import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 public class SourceExploreView extends StandardLayout implements BeforeEnterObserver,
     BeforeLeaveObserver {
 
-  private SourceService sourceService;
+  private final SourceService sourceService;
   private SourceExploreScroller scroller;
   public SourceExploreView(SourceService sourceService) {
     super("Source Explore");

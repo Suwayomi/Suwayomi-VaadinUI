@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface MangaClient {
 
   @GetMapping("/api/v1/manga/{mangaId}/library")
-  public void addMangaToLibrary(URI baseUrl, @PathVariable long mangaId);
+  void addMangaToLibrary(URI baseUrl, @PathVariable long mangaId);
 
   @DeleteMapping("/api/v1/manga/{mangaId}/library")
-  public void removeMangaFromLibrary(URI baseUrl, @PathVariable long mangaId);
+  void removeMangaFromLibrary(URI baseUrl, @PathVariable long mangaId);
 }
