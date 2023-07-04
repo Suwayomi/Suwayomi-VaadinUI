@@ -20,11 +20,38 @@ public class SettingsService {
 
   private static final Logger logger = LoggerFactory.getLogger(SettingsService.class);
 
-  // skipqc: JAVA-S1060
-  private Settings settings;
+  private final Settings settings;
 
   public SettingsService() {
-    deserialize();
+    settings = deserialize();
+  }
+
+  private Settings deserialize() {
+    final Settings settings;
+    ObjectMapper mapper = new ObjectMapper();
+
+    Path settingsFile = Path.of("settings.json");
+
+    if (!Files.exists(settingsFile)) {
+      settings = getDefaults();
+      serialize();
+      return settings;
+    }
+
+    Settings tempSettings;
+    try (var in = Files.newInputStream(settingsFile)) {
+      tempSettings = mapper.readValue(in, Settings.class);
+    } catch (EOFException e) {
+      settings = getDefaults();
+      serialize();
+      return settings;
+    } catch (IOException e) {
+      logger.error("Could not read settings file", e);
+      throw new RuntimeException(e);
+    }
+
+    settings = tempSettings;
+    return settings;
   }
 
   private void serialize() {
@@ -37,34 +64,6 @@ public class SettingsService {
     } catch (IOException e) {
       logger.error("Could not write settings file", e);
       throw new RuntimeException(e);
-    }
-  }
-
-  private void deserialize() {
-    ObjectMapper mapper = new ObjectMapper();
-
-    Path settingsFile = Path.of("settings.json");
-
-    if (!Files.exists(settingsFile)) {
-      settings = getDefaults();
-      serialize();
-      return;
-    }
-
-    try (var in = Files.newInputStream(settingsFile)) {
-      settings = mapper.readValue(in, Settings.class);
-    } catch (EOFException e) {
-      settings = getDefaults();
-      serialize();
-      return;
-    } catch (IOException e) {
-      logger.error("Could not read settings file", e);
-      throw new RuntimeException(e);
-    }
-
-    if (settings == null) {
-      settings = getDefaults();
-      serialize();
     }
   }
 
