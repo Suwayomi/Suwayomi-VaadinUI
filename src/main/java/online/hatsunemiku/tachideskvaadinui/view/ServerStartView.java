@@ -14,9 +14,8 @@ import com.vaadin.flow.router.Route;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import online.hatsunemiku.tachideskvaadinui.data.Settings;
+import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.startup.TachideskMaintainer;
-import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
@@ -29,22 +28,22 @@ public class ServerStartView extends VerticalLayout {
   private static final Logger logger = LoggerFactory.getLogger(ServerStartView.class);
   ScheduledExecutorService executor;
   private final RestTemplate client;
-  private final Settings settings;
   private final TachideskMaintainer maintainer;
+  private final SettingsService settingsService;
   private final Div updateNotice;
   private final ProgressBar progress;
   private final Label downloadLabel;
 
-  public ServerStartView(RestTemplate client, TachideskMaintainer maintainer) {
+  public ServerStartView(
+      RestTemplate client, TachideskMaintainer maintainer, SettingsService settingsService) {
 
     this.client = client;
-    this.settings = SerializationUtils.deseralizeSettings();
+    this.settingsService = settingsService;
     this.executor = Executors.newSingleThreadScheduledExecutor();
     this.maintainer = maintainer;
 
     executor.scheduleAtFixedRate(this::update, 500, 500, MILLISECONDS);
     setId("server-start-view");
-
 
     Div progressContainer = new Div();
     progressContainer.setClassName("waiting-progress-container");
@@ -87,23 +86,30 @@ public class ServerStartView extends VerticalLayout {
 
       String updateText = "%.2f%%".formatted(maintainer.getProgress());
 
-      getUI().ifPresent(ui -> ui.access(() -> {
-        updateNotice.setVisible(true);
-        progress.setValue(maintainer.getProgress());
-        downloadLabel.setText(updateText);
-        progress.setIndeterminate(false);
-      }));
+      getUI()
+          .ifPresent(
+              ui ->
+                  ui.access(
+                      () -> {
+                        updateNotice.setVisible(true);
+                        progress.setValue(maintainer.getProgress());
+                        downloadLabel.setText(updateText);
+                        progress.setIndeterminate(false);
+                      }));
     } else {
-      getUI().ifPresent(ui -> ui.access(() -> {
-        updateNotice.setVisible(false);
-        progress.setIndeterminate(true);
-      }));
+      getUI()
+          .ifPresent(
+              ui ->
+                  ui.access(
+                      () -> {
+                        updateNotice.setVisible(false);
+                        progress.setIndeterminate(true);
+                      }));
     }
-
   }
 
   private void checkConnection() {
-    String url = settings.getUrl() + "/api/v1/meta";
+    String url = settingsService.getSettings().getUrl() + "/api/v1/meta";
 
     try {
       var response = client.getForEntity(url, Void.class);

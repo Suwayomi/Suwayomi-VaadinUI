@@ -16,8 +16,8 @@ import online.hatsunemiku.tachideskvaadinui.component.items.LangItem;
 import online.hatsunemiku.tachideskvaadinui.component.items.SourceItem;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Source;
+import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.SourceService;
-import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.ServerStartView;
 import org.vaadin.firitin.components.orderedlayout.VScroller;
 
@@ -26,6 +26,7 @@ public class SourceScroller extends VScroller {
 
   private final SourceService service;
   private final List<List<Source>> filteredSources;
+  private final SettingsService settingsService;
   private List<String> languages;
   private final Div content;
   private int currentIndex = 0;
@@ -35,11 +36,12 @@ public class SourceScroller extends VScroller {
   private String filterLanguage = "";
   private String filterText = "";
 
-  public SourceScroller(SourceService service) {
+  public SourceScroller(SourceService service, SettingsService settingsService) {
     super();
     setClassName("source-scroller");
 
     this.service = service;
+    this.settingsService = settingsService;
 
     List<Source> sourceList;
     try {
@@ -71,7 +73,7 @@ public class SourceScroller extends VScroller {
       filteredSources.add(filtered);
     }
 
-    Settings settings = SerializationUtils.deseralizeSettings();
+    Settings settings = settingsService.getSettings();
 
     addNextContent(settings);
     setContent(content);
@@ -245,7 +247,7 @@ public class SourceScroller extends VScroller {
 
     updateSources(sources);
 
-    Settings settings = SerializationUtils.deseralizeSettings();
+    Settings settings = settingsService.getSettings();
 
     addNextContent(settings);
   }
@@ -273,7 +275,7 @@ public class SourceScroller extends VScroller {
       filteredSources.add(filtered);
     }
 
-    Settings settings = SerializationUtils.deseralizeSettings();
+    Settings settings = settingsService.getSettings();
 
     addNextContent(settings);
   }

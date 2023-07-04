@@ -50,3 +50,4 @@ frontend/generated
 target/
 
 meta.json
+settings.json

@@ -10,6 +10,7 @@ import com.vaadin.flow.router.Route;
 import online.hatsunemiku.tachideskvaadinui.component.combo.LangComboBox;
 import online.hatsunemiku.tachideskvaadinui.component.events.source.SourceFilterUpdateEvent;
 import online.hatsunemiku.tachideskvaadinui.component.scroller.source.SourceScroller;
+import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.SourceService;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 
@@ -17,7 +18,7 @@ import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 @CssImport("./css/views/sources.css")
 public class SourcesView extends StandardLayout {
 
-  public SourcesView(SourceService sources) {
+  public SourcesView(SourceService sources, SettingsService settingsService) {
     super("Sources");
 
     VerticalLayout content = new VerticalLayout();
@@ -44,7 +45,7 @@ public class SourcesView extends StandardLayout {
 
     filters.add(nameFilter, langFilter);
 
-    SourceScroller scroller = new SourceScroller(sources);
+    SourceScroller scroller = new SourceScroller(sources, settingsService);
     scroller.addLangUpdateEventListener(langFilter);
 
     content.add(filters, scroller);

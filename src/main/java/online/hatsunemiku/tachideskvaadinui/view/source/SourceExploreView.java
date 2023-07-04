@@ -12,6 +12,7 @@ import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.Route;
 import online.hatsunemiku.tachideskvaadinui.component.scroller.source.ExploreType;
 import online.hatsunemiku.tachideskvaadinui.component.scroller.source.SourceExploreScroller;
+import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.SourceService;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 
@@ -22,10 +23,12 @@ public class SourceExploreView extends StandardLayout
 
   private final SourceService sourceService;
   private SourceExploreScroller scroller;
+  private final SettingsService settingsService;
 
-  public SourceExploreView(SourceService sourceService) {
+  public SourceExploreView(SourceService sourceService, SettingsService settingsService) {
     super("Source Explore");
     this.sourceService = sourceService;
+    this.settingsService = settingsService;
   }
 
   @Override
@@ -91,7 +94,8 @@ public class SourceExploreView extends StandardLayout
 
     buttons.add(popular, latest);
 
-    scroller = new SourceExploreScroller(sourceService, ExploreType.POPULAR, sourceId);
+    scroller =
+        new SourceExploreScroller(sourceService, ExploreType.POPULAR, sourceId, settingsService);
 
     content.add(buttons, scroller);
 
@@ -112,7 +116,7 @@ public class SourceExploreView extends StandardLayout
 
   private void switchOutScroller(Div content, ExploreType type, long sourceId) {
     content.remove(content.getComponentAt(1));
-    scroller = new SourceExploreScroller(sourceService, type, sourceId);
+    scroller = new SourceExploreScroller(sourceService, type, sourceId, settingsService);
     content.add(scroller);
   }
 

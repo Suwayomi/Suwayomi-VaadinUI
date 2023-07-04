@@ -17,8 +17,8 @@ import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
+import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.utils.MangaDataUtils;
-import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import org.springframework.web.client.RestTemplate;
 
@@ -28,17 +28,20 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
 
   private final RestTemplate client;
   private final MangaService mangaService;
+  private final SettingsService settingsService;
 
-  public MangaView(RestTemplate client, MangaService mangaService) {
+  public MangaView(
+      RestTemplate client, MangaService mangaService, SettingsService settingsService) {
     super("Manga");
     this.client = client;
     this.mangaService = mangaService;
+    this.settingsService = settingsService;
   }
 
   @Override
   public void beforeEnter(BeforeEnterEvent event) {
     Optional<String> idParam = event.getRouteParameters().get("id");
-    Settings settings = SerializationUtils.deseralizeSettings();
+    Settings settings = settingsService.getSettings();
 
     if (idParam.isEmpty()) {
       event.rerouteToError(NotFoundException.class, "Manga not found");

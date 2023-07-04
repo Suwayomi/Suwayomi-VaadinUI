@@ -6,8 +6,8 @@ import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.component.card.MangaCard;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
+import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.SourceService;
-import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import org.vaadin.firitin.components.orderedlayout.VScroller;
 
 @CssImport("./css/components/scroller/source-explore-scroller.css")
@@ -18,10 +18,16 @@ public class SourceExploreScroller extends VScroller {
   private final ExploreType type;
   private final long sourceId;
   private final Div content = new Div();
+  private final SettingsService settingsService;
 
-  public SourceExploreScroller(SourceService sourceService, ExploreType type, long sourceId) {
+  public SourceExploreScroller(
+      SourceService sourceService,
+      ExploreType type,
+      long sourceId,
+      SettingsService settingsService) {
     super();
     this.sourceService = sourceService;
+    this.settingsService = settingsService;
     this.currentPage = 1;
     this.type = type;
     this.sourceId = sourceId;
@@ -48,7 +54,7 @@ public class SourceExploreScroller extends VScroller {
 
     currentPage++;
 
-    Settings settings = SerializationUtils.deseralizeSettings();
+    Settings settings = settingsService.getSettings();
 
     for (Manga m : manga) {
       content.add(new MangaCard(settings, m));

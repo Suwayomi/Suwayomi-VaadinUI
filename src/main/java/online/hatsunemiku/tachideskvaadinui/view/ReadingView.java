@@ -12,29 +12,31 @@ import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.Route;
 import java.util.Collections;
 import java.util.List;
-import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
+import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.utils.MangaDataUtils;
-import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import org.springframework.web.client.RestTemplate;
 import org.vaadin.firitin.components.orderedlayout.VScroller;
 
 @Route("reading/:mangaId(\\d+)/:chapterId(\\d+(?:\\.\\d+)?)")
 @CssImport("./css/reading.css")
-public class ReadingView extends StandardLayout implements BeforeEnterObserver,
-    BeforeLeaveObserver {
+public class ReadingView extends StandardLayout
+    implements BeforeEnterObserver, BeforeLeaveObserver {
 
   private final RestTemplate client;
+  private final SettingsService settingsService;
   private String mangaId;
   private int currentChapterIndex;
   private Div mangaImages;
   private List<Chapter> chapterList;
 
-  public ReadingView(RestTemplate client) {
+  public ReadingView(RestTemplate client, SettingsService settingsService) {
     super("Reading");
 
     this.client = client;
+    this.settingsService = settingsService;
 
     fullScreen();
   }
@@ -47,7 +49,7 @@ public class ReadingView extends StandardLayout implements BeforeEnterObserver,
 
   @Override
   public void beforeEnter(BeforeEnterEvent event) {
-    Settings settings = SerializationUtils.deseralizeSettings();
+    Settings settings = settingsService.getSettings();
 
     var idparam = event.getRouteParameters().get("mangaId");
     var chapterparam = event.getRouteParameters().get("chapterId");
@@ -91,9 +93,9 @@ public class ReadingView extends StandardLayout implements BeforeEnterObserver,
 
     addChapterImages(settings, mangaId, chapter, chapterObj);
 
-    UI.getCurrent().access(() -> UI.getCurrent()
-        .getPage()
-        .executeJs("document.body.style.overflow = 'hidden';"));
+    UI.getCurrent()
+        .access(
+            () -> UI.getCurrent().getPage().executeJs("document.body.style.overflow = 'hidden';"));
 
     VScroller scroller = new VScroller();
     scroller.addClassName("chapter-scroller");
@@ -130,7 +132,7 @@ public class ReadingView extends StandardLayout implements BeforeEnterObserver,
       return;
     }
 
-    Settings settings = SerializationUtils.deseralizeSettings();
+    Settings settings = settingsService.getSettings();
 
     Chapter chapterObj = chapterList.get(currentChapterIndex);
     String chapter = String.valueOf(chapterObj.getIndex());
@@ -161,8 +163,8 @@ public class ReadingView extends StandardLayout implements BeforeEnterObserver,
 
   @Override
   public void beforeLeave(BeforeLeaveEvent event) {
-    UI.getCurrent().access(() -> UI.getCurrent()
-        .getPage()
-        .executeJs("document.body.style.overflow = 'auto';"));
+    UI.getCurrent()
+        .access(
+            () -> UI.getCurrent().getPage().executeJs("document.body.style.overflow = 'auto';"));
   }
 }

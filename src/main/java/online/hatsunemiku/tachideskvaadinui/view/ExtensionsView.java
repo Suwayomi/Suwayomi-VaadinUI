@@ -6,41 +6,34 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import online.hatsunemiku.tachideskvaadinui.component.scroller.ExtensionScroller;
 import online.hatsunemiku.tachideskvaadinui.services.ExtensionService;
+import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Route("extensions")
 @CssImport("./css/views/extensions.css")
 public class ExtensionsView extends StandardLayout {
 
-  private static final Logger logger = LoggerFactory.getLogger(ExtensionsView.class);
-  private final ExtensionService extensionsService;
-
-  public ExtensionsView(ExtensionService extensionsService) {
+  public ExtensionsView(ExtensionService extensionsService, SettingsService settingsService) {
     super("Extensions");
     VerticalLayout content = new VerticalLayout();
 
-    this.extensionsService = extensionsService;
-
-    ExtensionScroller extensionsList = new ExtensionScroller(extensionsService);
+    ExtensionScroller extensionsList = new ExtensionScroller(extensionsService, settingsService);
 
     TextField search = new TextField("Search");
     search.setPlaceholder("Search");
     search.setClearButtonVisible(true);
 
-    search.addValueChangeListener(e -> {
+    search.addValueChangeListener(
+        e -> {
+          if (e.getValue().isEmpty()) {
+            extensionsList.reset();
+          }
 
-      if (e.getValue().isEmpty()) {
-        extensionsList.reset();
-      }
-
-      extensionsList.search(e.getValue());
-    });
+          extensionsList.search(e.getValue());
+        });
 
     content.add(search, extensionsList);
 
     setContent(content);
   }
-
 }

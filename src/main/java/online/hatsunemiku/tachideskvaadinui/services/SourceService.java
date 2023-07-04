@@ -8,7 +8,6 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Source;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.SourceMangaList;
 import online.hatsunemiku.tachideskvaadinui.services.client.SourceClient;
-import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -17,15 +16,18 @@ public class SourceService {
 
   private final RestTemplate client;
   private final SourceClient sourceClient;
+  private final SettingsService settingsService;
 
-  public SourceService(RestTemplate client, SourceClient sourceClient) {
+  public SourceService(
+      RestTemplate client, SourceClient sourceClient, SettingsService settingsService) {
     this.client = client;
     this.sourceClient = sourceClient;
+    this.settingsService = settingsService;
   }
 
   public List<Source> getSources() {
 
-    Settings settings = SerializationUtils.deseralizeSettings();
+    Settings settings = settingsService.getSettings();
 
     String url = settings.getUrl() + "/api/v1/source/list";
 
@@ -40,7 +42,7 @@ public class SourceService {
 
   public Optional<List<Manga>> getPopularManga(long sourceId, int page) {
 
-    Settings settings = SerializationUtils.deseralizeSettings();
+    Settings settings = settingsService.getSettings();
 
     URI baseUrl = URI.create(settings.getUrl() + "/api/v1");
 
@@ -56,7 +58,7 @@ public class SourceService {
 
   public Optional<List<Manga>> getLatestManga(long sourceId, int page) {
 
-    Settings settings = SerializationUtils.deseralizeSettings();
+    Settings settings = settingsService.getSettings();
 
     URI baseUrl = URI.create(settings.getUrl() + "/api/v1");
 

@@ -4,7 +4,6 @@ import com.vaadin.flow.component.UI;
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Extension;
-import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.ServerStartView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
@@ -16,16 +15,17 @@ import org.springframework.web.client.RestTemplate;
 public class ExtensionService {
 
   private final RestTemplate client;
+  private final SettingsService settingsService;
 
   @Autowired
-  public ExtensionService(RestTemplate client) {
+  public ExtensionService(RestTemplate client, SettingsService settingsService) {
     this.client = client;
+    this.settingsService = settingsService;
   }
-
 
   public List<Extension> getExtensions() {
 
-    Settings settings = SerializationUtils.deseralizeSettings();
+    Settings settings = settingsService.getSettings();
 
     String url = settings.getUrl() + "/api/v1/extension/list";
 
@@ -44,7 +44,7 @@ public class ExtensionService {
   }
 
   public HttpStatusCode installExtension(String pkgName) {
-    Settings settings = SerializationUtils.deseralizeSettings();
+    Settings settings = settingsService.getSettings();
 
     String url = settings.getUrl() + "/api/v1/extension/install/" + pkgName;
 
@@ -58,7 +58,7 @@ public class ExtensionService {
   }
 
   public HttpStatusCode uninstallExtension(String pkgName) {
-    Settings settings = SerializationUtils.deseralizeSettings();
+    Settings settings = settingsService.getSettings();
 
     String url = settings.getUrl() + "/api/v1/extension/uninstall/" + pkgName;
 
