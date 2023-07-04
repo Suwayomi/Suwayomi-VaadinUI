@@ -20,7 +20,7 @@ public class SettingsService {
 
   private static final Logger logger = LoggerFactory.getLogger(SettingsService.class);
 
-  // skipqc: JAVA-S1060
+  //skipqc: JAVA-S1060
   private Settings settings;
 
   public SettingsService() {
