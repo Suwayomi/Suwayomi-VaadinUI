@@ -1,6 +1,5 @@
 package online.hatsunemiku.tachideskvaadinui.view;
 
-
 import static org.springframework.http.HttpMethod.GET;
 
 import com.vaadin.flow.component.UI;
@@ -31,7 +30,6 @@ import org.springframework.web.client.RestTemplate;
 
 @Route("/")
 @CssImport("css/root.css")
-
 public class RootView extends StandardLayout {
 
   private final RestTemplate client;
@@ -45,7 +43,6 @@ public class RootView extends StandardLayout {
     this.settingsService = settingsService;
 
     Settings settings = settingsService.getSettings();
-
 
     List<Category> categories;
 
@@ -63,27 +60,30 @@ public class RootView extends StandardLayout {
     addCategoryTabs(categories, settings);
 
     Button createButton = new Button(VaadinIcon.PLUS.create());
-    createButton.addClickListener(e -> {
-      CategoryDialog dialog = new CategoryDialog(client, settingsService);
+    createButton.addClickListener(
+        e -> {
+          CategoryDialog dialog = new CategoryDialog(client, settingsService);
 
-      dialog.addOpenedChangeListener(event -> {
-        if (!event.isOpened()) {
-          removeClassName("blur");
-        } else {
-          addClassName("blur");
-        }
-      });
+          dialog.addOpenedChangeListener(
+              event -> {
+                if (!event.isOpened()) {
+                  removeClassName("blur");
+                } else {
+                  addClassName("blur");
+                }
+              });
 
-      dialog.addOnCategoryCreationListener(event -> {
-        Category c = event.getCategory();
+          dialog.addOnCategoryCreationListener(
+              event -> {
+                Category c = event.getCategory();
 
-        Settings s = settingsService.getSettings();
+                Settings s = settingsService.getSettings();
 
-        addCategoryTab(s, c);
-      });
+                addCategoryTab(s, c);
+              });
 
-      dialog.open();
-    });
+          dialog.open();
+        });
 
     tabs.setSuffixComponent(createButton);
 
@@ -129,16 +129,17 @@ public class RootView extends StandardLayout {
 
     deleteButton.addClassName("delete-category-button");
 
-    deleteButton.addClickListener(e -> {
-      Settings s = settingsService.getSettings();
-      if (CategoryUtils.deleteCategory(client, s, c.getId())) {
-        tabs.remove(tab);
-      } else {
-        Notification notification = new Notification("Failed to delete category", 3000);
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        notification.open();
-      }
-    });
+    deleteButton.addClickListener(
+        e -> {
+          Settings s = settingsService.getSettings();
+          if (CategoryUtils.deleteCategory(client, s, c.getId())) {
+            tabs.remove(tab);
+          } else {
+            Notification notification = new Notification("Failed to delete category", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.open();
+          }
+        });
     return deleteButton;
   }
 
@@ -159,5 +160,4 @@ public class RootView extends StandardLayout {
       grid.add(card);
     }
   }
-
 }

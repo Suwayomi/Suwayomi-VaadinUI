@@ -23,7 +23,6 @@ public class ExtensionService {
     this.settingsService = settingsService;
   }
 
-
   public List<Extension> getExtensions() {
 
     Settings settings = settingsService.getSettings();

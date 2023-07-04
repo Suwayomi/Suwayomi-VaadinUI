@@ -30,7 +30,8 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
   private final MangaService mangaService;
   private final SettingsService settingsService;
 
-  public MangaView(RestTemplate client, MangaService mangaService, SettingsService settingsService) {
+  public MangaView(
+      RestTemplate client, MangaService mangaService, SettingsService settingsService) {
     super("Manga");
     this.client = client;
     this.mangaService = mangaService;

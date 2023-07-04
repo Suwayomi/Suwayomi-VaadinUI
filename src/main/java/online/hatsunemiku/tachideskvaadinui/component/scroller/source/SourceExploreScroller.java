@@ -20,7 +20,11 @@ public class SourceExploreScroller extends VScroller {
   private final Div content = new Div();
   private final SettingsService settingsService;
 
-  public SourceExploreScroller(SourceService sourceService, ExploreType type, long sourceId, SettingsService settingsService) {
+  public SourceExploreScroller(
+      SourceService sourceService,
+      ExploreType type,
+      long sourceId,
+      SettingsService settingsService) {
     super();
     this.sourceService = sourceService;
     this.settingsService = settingsService;

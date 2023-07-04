@@ -18,7 +18,8 @@ public class SourceService {
   private final SourceClient sourceClient;
   private final SettingsService settingsService;
 
-  public SourceService(RestTemplate client, SourceClient sourceClient, SettingsService settingsService) {
+  public SourceService(
+      RestTemplate client, SourceClient sourceClient, SettingsService settingsService) {
     this.client = client;
     this.sourceClient = sourceClient;
     this.settingsService = settingsService;

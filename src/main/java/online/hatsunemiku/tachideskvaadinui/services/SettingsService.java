@@ -20,10 +20,10 @@ public class SettingsService {
 
   private static final Logger logger = LoggerFactory.getLogger(SettingsService.class);
   private Settings settings;
+
   public SettingsService() {
     deserialize();
   }
-
 
   private void serialize() {
     ObjectMapper mapper = new ObjectMapper();

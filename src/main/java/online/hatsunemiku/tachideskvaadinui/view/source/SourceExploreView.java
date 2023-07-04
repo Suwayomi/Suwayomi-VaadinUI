@@ -94,7 +94,8 @@ public class SourceExploreView extends StandardLayout
 
     buttons.add(popular, latest);
 
-    scroller = new SourceExploreScroller(sourceService, ExploreType.POPULAR, sourceId, settingsService);
+    scroller =
+        new SourceExploreScroller(sourceService, ExploreType.POPULAR, sourceId, settingsService);
 
     content.add(buttons, scroller);
 

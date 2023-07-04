@@ -22,8 +22,8 @@ import org.vaadin.firitin.components.orderedlayout.VScroller;
 
 @Route("reading/:mangaId(\\d+)/:chapterId(\\d+(?:\\.\\d+)?)")
 @CssImport("./css/reading.css")
-public class ReadingView extends StandardLayout implements BeforeEnterObserver,
-    BeforeLeaveObserver {
+public class ReadingView extends StandardLayout
+    implements BeforeEnterObserver, BeforeLeaveObserver {
 
   private final RestTemplate client;
   private final SettingsService settingsService;
@@ -93,9 +93,9 @@ public class ReadingView extends StandardLayout implements BeforeEnterObserver,
 
     addChapterImages(settings, mangaId, chapter, chapterObj);
 
-    UI.getCurrent().access(() -> UI.getCurrent()
-        .getPage()
-        .executeJs("document.body.style.overflow = 'hidden';"));
+    UI.getCurrent()
+        .access(
+            () -> UI.getCurrent().getPage().executeJs("document.body.style.overflow = 'hidden';"));
 
     VScroller scroller = new VScroller();
     scroller.addClassName("chapter-scroller");
@@ -163,8 +163,8 @@ public class ReadingView extends StandardLayout implements BeforeEnterObserver,
 
   @Override
   public void beforeLeave(BeforeLeaveEvent event) {
-    UI.getCurrent().access(() -> UI.getCurrent()
-        .getPage()
-        .executeJs("document.body.style.overflow = 'auto';"));
+    UI.getCurrent()
+        .access(
+            () -> UI.getCurrent().getPage().executeJs("document.body.style.overflow = 'auto';"));
   }
 }

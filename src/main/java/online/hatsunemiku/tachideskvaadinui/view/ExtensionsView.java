@@ -23,18 +23,17 @@ public class ExtensionsView extends StandardLayout {
     search.setPlaceholder("Search");
     search.setClearButtonVisible(true);
 
-    search.addValueChangeListener(e -> {
+    search.addValueChangeListener(
+        e -> {
+          if (e.getValue().isEmpty()) {
+            extensionsList.reset();
+          }
 
-      if (e.getValue().isEmpty()) {
-        extensionsList.reset();
-      }
-
-      extensionsList.search(e.getValue());
-    });
+          extensionsList.search(e.getValue());
+        });
 
     content.add(search, extensionsList);
 
     setContent(content);
   }
-
 }
