@@ -32,7 +32,10 @@ import org.vaadin.addons.online.hatsunemiku.diamond.swiper.constants.LanguageDir
 @Slf4j
 public class MangaReader extends Div {
 
-  public MangaReader(Chapter chapter, SettingsService settingsService, MangaService mangaService,
+  public MangaReader(
+      Chapter chapter,
+      SettingsService settingsService,
+      MangaService mangaService,
       boolean hasNext) {
     addClassName("manga-reader");
 
@@ -41,7 +44,6 @@ public class MangaReader extends Div {
     Controls controls = new Controls(reader, hasNext, chapter);
     add(sidebar, reader, controls);
   }
-
 
   private static class Sidebar extends Div {
 
@@ -70,30 +72,30 @@ public class MangaReader extends Div {
     private Button getChapterRightBtn(Swiper swiper, Chapter chapter, boolean hasNext) {
       Button rightBtn = new Button(VaadinIcon.ANGLE_RIGHT.create());
       rightBtn.setId("rightBtn");
-      rightBtn.addClickListener(e -> {
+      rightBtn.addClickListener(
+          e -> {
+            int chapterIndex = chapter.getIndex();
 
-        int chapterIndex = chapter.getIndex();
+            if (swiper.getLanguageDirection() == LanguageDirection.RIGHT_TO_LEFT) {
 
-        if (swiper.getLanguageDirection() == LanguageDirection.RIGHT_TO_LEFT) {
+              if (chapterIndex <= 1) {
+                return;
+              }
 
-          if (chapterIndex <= 1) {
-            return;
-          }
+              chapterIndex--;
+            } else {
 
-          chapterIndex--;
-        } else {
+              if (!hasNext) {
+                return;
+              }
 
-          if (!hasNext) {
-            return;
-          }
+              chapterIndex++;
+            }
 
-          chapterIndex++;
-        }
+            UI ui = UI.getCurrent();
 
-        UI ui = UI.getCurrent();
-
-        NavigationUtils.navigateToReader(chapter.getMangaId(), chapterIndex, ui);
-      });
+            NavigationUtils.navigateToReader(chapter.getMangaId(), chapterIndex, ui);
+          });
       return rightBtn;
     }
 
@@ -104,28 +106,29 @@ public class MangaReader extends Div {
       chapterComboBox.setItems(chapters);
       chapterComboBox.setValue(chapter);
       chapterComboBox.setAllowCustomValue(false);
-      chapterComboBox.addValueChangeListener(e -> {
-        if (!e.isFromClient()) {
-          return;
-        }
+      chapterComboBox.addValueChangeListener(
+          e -> {
+            if (!e.isFromClient()) {
+              return;
+            }
 
-        Chapter c = e.getValue();
+            Chapter c = e.getValue();
 
-        if (c == null) {
-          return;
-        }
+            if (c == null) {
+              return;
+            }
 
-        UI ui = getUI().orElseThrow();
+            UI ui = getUI().orElseThrow();
 
-        String mangaId = String.valueOf(c.getMangaId());
-        String chapterIndex = String.valueOf(c.getIndex());
+            String mangaId = String.valueOf(c.getMangaId());
+            String chapterIndex = String.valueOf(c.getIndex());
 
-        RouteParam mangaIdParam = new RouteParam("mangaId", mangaId);
-        RouteParam chapterIndexParam = new RouteParam("chapterIndex", chapterIndex);
+            RouteParam mangaIdParam = new RouteParam("mangaId", mangaId);
+            RouteParam chapterIndexParam = new RouteParam("chapterIndex", chapterIndex);
 
-        RouteParameters params = new RouteParameters(mangaIdParam, chapterIndexParam);
-        ui.navigate(ReadingView.class, params);
-      });
+            RouteParameters params = new RouteParameters(mangaIdParam, chapterIndexParam);
+            ui.navigate(ReadingView.class, params);
+          });
       return chapterComboBox;
     }
 
@@ -133,30 +136,30 @@ public class MangaReader extends Div {
     private Button getChapterLeftBtn(Swiper swiper, Chapter chapter, boolean hasNext) {
       Button leftBtn = new Button(VaadinIcon.ANGLE_LEFT.create());
       leftBtn.setId("leftBtn");
-      leftBtn.addClickListener(e -> {
+      leftBtn.addClickListener(
+          e -> {
+            int chapterIndex = chapter.getIndex();
 
-        int chapterIndex = chapter.getIndex();
+            if (swiper.getLanguageDirection() == LanguageDirection.RIGHT_TO_LEFT) {
 
-        if (swiper.getLanguageDirection() == LanguageDirection.RIGHT_TO_LEFT) {
+              if (!hasNext) {
+                return;
+              }
 
-          if (!hasNext) {
-            return;
-          }
+              chapterIndex++;
+            } else {
 
-          chapterIndex++;
-        } else {
+              if (chapterIndex <= 1) {
+                return;
+              }
 
-          if (chapterIndex <= 1) {
-            return;
-          }
+              chapterIndex--;
+            }
 
-          chapterIndex--;
-        }
+            UI ui = UI.getCurrent();
 
-        UI ui = UI.getCurrent();
-
-        NavigationUtils.navigateToReader(chapter.getMangaId(), chapterIndex, ui);
-      });
+            NavigationUtils.navigateToReader(chapter.getMangaId(), chapterIndex, ui);
+          });
       return leftBtn;
     }
 
@@ -165,8 +168,7 @@ public class MangaReader extends Div {
           <div>${item.name}</div>
           """;
 
-      return LitRenderer.<Chapter>of(template)
-          .withProperty("name", Chapter::getName);
+      return LitRenderer.<Chapter>of(template).withProperty("name", Chapter::getName);
     }
 
     @NotNull
@@ -189,9 +191,7 @@ public class MangaReader extends Div {
       this.chapter = chapter;
       this.settingsService = settingsService;
 
-      var config = SwiperConfig.builder()
-          .centeredSlides(true)
-          .build();
+      var config = SwiperConfig.builder().centeredSlides(true).build();
 
       swiper = new Swiper(config);
       swiper.changeLanguageDirection(LanguageDirection.RIGHT_TO_LEFT);
@@ -240,43 +240,45 @@ public class MangaReader extends Div {
 
       TextField input = new TextField("", "1", "");
       input.setAllowedCharPattern("\\d");
-      input.addValueChangeListener(e -> {
-        if (e.getValue().isEmpty()) {
-          log.debug("Value is empty");
-          input.setValue(e.getOldValue());
-          return;
-        }
+      input.addValueChangeListener(
+          e -> {
+            if (e.getValue().isEmpty()) {
+              log.debug("Value is empty");
+              input.setValue(e.getOldValue());
+              return;
+            }
 
-        if (!e.getValue().matches("\\d+")) {
-          log.debug("Value is not a number");
-          input.setValue(e.getOldValue());
-          return;
-        }
+            if (!e.getValue().matches("\\d+")) {
+              log.debug("Value is not a number");
+              input.setValue(e.getOldValue());
+              return;
+            }
 
-        int value = Integer.parseInt(e.getValue());
+            int value = Integer.parseInt(e.getValue());
 
-        if (value == reader.swiper.getActiveIndex()) {
-          log.debug("Value is the same as active index");
-          input.setValue(e.getOldValue());
-          return;
-        }
+            if (value == reader.swiper.getActiveIndex()) {
+              log.debug("Value is the same as active index");
+              input.setValue(e.getOldValue());
+              return;
+            }
 
-        if (value > pageCount || value < 1) {
-          log.debug("Value is out of bounds");
-          input.setValue(e.getOldValue());
-          return;
-        }
+            if (value > pageCount || value < 1) {
+              log.debug("Value is out of bounds");
+              input.setValue(e.getOldValue());
+              return;
+            }
 
-        reader.swiper.slideTo(value - 1);
-        log.debug("Value changed to {}", value);
-      });
+            reader.swiper.slideTo(value - 1);
+            log.debug("Value changed to {}", value);
+          });
 
       Text totalChapters = new Text("/ " + pageCount);
 
-      reader.swiper.addActiveIndexChangeEventListener(e -> {
-        int activeIndex = e.getActiveIndex() + 1;
-        input.setValue(String.valueOf(activeIndex));
-      });
+      reader.swiper.addActiveIndexChangeEventListener(
+          e -> {
+            int activeIndex = e.getActiveIndex() + 1;
+            input.setValue(String.valueOf(activeIndex));
+          });
 
       pageTrack.add(input, totalChapters);
 
@@ -289,14 +291,15 @@ public class MangaReader extends Div {
     private Button getNextButton(Reader reader) {
       Icon arrowRight = VaadinIcon.ARROW_RIGHT.create();
       Button right = new Button(arrowRight);
-      right.addClickListener(e -> {
-        Swiper swiper = reader.swiper;
-        if (swiper.getLanguageDirection() == LanguageDirection.RIGHT_TO_LEFT) {
-          prevPage(swiper);
-        } else {
-          nextPage(swiper);
-        }
-      });
+      right.addClickListener(
+          e -> {
+            Swiper swiper = reader.swiper;
+            if (swiper.getLanguageDirection() == LanguageDirection.RIGHT_TO_LEFT) {
+              prevPage(swiper);
+            } else {
+              nextPage(swiper);
+            }
+          });
       right.setIconAfterText(true);
       return right;
     }
@@ -305,14 +308,15 @@ public class MangaReader extends Div {
     private Button getPrevButton(Reader reader) {
       Icon arrowLeft = VaadinIcon.ARROW_LEFT.create();
       Button left = new Button(arrowLeft);
-      left.addClickListener(e -> {
-        Swiper swiper = reader.swiper;
-        if (swiper.getLanguageDirection() == LanguageDirection.RIGHT_TO_LEFT) {
-          nextPage(swiper);
-        } else {
-          prevPage(swiper);
-        }
-      });
+      left.addClickListener(
+          e -> {
+            Swiper swiper = reader.swiper;
+            if (swiper.getLanguageDirection() == LanguageDirection.RIGHT_TO_LEFT) {
+              nextPage(swiper);
+            } else {
+              prevPage(swiper);
+            }
+          });
       return left;
     }
 
@@ -331,8 +335,8 @@ public class MangaReader extends Div {
 
       RouteParam mangaIdParam = new RouteParam("mangaId", String.valueOf(this.mangaId));
       int newChapterIndex = this.chapterIndex + 1;
-      RouteParam chapterIndexParam = new RouteParam("chapterIndex",
-          String.valueOf(newChapterIndex));
+      RouteParam chapterIndexParam =
+          new RouteParam("chapterIndex", String.valueOf(newChapterIndex));
 
       RouteParameters params = new RouteParameters(mangaIdParam, chapterIndexParam);
 
@@ -354,8 +358,8 @@ public class MangaReader extends Div {
 
       RouteParam mangaIdParam = new RouteParam("mangaId", String.valueOf(this.mangaId));
       int newChapterIndex = this.chapterIndex - 1;
-      RouteParam chapterIndexParam = new RouteParam("chapterIndex",
-          String.valueOf(newChapterIndex));
+      RouteParam chapterIndexParam =
+          new RouteParam("chapterIndex", String.valueOf(newChapterIndex));
 
       RouteParameters params = new RouteParameters(mangaIdParam, chapterIndexParam);
 

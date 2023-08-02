@@ -16,23 +16,23 @@ public class ChapterListBox extends ListBox<Chapter> {
     super();
     setItems(chapters);
     setRenderer(new ChapterRenderer());
-    addValueChangeListener(e -> {
-      int mangaId = e.getValue().getMangaId();
+    addValueChangeListener(
+        e -> {
+          int mangaId = e.getValue().getMangaId();
 
-      RouteParam mangaIdParam = new RouteParam("mangaId", String.valueOf(mangaId));
+          RouteParam mangaIdParam = new RouteParam("mangaId", String.valueOf(mangaId));
 
-      double chapterNumber = e.getValue().getChapterNumber();
-      RouteParam chapterIndexParam;
-      if (chapterNumber % 1 == 0) {
-        chapterIndexParam = new RouteParam("chapterIndex", String.valueOf((int) chapterNumber));
-      } else {
-        chapterIndexParam = new RouteParam("chapterIndex", String.valueOf(chapterNumber));
-      }
+          double chapterNumber = e.getValue().getChapterNumber();
+          RouteParam chapterIndexParam;
+          if (chapterNumber % 1 == 0) {
+            chapterIndexParam = new RouteParam("chapterIndex", String.valueOf((int) chapterNumber));
+          } else {
+            chapterIndexParam = new RouteParam("chapterIndex", String.valueOf(chapterNumber));
+          }
 
-      RouteParameters params = new RouteParameters(mangaIdParam, chapterIndexParam);
+          RouteParameters params = new RouteParameters(mangaIdParam, chapterIndexParam);
 
-      UI.getCurrent().navigate(ReadingView.class, params);
-    });
+          UI.getCurrent().navigate(ReadingView.class, params);
+        });
   }
-
 }

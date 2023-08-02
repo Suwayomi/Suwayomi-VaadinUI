@@ -17,7 +17,7 @@ public interface MangaClient {
   @DeleteMapping("/api/v1/manga/{mangaId}/library")
   void removeMangaFromLibrary(URI baseUrl, @PathVariable long mangaId);
 
-  //{{_.base_url}}/api/v1/manga/{{_.mangaId}}/chapters
+  // {{_.base_url}}/api/v1/manga/{{_.mangaId}}/chapters
   @GetMapping("/api/v1/manga/{mangaId}/chapters")
   List<Chapter> getChapterList(URI baseUrl, @PathVariable long mangaId);
 
