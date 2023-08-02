@@ -22,14 +22,14 @@ public class ChapterListBox extends ListBox<Chapter> {
       RouteParam mangaIdParam = new RouteParam("mangaId", String.valueOf(mangaId));
 
       double chapterNumber = e.getValue().getChapterNumber();
-      RouteParam chapterIdParam;
+      RouteParam chapterIndexParam;
       if (chapterNumber % 1 == 0) {
-        chapterIdParam = new RouteParam("chapterId", String.valueOf((int) chapterNumber));
+        chapterIndexParam = new RouteParam("chapterIndex", String.valueOf((int) chapterNumber));
       } else {
-        chapterIdParam = new RouteParam("chapterId", String.valueOf(chapterNumber));
+        chapterIndexParam = new RouteParam("chapterIndex", String.valueOf(chapterNumber));
       }
 
-      RouteParameters params = new RouteParameters(mangaIdParam, chapterIdParam);
+      RouteParameters params = new RouteParameters(mangaIdParam, chapterIndexParam);
 
       UI.getCurrent().navigate(ReadingView.class, params);
     });

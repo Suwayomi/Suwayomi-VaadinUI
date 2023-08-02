@@ -1,0 +1,10 @@
+.chapter-separator-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--miku-background);
+  color: var(--miku-main-color);
+  min-height: 100%;
+  direction: ltr;
+}

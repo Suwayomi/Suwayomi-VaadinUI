@@ -114,6 +114,7 @@ public class StandardLayout extends VerticalLayout {
   }
 
   protected void setContent(Component content) {
+    this.content.removeAll();
     this.content.add(content);
   }
 

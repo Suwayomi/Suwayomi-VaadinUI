@@ -5,3 +5,11 @@ vaadin-combo-box > input {
 vaadin-combo-box > label {
   color: var(--miku-main-color);
 }
+
+vaadin-combo-box::part(input-field) {
+  border: var(--miku-main-color) 1px solid;
+}
+
+vaadin-combo-box::part(toggle-button) {
+  color: var(--miku-main-color);
+}
