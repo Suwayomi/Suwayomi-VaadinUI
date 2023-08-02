@@ -29,6 +29,10 @@ html {
   --miku-error-color-20: rgba(225, 40, 133, 0.2);
   --miku-error-color-50: rgba(225, 40, 133, 0.5);
 
+  --miku-background-color: rgb(134, 206, 203);
+
+  --miku-background-color-dark: hsl(177, 22%, 50%);
+
 
   /*dark*/
   --miku-selected-dark-color: hsl(193, 62%, 29%);

@@ -14,6 +14,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 public class TachideskVaadinUiApplication implements AppShellConfigurator {
 
   public static void main(String[] args) {
+
     SpringApplication.run(TachideskVaadinUiApplication.class, args);
   }
 }
