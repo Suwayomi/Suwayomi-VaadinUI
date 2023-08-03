@@ -12,3 +12,7 @@
 .extension-installed-btn {
   color: var(--miku-selected-color-50);
 }
+
+.extensions-view {
+  max-height: 100vh;
+}

@@ -15,6 +15,7 @@ public class ExtensionsView extends StandardLayout {
 
   public ExtensionsView(ExtensionService extensionsService, SettingsService settingsService) {
     super("Extensions");
+    setClassName("extensions-view");
     VerticalLayout content = new VerticalLayout();
 
     ExtensionScroller extensionsList = new ExtensionScroller(extensionsService, settingsService);
