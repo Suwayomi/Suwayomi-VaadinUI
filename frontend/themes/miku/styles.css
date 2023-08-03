@@ -1,3 +1,4 @@
+@import "theme-editor.css";
 /* Hatsune Miku theme */
 @import "./components/list-box.css";
 @import "./components/tab-sheets.css";

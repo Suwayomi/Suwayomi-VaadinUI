@@ -3,6 +3,7 @@ package online.hatsunemiku.tachideskvaadinui.view;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -20,6 +21,7 @@ import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.utils.MangaDataUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.web.client.RestTemplate;
 
 @Route("manga/:id(\\d+)")
@@ -75,6 +77,17 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
 
     ListBox<Chapter> chapters = getChapters(settings, id);
 
+    Div buttons = getButtons(manga);
+
+    H1 mangaTitle = new H1(manga.getTitle());
+    mangaTitle.addClassName("manga-title");
+
+    container.add(mangaTitle, imageContainer, buttons, chapters);
+    setContent(container);
+  }
+
+  @NotNull
+  private Div getButtons(Manga manga) {
     Div buttons = new Div();
     buttons.addClassName("manga-buttons");
 
@@ -99,9 +112,7 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     }
 
     buttons.add(libraryBtn);
-
-    container.add(imageContainer, buttons, chapters);
-    setContent(container);
+    return buttons;
   }
 
   private Manga getManga(Settings settings, String id) {

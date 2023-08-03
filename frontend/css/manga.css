@@ -2,7 +2,6 @@
   display: flex;
   box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  background-color: #fff;
   justify-content: center;
   position: relative;
   cursor: pointer;
@@ -13,7 +12,7 @@
   display: flex;
   object-fit: contain;
   object-position: center;
-  min-height: 30vh;
+  min-height: 50vh;
   max-height: 70vh;
   width: 100%;
 }
