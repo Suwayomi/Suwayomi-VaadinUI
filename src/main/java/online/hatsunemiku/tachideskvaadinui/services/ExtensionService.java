@@ -1,9 +1,11 @@
 package online.hatsunemiku.tachideskvaadinui.services;
 
 import com.vaadin.flow.component.UI;
+import java.net.URI;
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Extension;
+import online.hatsunemiku.tachideskvaadinui.services.client.ExtensionClient;
 import online.hatsunemiku.tachideskvaadinui.view.ServerStartView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
@@ -16,11 +18,14 @@ public class ExtensionService {
 
   private final RestTemplate client;
   private final SettingsService settingsService;
+  private final ExtensionClient extensionClient;
 
   @Autowired
-  public ExtensionService(RestTemplate client, SettingsService settingsService) {
+  public ExtensionService(
+      RestTemplate client, SettingsService settingsService, ExtensionClient extensionClient) {
     this.client = client;
     this.settingsService = settingsService;
+    this.extensionClient = extensionClient;
   }
 
   public List<Extension> getExtensions() {
@@ -68,6 +73,18 @@ public class ExtensionService {
       return response.getStatusCode();
     } catch (RestClientException e) {
       return HttpStatusCode.valueOf(500);
+    }
+  }
+
+  public void updateExtension(String pkgName) {
+    Settings settings = settingsService.getSettings();
+
+    URI baseUrl = URI.create(settings.getUrl());
+
+    try {
+      extensionClient.updateExtension(baseUrl, pkgName);
+    } catch (RestClientException e) {
+      UI.getCurrent().navigate(ServerStartView.class);
     }
   }
 }

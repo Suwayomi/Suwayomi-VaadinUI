@@ -97,6 +97,7 @@ public class ExtensionScroller extends VScroller {
 
   private List<Extension> filterExtensions(String search, List<Extension> extensions) {
     return extensions.stream()
+        .filter(extension -> !(!extension.isInstalled() && extension.isObsolete()))
         .filter(
             extension -> {
               if (search == null) {
