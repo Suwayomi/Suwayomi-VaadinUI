@@ -73,7 +73,8 @@ public class ExtensionItem extends BlurryItem {
     return extensionData;
   }
 
-  private void configureUninstallBtn(Extension extension, ExtensionService service, Button installBtn, Button uninstallBtn) {
+  private void configureUninstallBtn(
+      Extension extension, ExtensionService service, Button installBtn, Button uninstallBtn) {
     uninstallBtn.setClassName("extension-uninstall-btn");
 
     uninstallBtn.addClickListener(
@@ -104,7 +105,8 @@ public class ExtensionItem extends BlurryItem {
         });
   }
 
-  private void configureInstallBtn(Extension extension, ExtensionService service, Button uninstallBtn, Button installBtn) {
+  private void configureInstallBtn(
+      Extension extension, ExtensionService service, Button uninstallBtn, Button installBtn) {
     installBtn.setClassName("extension-install-btn");
 
     updateStatus(extension, installBtn, uninstallBtn);

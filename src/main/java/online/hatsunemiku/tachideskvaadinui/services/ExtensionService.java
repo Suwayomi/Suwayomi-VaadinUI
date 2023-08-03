@@ -21,7 +21,8 @@ public class ExtensionService {
   private final ExtensionClient extensionClient;
 
   @Autowired
-  public ExtensionService(RestTemplate client, SettingsService settingsService, ExtensionClient extensionClient) {
+  public ExtensionService(
+      RestTemplate client, SettingsService settingsService, ExtensionClient extensionClient) {
     this.client = client;
     this.settingsService = settingsService;
     this.extensionClient = extensionClient;
