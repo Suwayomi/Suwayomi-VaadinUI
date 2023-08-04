@@ -55,6 +55,7 @@
   height: 100%;
   width: auto;
 
+  background: url("images/loading.svg") no-repeat center center;
   /* contain */
   object-fit: contain;
 }
