@@ -1,7 +1,9 @@
 package online.hatsunemiku.tachideskvaadinui.data.tracking;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
+@Getter
 public class OAuthResponse{
 
 	@JsonProperty("access_token")
@@ -16,19 +18,4 @@ public class OAuthResponse{
 	@JsonProperty("expires_in")
 	private int expiresIn;
 
-	public String getAccessToken(){
-		return accessToken;
-	}
-
-	public String getRefreshToken(){
-		return refreshToken;
-	}
-
-	public String getTokenType(){
-		return tokenType;
-	}
-
-	public int getExpiresIn(){
-		return expiresIn;
-	}
 }
