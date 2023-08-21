@@ -33,9 +33,12 @@ dependencies {
     implementation 'com.vaadin:vaadin-spring-boot-starter'
     implementation 'org.jetbrains:annotations:24.0.0'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'com.github.ben-manes.caffeine:caffeine:3.1.5'
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.0.4'
     implementation 'io.github.openfeign:feign-jackson:12.2'
+    implementation 'pl.unforgiven:superfields:0.18.3'
+    implementation 'com.squareup.okhttp3:okhttp:4.11.0'
 
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'

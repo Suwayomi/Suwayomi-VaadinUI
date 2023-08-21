@@ -24,6 +24,10 @@
   width: 100%;
 }
 
+.manga-buttons .manga-btn {
+  margin-left: 0.5rem;
+}
+
 .chapter {
   display: flex;
   flex-direction: row;

@@ -51,3 +51,4 @@ target/
 
 meta.json
 settings.json
+secrets.json

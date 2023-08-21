@@ -20,6 +20,7 @@ import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
+import online.hatsunemiku.tachideskvaadinui.services.TrackingService;
 import online.hatsunemiku.tachideskvaadinui.utils.NavigationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.ReadingView;
 import online.hatsunemiku.tachideskvaadinui.view.RootView;
@@ -36,10 +37,11 @@ public class MangaReader extends Div {
       Chapter chapter,
       SettingsService settingsService,
       MangaService mangaService,
+      TrackingService trackingService,
       boolean hasNext) {
     addClassName("manga-reader");
 
-    Reader reader = new Reader(chapter, settingsService);
+    Reader reader = new Reader(chapter, settingsService, trackingService);
     Sidebar sidebar = new Sidebar(mangaService, chapter, reader.swiper, hasNext);
     Controls controls = new Controls(reader, hasNext, chapter);
     add(sidebar, reader, controls);
@@ -186,7 +188,7 @@ public class MangaReader extends Div {
     private final Swiper swiper;
     private final SettingsService settingsService;
 
-    public Reader(Chapter chapter, SettingsService settingsService) {
+    public Reader(Chapter chapter, SettingsService settingsService, TrackingService trackingService) {
       addClassName("reader");
       this.chapter = chapter;
       this.settingsService = settingsService;
@@ -197,6 +199,16 @@ public class MangaReader extends Div {
       swiper.changeLanguageDirection(LanguageDirection.RIGHT_TO_LEFT);
 
       loadChapter();
+
+      swiper.addActiveIndexChangeEventListener(e -> {
+
+        if (e.getActiveIndex() == chapter.getPageCount() - 1) {
+          log.info("Last page of chapter {}", chapter.getIndex());
+          trackingService.setChapterProgress(chapter.getMangaId(), chapter.getIndex(), true);
+          e.unregisterListener();
+        }
+
+      });
 
       add(swiper);
     }
