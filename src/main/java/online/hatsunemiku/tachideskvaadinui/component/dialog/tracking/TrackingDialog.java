@@ -29,7 +29,6 @@ import org.vaadin.miki.superfields.numbers.SuperIntegerField;
 @Slf4j
 public class TrackingDialog extends Dialog {
 
-  private Button aniListBtn;
   private final AniListAPIService aniListAPI;
   private final SettingsService settingsService;
 
@@ -129,7 +128,8 @@ public class TrackingDialog extends Dialog {
   }
 
   @NotNull
-  private SuperDatePicker getTrackingStartDateField(Tracker tracker, AniListMangaStatistics mangaStats, SuperDatePicker endDate) {
+  private SuperDatePicker getTrackingStartDateField(Tracker tracker,
+      AniListMangaStatistics mangaStats, SuperDatePicker endDate) {
     SuperDatePicker startDate = new SuperDatePicker();
     startDate.setPlaceholder("Start date");
     startDate.setClearButtonVisible(true);
@@ -232,8 +232,7 @@ public class TrackingDialog extends Dialog {
 
   @NotNull
   private SuperIntegerField getTrackingChapterField(Tracker tracker,
-      AniListMangaStatistics mangaStats,
-      Optional<Integer> maxChapters) {
+      AniListMangaStatistics mangaStats, Optional<Integer> maxChapters) {
     SuperIntegerField chapter = new SuperIntegerField();
     chapter.setPreventingInvalidInput(true);
     chapter.setValue(mangaStats.progress());
