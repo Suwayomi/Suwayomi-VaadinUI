@@ -11,8 +11,7 @@ public enum AniListScoreFormat {
   POINT_3(3, 1);
 
   private final int maxScore;
-  @Getter
-  private final int minScore;
+  @Getter private final int minScore;
 
   AniListScoreFormat(int maxScore, int minScore) {
     this.maxScore = maxScore;

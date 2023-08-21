@@ -50,8 +50,7 @@ public class AniListAPIService {
    * dependencies.
    *
    * @param settingsService the SettingsService object to be used for accessing user settings.
-   * @param mapper          the ObjectMapper object to be used for serializing and deserializing
-   *                        JSON data.
+   * @param mapper the ObjectMapper object to be used for serializing and deserializing JSON data.
    */
   public AniListAPIService(SettingsService settingsService, ObjectMapper mapper) {
     this.settingsService = settingsService;
@@ -66,12 +65,10 @@ public class AniListAPIService {
    * Retrieves the AniList token from the settings.
    *
    * @return an Optional containing the AniList token if it is present, otherwise returns an empty
-   * Optional
+   *     Optional
    */
   private Optional<String> getAniListToken() {
-    String token = settingsService.getSettings()
-        .getTrackerTokens()
-        .getAniListToken();
+    String token = settingsService.getSettings().getTrackerTokens().getAniListToken();
 
     if (token == null || token.isEmpty()) {
       return Optional.empty();
@@ -119,14 +116,16 @@ public class AniListAPIService {
 
     String oauthTokenUrl = OAUTH_URL + "/token";
 
-    //OAuth headers
-    okhttp3.Headers headers = new okhttp3.Headers.Builder()
-        .add("Content-Type", "application/json")
-        .add("Accept", "application/json")
-        .build();
+    // OAuth headers
+    okhttp3.Headers headers =
+        new okhttp3.Headers.Builder()
+            .add("Content-Type", "application/json")
+            .add("Accept", "application/json")
+            .build();
 
-    //OAuth json
-    String json = """
+    // OAuth json
+    String json =
+        """
         {
           "grant_type": "authorization_code",
           "client_id": "%s",
@@ -134,16 +133,13 @@ public class AniListAPIService {
           "redirect_uri": "%s",
           "code": "%s"
         }
-        """.formatted(OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET, OAUTH_REDIRECT_URI, code);
+        """
+            .formatted(OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET, OAUTH_REDIRECT_URI, code);
 
-    RequestBody body = RequestBody.create(json,
-        okhttp3.MediaType.parse("application/json; charset=utf-8"));
+    RequestBody body =
+        RequestBody.create(json, okhttp3.MediaType.parse("application/json; charset=utf-8"));
 
-    Request request = new Request.Builder()
-        .url(oauthTokenUrl)
-        .headers(headers)
-        .post(body)
-        .build();
+    Request request = new Request.Builder().url(oauthTokenUrl).headers(headers).post(body).build();
 
     try (var response = client.newCall(request).execute()) {
       if (!response.isSuccessful()) {
@@ -160,9 +156,7 @@ public class AniListAPIService {
 
       OAuthResponse aniListAuth = mapper.readValue(responseJson, OAuthResponse.class);
 
-      settingsService.getSettings()
-          .getTrackerTokens()
-          .setAniListAuth(aniListAuth);
+      settingsService.getSettings().getTrackerTokens().setAniListAuth(aniListAuth);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -176,7 +170,8 @@ public class AniListAPIService {
    * @return An {@link AniListMangaListResponse} object representing the manga search results
    */
   public AniListMangaListResponse searchManga(String name) {
-    String query = """
+    String query =
+        """
         query Search($search: String) {
             Page(perPage: 50) {
               media(search: $search, type: MANGA, format_not_in: [NOVEL]) {
@@ -212,7 +207,8 @@ public class AniListAPIService {
 
     GraphQLRequest request = new GraphQLRequest(query, variables);
 
-    return webClient.post()
+    return webClient
+        .post()
         .contentType(MediaType.APPLICATION_JSON)
         .body(BodyInserters.fromValue(request))
         .retrieve()
@@ -225,14 +221,15 @@ public class AniListAPIService {
    *
    * @return The current user's ID
    * @throws RuntimeException If no AniList token is available or if there is an error retrieving
-   *                          the user ID
+   *     the user ID
    */
   private int getCurrentUserId() {
     if (!hasAniListToken()) {
       throw new RuntimeException("No AniList Token");
     }
 
-    String query = """
+    String query =
+        """
         query {
           Viewer {
             id
@@ -248,12 +245,10 @@ public class AniListAPIService {
       throw new RuntimeException("No user ID");
     }
 
-    //json
+    // json
     JsonObject json = Json.parse(id);
 
-    return (int) json.getObject("data")
-        .getObject("Viewer")
-        .getNumber("id");
+    return (int) json.getObject("data").getObject("Viewer").getNumber("id");
   }
 
   /**
@@ -264,7 +259,8 @@ public class AniListAPIService {
    * @throws RuntimeException If an error occurs while checking the manga
    */
   public boolean isMangaInList(int mangaId) {
-    String query = """
+    String query =
+        """
         query ($userId: Int, $mangaId: Int) {
           MediaList(userId: $userId, type: MANGA, mediaId: $mangaId) {
             id
@@ -273,22 +269,26 @@ public class AniListAPIService {
         }
         """;
 
-    String variables = """
+    String variables =
+        """
         {
           "userId": %s,
           "mangaId": %s
         }
-        """.formatted(getCurrentUserId(), mangaId);
+        """
+            .formatted(getCurrentUserId(), mangaId);
 
     GraphQLRequest request = new GraphQLRequest(query, variables);
 
-    //false if 404. True if 200. Error if anything else
-    var response = webClient.post()
-        .contentType(MediaType.APPLICATION_JSON)
-        .header("Authorization", getAniListTokenHeader())
-        .bodyValue(request)
-        .exchangeToMono(Mono::just)
-        .block();
+    // false if 404. True if 200. Error if anything else
+    var response =
+        webClient
+            .post()
+            .contentType(MediaType.APPLICATION_JSON)
+            .header("Authorization", getAniListTokenHeader())
+            .bodyValue(request)
+            .exchangeToMono(Mono::just)
+            .block();
 
     if (response == null) {
       throw new RuntimeException("Response is null");
@@ -305,7 +305,6 @@ public class AniListAPIService {
     throw new RuntimeException("Unexpected response code: " + response.statusCode());
   }
 
-
   /**
    * Adds a manga to the user's list with the status "READING".
    *
@@ -313,7 +312,8 @@ public class AniListAPIService {
    * @throws RuntimeException If an error occurs while adding the manga to the list
    */
   public void addMangaToList(int mangaId) {
-    String query = """
+    String query =
+        """
         mutation($mangaId: Int, $status: MediaListStatus){
           SaveMediaListEntry(mediaId: $mangaId, status: $status) {
             id
@@ -322,23 +322,27 @@ public class AniListAPIService {
         }
         """;
 
-    String variables = """
+    String variables =
+        """
         {
           "mangaId": %s,
           "status": "%s"
         }
-        """.formatted(mangaId, AniListStatus.CURRENT.name());
+        """
+            .formatted(mangaId, AniListStatus.CURRENT.name());
 
     GraphQLRequest request = new GraphQLRequest(query, variables);
 
-    //false if 404. True if 200. Error if anything else
-    var response = webClient.post()
-        .contentType(MediaType.APPLICATION_JSON)
-        .header("Authorization", getAniListTokenHeader())
-        .bodyValue(request)
-        .retrieve()
-        .toEntity(String.class)
-        .block();
+    // false if 404. True if 200. Error if anything else
+    var response =
+        webClient
+            .post()
+            .contentType(MediaType.APPLICATION_JSON)
+            .header("Authorization", getAniListTokenHeader())
+            .bodyValue(request)
+            .retrieve()
+            .toEntity(String.class)
+            .block();
 
     if (response == null) {
       throw new RuntimeException("Response is null");
@@ -356,7 +360,8 @@ public class AniListAPIService {
   }
 
   public AniListMangaStatistics getMangaFromList(int mangaId) {
-    String query = """
+    String query =
+        """
         query ($mangaId: Int, $userId: Int) {
           MediaList(mediaId: $mangaId, userId: $userId) {
             status
@@ -376,30 +381,33 @@ public class AniListAPIService {
         }
         """;
 
-    String variables = """
+    String variables =
+        """
         {
           "mangaId": %s,
           "userId": %s
         }
-        """.formatted(mangaId, getCurrentUserId());
+        """
+            .formatted(mangaId, getCurrentUserId());
 
     GraphQLRequest request = new GraphQLRequest(query, variables);
 
-    var response = webClient.post()
-        .contentType(MediaType.APPLICATION_JSON)
-        .header("Authorization", getAniListTokenHeader())
-        .bodyValue(request)
-        .retrieve()
-        .bodyToMono(String.class)
-        .block();
+    var response =
+        webClient
+            .post()
+            .contentType(MediaType.APPLICATION_JSON)
+            .header("Authorization", getAniListTokenHeader())
+            .bodyValue(request)
+            .retrieve()
+            .bodyToMono(String.class)
+            .block();
 
     if (response == null) {
       throw new RuntimeException("Response is null");
     }
 
     JsonObject json = Json.parse(response);
-    json = json.getObject("data")
-        .getObject("MediaList");
+    json = json.getObject("data").getObject("MediaList");
 
     try {
       var statistics = mapper.readValue(json.toJson(), AniListMangaStatistics.class);
@@ -414,7 +422,8 @@ public class AniListAPIService {
   }
 
   public AniListScoreFormat getScoreFormat() {
-    String query = """
+    String query =
+        """
         query {
           Viewer {
             mediaListOptions {
@@ -434,16 +443,18 @@ public class AniListAPIService {
 
     JsonObject json = Json.parse(response);
 
-    String scoreFormat = json.getObject("data")
-        .getObject("Viewer")
-        .getObject("mediaListOptions")
-        .getString("scoreFormat");
+    String scoreFormat =
+        json.getObject("data")
+            .getObject("Viewer")
+            .getObject("mediaListOptions")
+            .getString("scoreFormat");
 
     return AniListScoreFormat.valueOf(scoreFormat);
   }
 
   public Optional<Integer> getChapterCount(int mangaId) {
-    String query = """
+    String query =
+        """
         query ($mangaId: Int) {
           Media(id: $mangaId) {
             chapters
@@ -451,7 +462,8 @@ public class AniListAPIService {
         }
         """;
 
-    String variables = """
+    String variables =
+        """
         {
           "mangaId": %s
         }
@@ -465,9 +477,7 @@ public class AniListAPIService {
 
     JsonObject json = Json.parse(response);
 
-    JsonValue possibleInt = json.getObject("data")
-        .getObject("Media")
-        .get("chapters");
+    JsonValue possibleInt = json.getObject("data").getObject("Media").get("chapters");
 
     if (possibleInt == null || possibleInt.jsEquals(Json.createNull())) {
       return Optional.empty();
@@ -480,7 +490,8 @@ public class AniListAPIService {
   private String sendAuthGraphQLRequest(String query, String variables) {
     GraphQLRequest request = new GraphQLRequest(query, variables);
 
-    return webClient.post()
+    return webClient
+        .post()
         .contentType(MediaType.APPLICATION_JSON)
         .header("Authorization", getAniListTokenHeader())
         .bodyValue(request)
@@ -490,7 +501,8 @@ public class AniListAPIService {
   }
 
   public void updateMangaProgress(int mangaId, int mangaProgress) {
-    String query = """
+    String query =
+        """
         mutation ($mangaId: Int, $progress: Int) {
           SaveMediaListEntry (mediaId: $mangaId, progress: $progress) {
             id
@@ -499,18 +511,18 @@ public class AniListAPIService {
         }
         """;
 
-    String variables = """
+    String variables =
+        """
         {
           "mangaId": %s,
           "progress": %s
         }
-        """.formatted(mangaId, mangaProgress);
+        """
+            .formatted(mangaId, mangaProgress);
 
-    //{"data":{"SaveMediaListEntry":{"id":360194831,"progress":1}}}
+    // {"data":{"SaveMediaListEntry":{"id":360194831,"progress":1}}}
     var json = Json.parse(sendAuthGraphQLRequest(query, variables));
-    String data = json.getObject("data")
-        .getObject("SaveMediaListEntry")
-        .toJson();
+    String data = json.getObject("data").getObject("SaveMediaListEntry").toJson();
 
     try {
       var response = mapper.readValue(data, AniListAddMangaResponse.class);
@@ -524,7 +536,8 @@ public class AniListAPIService {
   }
 
   public void updateMangaStatus(int aniListId, AniListStatus value) {
-    String query = """
+    String query =
+        """
         mutation ($mangaId: Int, $status: MediaListStatus) {
           SaveMediaListEntry (mediaId: $mangaId, status: $status) {
             id
@@ -533,18 +546,18 @@ public class AniListAPIService {
         }
         """;
 
-    String variables = """
+    String variables =
+        """
         {
           "mangaId": %s,
           "status": "%s"
         }
-        """.formatted(aniListId, value.name());
+        """
+            .formatted(aniListId, value.name());
 
     var json = Json.parse(sendAuthGraphQLRequest(query, variables));
 
-    String data = json.getObject("data")
-        .getObject("SaveMediaListEntry")
-        .toJson();
+    String data = json.getObject("data").getObject("SaveMediaListEntry").toJson();
 
     try {
       var response = mapper.readValue(data, AniListChangeStatusResponse.class);
@@ -559,7 +572,8 @@ public class AniListAPIService {
 
   public void updateMangaScore(int aniListId, int value) {
 
-    String query = """
+    String query =
+        """
         mutation ($mangaId: Int, $score: Float) {
           SaveMediaListEntry (mediaId: $mangaId, score: $score) {
             id
@@ -568,18 +582,18 @@ public class AniListAPIService {
         }
         """;
 
-    String variables = """
+    String variables =
+        """
         {
           "mangaId": %s,
           "score": %s
         }
-        """.formatted(aniListId, value);
+        """
+            .formatted(aniListId, value);
 
     var json = Json.parse(sendAuthGraphQLRequest(query, variables));
 
-    String data = json.getObject("data")
-        .getObject("SaveMediaListEntry")
-        .toJson();
+    String data = json.getObject("data").getObject("SaveMediaListEntry").toJson();
 
     try {
       var response = mapper.readValue(data, AniListChangeStatusResponse.class);
@@ -593,7 +607,8 @@ public class AniListAPIService {
   }
 
   public void updateMangaStartDate(int aniListId, MediaDate date) {
-    String query = """
+    String query =
+        """
         mutation ($mangaId: Int, $startDate: FuzzyDateInput) {
           SaveMediaListEntry (mediaId: $mangaId, startedAt: $startDate) {
             id
@@ -606,7 +621,8 @@ public class AniListAPIService {
         }
         """;
 
-    String variables = """
+    String variables =
+        """
         {
           "mangaId": %s,
           "startDate": {
@@ -615,13 +631,12 @@ public class AniListAPIService {
             "day": %s
           }
         }
-        """.formatted(aniListId, date.year(), date.month(), date.day());
+        """
+            .formatted(aniListId, date.year(), date.month(), date.day());
 
     var json = Json.parse(sendAuthGraphQLRequest(query, variables));
 
-    String data = json.getObject("data")
-        .getObject("SaveMediaListEntry")
-        .toJson();
+    String data = json.getObject("data").getObject("SaveMediaListEntry").toJson();
 
     try {
       var response = mapper.readValue(data, AniListChangeStatusResponse.class);
@@ -635,7 +650,8 @@ public class AniListAPIService {
   }
 
   public void updateMangaEndDate(int aniListId, MediaDate date) {
-    String query = """
+    String query =
+        """
         mutation ($mangaId: Int, $endDate: FuzzyDateInput) {
           SaveMediaListEntry (mediaId: $mangaId, completedAt: $endDate) {
             id
@@ -648,7 +664,8 @@ public class AniListAPIService {
         }
         """;
 
-    String variables = """
+    String variables =
+        """
         {
           "mangaId": %s,
           "endDate": {
@@ -657,13 +674,12 @@ public class AniListAPIService {
             "day": %s
           }
         }
-        """.formatted(aniListId, date.year(), date.month(), date.day());
+        """
+            .formatted(aniListId, date.year(), date.month(), date.day());
 
     var json = Json.parse(sendAuthGraphQLRequest(query, variables));
 
-    String data = json.getObject("data")
-        .getObject("SaveMediaListEntry")
-        .toJson();
+    String data = json.getObject("data").getObject("SaveMediaListEntry").toJson();
 
     try {
       var response = mapper.readValue(data, AniListChangeStatusResponse.class);

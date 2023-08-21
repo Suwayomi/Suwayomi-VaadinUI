@@ -5,8 +5,7 @@ import lombok.Setter;
 
 @Getter
 public class TrackerTokens {
-  @Setter
-  private String aniListToken;
+  @Setter private String aniListToken;
 
   private String refreshToken;
 
@@ -24,4 +23,3 @@ public class TrackerTokens {
     refreshToken = response.getRefreshToken();
   }
 }
-

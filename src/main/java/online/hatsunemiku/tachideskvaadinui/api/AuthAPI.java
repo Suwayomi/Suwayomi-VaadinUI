@@ -42,5 +42,4 @@ public class AuthAPI {
 
     return new RedirectView("/");
   }
-
 }

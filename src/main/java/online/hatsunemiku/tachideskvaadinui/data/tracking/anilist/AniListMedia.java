@@ -13,19 +13,11 @@ public record AniListMedia(
     String description,
     @JsonProperty("startDate") MediaDate date) {
 
-
   public record MediaTitle(
       String userPreferred,
       String romaji,
       String enlgish,
-      @JsonProperty("native") String native_
-  ) {
+      @JsonProperty("native") String native_) {}
 
-  }
-
-  public record MediaCoverImage(String large) {
-
-  }
-
-
+  public record MediaCoverImage(String large) {}
 }
