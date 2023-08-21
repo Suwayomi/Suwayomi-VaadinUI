@@ -2,7 +2,6 @@ package online.hatsunemiku.tachideskvaadinui.api;
 
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.services.AniListAPIService;
-import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,11 +12,9 @@ import org.springframework.web.servlet.view.RedirectView;
 @Slf4j
 public class AuthAPI {
 
-  private final SettingsService settingsService;
   private final AniListAPIService aniListAPIService;
 
-  public AuthAPI(SettingsService settingsService, AniListAPIService aniListAPIService) {
-    this.settingsService = settingsService;
+  public AuthAPI(AniListAPIService aniListAPIService) {
     this.aniListAPIService = aniListAPIService;
   }
 
