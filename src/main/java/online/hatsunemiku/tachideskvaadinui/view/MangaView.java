@@ -11,12 +11,15 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.theme.lumo.LumoIcon;
 import java.util.List;
 import java.util.Optional;
+import online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.TrackingDialog;
 import online.hatsunemiku.tachideskvaadinui.component.listbox.chapter.ChapterListBox;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
+import online.hatsunemiku.tachideskvaadinui.services.AniListAPIService;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.utils.MangaDataUtils;
@@ -31,13 +34,18 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
   private final RestTemplate client;
   private final MangaService mangaService;
   private final SettingsService settingsService;
+  private final AniListAPIService aniListAPIService;
 
   public MangaView(
-      RestTemplate client, MangaService mangaService, SettingsService settingsService) {
+      RestTemplate client,
+      MangaService mangaService,
+      SettingsService settingsService,
+      AniListAPIService aniListAPIService) {
     super("Manga");
     this.client = client;
     this.mangaService = mangaService;
     this.settingsService = settingsService;
+    this.aniListAPIService = aniListAPIService;
   }
 
   @Override
@@ -91,6 +99,24 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     Div buttons = new Div();
     buttons.addClassName("manga-buttons");
 
+    Button libraryBtn = getLibraryBtn(manga);
+    libraryBtn.addClassName("manga-btn");
+
+    Button trackBtn = new Button("Tracking", LumoIcon.RELOAD.create());
+    trackBtn.addClassName("manga-btn");
+
+    trackBtn.addClickListener(
+        e -> {
+          TrackingDialog dialog = new TrackingDialog(settingsService, manga, aniListAPIService);
+          dialog.open();
+        });
+
+    buttons.add(libraryBtn, trackBtn);
+    return buttons;
+  }
+
+  @NotNull
+  private Button getLibraryBtn(Manga manga) {
     Button libraryBtn = new Button();
     libraryBtn.addClickListener(
         e -> {
@@ -110,9 +136,7 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     } else {
       libraryBtn.setText("Add to library");
     }
-
-    buttons.add(libraryBtn);
-    return buttons;
+    return libraryBtn;
   }
 
   private Manga getManga(Settings settings, String id) {

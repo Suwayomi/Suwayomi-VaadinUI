@@ -8,6 +8,8 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import lombok.AccessLevel;
+import lombok.Getter;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,15 +22,18 @@ public class SettingsService {
 
   private static final Logger logger = LoggerFactory.getLogger(SettingsService.class);
 
-  private final Settings settings;
+  @Getter private final Settings settings;
 
-  public SettingsService() {
+  @Getter(AccessLevel.NONE)
+  private final ObjectMapper mapper;
+
+  public SettingsService(ObjectMapper mapper) {
+    this.mapper = mapper;
     settings = deserialize();
   }
 
   private Settings deserialize() {
     final Settings settings;
-    ObjectMapper mapper = new ObjectMapper();
 
     Path settingsFile = Path.of("settings.json");
 
@@ -75,9 +80,5 @@ public class SettingsService {
 
   private Settings getDefaults() {
     return new Settings("http://localhost:4567");
-  }
-
-  public Settings getSettings() {
-    return settings;
   }
 }

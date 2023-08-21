@@ -1,4 +1,3 @@
-@import "theme-editor.css";
 /* Hatsune Miku theme */
 @import "./components/list-box.css";
 @import "./components/tab-sheets.css";
@@ -6,6 +5,7 @@
 @import "./components/text-field.css";
 @import "./components/buttons.css";
 @import "./components/combo-box.css";
+@import "./components/superfields/super-text-field.css";
 
 html {
 
