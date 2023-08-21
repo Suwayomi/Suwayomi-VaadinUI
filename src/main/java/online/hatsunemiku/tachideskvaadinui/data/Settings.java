@@ -38,7 +38,7 @@ public class Settings {
     if (trackers == null) {
       this.trackers = new HashMap<>();
     } else {
-      //Copy the trackers to a new map to avoid modifying the original
+      // Copy the trackers to a new map to avoid modifying the original
       this.trackers = new HashMap<>(trackers);
     }
 
