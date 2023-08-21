@@ -32,7 +32,14 @@ public class Settings {
       @JsonProperty("trackers") Map<Long, Tracker> trackers,
       @JsonProperty("trackerTokens") TrackerTokens trackerTokens) {
     this.url = url;
-    this.trackers = Objects.requireNonNullElseGet(trackers, HashMap::new);
+
+    if (trackers == null) {
+      this.trackers = new HashMap<>();
+    } else {
+      //Copy the trackers to a new map to avoid modifying the original
+      this.trackers = new HashMap<>(trackers);
+    }
+
     this.trackerTokens = Objects.requireNonNullElseGet(trackerTokens, TrackerTokens::new);
   }
 
