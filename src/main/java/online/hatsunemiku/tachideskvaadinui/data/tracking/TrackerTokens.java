@@ -3,10 +3,11 @@ package online.hatsunemiku.tachideskvaadinui.data.tracking;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter
 public class TrackerTokens {
-  @Getter
   @Setter
   private String aniListToken;
+
   private String refreshToken;
 
   public TrackerTokens() {
