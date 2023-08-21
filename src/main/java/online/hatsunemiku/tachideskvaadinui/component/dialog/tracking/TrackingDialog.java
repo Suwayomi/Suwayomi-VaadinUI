@@ -53,7 +53,7 @@ public class TrackingDialog extends Dialog {
           return;
         }
 
-        displaySearch(manga.getTitle(), manga.getId(), aniListBtn);
+        displaySearch(manga.getTitle(), manga.getId());
         updateButtons(aniListBtn, tracker);
       });
 
@@ -265,7 +265,7 @@ public class TrackingDialog extends Dialog {
   }
 
 
-  private void displaySearch(String mangaName, long mangaId, Button aniListBtn) {
+  private void displaySearch(String mangaName, long mangaId) {
     var dialog = new TrackingMangaChoiceDialog(mangaName, mangaId, aniListAPI, settingsService);
     dialog.open();
 
