@@ -188,7 +188,8 @@ public class MangaReader extends Div {
     private final Swiper swiper;
     private final SettingsService settingsService;
 
-    public Reader(Chapter chapter, SettingsService settingsService, TrackingService trackingService) {
+    public Reader(
+        Chapter chapter, SettingsService settingsService, TrackingService trackingService) {
       addClassName("reader");
       this.chapter = chapter;
       this.settingsService = settingsService;
@@ -200,15 +201,14 @@ public class MangaReader extends Div {
 
       loadChapter();
 
-      swiper.addActiveIndexChangeEventListener(e -> {
-
-        if (e.getActiveIndex() == chapter.getPageCount() - 1) {
-          log.info("Last page of chapter {}", chapter.getIndex());
-          trackingService.setChapterProgress(chapter.getMangaId(), chapter.getIndex(), true);
-          e.unregisterListener();
-        }
-
-      });
+      swiper.addActiveIndexChangeEventListener(
+          e -> {
+            if (e.getActiveIndex() == chapter.getPageCount() - 1) {
+              log.info("Last page of chapter {}", chapter.getIndex());
+              trackingService.setChapterProgress(chapter.getMangaId(), chapter.getIndex(), true);
+              e.unregisterListener();
+            }
+          });
 
       add(swiper);
     }

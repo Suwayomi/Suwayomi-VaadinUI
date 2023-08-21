@@ -13,10 +13,11 @@ import org.springframework.lang.NonNull;
 
 public class Settings {
 
-  @NonNull
-  private String url;
+  @NonNull private String url;
+
   @JsonProperty("trackers")
   private final Map<Long, Tracker> trackers;
+
   @Getter
   @JsonProperty("trackerTokens")
   private final TrackerTokens trackerTokens;
@@ -28,7 +29,8 @@ public class Settings {
   }
 
   @JsonCreator
-  public Settings(@JsonProperty("url") @NotNull String url,
+  public Settings(
+      @JsonProperty("url") @NotNull String url,
       @JsonProperty("trackers") Map<Long, Tracker> trackers,
       @JsonProperty("trackerTokens") TrackerTokens trackerTokens) {
     this.url = url;

@@ -21,7 +21,10 @@ import org.vaadin.miki.superfields.text.LabelField;
 
 public class TrackingMangaChoiceDialog extends Dialog {
 
-  public TrackingMangaChoiceDialog(String mangaName, long mangaId, AniListAPIService aniListAPI,
+  public TrackingMangaChoiceDialog(
+      String mangaName,
+      long mangaId,
+      AniListAPIService aniListAPI,
       SettingsService settingsService) {
     TextField searchField = new TextField("Search Manga");
     searchField.setValue(mangaName);
@@ -34,21 +37,22 @@ public class TrackingMangaChoiceDialog extends Dialog {
     searchResults.setRenderer(getRenderer());
     searchResults.setItems(mangaList);
     AtomicReference<AniListMedia> selectedManga = new AtomicReference<>();
-    searchResults.addValueChangeListener(e -> {
-      AniListMedia selected = e.getValue();
+    searchResults.addValueChangeListener(
+        e -> {
+          AniListMedia selected = e.getValue();
 
-      if (selected == null) {
-        return;
-      }
+          if (selected == null) {
+            return;
+          }
 
-      int id = selected.id();
+          int id = selected.id();
 
-      if (!aniListAPI.isMangaInList(id)) {
-        aniListAPI.addMangaToList(id);
-      }
+          if (!aniListAPI.isMangaInList(id)) {
+            aniListAPI.addMangaToList(id);
+          }
 
-      selectedManga.set(selected);
-    });
+          selectedManga.set(selected);
+        });
 
     add(searchField, searchResults);
 
@@ -56,79 +60,83 @@ public class TrackingMangaChoiceDialog extends Dialog {
     closeBtn.addClickListener(e -> close());
 
     Button saveBtn = new Button("Save");
-    saveBtn.addClickListener(e -> {
-      var manga = selectedManga.get();
+    saveBtn.addClickListener(
+        e -> {
+          var manga = selectedManga.get();
 
-      if (manga == null) {
-        Notification.show("Please select a manga to save");
-        return;
-      }
-      int aniListId = manga.id();
+          if (manga == null) {
+            Notification.show("Please select a manga to save");
+            return;
+          }
+          int aniListId = manga.id();
 
-      settingsService.getSettings()
-          .getTracker(mangaId)
-          .setAniListId(aniListId);
+          settingsService.getSettings().getTracker(mangaId).setAniListId(aniListId);
 
-      close();
-    });
+          close();
+        });
 
     getFooter().add(closeBtn, saveBtn);
   }
 
   @NotNull
   private static ComponentRenderer<Component, AniListMedia> getRenderer() {
-    return new ComponentRenderer<>(media -> {
-      Div content = new Div();
-      content.setClassName("manga-search-result");
+    return new ComponentRenderer<>(
+        media -> {
+          Div content = new Div();
+          content.setClassName("manga-search-result");
 
-      MediaDate mangaDate = media.date();
+          MediaDate mangaDate = media.date();
 
-      Div upperHalf = new Div();
-      upperHalf.setClassName("manga-search-result-upper-half");
+          Div upperHalf = new Div();
+          upperHalf.setClassName("manga-search-result-upper-half");
 
-      Image image = new Image(media.coverImage().large(), "Cover Image");
+          Image image = new Image(media.coverImage().large(), "Cover Image");
 
-      Div data = new Div();
+          Div data = new Div();
 
-      LabelField<String> title = new LabelField<String>()
-          .withLabelPosition(LabelPosition.BEFORE_MIDDLE)
-          .withLabel("Title")
-          .withValue(media.title().userPreferred());
+          LabelField<String> title =
+              new LabelField<String>()
+                  .withLabelPosition(LabelPosition.BEFORE_MIDDLE)
+                  .withLabel("Title")
+                  .withValue(media.title().userPreferred());
 
-      title.setClassName("manga-search-result-attribute");
+          title.setClassName("manga-search-result-attribute");
 
-      LabelField<String> type = new LabelField<String>()
-          .withLabelPosition(LabelPosition.BEFORE_MIDDLE)
-          .withLabel("Type")
-          .withValue(media.format());
+          LabelField<String> type =
+              new LabelField<String>()
+                  .withLabelPosition(LabelPosition.BEFORE_MIDDLE)
+                  .withLabel("Type")
+                  .withValue(media.format());
 
-      type.addClassName("manga-search-result-attribute");
+          type.addClassName("manga-search-result-attribute");
 
-      String date = "%s-%s-%s".formatted(mangaDate.year(), mangaDate.month(), mangaDate.day());
-      LabelField<String> started = new LabelField<String>()
-          .withLabelPosition(LabelPosition.BEFORE_MIDDLE)
-          .withLabel("Started")
-          .withValue(date);
+          String date = "%s-%s-%s".formatted(mangaDate.year(), mangaDate.month(), mangaDate.day());
+          LabelField<String> started =
+              new LabelField<String>()
+                  .withLabelPosition(LabelPosition.BEFORE_MIDDLE)
+                  .withLabel("Started")
+                  .withValue(date);
 
-      started.addClassName("manga-search-result-attribute");
+          started.addClassName("manga-search-result-attribute");
 
-      LabelField<String> status = new LabelField<String>()
-          .withLabelPosition(LabelPosition.BEFORE_MIDDLE)
-          .withLabel("Status")
-          .withValue(media.status());
+          LabelField<String> status =
+              new LabelField<String>()
+                  .withLabelPosition(LabelPosition.BEFORE_MIDDLE)
+                  .withLabel("Status")
+                  .withValue(media.status());
 
-      status.addClassName("manga-search-result-attribute");
+          status.addClassName("manga-search-result-attribute");
 
-      data.add(title, type, started, status);
-      data.setClassName("manga-search-result-data");
+          data.add(title, type, started, status);
+          data.setClassName("manga-search-result-data");
 
-      upperHalf.add(image, data);
+          upperHalf.add(image, data);
 
-      Text description = new Text(media.description());
+          Text description = new Text(media.description());
 
-      content.add(upperHalf, description);
+          content.add(upperHalf, description);
 
-      return content;
-    });
+          return content;
+        });
   }
 }

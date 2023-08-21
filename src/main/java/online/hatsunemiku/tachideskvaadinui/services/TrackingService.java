@@ -22,10 +22,10 @@ public class TrackingService {
    * chapter number, the method returns without making any changes. Should the Chapter count pass
    * the condition, any valid tracker will get the updated chapter progress.
    *
-   * @param mangaId         the ID of the manga
-   * @param chapter         the chapter number to set the progress to
-   * @param onlyWhenBigger a flag indicating whether to update the progress only when the chapter
-   *                        is bigger than the current progress
+   * @param mangaId the ID of the manga
+   * @param chapter the chapter number to set the progress to
+   * @param onlyWhenBigger a flag indicating whether to update the progress only when the chapter is
+   *     bigger than the current progress
    */
   public void setChapterProgress(int mangaId, int chapter, boolean onlyWhenBigger) {
     var settings = settingsService.getSettings();
@@ -36,14 +36,15 @@ public class TrackingService {
       var statistics = aniListAPIService.getMangaFromList(tracker.getAniListId());
 
       if (statistics.progress() >= chapter) {
-        log.info("Chapter {} is not bigger than current AniList progress {}", chapter, statistics.progress());
+        log.info(
+            "Chapter {} is not bigger than current AniList progress {}",
+            chapter,
+            statistics.progress());
       } else {
         if (tracker.hasAniListId()) {
           aniListAPIService.updateMangaProgress(tracker.getAniListId(), chapter);
         }
       }
     }
-
   }
-
 }

@@ -36,7 +36,11 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
   private final SettingsService settingsService;
   private final AniListAPIService aniListAPIService;
 
-  public MangaView(RestTemplate client, MangaService mangaService, SettingsService settingsService, AniListAPIService aniListAPIService) {
+  public MangaView(
+      RestTemplate client,
+      MangaService mangaService,
+      SettingsService settingsService,
+      AniListAPIService aniListAPIService) {
     super("Manga");
     this.client = client;
     this.mangaService = mangaService;
@@ -101,12 +105,11 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     Button trackBtn = new Button("Tracking", LumoIcon.RELOAD.create());
     trackBtn.addClassName("manga-btn");
 
-    trackBtn.addClickListener(e -> {
-      TrackingDialog dialog = new TrackingDialog(settingsService, manga, aniListAPIService);
-      dialog.open();
-    });
-
-
+    trackBtn.addClickListener(
+        e -> {
+          TrackingDialog dialog = new TrackingDialog(settingsService, manga, aniListAPIService);
+          dialog.open();
+        });
 
     buttons.add(libraryBtn, trackBtn);
     return buttons;

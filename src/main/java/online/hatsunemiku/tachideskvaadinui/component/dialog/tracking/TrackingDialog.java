@@ -39,22 +39,21 @@ public class TrackingDialog extends Dialog {
 
     VerticalLayout buttons = new VerticalLayout();
 
-    Tracker tracker = service.getSettings()
-        .getTracker(manga.getId());
+    Tracker tracker = service.getSettings().getTracker(manga.getId());
 
     if (!tracker.hasAniListId()) {
       Button aniListBtn = new Button("Anilist");
-      aniListBtn.addClickListener(e -> {
+      aniListBtn.addClickListener(
+          e -> {
+            if (!aniListAPIService.hasAniListToken()) {
+              String url = aniListAPIService.getAniListAuthUrl();
+              getUI().ifPresent(ui -> ui.getPage().open(url));
+              return;
+            }
 
-        if (!aniListAPIService.hasAniListToken()) {
-          String url = aniListAPIService.getAniListAuthUrl();
-          getUI().ifPresent(ui -> ui.getPage().open(url));
-          return;
-        }
-
-        displaySearch(manga.getTitle(), manga.getId());
-        updateButtons(aniListBtn, tracker);
-      });
+            displaySearch(manga.getTitle(), manga.getId());
+            updateButtons(aniListBtn, tracker);
+          });
 
       updateButtons(aniListBtn, tracker);
 
@@ -67,7 +66,6 @@ public class TrackingDialog extends Dialog {
 
       add(statistics);
     }
-
   }
 
   @NotNull
@@ -94,8 +92,11 @@ public class TrackingDialog extends Dialog {
     return statistics;
   }
 
-  private void configureTrackingEndDateField(Tracker tracker, SuperDatePicker endDate,
-      AniListMangaStatistics mangaStats, SuperDatePicker startDate) {
+  private void configureTrackingEndDateField(
+      Tracker tracker,
+      SuperDatePicker endDate,
+      AniListMangaStatistics mangaStats,
+      SuperDatePicker startDate) {
     endDate.setPlaceholder("End date");
     endDate.setClearButtonVisible(true);
     endDate.addClassName("three-span");
@@ -106,30 +107,31 @@ public class TrackingDialog extends Dialog {
         endDate.setValue(date);
       }
     }
-    endDate.addValueChangeListener(e -> {
-      if (e.getValue() == null) {
-        MediaDate date = new MediaDate(null, null, null);
-        aniListAPI.updateMangaEndDate(tracker.getAniListId(), date);
-        return;
-      }
+    endDate.addValueChangeListener(
+        e -> {
+          if (e.getValue() == null) {
+            MediaDate date = new MediaDate(null, null, null);
+            aniListAPI.updateMangaEndDate(tracker.getAniListId(), date);
+            return;
+          }
 
-      if (startDate.getValue() == null) {
-        startDate.setValue(e.getValue());
-      } else {
-        if (!startDate.getValue().isAfter(e.getValue())) {
-          endDate.setValue(e.getOldValue());
-          return;
-        }
-      }
+          if (startDate.getValue() == null) {
+            startDate.setValue(e.getValue());
+          } else {
+            if (!startDate.getValue().isAfter(e.getValue())) {
+              endDate.setValue(e.getOldValue());
+              return;
+            }
+          }
 
-      MediaDate date = new MediaDate(e.getValue());
-      aniListAPI.updateMangaEndDate(tracker.getAniListId(), date);
-    });
+          MediaDate date = new MediaDate(e.getValue());
+          aniListAPI.updateMangaEndDate(tracker.getAniListId(), date);
+        });
   }
 
   @NotNull
-  private SuperDatePicker getTrackingStartDateField(Tracker tracker,
-      AniListMangaStatistics mangaStats, SuperDatePicker endDate) {
+  private SuperDatePicker getTrackingStartDateField(
+      Tracker tracker, AniListMangaStatistics mangaStats, SuperDatePicker endDate) {
     SuperDatePicker startDate = new SuperDatePicker();
     startDate.setPlaceholder("Start date");
     startDate.setClearButtonVisible(true);
@@ -144,32 +146,33 @@ public class TrackingDialog extends Dialog {
       }
     }
 
-    startDate.addValueChangeListener(e -> {
-      if (e.getValue() == null) {
-        MediaDate date = new MediaDate(null, null, null);
-        aniListAPI.updateMangaStartDate(tracker.getAniListId(), date);
-        return;
-      }
+    startDate.addValueChangeListener(
+        e -> {
+          if (e.getValue() == null) {
+            MediaDate date = new MediaDate(null, null, null);
+            aniListAPI.updateMangaStartDate(tracker.getAniListId(), date);
+            return;
+          }
 
-      if (e.getValue().isAfter(endDate.getValue())) {
-        startDate.setValue(e.getOldValue());
+          if (e.getValue().isAfter(endDate.getValue())) {
+            startDate.setValue(e.getOldValue());
 
-        Notification notification = new Notification();
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        notification.setText("Start date cannot be after end date");
-        notification.open();
-        return;
-      }
+            Notification notification = new Notification();
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.setText("Start date cannot be after end date");
+            notification.open();
+            return;
+          }
 
-      MediaDate date = new MediaDate(e.getValue());
-      aniListAPI.updateMangaStartDate(tracker.getAniListId(), date);
-    });
+          MediaDate date = new MediaDate(e.getValue());
+          aniListAPI.updateMangaStartDate(tracker.getAniListId(), date);
+        });
     return startDate;
   }
 
   @NotNull
-  private SuperIntegerField getTrackingScoreField(Tracker tracker,
-      AniListMangaStatistics mangaStats) {
+  private SuperIntegerField getTrackingScoreField(
+      Tracker tracker, AniListMangaStatistics mangaStats) {
     AniListScoreFormat format = aniListAPI.getScoreFormat();
 
     SuperIntegerField score = new SuperIntegerField();
@@ -182,101 +185,104 @@ public class TrackingDialog extends Dialog {
     } else {
       score.setValue(null);
     }
-    score.addValueChangeListener(e -> {
-      if (e.getValue() == null || e.getValue() == 0) {
-        score.setValue(null);
-        aniListAPI.updateMangaScore(tracker.getAniListId(), 0);
-        return;
-      }
+    score.addValueChangeListener(
+        e -> {
+          if (e.getValue() == null || e.getValue() == 0) {
+            score.setValue(null);
+            aniListAPI.updateMangaScore(tracker.getAniListId(), 0);
+            return;
+          }
 
-      if (e.getValue() > format.getMaxScore()) {
-        score.setValue(e.getOldValue());
-        Notification notification = new Notification();
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        notification.setText("Score cannot be higher than " + format.getMaxScore());
-        notification.open();
-        return;
-      }
+          if (e.getValue() > format.getMaxScore()) {
+            score.setValue(e.getOldValue());
+            Notification notification = new Notification();
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.setText("Score cannot be higher than " + format.getMaxScore());
+            notification.open();
+            return;
+          }
 
-      if (e.getValue() < format.getMinScore()) {
-        score.setValue(e.getOldValue());
-        Notification notification = new Notification();
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        notification.setText("Score cannot be lower than " + format.getMinScore());
-        notification.open();
-        return;
-      }
+          if (e.getValue() < format.getMinScore()) {
+            score.setValue(e.getOldValue());
+            Notification notification = new Notification();
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.setText("Score cannot be lower than " + format.getMinScore());
+            notification.open();
+            return;
+          }
 
-      aniListAPI.updateMangaScore(tracker.getAniListId(), e.getValue());
-    });
+          aniListAPI.updateMangaScore(tracker.getAniListId(), e.getValue());
+        });
     return score;
   }
 
   @NotNull
-  private ComboBox<AniListStatus> getTrackingStatusField(Tracker tracker,
-      AniListMangaStatistics mangaStats) {
+  private ComboBox<AniListStatus> getTrackingStatusField(
+      Tracker tracker, AniListMangaStatistics mangaStats) {
     ComboBox<AniListStatus> status = new ComboBox<>();
     status.setItems(AniListStatus.values());
     status.setPlaceholder("Status");
     status.setValue(mangaStats.status());
     status.addClassName("two-span");
-    status.addValueChangeListener(e -> {
-      if (e.getValue() == null) {
-        status.setValue(e.getOldValue());
-      } else {
-        aniListAPI.updateMangaStatus(tracker.getAniListId(), e.getValue());
-      }
-    });
+    status.addValueChangeListener(
+        e -> {
+          if (e.getValue() == null) {
+            status.setValue(e.getOldValue());
+          } else {
+            aniListAPI.updateMangaStatus(tracker.getAniListId(), e.getValue());
+          }
+        });
     return status;
   }
 
   @NotNull
-  private SuperIntegerField getTrackingChapterField(Tracker tracker,
-      AniListMangaStatistics mangaStats, Optional<Integer> maxChapters) {
+  private SuperIntegerField getTrackingChapterField(
+      Tracker tracker, AniListMangaStatistics mangaStats, Optional<Integer> maxChapters) {
     SuperIntegerField chapter = new SuperIntegerField();
     chapter.setPreventingInvalidInput(true);
     chapter.setValue(mangaStats.progress());
     chapter.setPlaceholder("Chapter");
     chapter.addClassName("two-span");
-    chapter.addValueChangeListener(e -> {
-      if (e.getValue() == null) {
-        chapter.setValue(e.getOldValue());
-        return;
-      }
+    chapter.addValueChangeListener(
+        e -> {
+          if (e.getValue() == null) {
+            chapter.setValue(e.getOldValue());
+            return;
+          }
 
-      if (Objects.equals(e.getValue(), e.getOldValue())) {
-        return;
-      }
+          if (Objects.equals(e.getValue(), e.getOldValue())) {
+            return;
+          }
 
-      if (e.getValue() < 0) {
-        chapter.setValue(e.getOldValue());
-        return;
-      }
+          if (e.getValue() < 0) {
+            chapter.setValue(e.getOldValue());
+            return;
+          }
 
-      if (maxChapters.isPresent() && e.getValue() > maxChapters.get()) {
-        chapter.setValue(e.getOldValue());
-        return;
-      }
+          if (maxChapters.isPresent() && e.getValue() > maxChapters.get()) {
+            chapter.setValue(e.getOldValue());
+            return;
+          }
 
-      aniListAPI.updateMangaProgress(tracker.getAniListId(), e.getValue());
-    });
+          aniListAPI.updateMangaProgress(tracker.getAniListId(), e.getValue());
+        });
     return chapter;
   }
-
 
   private void displaySearch(String mangaName, long mangaId) {
     var dialog = new TrackingMangaChoiceDialog(mangaName, mangaId, aniListAPI, settingsService);
     dialog.open();
 
-    dialog.addOpenedChangeListener(e -> {
-      if (!e.isOpened()) {
-        Tracker tracker = settingsService.getSettings().getTracker(mangaId);
-        if (tracker.hasAniListId()) {
-          removeAll();
-          add(getTrackingStatistics(tracker));
-        }
-      }
-    });
+    dialog.addOpenedChangeListener(
+        e -> {
+          if (!e.isOpened()) {
+            Tracker tracker = settingsService.getSettings().getTracker(mangaId);
+            if (tracker.hasAniListId()) {
+              removeAll();
+              add(getTrackingStatistics(tracker));
+            }
+          }
+        });
   }
 
   private void updateButtons(Button aniListBtn, Tracker tracker) {
@@ -287,5 +293,4 @@ public class TrackingDialog extends Dialog {
       aniListBtn.setIcon(LumoIcon.CROSS.create());
     }
   }
-
 }
