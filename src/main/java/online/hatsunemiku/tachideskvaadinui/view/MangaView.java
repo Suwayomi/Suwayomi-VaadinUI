@@ -22,7 +22,6 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.services.AniListAPIService;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
-import online.hatsunemiku.tachideskvaadinui.utils.MangaDataUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.client.RestTemplate;
@@ -60,6 +59,8 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
 
     String id = idParam.get();
 
+    long mangaId = Long.parseLong(id);
+
     Manga manga;
     try {
       manga = getManga(settings, id);
@@ -83,7 +84,7 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     imageContainer.addClassName("manga-image-container");
     imageContainer.add(image);
 
-    ListBox<Chapter> chapters = getChapters(settings, id);
+    ListBox<Chapter> chapters = getChapters(mangaId);
 
     Div buttons = getButtons(manga);
 
@@ -151,9 +152,9 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     return manga;
   }
 
-  private ListBox<Chapter> getChapters(Settings settings, String mangaId) {
+  private ListBox<Chapter> getChapters(long mangaId) {
 
-    List<Chapter> chapter = MangaDataUtils.getChapterList(settings, mangaId, client);
+    List<Chapter> chapter = mangaService.getChapterList(mangaId);
 
     return new ChapterListBox(chapter);
   }
