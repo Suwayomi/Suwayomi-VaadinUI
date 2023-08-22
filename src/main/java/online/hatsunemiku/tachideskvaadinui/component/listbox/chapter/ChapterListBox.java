@@ -22,7 +22,7 @@ public class ChapterListBox extends ListBox<Chapter> {
 
           RouteParam mangaIdParam = new RouteParam("mangaId", String.valueOf(mangaId));
 
-          double chapterNumber = e.getValue().getChapterNumber();
+          double chapterNumber = e.getValue().getIndex();
           RouteParam chapterIndexParam;
           if (chapterNumber % 1 == 0) {
             chapterIndexParam = new RouteParam("chapterIndex", String.valueOf((int) chapterNumber));
