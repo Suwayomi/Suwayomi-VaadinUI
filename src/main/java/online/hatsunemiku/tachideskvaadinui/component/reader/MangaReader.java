@@ -18,6 +18,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.Tracker;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingService;
@@ -201,14 +202,18 @@ public class MangaReader extends Div {
 
       loadChapter();
 
-      swiper.addActiveIndexChangeEventListener(
-          e -> {
-            if (e.getActiveIndex() == chapter.getPageCount() - 1) {
-              log.info("Last page of chapter {}", chapter.getIndex());
-              trackingService.setChapterProgress(chapter.getMangaId(), chapter.getIndex(), true);
-              e.unregisterListener();
-            }
-          });
+      Tracker tracker = settingsService.getSettings().getTracker(chapter.getMangaId());
+
+      if (tracker.hasAniListId()) {
+        swiper.addActiveIndexChangeEventListener(
+            e -> {
+              if (e.getActiveIndex() == chapter.getPageCount() - 1) {
+                log.info("Last page of chapter {}", chapter.getIndex());
+                trackingService.setChapterProgress(chapter.getMangaId(), chapter.getIndex(), true);
+                e.unregisterListener();
+              }
+            });
+      }
 
       add(swiper);
     }
