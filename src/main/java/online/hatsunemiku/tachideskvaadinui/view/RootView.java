@@ -38,7 +38,8 @@ public class RootView extends StandardLayout {
   private TabSheet tabs;
   private final LibUpdateService libUpdateService;
 
-  public RootView(RestTemplate client, SettingsService settingsService, LibUpdateService libUpdateService) {
+  public RootView(
+      RestTemplate client, SettingsService settingsService, LibUpdateService libUpdateService) {
     super("Library");
 
     this.client = client;
@@ -92,18 +93,19 @@ public class RootView extends StandardLayout {
         });
 
     Button refreshButton = new Button(VaadinIcon.REFRESH.create());
-    refreshButton.addClickListener(e -> {
-      boolean success = this.libUpdateService.fetchUpdate();
-      Notification notification;
-      if (!success) {
-        notification = new Notification("Failed to fetch update", 3000);
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-      } else {
-        notification = new Notification("Updating library", 3000);
-        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-      }
-      notification.open();
-    });
+    refreshButton.addClickListener(
+        e -> {
+          boolean success = this.libUpdateService.fetchUpdate();
+          Notification notification;
+          if (!success) {
+            notification = new Notification("Failed to fetch update", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+          } else {
+            notification = new Notification("Updating library", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+          }
+          notification.open();
+        });
 
     buttons.add(refreshButton, createButton);
 
