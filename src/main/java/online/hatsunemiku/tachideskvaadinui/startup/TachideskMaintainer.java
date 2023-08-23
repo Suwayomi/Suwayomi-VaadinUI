@@ -47,7 +47,7 @@ public class TachideskMaintainer {
   public void start() {
     logger.info("Starting Tachidesk...");
 
-    if (!checkServerDir(serverDir)) {
+    if (!checkServerDir()) {
       return;
     }
 
@@ -102,7 +102,7 @@ public class TachideskMaintainer {
 
     starter.stopJar();
 
-    deleteOldServerFile(oldServer, serverDir);
+    deleteOldServerFile(oldServer);
 
     oldServer.setJarName(newServerMeta.getJarName());
     oldServer.setJarVersion(newServerMeta.getJarVersion());
@@ -146,7 +146,7 @@ public class TachideskMaintainer {
     }
   }
 
-  private static void deleteOldServerFile(Meta oldServer, File serverDir) {
+  private static void deleteOldServerFile(Meta oldServer) {
 
     if (!oldServer.getJarLocation().isEmpty()) {
       return;
@@ -185,10 +185,9 @@ public class TachideskMaintainer {
   /**
    * Checks if the server directory exists and creates it if it doesn't
    *
-   * @param serverDir The {@link File} object representing the server directory
    * @return True if the server directory exists or was created successfully, false otherwise
    */
-  private boolean checkServerDir(File serverDir) {
+  private boolean checkServerDir() {
     if (!serverDir.exists()) {
       if (!serverDir.mkdir()) {
         logger.error("Failed to create server directory");
