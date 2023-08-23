@@ -33,7 +33,7 @@ public class TachideskMaintainer {
   private static final Logger logger = LoggerFactory.getLogger(TachideskMaintainer.class);
   private final RestTemplate client;
   private final TachideskStarter starter;
-  private final static File serverDir = new File("server");
+  private static final File serverDir = new File("server");
   @Getter private boolean updating = false;
   @Getter private double progress = 0;
 
