@@ -44,7 +44,15 @@ server/data/**
 !server/data/server.conf
 
 ### Frontend generated Vaadin ###
-frontend/generated
+frontend/generated/
+pnpmfile.js
+.npmrc
+webpack.generated.js
+vite.generated.ts
+
+### Vaadin only when customized ###
+tsconfig.json
+types.d.ts
 
 ### target folder ###
 target/
