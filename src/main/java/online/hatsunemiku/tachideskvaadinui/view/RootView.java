@@ -172,7 +172,7 @@ public class RootView extends StandardLayout {
     List<Manga> manga = getManga(c, settings);
 
     Div grid = new Div();
-    grid.addClassName("grid");
+    grid.addClassName("library-grid");
 
     fillMangaGrid(settings, manga, grid);
     return grid;

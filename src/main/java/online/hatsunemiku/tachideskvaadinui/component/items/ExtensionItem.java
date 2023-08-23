@@ -130,12 +130,12 @@ public class ExtensionItem extends BlurryItem {
 
           var status = service.installExtension(extension.getPkgName());
           installBtn.setEnabled(true);
-          updateStatus(extension, installBtn, uninstallBtn);
           Notification notification = new Notification();
 
           if (status.is2xxSuccessful()) {
             notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
             notification.setText("Extension installed successfully");
+            extension.setInstalled(true);
           } else if (status.is3xxRedirection()) {
             notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
             notification.setText("Extension exists, but couldn't be installed");
@@ -146,6 +146,8 @@ public class ExtensionItem extends BlurryItem {
 
           notification.setDuration(3000);
           notification.open();
+
+          updateStatus(extension, installBtn, uninstallBtn);
         });
   }
 

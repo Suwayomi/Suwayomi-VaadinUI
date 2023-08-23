@@ -1,14 +1,17 @@
 package online.hatsunemiku.tachideskvaadinui.startup;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Files;
 import java.util.Optional;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.Meta;
 import online.hatsunemiku.tachideskvaadinui.startup.download.ReadableProgressByteChannel;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
@@ -17,16 +20,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 @Component
+@Slf4j
 public class TachideskMaintainer {
 
   private static final Logger logger = LoggerFactory.getLogger(TachideskMaintainer.class);
   private final RestTemplate client;
   private final TachideskStarter starter;
+  private final static File serverDir = new File("server");
   @Getter private boolean updating = false;
   @Getter private double progress = 0;
 
@@ -39,6 +46,13 @@ public class TachideskMaintainer {
   @Async
   public void start() {
     logger.info("Starting Tachidesk...");
+
+    if (!checkServerDir(serverDir)) {
+      return;
+    }
+
+    checkServerConfig();
+
     new Thread(this::startup).start();
 
     logger.info("Checking for updates...");
@@ -74,12 +88,6 @@ public class TachideskMaintainer {
       return;
     }
 
-    File serverDir = new File("server");
-
-    if (!checkServerDir(serverDir)) {
-      return;
-    }
-
     File serverFile = new File(serverDir, newServerMeta.getJarName());
 
     try {
@@ -107,6 +115,35 @@ public class TachideskMaintainer {
     starter.startJar();
 
     logger.info("Update complete");
+  }
+
+  private static void checkServerConfig() {
+    log.info("Checking for config File...");
+
+    File dataDir = new File(serverDir, "data");
+
+    if (!dataDir.exists()) {
+      if (!dataDir.mkdir()) {
+        log.error("Failed to create data directory");
+        throw new RuntimeException("Failed to create data directory");
+      }
+    }
+
+    File config = new File(dataDir, "server.conf");
+
+    if (!config.exists()) {
+      try {
+        Resource defaultConfig = new ClassPathResource("server/server.conf");
+
+        Files.copy(defaultConfig.getInputStream(), config.toPath());
+      } catch (FileNotFoundException e) {
+        log.error("Default config not found", e);
+        throw new RuntimeException(e);
+      } catch (IOException e) {
+        log.error("Failed to copy default config", e);
+        throw new RuntimeException(e);
+      }
+    }
   }
 
   private static void deleteOldServerFile(Meta oldServer, File serverDir) {
