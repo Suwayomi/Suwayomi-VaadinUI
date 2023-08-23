@@ -58,7 +58,11 @@ public class AniListAPIService {
     this.mapper = mapper;
     this.webClient = WebClient.create(ANILIST_API_URL);
 
-    log.info("User ID: {}", getCurrentUserId());
+    try {
+      log.info("User ID: {}", getCurrentUserId());
+    } catch (RuntimeException e) {
+      log.info("No AniList token set yet");
+    }
   }
 
   /**

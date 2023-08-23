@@ -83,8 +83,9 @@ public class ServerStartView extends VerticalLayout {
     boolean updating = maintainer.isUpdating();
 
     if (updating) {
+      double progressPercent = maintainer.getProgress() * 100;
 
-      String updateText = "%.2f%%".formatted(maintainer.getProgress());
+      String updateText = "%.2f%%".formatted(progressPercent);
 
       getUI()
           .ifPresent(
@@ -103,6 +104,7 @@ public class ServerStartView extends VerticalLayout {
                   ui.access(
                       () -> {
                         updateNotice.setVisible(false);
+                        downloadLabel.setVisible(false);
                         progress.setIndeterminate(true);
                       }));
     }

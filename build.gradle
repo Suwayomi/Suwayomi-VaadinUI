@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.1.2'
@@ -7,8 +9,9 @@ plugins {
 }
 
 group = 'online.hatsunemiku'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '17'
+version = '0.9.0'
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 configurations {
     compileOnly {
@@ -30,7 +33,11 @@ ext {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'com.vaadin:vaadin-spring-boot-starter'
+    implementation('com.vaadin:vaadin-spring-boot-starter') {
+        if (vaadin.productionMode) {
+            exclude group: "com.vaadin", module: "vaadin-dev-server"
+        }
+    }
     implementation 'org.jetbrains:annotations:24.0.0'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
@@ -58,4 +65,20 @@ dependencyManagement {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+
+//new task to build bootJar
+tasks.register('buildReleaseJar', BootJar) {
+    dependsOn('vaadinBuildFrontend')
+    enabled = true
+    vaadin.productionMode = true
+    archiveFileName = "Tachidesk-VaadinUI-${version}.jar"
+    mainClass = 'online.hatsunemiku.tachideskvaadinui.TachideskVaadinUiApplication'
+    setTargetJavaVersion(targetCompatibility)
+
+    //fat jar
+    classpath(sourceSets.main.runtimeClasspath)
+
+    launchScript()
 }
