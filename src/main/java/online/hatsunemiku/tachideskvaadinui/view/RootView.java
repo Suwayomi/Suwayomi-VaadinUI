@@ -20,6 +20,7 @@ import online.hatsunemiku.tachideskvaadinui.component.dialog.category.CategoryDi
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Category;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
+import online.hatsunemiku.tachideskvaadinui.services.LibUpdateService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.utils.CategoryUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
@@ -35,12 +36,14 @@ public class RootView extends StandardLayout {
   private final RestTemplate client;
   private final SettingsService settingsService;
   private TabSheet tabs;
+  private final LibUpdateService libUpdateService;
 
-  public RootView(RestTemplate client, SettingsService settingsService) {
+  public RootView(RestTemplate client, SettingsService settingsService, LibUpdateService libUpdateService) {
     super("Library");
 
     this.client = client;
     this.settingsService = settingsService;
+    this.libUpdateService = libUpdateService;
 
     Settings settings = settingsService.getSettings();
 
@@ -58,6 +61,9 @@ public class RootView extends StandardLayout {
     tabs = new TabSheet();
     tabs.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
     addCategoryTabs(categories, settings);
+
+    Div buttons = new Div();
+    buttons.setClassName("library-buttons");
 
     Button createButton = new Button(VaadinIcon.PLUS.create());
     createButton.addClickListener(
@@ -85,7 +91,23 @@ public class RootView extends StandardLayout {
           dialog.open();
         });
 
-    tabs.setSuffixComponent(createButton);
+    Button refreshButton = new Button(VaadinIcon.REFRESH.create());
+    refreshButton.addClickListener(e -> {
+      boolean success = this.libUpdateService.fetchUpdate();
+      Notification notification;
+      if (!success) {
+        notification = new Notification("Failed to fetch update", 3000);
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+      } else {
+        notification = new Notification("Updating library", 3000);
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+      }
+      notification.open();
+    });
+
+    buttons.add(refreshButton, createButton);
+
+    tabs.setSuffixComponent(buttons);
 
     setContent(tabs);
   }
