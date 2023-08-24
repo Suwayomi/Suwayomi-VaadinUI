@@ -1,5 +1,6 @@
 package online.hatsunemiku.tachideskvaadinui.component.reader;
 
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -317,6 +318,13 @@ public class MangaReader extends Div {
               nextPage(swiper);
             }
           });
+
+      if (reader.swiper.getLanguageDirection() == LanguageDirection.RIGHT_TO_LEFT) {
+        right.addClickShortcut(Key.ARROW_RIGHT);
+      } else {
+        right.addClickShortcut(Key.ARROW_LEFT);
+      }
+
       right.setIconAfterText(true);
       return right;
     }
@@ -334,6 +342,12 @@ public class MangaReader extends Div {
               prevPage(swiper);
             }
           });
+
+      if (reader.swiper.getLanguageDirection() == LanguageDirection.RIGHT_TO_LEFT) {
+        left.addClickShortcut(Key.ARROW_LEFT);
+      } else {
+        left.addClickShortcut(Key.ARROW_RIGHT);
+      }
       return left;
     }
 
