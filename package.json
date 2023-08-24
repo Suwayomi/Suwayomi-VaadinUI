@@ -78,10 +78,12 @@
   "devDependencies": {
     "@rollup/plugin-replace": "5.0.2",
     "@rollup/pluginutils": "5.0.2",
+    "@vitejs/plugin-react": "4.0.0",
     "async": "3.2.2",
     "glob": "7.2.3",
     "mkdirp": "1.0.4",
     "rollup-plugin-brotli": "3.1.0",
+    "rollup-plugin-visualizer": "5.9.0",
     "strip-css-comments": "5.0.0",
     "transform-ast": "2.4.4",
     "typescript": "4.9.5",
@@ -168,10 +170,12 @@
     "devDependencies": {
       "@rollup/plugin-replace": "5.0.2",
       "@rollup/pluginutils": "5.0.2",
+      "@vitejs/plugin-react": "4.0.0",
       "async": "3.2.2",
       "glob": "7.2.3",
       "mkdirp": "1.0.4",
       "rollup-plugin-brotli": "3.1.0",
+      "rollup-plugin-visualizer": "5.9.0",
       "strip-css-comments": "5.0.0",
       "transform-ast": "2.4.4",
       "typescript": "4.9.5",
@@ -181,7 +185,7 @@
       "workbox-core": "6.5.4",
       "workbox-precaching": "6.5.4"
     },
-    "hash": "6b4d0acfd0e1f7a0f9a8e68d93505bb3abe96fcd2998aaefeb276971d8c98016"
+    "hash": "054a00381cb651d8beb1470b6c2a06241ee209fff825df329a0337409c9a67d0"
   },
   "overrides": {
     "@vaadin/bundles": "$@vaadin/bundles",
