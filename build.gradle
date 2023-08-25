@@ -5,7 +5,7 @@ plugins {
     id 'org.springframework.boot' version '3.1.2'
     id 'io.spring.dependency-management' version '1.1.0'
     //id 'org.graalvm.buildtools.native' version '0.9.20'
-    id 'com.vaadin' version '24.0.5'
+    id 'com.vaadin' version '24.1.6'
 }
 
 group = 'online.hatsunemiku'
@@ -28,7 +28,7 @@ repositories {
 }
 
 ext {
-    set('vaadinVersion', "24.1.4")
+    set('vaadinVersion', "24.1.6")
 }
 
 dependencies {
