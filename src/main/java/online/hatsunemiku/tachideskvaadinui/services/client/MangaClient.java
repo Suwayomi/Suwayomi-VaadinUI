@@ -1,12 +1,17 @@
 package online.hatsunemiku.tachideskvaadinui.services.client;
 
+import feign.Headers;
 import java.net.URI;
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestPart;
 
 @FeignClient(name = "mangaClient", url = "http://localhost:8080")
 public interface MangaClient {
@@ -23,4 +28,11 @@ public interface MangaClient {
 
   @GetMapping("/api/v1/manga/{mangaId}/chapter/{chapterIndex}")
   Chapter getChapter(URI baseUrl, @PathVariable long mangaId, @PathVariable int chapterIndex);
+
+  @PatchMapping(value = "/api/v1/manga/{mangaId}/chapter/{chapterIndex}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @Headers("Content-Type: multipart/form-data")
+  HttpStatusCode modifyReadStatus(URI baseUrl,
+      @PathVariable long mangaId,
+      @PathVariable int chapterIndex,
+      @RequestPart("read") boolean read);
 }
