@@ -228,7 +228,12 @@ public class MangaReader extends Div {
 
       for (int i = 0; i < chapter.getPageCount(); i++) {
         String url = String.format(format, baseUrl, mangaId, chapterIndex, i);
-        Image image = new Image(url, "Page " + i);
+
+        Image image = new Image(url, "Page %d".formatted(i + 1));
+
+        if (i > 1) {
+          image.getElement().setAttribute("loading", "lazy");
+        }
 
         image.addClassName("manga-page");
 
