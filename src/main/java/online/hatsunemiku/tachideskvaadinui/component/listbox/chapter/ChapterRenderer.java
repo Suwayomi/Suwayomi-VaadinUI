@@ -35,8 +35,10 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
 
     container.add(title, date);
 
+    if (chapter.isRead()) {
+      container.addClassName("chapter-list-box-item-read");
+    }
+
     return container;
   }
-
-
 }

@@ -1,4 +1,4 @@
-package online.hatsunemiku.tachideskvaadinui.view;
+package online.hatsunemiku.tachideskvaadinui.services;
 
 import java.awt.Desktop;
 import java.io.IOException;

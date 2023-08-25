@@ -51,4 +51,17 @@ public class MangaService {
 
     return mangaClient.getChapter(baseUrl, mangaId, chapterIndex);
   }
+
+  public boolean setChapterRead(long mangaId, int chapterIndex) {
+    Settings settings = settingsService.getSettings();
+
+    URI baseUrl = URI.create(settings.getUrl());
+
+    try {
+      mangaClient.modifyReadStatus(baseUrl, mangaId, chapterIndex, true);
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
+  }
 }

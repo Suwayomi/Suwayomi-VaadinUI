@@ -20,6 +20,9 @@ html {
   --miku-selected-color-50: rgba(210, 237, 244, 0.5);
 
   --miku-unselected-color: rgb(55, 59, 62);
+  --miku-unselected-color-10: rgba(55, 59, 62, 0.1);
+  --miku-unselected-color-20: rgba(55, 59, 62, 0.2);
+  --miku-unselected-color-50: rgba(55, 59, 62, 0.5);
 
   --miku-frosted-glass: rgba(255, 255, 255, 0.1);
   --miku-frosted-glass-80: rgba(255, 255, 255, 0.8);

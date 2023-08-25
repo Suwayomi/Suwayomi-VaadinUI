@@ -43,7 +43,7 @@ public class MangaReader extends Div {
       boolean hasNext) {
     addClassName("manga-reader");
 
-    Reader reader = new Reader(chapter, settingsService, trackingService);
+    Reader reader = new Reader(chapter, settingsService, trackingService, mangaService);
     Sidebar sidebar = new Sidebar(mangaService, chapter, reader.swiper, hasNext);
     Controls controls = new Controls(reader, hasNext, chapter);
     add(sidebar, reader, controls);
@@ -191,7 +191,10 @@ public class MangaReader extends Div {
     private final SettingsService settingsService;
 
     public Reader(
-        Chapter chapter, SettingsService settingsService, TrackingService trackingService) {
+        Chapter chapter,
+        SettingsService settingsService,
+        TrackingService trackingService,
+        MangaService mangaService) {
       addClassName("reader");
       this.chapter = chapter;
       this.settingsService = settingsService;
@@ -215,6 +218,17 @@ public class MangaReader extends Div {
               }
             });
       }
+
+      swiper.addReachEndEventListener(
+          e -> {
+            int mangaId = chapter.getMangaId();
+            int chapterIndex = chapter.getIndex();
+            if (mangaService.setChapterRead(mangaId, chapterIndex)) {
+              log.info("Set chapter {} to read", chapter.getName());
+            } else {
+              log.warn("Couldn't set chapter {} to read", chapter.getName());
+            }
+          });
 
       add(swiper);
     }

@@ -42,8 +42,15 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'com.github.ben-manes.caffeine:caffeine:3.1.5'
+
+    //Feign Client
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.0.4'
     implementation 'io.github.openfeign:feign-jackson:12.2'
+    implementation 'io.github.openfeign.form:feign-form:3.8.0'
+    implementation 'io.github.openfeign.form:feign-form-spring:3.8.0'
+    implementation 'io.github.openfeign:feign-okhttp:12.4'
+
+
     implementation 'pl.unforgiven:superfields:0.18.3'
     implementation 'com.squareup.okhttp3:okhttp:4.11.0'
 
