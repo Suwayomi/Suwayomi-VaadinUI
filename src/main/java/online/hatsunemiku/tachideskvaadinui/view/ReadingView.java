@@ -72,7 +72,8 @@ public class ReadingView extends StandardLayout
       return;
     }
 
-    var reader = new MangaReader(chapterObj, settingsService, mangaService, trackingService, hasNext);
+    var reader =
+        new MangaReader(chapterObj, settingsService, mangaService, trackingService, hasNext);
 
     setContent(reader);
   }

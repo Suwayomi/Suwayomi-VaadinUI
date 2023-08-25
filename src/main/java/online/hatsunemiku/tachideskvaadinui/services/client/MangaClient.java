@@ -29,9 +29,12 @@ public interface MangaClient {
   @GetMapping("/api/v1/manga/{mangaId}/chapter/{chapterIndex}")
   Chapter getChapter(URI baseUrl, @PathVariable long mangaId, @PathVariable int chapterIndex);
 
-  @PatchMapping(value = "/api/v1/manga/{mangaId}/chapter/{chapterIndex}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PatchMapping(
+      value = "/api/v1/manga/{mangaId}/chapter/{chapterIndex}",
+      consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @Headers("Content-Type: multipart/form-data")
-  HttpStatusCode modifyReadStatus(URI baseUrl,
+  HttpStatusCode modifyReadStatus(
+      URI baseUrl,
       @PathVariable long mangaId,
       @PathVariable int chapterIndex,
       @RequestPart("read") boolean read);

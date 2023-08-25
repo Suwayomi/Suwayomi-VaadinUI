@@ -190,7 +190,8 @@ public class MangaReader extends Div {
     private final Swiper swiper;
     private final SettingsService settingsService;
 
-    public Reader(Chapter chapter,
+    public Reader(
+        Chapter chapter,
         SettingsService settingsService,
         TrackingService trackingService,
         MangaService mangaService) {
@@ -218,15 +219,16 @@ public class MangaReader extends Div {
             });
       }
 
-      swiper.addReachEndEventListener(e -> {
-        int mangaId = chapter.getMangaId();
-        int chapterIndex = chapter.getIndex();
-        if (mangaService.setChapterRead(mangaId, chapterIndex)) {
-          log.info("Set chapter {} to read", chapter.getName());
-        } else {
-          log.warn("Couldn't set chapter {} to read", chapter.getName());
-        }
-      });
+      swiper.addReachEndEventListener(
+          e -> {
+            int mangaId = chapter.getMangaId();
+            int chapterIndex = chapter.getIndex();
+            if (mangaService.setChapterRead(mangaId, chapterIndex)) {
+              log.info("Set chapter {} to read", chapter.getName());
+            } else {
+              log.warn("Couldn't set chapter {} to read", chapter.getName());
+            }
+          });
 
       add(swiper);
     }
