@@ -50,7 +50,6 @@ public class TrayHandler {
     }
   }
 
-
   private PopupMenu createTrayMenu() {
     PopupMenu menu = new PopupMenu();
 
@@ -60,19 +59,18 @@ public class TrayHandler {
     menu.add(exitItem);
 
     MenuItem openInBrowserItem = new MenuItem("Open in browser");
-    openInBrowserItem.addActionListener(e -> {
-      Desktop desktop = Desktop.getDesktop();
-      try {
-        desktop.browse(URI.create("http://localhost:8080"));
-      } catch (Exception ex) {
-        throw new RuntimeException(ex);
-      }
-    });
+    openInBrowserItem.addActionListener(
+        e -> {
+          Desktop desktop = Desktop.getDesktop();
+          try {
+            desktop.browse(URI.create("http://localhost:8080"));
+          } catch (Exception ex) {
+            throw new RuntimeException(ex);
+          }
+        });
 
     menu.add(openInBrowserItem);
 
-
     return menu;
   }
-
 }
