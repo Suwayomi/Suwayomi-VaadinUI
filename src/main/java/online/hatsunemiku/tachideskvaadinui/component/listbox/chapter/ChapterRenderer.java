@@ -25,9 +25,17 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
     title.setText("Chapter " + chapter.getChapterNumber());
     title.setClassName("chapter-list-box-item-title");
 
-    Date uploadDate = new Date(chapter.getUploadDate());
-    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-    String formattedDate = formatter.format(uploadDate);
+    long dateLong = chapter.getUploadDate();
+
+    String formattedDate;
+
+    if (dateLong == 0) {
+      formattedDate = "Today";
+    } else {
+      Date uploadDate = new Date(chapter.getUploadDate());
+      SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+      formattedDate = formatter.format(uploadDate);
+    }
 
     Div date = new Div();
     date.setText(formattedDate);
