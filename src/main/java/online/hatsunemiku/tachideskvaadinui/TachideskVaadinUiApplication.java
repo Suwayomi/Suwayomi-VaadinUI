@@ -17,9 +17,11 @@ import org.springframework.scheduling.annotation.EnableAsync;
 public class TachideskVaadinUiApplication implements AppShellConfigurator {
 
   public static void main(String[] args) {
-    SpringApplication app =
-        new SpringApplicationBuilder(TachideskVaadinUiApplication.class).headless(false).build();
+    SpringApplication app = new SpringApplicationBuilder(TachideskVaadinUiApplication.class)
+        .headless(false)
+        .build();
 
     app.run(args);
   }
+
 }
