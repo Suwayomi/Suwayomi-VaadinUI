@@ -12,6 +12,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.time.LocalDate;
 import online.hatsunemiku.tachideskvaadinui.view.ExtensionsView;
 import online.hatsunemiku.tachideskvaadinui.view.RootView;
+import online.hatsunemiku.tachideskvaadinui.view.SearchView;
 import online.hatsunemiku.tachideskvaadinui.view.source.SourcesView;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,8 +49,22 @@ public class StandardLayout extends VerticalLayout {
     addRootBtn(btnContainer);
     addExtensionsBtn(btnContainer);
     addSourcesBtn(btnContainer);
+    addSearchBtn(btnContainer);
 
     navBar.add(btnContainer);
+  }
+
+  private void addSearchBtn(Div btnContainer) {
+
+    if (this instanceof SearchView) {
+      return;
+    }
+
+    Button searchButton = new Button("Search", VaadinIcon.SEARCH.create());
+
+    searchButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(SearchView.class)));
+
+    addBtn(btnContainer, searchButton);
   }
 
   private void addSourcesBtn(Div btnContainer) {
@@ -59,10 +74,7 @@ public class StandardLayout extends VerticalLayout {
     }
 
     Button sourcesButton = new Button("Sources", VaadinIcon.GLOBE.create());
-    sourcesButton.addClickListener(
-        e -> {
-          getUI().ifPresent(ui -> ui.navigate(SourcesView.class));
-        });
+    sourcesButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(SourcesView.class)));
 
     addBtn(btnContainer, sourcesButton);
   }
@@ -74,10 +86,7 @@ public class StandardLayout extends VerticalLayout {
     }
 
     Button rootButton = new Button("Library", VaadinIcon.BOOK.create());
-    rootButton.addClickListener(
-        e -> {
-          getUI().ifPresent(ui -> ui.navigate(RootView.class));
-        });
+    rootButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(RootView.class)));
 
     addBtn(btnContainer, rootButton);
   }
@@ -90,9 +99,7 @@ public class StandardLayout extends VerticalLayout {
 
     Button extensionsButton = new Button("Extensions", VaadinIcon.PUZZLE_PIECE.create());
     extensionsButton.addClickListener(
-        e -> {
-          getUI().ifPresent(ui -> ui.navigate(ExtensionsView.class));
-        });
+        e -> getUI().ifPresent(ui -> ui.navigate(ExtensionsView.class)));
 
     addBtn(btnContainer, extensionsButton);
   }
@@ -130,6 +137,11 @@ public class StandardLayout extends VerticalLayout {
     addClassName("fullscreen");
   }
 
+  /**
+   * Sets the UI to windowed mode by updating the class names and visibility of different
+   * components. This method is only supposed to be called when {@link #fullScreen()} was called
+   * before.
+   */
   protected void windowed() {
     this.content.setClassName("content");
     this.navBar.setVisible(true);

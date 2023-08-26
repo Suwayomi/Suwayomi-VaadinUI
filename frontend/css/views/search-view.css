@@ -1,0 +1,50 @@
+.search-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 80vh;
+  min-width: 100%;
+  max-width: 100%;
+}
+
+.search-result-manga-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.search-content .loading-div svg {
+  height: 1rem;
+}
+
+.search-content .search-result {
+  border: var(--miku-main-color) 1px solid;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.search-content .search-result-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: var(--miku-main-color);
+  background-color: var(--miku-unselected-color-50)
+}
+
+.search-content .search-field {
+  margin-bottom: 1rem;
+}
+
+.search-content .search-lang-filter {
+  max-width: 10vw;
+  margin-bottom: 1rem;
+}
+
+.search-result-title .search-result-icon {
+  height: 2rem;
+  width: 2rem;
+  min-width: 1.5rem;
+  margin-left: 2rem;
+}

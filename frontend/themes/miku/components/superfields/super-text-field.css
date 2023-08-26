@@ -5,3 +5,8 @@ super-text-field {
 super-date-picker {
   color: var(--miku-main-color);
 }
+
+/*slot label*/
+super-text-field::part(label) {
+  color: var(--miku-main-color);
+}
