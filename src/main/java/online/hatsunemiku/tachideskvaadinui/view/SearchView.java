@@ -44,8 +44,8 @@ public class SearchView extends StandardLayout {
   private final SearchService searchService;
   private final SettingsService settingsService;
 
-  public SearchView(SourceService sourceService, SearchService searchService,
-      SettingsService settingsService) {
+  public SearchView(
+      SourceService sourceService, SearchService searchService, SettingsService settingsService) {
     super("Search");
 
     this.sourceService = sourceService;
@@ -75,12 +75,13 @@ public class SearchView extends StandardLayout {
     langFilter.addClassName("search-lang-filter");
 
     addListener(LanguageListChangeEvent.class, langFilter);
-    CompletableFuture.runAsync(() -> {
-      var sources = sourceService.getSources();
-      var langs = sources.stream().map(Source::getLang).distinct().toList();
-      LanguageListChangeEvent event = new LanguageListChangeEvent(this, langs);
-      fireEvent(event);
-    });
+    CompletableFuture.runAsync(
+        () -> {
+          var sources = sourceService.getSources();
+          var langs = sources.stream().map(Source::getLang).distinct().toList();
+          LanguageListChangeEvent event = new LanguageListChangeEvent(this, langs);
+          fireEvent(event);
+        });
 
     langFilter.addValueChangeListener(e -> runSearch(searchField));
 
@@ -113,28 +114,34 @@ public class SearchView extends StandardLayout {
 
     CompletableFuture<?> future = CompletableFuture.runAsync(() -> search(searchField.getValue()));
 
-    future.thenRun(() -> {
-      var ui = getUI();
+    future
+        .thenRun(
+            () -> {
+              var ui = getUI();
 
-      if (ui.isEmpty()) {
-        log.error("UI is not present");
-        return;
-      }
+              if (ui.isEmpty()) {
+                log.error("UI is not present");
+                return;
+              }
 
-      if (!ui.get().isAttached()) {
-        log.debug("UI is not attached anymore");
-        return;
-      }
+              if (!ui.get().isAttached()) {
+                log.debug("UI is not attached anymore");
+                return;
+              }
 
-      ui.get().access(() -> {
-        searchField.setSuffixComponent(null);
-        searchField.setReadOnly(false);
-        langFilter.setReadOnly(false);
-      });
-    }).exceptionally(ex -> {
-      log.error("Error searching", ex);
-      return null;
-    });
+              ui.get()
+                  .access(
+                      () -> {
+                        searchField.setSuffixComponent(null);
+                        searchField.setReadOnly(false);
+                        langFilter.setReadOnly(false);
+                      });
+            })
+        .exceptionally(
+            ex -> {
+              log.error("Error searching", ex);
+              return null;
+            });
   }
 
   private Div getLoadingDiv() {
@@ -208,8 +215,8 @@ public class SearchView extends StandardLayout {
   }
 
   @NotNull
-  private Map<Source, List<Manga>> searchSources(String query,
-      Map<String, List<Source>> langGroupedSources) {
+  private Map<Source, List<Manga>> searchSources(
+      String query, Map<String, List<Source>> langGroupedSources) {
     HashMap<Source, List<Manga>> mangaMap = new HashMap<>();
 
     for (var langSet : langGroupedSources.entrySet()) {
@@ -227,8 +234,7 @@ public class SearchView extends StandardLayout {
       }
     }
 
-    return mangaMap.entrySet()
-        .stream()
+    return mangaMap.entrySet().stream()
         .filter(entry -> !entry.getValue().isEmpty())
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
   }
@@ -240,8 +246,8 @@ public class SearchView extends StandardLayout {
     }
   }
 
-  private boolean searchPage(String query, Source source, HashMap<Source, List<Manga>> mangaMap,
-      int pageNum) {
+  private boolean searchPage(
+      String query, Source source, HashMap<Source, List<Manga>> mangaMap, int pageNum) {
     var searchResponse = searchService.search(query, source.getId(), pageNum);
 
     if (searchResponse.mangaList().isEmpty()) {
@@ -254,6 +260,4 @@ public class SearchView extends StandardLayout {
 
     return searchResponse.hasNext();
   }
-
-
 }
