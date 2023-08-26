@@ -212,7 +212,9 @@ public class SearchView extends StandardLayout {
       Map<String, List<Source>> langGroupedSources) {
     HashMap<Source, List<Manga>> mangaMap = new HashMap<>();
 
-    for (var lang : langGroupedSources.keySet()) {
+    for (var langSet : langGroupedSources.entrySet()) {
+
+      var lang = langSet.getKey();
 
       if (!langFilter.isEmpty() && !langFilter.getValue().equals(lang)) {
         continue;
