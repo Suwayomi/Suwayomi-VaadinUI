@@ -62,9 +62,7 @@ public class StandardLayout extends VerticalLayout {
 
     Button searchButton = new Button("Search", VaadinIcon.SEARCH.create());
 
-    searchButton.addClickListener(e -> {
-      getUI().ifPresent(ui -> ui.navigate(SearchView.class));
-    });
+    searchButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(SearchView.class)));
 
     addBtn(btnContainer, searchButton);
   }
@@ -76,10 +74,7 @@ public class StandardLayout extends VerticalLayout {
     }
 
     Button sourcesButton = new Button("Sources", VaadinIcon.GLOBE.create());
-    sourcesButton.addClickListener(
-        e -> {
-          getUI().ifPresent(ui -> ui.navigate(SourcesView.class));
-        });
+    sourcesButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(SourcesView.class)));
 
     addBtn(btnContainer, sourcesButton);
   }
@@ -91,10 +86,7 @@ public class StandardLayout extends VerticalLayout {
     }
 
     Button rootButton = new Button("Library", VaadinIcon.BOOK.create());
-    rootButton.addClickListener(
-        e -> {
-          getUI().ifPresent(ui -> ui.navigate(RootView.class));
-        });
+    rootButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(RootView.class)));
 
     addBtn(btnContainer, rootButton);
   }
@@ -106,10 +98,7 @@ public class StandardLayout extends VerticalLayout {
     }
 
     Button extensionsButton = new Button("Extensions", VaadinIcon.PUZZLE_PIECE.create());
-    extensionsButton.addClickListener(
-        e -> {
-          getUI().ifPresent(ui -> ui.navigate(ExtensionsView.class));
-        });
+    extensionsButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(ExtensionsView.class)));
 
     addBtn(btnContainer, extensionsButton);
   }
@@ -147,6 +136,10 @@ public class StandardLayout extends VerticalLayout {
     addClassName("fullscreen");
   }
 
+  /**
+   * Sets the UI to windowed mode by updating the class names and visibility of different components.
+   * This method is only supposed to be called when {@link #fullScreen()} was called before.
+   */
   protected void windowed() {
     this.content.setClassName("content");
     this.navBar.setVisible(true);
