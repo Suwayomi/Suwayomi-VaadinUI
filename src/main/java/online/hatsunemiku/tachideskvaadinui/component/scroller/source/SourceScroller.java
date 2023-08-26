@@ -10,7 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.component.events.source.SourceFilterUpdateEvent;
 import online.hatsunemiku.tachideskvaadinui.component.events.source.SourceLangFilterUpdateEvent;
-import online.hatsunemiku.tachideskvaadinui.component.events.source.SourceLangUpdateEvent;
+import online.hatsunemiku.tachideskvaadinui.component.events.source.LanguageListChangeEvent;
 import online.hatsunemiku.tachideskvaadinui.component.items.BlurryItem;
 import online.hatsunemiku.tachideskvaadinui.component.items.LangItem;
 import online.hatsunemiku.tachideskvaadinui.component.items.SourceItem;
@@ -198,15 +198,15 @@ public class SourceScroller extends VScroller {
 
   private void setLanguages(List<String> languages) {
     this.languages = new ArrayList<>(languages);
-    SourceLangUpdateEvent event = new SourceLangUpdateEvent(this, languages);
+    LanguageListChangeEvent event = new LanguageListChangeEvent(this, languages);
     fireEvent(event);
   }
 
-  public void addLangUpdateEventListener(ComponentEventListener<SourceLangUpdateEvent> listener) {
-    addListener(SourceLangUpdateEvent.class, listener);
+  public void addLangUpdateEventListener(ComponentEventListener<LanguageListChangeEvent> listener) {
+    addListener(LanguageListChangeEvent.class, listener);
 
     // makes sure the new listener gets the current languages
-    var event = new SourceLangUpdateEvent(this, languages);
+    var event = new LanguageListChangeEvent(this, languages);
     fireEvent(event);
   }
 

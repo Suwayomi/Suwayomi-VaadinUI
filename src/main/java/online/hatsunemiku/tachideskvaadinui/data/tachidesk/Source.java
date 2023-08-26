@@ -1,8 +1,11 @@
 package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
-public class Source {
+@Getter
+public class Source implements Comparable<Source> {
 
   @JsonProperty("supportsLatest")
   private boolean supportsLatest;
@@ -20,7 +23,7 @@ public class Source {
   private String name;
 
   @JsonProperty("id")
-  private String id;
+  private long id;
 
   @JsonProperty("iconUrl")
   private String iconUrl;
@@ -28,35 +31,8 @@ public class Source {
   @JsonProperty("lang")
   private String lang;
 
-  public boolean isSupportsLatest() {
-    return supportsLatest;
-  }
-
-  public boolean isIsConfigurable() {
-    return isConfigurable;
-  }
-
-  public boolean isIsNsfw() {
-    return isNsfw;
-  }
-
-  public String getDisplayName() {
-    return displayName;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public String getId() {
-    return id;
-  }
-
-  public String getIconUrl() {
-    return iconUrl;
-  }
-
-  public String getLang() {
-    return lang;
+  @Override
+  public int compareTo(@NotNull Source o) {
+    return displayName.compareTo(o.getDisplayName());
   }
 }

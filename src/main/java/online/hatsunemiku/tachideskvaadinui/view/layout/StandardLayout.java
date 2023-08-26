@@ -12,6 +12,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.time.LocalDate;
 import online.hatsunemiku.tachideskvaadinui.view.ExtensionsView;
 import online.hatsunemiku.tachideskvaadinui.view.RootView;
+import online.hatsunemiku.tachideskvaadinui.view.SearchView;
 import online.hatsunemiku.tachideskvaadinui.view.source.SourcesView;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,8 +49,24 @@ public class StandardLayout extends VerticalLayout {
     addRootBtn(btnContainer);
     addExtensionsBtn(btnContainer);
     addSourcesBtn(btnContainer);
+    addSearchBtn(btnContainer);
 
     navBar.add(btnContainer);
+  }
+
+  private void addSearchBtn(Div btnContainer) {
+
+    if (this instanceof SearchView) {
+      return;
+    }
+
+    Button searchButton = new Button("Search", VaadinIcon.SEARCH.create());
+
+    searchButton.addClickListener(e -> {
+      getUI().ifPresent(ui -> ui.navigate(SearchView.class));
+    });
+
+    addBtn(btnContainer, searchButton);
   }
 
   private void addSourcesBtn(Div btnContainer) {
