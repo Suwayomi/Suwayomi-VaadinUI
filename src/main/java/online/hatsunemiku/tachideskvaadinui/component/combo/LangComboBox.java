@@ -30,26 +30,32 @@ public class LangComboBox extends ComboBox<String>
   public void onComponentEvent(LanguageListChangeEvent event) {
     String currentVal = getValue();
 
+    UI ui;
+
     if (getUI().isEmpty()) {
-      return;
+      if (UI.getCurrent() == null) {
+        return;
+      }
+
+      ui = UI.getCurrent();
+    } else {
+      ui = getUI().get();
     }
 
-    if (!getUI().get().isAttached()) {
+    if (!ui.isAttached()) {
       return;
     }
     boolean langsExist = !event.getLanguages().isEmpty();
 
-    getUI()
-        .get()
-        .access(
-            () -> {
-              setItems(event.getLanguages());
+    ui.access(
+        () -> {
+          setItems(event.getLanguages());
 
-              if (currentVal != null && event.getLanguages().contains(currentVal)) {
-                setValue(currentVal);
-              }
+          if (currentVal != null && event.getLanguages().contains(currentVal)) {
+            setValue(currentVal);
+          }
 
-              setEnabled(langsExist);
-            });
+          setEnabled(langsExist);
+        });
   }
 }
