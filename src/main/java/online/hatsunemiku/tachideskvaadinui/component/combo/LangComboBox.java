@@ -48,14 +48,14 @@ public class LangComboBox extends ComboBox<String>
     boolean langsExist = !event.getLanguages().isEmpty();
 
     ui.access(
-            () -> {
-              setItems(event.getLanguages());
+        () -> {
+          setItems(event.getLanguages());
 
-              if (currentVal != null && event.getLanguages().contains(currentVal)) {
-                setValue(currentVal);
-              }
+          if (currentVal != null && event.getLanguages().contains(currentVal)) {
+            setValue(currentVal);
+          }
 
-              setEnabled(langsExist);
-            });
+          setEnabled(langsExist);
+        });
   }
 }
