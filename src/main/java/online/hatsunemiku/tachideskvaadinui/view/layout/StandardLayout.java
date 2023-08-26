@@ -98,7 +98,8 @@ public class StandardLayout extends VerticalLayout {
     }
 
     Button extensionsButton = new Button("Extensions", VaadinIcon.PUZZLE_PIECE.create());
-    extensionsButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(ExtensionsView.class)));
+    extensionsButton.addClickListener(
+        e -> getUI().ifPresent(ui -> ui.navigate(ExtensionsView.class)));
 
     addBtn(btnContainer, extensionsButton);
   }
@@ -137,8 +138,9 @@ public class StandardLayout extends VerticalLayout {
   }
 
   /**
-   * Sets the UI to windowed mode by updating the class names and visibility of different components.
-   * This method is only supposed to be called when {@link #fullScreen()} was called before.
+   * Sets the UI to windowed mode by updating the class names and visibility of different
+   * components. This method is only supposed to be called when {@link #fullScreen()} was called
+   * before.
    */
   protected void windowed() {
     this.content.setClassName("content");

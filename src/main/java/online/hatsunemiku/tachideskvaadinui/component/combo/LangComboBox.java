@@ -4,8 +4,8 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
-import online.hatsunemiku.tachideskvaadinui.component.events.source.SourceLangFilterUpdateEvent;
 import online.hatsunemiku.tachideskvaadinui.component.events.source.LanguageListChangeEvent;
+import online.hatsunemiku.tachideskvaadinui.component.events.source.SourceLangFilterUpdateEvent;
 
 public class LangComboBox extends ComboBox<String>
     implements ComponentEventListener<LanguageListChangeEvent> {
@@ -39,15 +39,17 @@ public class LangComboBox extends ComboBox<String>
     }
     boolean langsExist = !event.getLanguages().isEmpty();
 
+    getUI()
+        .get()
+        .access(
+            () -> {
+              setItems(event.getLanguages());
 
-    getUI().get().access(() -> {
-      setItems(event.getLanguages());
+              if (currentVal != null && event.getLanguages().contains(currentVal)) {
+                setValue(currentVal);
+              }
 
-      if (currentVal != null && event.getLanguages().contains(currentVal)) {
-        setValue(currentVal);
-      }
-
-      setEnabled(langsExist);
-    });
+              setEnabled(langsExist);
+            });
   }
 }

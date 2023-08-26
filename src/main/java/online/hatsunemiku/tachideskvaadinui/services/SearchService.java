@@ -25,10 +25,8 @@ public class SearchService {
 
     URI baseUrl = URI.create(settings.getUrl());
 
-    SearchQueryParameters searchQueryParameters = SearchQueryParameters.builder()
-        .pageNum(pageNum)
-        .searchTerm(query)
-        .build();
+    SearchQueryParameters searchQueryParameters =
+        SearchQueryParameters.builder().pageNum(pageNum).searchTerm(query).build();
 
     try {
       return searchClient.search(baseUrl, sourceId, searchQueryParameters);
@@ -36,5 +34,4 @@ public class SearchService {
       return new SearchResponse(List.of(), false);
     }
   }
-
 }

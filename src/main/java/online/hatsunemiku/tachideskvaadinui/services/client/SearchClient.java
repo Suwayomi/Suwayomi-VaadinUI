@@ -15,13 +15,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface SearchClient {
 
   @PostMapping("/api/v1/source/{sourceId}/quick-search")
-  SearchResponse quickSearch(URI baseUrl,
+  SearchResponse quickSearch(
+      URI baseUrl,
       @PathVariable long sourceId,
       @SpringQueryMap SearchQueryParameters searchQueryParameters,
       @RequestBody SourceFilterData filterData);
 
   @GetMapping("/api/v1/source/{sourceId}/search")
-  SearchResponse search(URI baseUrl,
+  SearchResponse search(
+      URI baseUrl,
       @PathVariable long sourceId,
       @SpringQueryMap SearchQueryParameters searchQueryParameters);
 }

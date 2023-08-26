@@ -9,6 +9,5 @@ import lombok.Data;
 public class SearchQueryParameters {
 
   private int pageNum;
-  @Nullable
-  private String searchTerm;
+  @Nullable private String searchTerm;
 }
