@@ -29,24 +29,20 @@ import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.utils.RouteUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.web.client.RestTemplate;
 
 @Route("manga/:id(\\d+)")
 @CssImport("./css/manga.css")
 public class MangaView extends StandardLayout implements BeforeEnterObserver {
 
-  private final RestTemplate client;
   private final MangaService mangaService;
   private final SettingsService settingsService;
   private final AniListAPIService aniListAPIService;
 
   public MangaView(
-      RestTemplate client,
       MangaService mangaService,
       SettingsService settingsService,
       AniListAPIService aniListAPIService) {
     super("Manga");
-    this.client = client;
     this.mangaService = mangaService;
     this.settingsService = settingsService;
     this.aniListAPIService = aniListAPIService;
