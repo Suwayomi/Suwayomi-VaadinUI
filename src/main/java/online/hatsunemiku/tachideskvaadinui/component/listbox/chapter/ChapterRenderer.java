@@ -5,6 +5,8 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.RouteParam;
@@ -106,7 +108,14 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
   private static Button getReadButton(Chapter chapter, MangaService mangaService, Div rightSide) {
     Button readButton = new Button(VaadinIcon.EYE.create());
     readButton.addClickListener(e -> {
-      mangaService.setChapterRead(chapter.getMangaId(), chapter.getIndex());
+      if (mangaService.setChapterRead(chapter.getMangaId(), chapter.getIndex())) {
+        log.error("Failed to set chapter read");
+        Notification notification = new Notification("Failed to set chapter read", 5000);
+        notification.setPosition(Notification.Position.MIDDLE);
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.open();
+        return;
+      }
 
       Button unreadBtn = getUnreadButton(chapter, mangaService, rightSide);
       rightSide.replace(readButton, unreadBtn);
@@ -121,7 +130,14 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
   private static Button getUnreadButton(Chapter chapter, MangaService mangaService, Div rightSide) {
     Button unreadButton = new Button(VaadinIcon.EYE_SLASH.create());
     unreadButton.addClickListener(e -> {
-      mangaService.setChapterUnread(chapter.getMangaId(), chapter.getIndex());
+      if (!mangaService.setChapterUnread(chapter.getMangaId(), chapter.getIndex())) {
+        log.error("Failed to set chapter unread");
+        Notification notification = new Notification("Failed to set chapter unread", 5000);
+        notification.setPosition(Notification.Position.MIDDLE);
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.open();
+        return;
+      }
       Button readBtn = getReadButton(chapter, mangaService, rightSide);
       rightSide.replace(unreadButton, readBtn);
 
