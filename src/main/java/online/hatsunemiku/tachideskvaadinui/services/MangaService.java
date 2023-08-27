@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.services.client.MangaClient;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +66,18 @@ public class MangaService {
     } catch (Exception e) {
       return false;
     }
+  }
+
+  /**
+   * Retrieves the full information of a manga specified by its ID.
+   *
+   * @param mangaId the ID of the manga to retrieve
+   * @return a Manga object containing the full data of the manga
+   */
+  public Manga getMangaFull(long mangaId) {
+    URI baseUrl = getBaseUrl();
+
+    return mangaClient.getMangaFull(baseUrl, mangaId);
   }
 
   @NotNull
