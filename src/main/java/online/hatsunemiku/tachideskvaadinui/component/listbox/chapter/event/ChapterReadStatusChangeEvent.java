@@ -4,7 +4,8 @@ import com.vaadin.flow.component.Component;
 import lombok.Getter;
 
 @Getter
-public class ChapterReadStatusChangeEvent extends com.vaadin.flow.component.ComponentEvent<Component> {
+public class ChapterReadStatusChangeEvent
+    extends com.vaadin.flow.component.ComponentEvent<Component> {
 
   private final boolean read;
 
@@ -12,9 +13,9 @@ public class ChapterReadStatusChangeEvent extends com.vaadin.flow.component.Comp
    * Creates a new event using the given source and indicator whether the event originated from the
    * client side or the server side.
    *
-   * @param source     the source component
-   * @param fromClient <code>true</code> if the event originated from the client
-   *                   side, <code>false</code> otherwise
+   * @param source the source component
+   * @param fromClient <code>true</code> if the event originated from the client side, <code>false
+   *     </code> otherwise
    */
   public ChapterReadStatusChangeEvent(Component source, boolean fromClient, boolean read) {
     super(source, fromClient);

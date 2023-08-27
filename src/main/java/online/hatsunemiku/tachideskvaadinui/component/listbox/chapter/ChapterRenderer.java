@@ -69,14 +69,17 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
 
     container.add(title, rightSide);
 
-    ComponentUtil.addListener(rightSide, ChapterReadStatusChangeEvent.class, e -> {
-      log.debug("ChapterReadStatusChangeEvent received");
-      if (e.isRead()) {
-        addReadStatus(container);
-      } else {
-        removeReadStatus(container);
-      }
-    });
+    ComponentUtil.addListener(
+        rightSide,
+        ChapterReadStatusChangeEvent.class,
+        e -> {
+          log.debug("ChapterReadStatusChangeEvent received");
+          if (e.isRead()) {
+            addReadStatus(container);
+          } else {
+            removeReadStatus(container);
+          }
+        });
 
     return container;
   }
@@ -84,66 +87,69 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
   @NotNull
   private static Div getChapterBackgroundDiv(Chapter chapter) {
     Div background = new Div();
-    background.addClickListener(e -> {
-      int mangaId = chapter.getMangaId();
+    background.addClickListener(
+        e -> {
+          int mangaId = chapter.getMangaId();
 
-      RouteParam mangaIdParam = new RouteParam("mangaId", String.valueOf(mangaId));
+          RouteParam mangaIdParam = new RouteParam("mangaId", String.valueOf(mangaId));
 
-      double chapterNumber = chapter.getIndex();
-      RouteParam chapterIndexParam;
-      if (chapterNumber % 1 == 0) {
-        chapterIndexParam = new RouteParam("chapterIndex", String.valueOf((int) chapterNumber));
-      } else {
-        chapterIndexParam = new RouteParam("chapterIndex", String.valueOf(chapterNumber));
-      }
+          double chapterNumber = chapter.getIndex();
+          RouteParam chapterIndexParam;
+          if (chapterNumber % 1 == 0) {
+            chapterIndexParam = new RouteParam("chapterIndex", String.valueOf((int) chapterNumber));
+          } else {
+            chapterIndexParam = new RouteParam("chapterIndex", String.valueOf(chapterNumber));
+          }
 
-      RouteParameters params = new RouteParameters(mangaIdParam, chapterIndexParam);
+          RouteParameters params = new RouteParameters(mangaIdParam, chapterIndexParam);
 
-      UI.getCurrent().navigate(ReadingView.class, params);
-    });
+          UI.getCurrent().navigate(ReadingView.class, params);
+        });
     background.setClassName("chapter-list-box-item-background");
     return background;
   }
 
   private static Button getReadButton(Chapter chapter, MangaService mangaService, Div rightSide) {
     Button readButton = new Button(VaadinIcon.EYE.create());
-    readButton.addClickListener(e -> {
-      if (mangaService.setChapterRead(chapter.getMangaId(), chapter.getIndex())) {
-        log.error("Failed to set chapter read");
-        Notification notification = new Notification("Failed to set chapter read", 5000);
-        notification.setPosition(Notification.Position.MIDDLE);
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        notification.open();
-        return;
-      }
+    readButton.addClickListener(
+        e -> {
+          if (mangaService.setChapterRead(chapter.getMangaId(), chapter.getIndex())) {
+            log.error("Failed to set chapter read");
+            Notification notification = new Notification("Failed to set chapter read", 5000);
+            notification.setPosition(Notification.Position.MIDDLE);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.open();
+            return;
+          }
 
-      Button unreadBtn = getUnreadButton(chapter, mangaService, rightSide);
-      rightSide.replace(readButton, unreadBtn);
+          Button unreadBtn = getUnreadButton(chapter, mangaService, rightSide);
+          rightSide.replace(readButton, unreadBtn);
 
-      var readEvent = new ChapterReadStatusChangeEvent(readButton,true, true);
-      ComponentUtil.fireEvent(rightSide, readEvent);
-    });
+          var readEvent = new ChapterReadStatusChangeEvent(readButton, true, true);
+          ComponentUtil.fireEvent(rightSide, readEvent);
+        });
 
     return readButton;
   }
 
   private static Button getUnreadButton(Chapter chapter, MangaService mangaService, Div rightSide) {
     Button unreadButton = new Button(VaadinIcon.EYE_SLASH.create());
-    unreadButton.addClickListener(e -> {
-      if (!mangaService.setChapterUnread(chapter.getMangaId(), chapter.getIndex())) {
-        log.error("Failed to set chapter unread");
-        Notification notification = new Notification("Failed to set chapter unread", 5000);
-        notification.setPosition(Notification.Position.MIDDLE);
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        notification.open();
-        return;
-      }
-      Button readBtn = getReadButton(chapter, mangaService, rightSide);
-      rightSide.replace(unreadButton, readBtn);
+    unreadButton.addClickListener(
+        e -> {
+          if (!mangaService.setChapterUnread(chapter.getMangaId(), chapter.getIndex())) {
+            log.error("Failed to set chapter unread");
+            Notification notification = new Notification("Failed to set chapter unread", 5000);
+            notification.setPosition(Notification.Position.MIDDLE);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.open();
+            return;
+          }
+          Button readBtn = getReadButton(chapter, mangaService, rightSide);
+          rightSide.replace(unreadButton, readBtn);
 
-      var readEvent = new ChapterReadStatusChangeEvent(unreadButton,true, false);
-      ComponentUtil.fireEvent(rightSide, readEvent);
-    });
+          var readEvent = new ChapterReadStatusChangeEvent(unreadButton, true, false);
+          ComponentUtil.fireEvent(rightSide, readEvent);
+        });
 
     return unreadButton;
   }

@@ -57,7 +57,6 @@ public class Chapter {
   @JsonProperty("id")
   private int id;
 
-
   @Override
   public String toString() {
     return name;
