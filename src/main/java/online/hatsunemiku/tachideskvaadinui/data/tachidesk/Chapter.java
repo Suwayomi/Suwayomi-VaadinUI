@@ -1,7 +1,9 @@
 package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
+@Getter
 public class Chapter {
 
   @JsonProperty("pageCount")
@@ -55,73 +57,6 @@ public class Chapter {
   @JsonProperty("id")
   private int id;
 
-  public int getPageCount() {
-    return pageCount;
-  }
-
-  public boolean isRead() {
-    return read;
-  }
-
-  public int getMangaId() {
-    return mangaId;
-  }
-
-  public Object getScanlator() {
-    return scanlator;
-  }
-
-  public boolean isBookmarked() {
-    return bookmarked;
-  }
-
-  public int getChapterCount() {
-    return chapterCount;
-  }
-
-  public int getIndex() {
-    return index;
-  }
-
-  public int getFetchedAt() {
-    return fetchedAt;
-  }
-
-  public int getChapterNumber() {
-    return chapterNumber;
-  }
-
-  public boolean isDownloaded() {
-    return downloaded;
-  }
-
-  public String getUrl() {
-    return url;
-  }
-
-  public int getLastReadAt() {
-    return lastReadAt;
-  }
-
-  public long getUploadDate() {
-    return uploadDate;
-  }
-
-  public int getLastPageRead() {
-    return lastPageRead;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public String getRealUrl() {
-    return realUrl;
-  }
-
-  public int getId() {
-    return id;
-  }
 
   @Override
   public String toString() {
