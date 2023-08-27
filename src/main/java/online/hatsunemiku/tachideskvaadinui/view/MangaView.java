@@ -122,10 +122,10 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
   }
 
   /**
-   * Creates and retrieves the resume button for a manga, which allows the user to resume reading from the last chapter
-   * they left off.
+   * Creates and retrieves the resume button for a manga, which allows the user to resume reading
+   * from the last chapter they left off.
    *
-   * @param manga    The manga object for which to retrieve the resume button.
+   * @param manga The manga object for which to retrieve the resume button.
    * @param chapters The list of chapters available for the manga.
    * @return The resume button with the appropriate click listener.
    */
@@ -133,38 +133,38 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
   private Button getResumeButton(Manga manga, List<Chapter> chapters) {
     Button resumeBtn = new Button("Resume", LumoIcon.PLAY.create());
     resumeBtn.addClassName("manga-btn");
-    resumeBtn.addClickListener(e -> {
+    resumeBtn.addClickListener(
+        e -> {
+          if (chapters.isEmpty()) {
+            return;
+          }
 
-      if (chapters.isEmpty()) {
-        return;
-      }
+          Chapter nextChapter;
 
-      Chapter nextChapter;
+          var lastChapter = manga.getLastChapterRead();
+          if (lastChapter == null) {
+            nextChapter = chapters.get(chapters.size() - 1);
+          } else {
+            // 1 based index
+            int index = lastChapter.getIndex();
 
-      var lastChapter = manga.getLastChapterRead();
-      if (lastChapter == null) {
-        nextChapter = chapters.get(chapters.size() - 1);
-      } else {
-        // 1 based index
-        int index = lastChapter.getIndex();
+            if (index == chapters.size()) {
+              Notification notification = new Notification("No more chapters available", 3000);
+              notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+              notification.setPosition(Notification.Position.MIDDLE);
+              notification.open();
+              return;
+            }
 
-        if (index == chapters.size()) {
-          Notification notification = new Notification("No more chapters available", 3000);
-          notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
-          notification.setPosition(Notification.Position.MIDDLE);
-          notification.open();
-          return;
-        }
+            Collections.reverse(chapters);
 
-        Collections.reverse(chapters);
+            nextChapter = chapters.get(index);
+          }
 
-        nextChapter = chapters.get(index);
-      }
+          UI ui = UI.getCurrent();
 
-      UI ui = UI.getCurrent();
-
-      RouteUtils.routeToReadingView(ui, manga.getId(), nextChapter.getIndex());
-    });
+          RouteUtils.routeToReadingView(ui, manga.getId(), nextChapter.getIndex());
+        });
     return resumeBtn;
   }
 
@@ -191,5 +191,4 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     }
     return libraryBtn;
   }
-
 }

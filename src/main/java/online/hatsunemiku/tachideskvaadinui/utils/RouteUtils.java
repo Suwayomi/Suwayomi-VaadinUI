@@ -9,7 +9,6 @@ import online.hatsunemiku.tachideskvaadinui.view.ReadingView;
 @UtilityClass
 public class RouteUtils {
 
-
   /**
    * Method to route to the reading view.
    *

@@ -43,8 +43,8 @@ public interface MangaClient {
   /**
    * Retrieves the full details of a manga based on the given manga ID.
    *
-   * @param baseUrl  The base URL of the API.
-   * @param mangaId  The ID of the manga to retrieve.
+   * @param baseUrl The base URL of the API.
+   * @param mangaId The ID of the manga to retrieve.
    * @return A Manga object representing the full data of the manga.
    */
   @GetMapping("/api/v1/manga/{mangaId}/full")

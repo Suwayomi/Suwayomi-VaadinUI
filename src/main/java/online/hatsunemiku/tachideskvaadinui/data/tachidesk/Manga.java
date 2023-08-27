@@ -86,5 +86,4 @@ public class Manga {
 
   @JsonProperty("status")
   private String status;
-
 }
