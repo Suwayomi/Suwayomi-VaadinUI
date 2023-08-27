@@ -4,6 +4,7 @@ import feign.Headers;
 import java.net.URI;
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -38,4 +39,14 @@ public interface MangaClient {
       @PathVariable long mangaId,
       @PathVariable int chapterIndex,
       @RequestPart("read") boolean read);
+
+  /**
+   * Retrieves the full details of a manga based on the given manga ID.
+   *
+   * @param baseUrl  The base URL of the API.
+   * @param mangaId  The ID of the manga to retrieve.
+   * @return A Manga object representing the full data of the manga.
+   */
+  @GetMapping("/api/v1/manga/{mangaId}/full")
+  Manga getMangaFull(URI baseUrl, @PathVariable long mangaId);
 }
