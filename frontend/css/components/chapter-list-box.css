@@ -21,15 +21,16 @@
 }
 
 .chapter-list-box-item-date {
-  font-size: 1em;
+  font-size: 1rem;
   color: var(--lumo-header-text-color);
   z-index: 2;
   padding-right: 1rem;
+  padding-left: 0.5rem;
+  font-weight: bold;
 }
 
 .chapter-list-box-item-read .chapter-list-box-item-date {
   color: var(--miku-unselected-color-50);
-  font-weight: bold;
 }
 
 .chapter-list-box-item-background {
@@ -38,4 +39,14 @@
   height: 100%;
   background: rgba(255,255,255,0.1);
   filter: blur(2px);
+}
+
+.chapter-list-box-item-right-side {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.chapter-list-box-item-right-side vaadin-button {
+  border: none;
 }

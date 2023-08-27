@@ -5,6 +5,7 @@ import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.services.client.MangaClient;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,41 +22,31 @@ public class MangaService {
   }
 
   public void addMangaToLibrary(long mangaId) {
-    Settings settings = settingsService.getSettings();
-
-    URI baseUrl = URI.create(settings.getUrl());
+    URI baseUrl = getBaseUrl();
 
     mangaClient.addMangaToLibrary(baseUrl, mangaId);
   }
 
   public void removeMangaFromLibrary(long mangaId) {
-    Settings settings = settingsService.getSettings();
-
-    URI baseUrl = URI.create(settings.getUrl());
+    URI baseUrl = getBaseUrl();
 
     mangaClient.removeMangaFromLibrary(baseUrl, mangaId);
   }
 
   public List<Chapter> getChapterList(long mangaId) {
-    Settings settings = settingsService.getSettings();
-
-    URI baseUrl = URI.create(settings.getUrl());
+    URI baseUrl = getBaseUrl();
 
     return mangaClient.getChapterList(baseUrl, mangaId);
   }
 
   public Chapter getChapter(long mangaId, int chapterIndex) {
-    Settings settings = settingsService.getSettings();
-
-    URI baseUrl = URI.create(settings.getUrl());
+    URI baseUrl = getBaseUrl();
 
     return mangaClient.getChapter(baseUrl, mangaId, chapterIndex);
   }
 
   public boolean setChapterRead(long mangaId, int chapterIndex) {
-    Settings settings = settingsService.getSettings();
-
-    URI baseUrl = URI.create(settings.getUrl());
+    URI baseUrl = getBaseUrl();
 
     try {
       mangaClient.modifyReadStatus(baseUrl, mangaId, chapterIndex, true);
@@ -63,5 +54,23 @@ public class MangaService {
     } catch (Exception e) {
       return false;
     }
+  }
+
+  public boolean setChapterUnread(long mangaId, int chapterIndex) {
+    URI baseUrl = getBaseUrl();
+
+    try {
+      mangaClient.modifyReadStatus(baseUrl, mangaId, chapterIndex, false);
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  @NotNull
+  private URI getBaseUrl() {
+    Settings settings = settingsService.getSettings();
+
+    return URI.create(settings.getUrl());
   }
 }

@@ -84,7 +84,7 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     imageContainer.addClassName("manga-image-container");
     imageContainer.add(image);
 
-    ListBox<Chapter> chapters = getChapters(mangaId);
+    ListBox<Chapter> chapters = getChapters(mangaId, mangaService);
 
     Div buttons = getButtons(manga);
 
@@ -152,10 +152,10 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     return manga;
   }
 
-  private ListBox<Chapter> getChapters(long mangaId) {
+  private ListBox<Chapter> getChapters(long mangaId, MangaService mangaService) {
 
     List<Chapter> chapter = mangaService.getChapterList(mangaId);
 
-    return new ChapterListBox(chapter);
+    return new ChapterListBox(chapter, mangaService);
   }
 }
