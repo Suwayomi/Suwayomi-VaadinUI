@@ -16,6 +16,7 @@ import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.router.RouteParam;
 import com.vaadin.flow.router.RouteParameters;
 import java.util.List;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
@@ -113,6 +114,10 @@ public class MangaReader extends Div {
       chapterComboBox.addValueChangeListener(
           e -> {
             if (!e.isFromClient()) {
+              return;
+            }
+
+            if (Objects.equals(e.getOldValue(), e.getValue())) {
               return;
             }
 

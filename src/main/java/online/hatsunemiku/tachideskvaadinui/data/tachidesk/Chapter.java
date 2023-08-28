@@ -1,9 +1,11 @@
 package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @Getter
+@EqualsAndHashCode
 public class Chapter {
 
   @JsonProperty("pageCount")
@@ -61,4 +63,6 @@ public class Chapter {
   public String toString() {
     return name;
   }
+
+
 }
