@@ -63,6 +63,4 @@ public class Chapter {
   public String toString() {
     return name;
   }
-
-
 }
