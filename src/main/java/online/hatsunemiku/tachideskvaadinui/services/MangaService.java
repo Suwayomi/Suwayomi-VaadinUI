@@ -80,6 +80,41 @@ public class MangaService {
     return mangaClient.getMangaFull(baseUrl, mangaId);
   }
 
+  /**
+   * Adds a manga to a category.
+   *
+   * @param mangaId the ID of the manga to be added
+   * @param categoryId the ID of the category to add the manga to
+   */
+  public void addMangaToCategory(long mangaId, long categoryId) {
+    URI baseUrl = getBaseUrl();
+
+    mangaClient.addMangaToCategory(baseUrl, mangaId, categoryId);
+  }
+
+  /**
+   * Removes a manga from a category.
+   *
+   * @param mangaId the ID of the manga to be removed
+   * @param categoryId the ID of the category to remove the manga from
+   */
+  public void removeMangaFromCategory(long mangaId, long categoryId) {
+    URI baseUrl = getBaseUrl();
+
+    mangaClient.removeMangaFromCategory(baseUrl, mangaId, categoryId);
+  }
+
+  public void moveMangaToCategory(long mangaId, long newCategoryId, long oldCategoryId) {
+    addMangaToCategory(mangaId, newCategoryId);
+    removeMangaFromCategory(mangaId, oldCategoryId);
+  }
+
+  /**
+   * Retrieves the base URL for the manga service.
+   *
+   * @return the base URL for the manga service
+   * @throws NullPointerException if the URL is null
+   */
   @NotNull
   private URI getBaseUrl() {
     Settings settings = settingsService.getSettings();

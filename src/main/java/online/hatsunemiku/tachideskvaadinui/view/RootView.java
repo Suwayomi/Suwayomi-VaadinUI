@@ -15,12 +15,15 @@ import com.vaadin.flow.component.tabs.TabSheetVariant;
 import com.vaadin.flow.router.Route;
 import java.util.ArrayList;
 import java.util.List;
+import online.hatsunemiku.tachideskvaadinui.component.card.DraggableMangaCard;
 import online.hatsunemiku.tachideskvaadinui.component.card.MangaCard;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.category.CategoryDialog;
+import online.hatsunemiku.tachideskvaadinui.component.tab.CategoryTab;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Category;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.services.LibUpdateService;
+import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.utils.CategoryUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
@@ -37,14 +40,19 @@ public class RootView extends StandardLayout {
   private final SettingsService settingsService;
   private TabSheet tabs;
   private final LibUpdateService libUpdateService;
+  private final MangaService mangaService;
 
   public RootView(
-      RestTemplate client, SettingsService settingsService, LibUpdateService libUpdateService) {
+      RestTemplate client,
+      SettingsService settingsService,
+      LibUpdateService libUpdateService,
+      MangaService mangaService) {
     super("Library");
 
     this.client = client;
     this.settingsService = settingsService;
     this.libUpdateService = libUpdateService;
+    this.mangaService = mangaService;
 
     Settings settings = settingsService.getSettings();
 
@@ -135,9 +143,10 @@ public class RootView extends StandardLayout {
   }
 
   private void addCategoryTab(Settings settings, Category c) {
-    Tab tab = new Tab(c.getName());
+    CategoryTab tab = new CategoryTab(c, mangaService);
 
     Div grid = createMangaGrid(settings, c);
+    tab.setGrid(grid);
 
     if (c.getId() != 0) {
       Button deleteButton = createCategoryDeleteButton(c, tab);
@@ -174,13 +183,13 @@ public class RootView extends StandardLayout {
     Div grid = new Div();
     grid.addClassName("library-grid");
 
-    fillMangaGrid(settings, manga, grid);
+    fillMangaGrid(settings, manga, grid, c);
     return grid;
   }
 
-  private static void fillMangaGrid(Settings settings, List<Manga> manga, Div grid) {
+  private static void fillMangaGrid(Settings settings, List<Manga> manga, Div grid, Category c) {
     for (Manga m : manga) {
-      MangaCard card = new MangaCard(settings, m);
+      MangaCard card = new DraggableMangaCard(settings, m, c);
       grid.add(card);
     }
   }

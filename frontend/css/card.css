@@ -33,9 +33,9 @@ img {
   position: absolute;
   bottom: 0;
   background-image: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.5),
-    rgba(0, 0, 0, 0.7)
+      to bottom,
+      rgba(0, 0, 0, 0.5),
+      rgba(0, 0, 0, 0.7)
   );
   color: #fff;
   height: 10%;
@@ -48,4 +48,13 @@ img {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
   overflow: hidden;
+}
+
+.card-img {
+  user-drag: none;
+  -webkit-user-drag: none;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
