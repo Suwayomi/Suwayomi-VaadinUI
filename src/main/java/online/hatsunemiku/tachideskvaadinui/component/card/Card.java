@@ -11,6 +11,7 @@ import lombok.Getter;
 public class Card extends Div {
 
   private final Paragraph textComponent;
+
   public Card(String title, String imageUrl) {
     setClassName("card");
     addClassName("shadow-m");
@@ -25,5 +26,4 @@ public class Card extends Div {
 
     this.textComponent = p;
   }
-
 }

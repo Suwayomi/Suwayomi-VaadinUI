@@ -24,38 +24,43 @@ public class DraggableMangaCard extends MangaCard implements DragSource<Card> {
     this.mangaId = manga.getId();
     this.category = category;
 
-    addDragStartListener(e -> {
-      MangaCategoryDragData dragData = new MangaCategoryDragData(manga, this.category);
-      e.setDragData(dragData);
+    addDragStartListener(
+        e -> {
+          MangaCategoryDragData dragData = new MangaCategoryDragData(manga, this.category);
+          e.setDragData(dragData);
 
-      var event = new CategoryTabHighlightEvent(this, true, true);
+          var event = new CategoryTabHighlightEvent(this, true, true);
 
-      ComponentUtil.fireEvent(UI.getCurrent(), event);
-    });
+          ComponentUtil.fireEvent(UI.getCurrent(), event);
+        });
 
-    addDragEndListener(e -> {
-      var event = new CategoryTabHighlightEvent(this, true, false);
+    addDragEndListener(
+        e -> {
+          var event = new CategoryTabHighlightEvent(this, true, false);
 
-      ComponentUtil.fireEvent(UI.getCurrent(), event);
-    });
+          ComponentUtil.fireEvent(UI.getCurrent(), event);
+        });
 
     UI currentUI = UI.getCurrent();
 
-    ComponentUtil.addListener(currentUI, MangaCategoryUpdateEvent.class, e -> {
-      if (this.mangaId == e.getMangaId()) {
-        this.category = e.getNewCategory();
-        removeFromParent();
+    ComponentUtil.addListener(
+        currentUI,
+        MangaCategoryUpdateEvent.class,
+        e -> {
+          if (this.mangaId == e.getMangaId()) {
+            this.category = e.getNewCategory();
+            removeFromParent();
 
-        var tab = e.getSource();
-        Div grid = tab.getGrid();
+            var tab = e.getSource();
+            Div grid = tab.getGrid();
 
-        if (grid == null) {
-          getUI().ifPresent(ui -> ui.getPage().reload());
-        } else {
-          grid.add(this);
-        }
-      }
-    });
+            if (grid == null) {
+              getUI().ifPresent(ui -> ui.getPage().reload());
+            } else {
+              grid.add(this);
+            }
+          }
+        });
 
     setEffectAllowed(EffectAllowed.MOVE);
     setDraggable(true);

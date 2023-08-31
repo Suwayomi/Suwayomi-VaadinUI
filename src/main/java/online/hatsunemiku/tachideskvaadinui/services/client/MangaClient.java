@@ -54,5 +54,6 @@ public interface MangaClient {
   void addMangaToCategory(URI baseUrl, @PathVariable long mangaId, @PathVariable long categoryId);
 
   @DeleteMapping("/api/v1/manga/{mangaId}/category/{categoryId}")
-  void removeMangaFromCategory(URI baseUrl, @PathVariable long mangaId, @PathVariable long categoryId);
+  void removeMangaFromCategory(
+      URI baseUrl, @PathVariable long mangaId, @PathVariable long categoryId);
 }

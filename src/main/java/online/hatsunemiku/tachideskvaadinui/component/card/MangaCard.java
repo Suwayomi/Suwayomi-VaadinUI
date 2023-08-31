@@ -11,10 +11,11 @@ public class MangaCard extends Card {
 
   public MangaCard(Settings settings, Manga manga) {
     super(manga.getTitle(), settings.getUrl() + manga.getThumbnailUrl());
-    addClickListener(e -> {
-      RouteParameters params = new RouteParameters("id", String.valueOf(manga.getId()));
+    addClickListener(
+        e -> {
+          RouteParameters params = new RouteParameters("id", String.valueOf(manga.getId()));
 
-      getUI().ifPresent(ui -> ui.navigate(MangaView.class, params));
-    });
+          getUI().ifPresent(ui -> ui.navigate(MangaView.class, params));
+        });
   }
 }

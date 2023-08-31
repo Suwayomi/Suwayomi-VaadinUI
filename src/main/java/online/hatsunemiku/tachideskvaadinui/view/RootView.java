@@ -42,7 +42,11 @@ public class RootView extends StandardLayout {
   private final LibUpdateService libUpdateService;
   private final MangaService mangaService;
 
-  public RootView(RestTemplate client, SettingsService settingsService, LibUpdateService libUpdateService, MangaService mangaService) {
+  public RootView(
+      RestTemplate client,
+      SettingsService settingsService,
+      LibUpdateService libUpdateService,
+      MangaService mangaService) {
     super("Library");
 
     this.client = client;
