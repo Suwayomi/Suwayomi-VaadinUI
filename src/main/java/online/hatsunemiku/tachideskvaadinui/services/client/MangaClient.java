@@ -49,4 +49,10 @@ public interface MangaClient {
    */
   @GetMapping("/api/v1/manga/{mangaId}/full")
   Manga getMangaFull(URI baseUrl, @PathVariable long mangaId);
+
+  @GetMapping("/api/v1/manga/{mangaId}/category/{categoryId}")
+  void addMangaToCategory(URI baseUrl, @PathVariable long mangaId, @PathVariable long categoryId);
+
+  @DeleteMapping("/api/v1/manga/{mangaId}/category/{categoryId}")
+  void removeMangaFromCategory(URI baseUrl, @PathVariable long mangaId, @PathVariable long categoryId);
 }

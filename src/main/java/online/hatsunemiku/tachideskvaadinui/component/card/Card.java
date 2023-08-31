@@ -4,29 +4,26 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.Getter;
 
+@Getter
 @CssImport("css/card.css")
 public class Card extends Div {
 
-  private static final Logger logger = LoggerFactory.getLogger(Card.class);
-
+  private final Paragraph textComponent;
   public Card(String title, String imageUrl) {
     setClassName("card");
     addClassName("shadow-m");
     addClassName("border");
 
     Image img = new Image(imageUrl, "Thumbnail");
+    img.addClassName("card-img");
 
     Paragraph p = new Paragraph(title);
     p.addClassName("card-title");
-
     add(img, p);
 
-    addClickListener(e -> logger.info("Clicked on card"));
-
-
+    this.textComponent = p;
   }
 
 }
