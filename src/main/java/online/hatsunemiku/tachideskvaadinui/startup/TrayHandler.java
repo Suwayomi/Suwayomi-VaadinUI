@@ -39,19 +39,21 @@ public class TrayHandler {
         tray.add(trayIcon);
 
         String caption = "Tachidesk Vaadin UI";
-        String text = """
+        String text =
+            """
             Click here or open the browser and enter localhost:8080 - You can also click the icon in the system tray with the right mouse button and select "Open in browser"
             """;
         trayIcon.displayMessage(caption, text, MessageType.INFO);
 
-        trayIcon.addActionListener(e -> {
-          Desktop desktop = Desktop.getDesktop();
-          try {
-            desktop.browse(URI.create("http://localhost:8080"));
-          } catch (Exception ex) {
-            throw new RuntimeException(ex);
-          }
-        });
+        trayIcon.addActionListener(
+            e -> {
+              Desktop desktop = Desktop.getDesktop();
+              try {
+                desktop.browse(URI.create("http://localhost:8080"));
+              } catch (Exception ex) {
+                throw new RuntimeException(ex);
+              }
+            });
       } catch (FileNotFoundException e) {
         log.error("Icon not found", e);
         throw new RuntimeException(e);
