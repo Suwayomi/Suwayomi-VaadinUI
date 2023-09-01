@@ -12,21 +12,18 @@ import java.util.List;
 import java.util.Optional;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.category.events.CategoryCreationEvent;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.category.events.CategoryCreationListener;
-import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Category;
-import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
-import online.hatsunemiku.tachideskvaadinui.utils.CategoryUtils;
-import org.springframework.web.client.RestTemplate;
+import online.hatsunemiku.tachideskvaadinui.services.CategoryService;
 
 public class CategoryDialog extends Dialog {
 
   private final Binder<CategoryNameDTO> binder = new Binder<>();
-  private final SettingsService settingsService;
+  private final CategoryService categoryService;
 
-  public CategoryDialog(RestTemplate client, SettingsService settingsService) {
+  public CategoryDialog(CategoryService categoryService) {
     setHeaderTitle("Create Category");
 
-    this.settingsService = settingsService;
+    this.categoryService = categoryService;
 
     CategoryNameDTO categoryNameDTO = new CategoryNameDTO();
 
@@ -39,37 +36,37 @@ public class CategoryDialog extends Dialog {
     binder.setBean(categoryNameDTO);
     binder
         .forField(nameInput)
-        .withValidator(name -> name.length() > 0, "Name cannot be empty")
+        .withValidator(name -> !name.isEmpty(), "Name cannot be empty")
         .bind(CategoryNameDTO::getName, CategoryNameDTO::setName);
 
     Button cancelButton = new Button("Cancel");
     cancelButton.addClickListener(e -> close());
 
     Button createButton = new Button("Create");
-    createButton.addClickListener(e -> createCategory(client, nameInput.getValue()));
+    createButton.addClickListener(e -> createCategory(nameInput.getValue()));
 
     add(nameInput);
 
     getFooter().add(cancelButton, createButton);
   }
 
-  private void createCategory(RestTemplate template, String name) {
+  private void createCategory(String name) {
     var status = binder.validate();
     if (status.hasErrors()) {
       return;
     }
 
-    Settings settings = settingsService.getSettings();
-    boolean created = CategoryUtils.createCategory(template, settings, name);
+    boolean created = categoryService.createCategory(name);
 
     if (!created) {
       Notification notification = new Notification();
       notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
       notification.setText("Failed to create category");
       notification.open();
+      return;
     }
 
-    List<Category> categories = CategoryUtils.getCategories(template, settings);
+    List<Category> categories = categoryService.getCategories();
 
     Optional<Category> c =
         categories.stream()
