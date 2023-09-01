@@ -12,23 +12,17 @@ import java.util.List;
 import java.util.Optional;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.category.events.CategoryCreationEvent;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.category.events.CategoryCreationListener;
-import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Category;
 import online.hatsunemiku.tachideskvaadinui.services.CategoryService;
-import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
-import online.hatsunemiku.tachideskvaadinui.utils.CategoryUtils;
-import org.springframework.web.client.RestTemplate;
 
 public class CategoryDialog extends Dialog {
 
   private final Binder<CategoryNameDTO> binder = new Binder<>();
-  private final SettingsService settingsService;
   private final CategoryService categoryService;
 
-  public CategoryDialog(RestTemplate client, SettingsService settingsService, CategoryService categoryService) {
+  public CategoryDialog(CategoryService categoryService) {
     setHeaderTitle("Create Category");
 
-    this.settingsService = settingsService;
     this.categoryService = categoryService;
 
     CategoryNameDTO categoryNameDTO = new CategoryNameDTO();
@@ -49,20 +43,19 @@ public class CategoryDialog extends Dialog {
     cancelButton.addClickListener(e -> close());
 
     Button createButton = new Button("Create");
-    createButton.addClickListener(e -> createCategory(client, nameInput.getValue()));
+    createButton.addClickListener(e -> createCategory(nameInput.getValue()));
 
     add(nameInput);
 
     getFooter().add(cancelButton, createButton);
   }
 
-  private void createCategory(RestTemplate template, String name) {
+  private void createCategory(String name) {
     var status = binder.validate();
     if (status.hasErrors()) {
       return;
     }
 
-    Settings settings = settingsService.getSettings();
     boolean created = categoryService.createCategory(name);
 
     if (!created) {
@@ -70,12 +63,12 @@ public class CategoryDialog extends Dialog {
       notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
       notification.setText("Failed to create category");
       notification.open();
+      return;
     }
 
-    List<Category> categories = CategoryUtils.getCategories(template, settings);
+    List<Category> categories = categoryService.getCategories();
 
-    Optional<Category> c =
-        categories.stream()
+    Optional<Category> c = categories.stream()
             .filter(category -> category.getName().equals(name))
             .max(Comparator.comparingInt(Category::getId));
 

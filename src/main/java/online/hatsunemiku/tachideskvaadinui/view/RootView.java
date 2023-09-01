@@ -26,7 +26,6 @@ import online.hatsunemiku.tachideskvaadinui.services.CategoryService;
 import online.hatsunemiku.tachideskvaadinui.services.LibUpdateService;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
-import online.hatsunemiku.tachideskvaadinui.utils.CategoryUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.ParameterizedTypeReference;
@@ -61,7 +60,7 @@ public class RootView extends StandardLayout {
     List<Category> categories;
 
     try {
-      categories = CategoryUtils.getCategories(client, settings);
+      categories = categoryService.getCategories();
     } catch (ResourceAccessException e) {
 
       UI ui = UI.getCurrent();
@@ -79,7 +78,7 @@ public class RootView extends StandardLayout {
     Button createButton = new Button(VaadinIcon.PLUS.create());
     createButton.addClickListener(
         e -> {
-          CategoryDialog dialog = new CategoryDialog(client, settingsService, categoryService);
+          CategoryDialog dialog = new CategoryDialog(categoryService);
 
           dialog.addOpenedChangeListener(
               event -> {
