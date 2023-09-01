@@ -68,7 +68,8 @@ public class CategoryDialog extends Dialog {
 
     List<Category> categories = categoryService.getCategories();
 
-    Optional<Category> c = categories.stream()
+    Optional<Category> c =
+        categories.stream()
             .filter(category -> category.getName().equals(name))
             .max(Comparator.comparingInt(Category::getId));
 

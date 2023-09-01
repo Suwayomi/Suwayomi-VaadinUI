@@ -9,9 +9,7 @@ import online.hatsunemiku.tachideskvaadinui.services.client.CategoryClient;
 import org.jetbrains.annotations.Contract;
 import org.springframework.stereotype.Service;
 
-/**
- * This class provides methods for interacting with the Tachidesk Category API.
- */
+/** This class provides methods for interacting with the Tachidesk Category API. */
 @Slf4j
 @Service
 public class CategoryService {
@@ -22,8 +20,8 @@ public class CategoryService {
   /**
    * Constructs a new CategoryService object.
    *
-   * @param categoryClient   the client used for interacting with the category API
-   * @param settingsService  the service used for retrieving settings
+   * @param categoryClient the client used for interacting with the category API
+   * @param settingsService the service used for retrieving settings
    */
   @Contract(pure = true)
   public CategoryService(CategoryClient categoryClient, SettingsService settingsService) {
@@ -70,7 +68,8 @@ public class CategoryService {
   /**
    * Retrieves a list of categories from the server.
    *
-   * @return a {@link List} of {@link Category} objects representing the categories retrieved from the server
+   * @return a {@link List} of {@link Category} objects representing the categories retrieved from
+   *     the server
    * @throws RuntimeException if an error occurs while retrieving the categories
    */
   public List<Category> getCategories() {
@@ -83,5 +82,4 @@ public class CategoryService {
       throw new RuntimeException(e);
     }
   }
-
 }

@@ -13,17 +13,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-/**
- * Represents a client for interacting with the Category API Endpoint.
- */
+/** Represents a client for interacting with the Category API Endpoint. */
 @FeignClient(name = "category-service", url = "http://localhost:8080")
 public interface CategoryClient {
 
   /**
    * Creates a new category.
    *
-   * @param baseUrl      the base URL of the API
-   * @param formParams   the form parameters for creating the category
+   * @param baseUrl the base URL of the API
+   * @param formParams the form parameters for creating the category
    */
   @PostMapping(value = "/api/v1/category", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   @Headers("Content-Type: application/x-www-form-urlencoded")
@@ -32,8 +30,8 @@ public interface CategoryClient {
   /**
    * Deletes a category.
    *
-   * @param baseUrl      the base URL of the API
-   * @param categoryId   the ID of the category to delete
+   * @param baseUrl the base URL of the API
+   * @param categoryId the ID of the category to delete
    */
   @DeleteMapping("/api/v1/category/{categoryId}")
   void deleteCategory(URI baseUrl, @PathVariable int categoryId);
@@ -41,10 +39,9 @@ public interface CategoryClient {
   /**
    * Retrieves all categories from the API.
    *
-   * @param baseUrl   the base URL of the API
+   * @param baseUrl the base URL of the API
    * @return a list of {@link Category} objects representing the categories retrieved from the API
    */
   @GetMapping("/api/v1/category")
   List<Category> getCategories(URI baseUrl);
-
 }
