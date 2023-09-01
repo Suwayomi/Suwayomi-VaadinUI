@@ -14,6 +14,7 @@ import online.hatsunemiku.tachideskvaadinui.component.dialog.category.events.Cat
 import online.hatsunemiku.tachideskvaadinui.component.dialog.category.events.CategoryCreationListener;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Category;
+import online.hatsunemiku.tachideskvaadinui.services.CategoryService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.utils.CategoryUtils;
 import org.springframework.web.client.RestTemplate;
@@ -22,11 +23,13 @@ public class CategoryDialog extends Dialog {
 
   private final Binder<CategoryNameDTO> binder = new Binder<>();
   private final SettingsService settingsService;
+  private final CategoryService categoryService;
 
-  public CategoryDialog(RestTemplate client, SettingsService settingsService) {
+  public CategoryDialog(RestTemplate client, SettingsService settingsService, CategoryService categoryService) {
     setHeaderTitle("Create Category");
 
     this.settingsService = settingsService;
+    this.categoryService = categoryService;
 
     CategoryNameDTO categoryNameDTO = new CategoryNameDTO();
 
@@ -60,7 +63,7 @@ public class CategoryDialog extends Dialog {
     }
 
     Settings settings = settingsService.getSettings();
-    boolean created = CategoryUtils.createCategory(template, settings, name);
+    boolean created = categoryService.createCategory(name);
 
     if (!created) {
       Notification notification = new Notification();

@@ -22,6 +22,7 @@ import online.hatsunemiku.tachideskvaadinui.component.tab.CategoryTab;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Category;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
+import online.hatsunemiku.tachideskvaadinui.services.CategoryService;
 import online.hatsunemiku.tachideskvaadinui.services.LibUpdateService;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
@@ -46,7 +47,8 @@ public class RootView extends StandardLayout {
       RestTemplate client,
       SettingsService settingsService,
       LibUpdateService libUpdateService,
-      MangaService mangaService) {
+      MangaService mangaService,
+      CategoryService categoryService) {
     super("Library");
 
     this.client = client;
@@ -77,7 +79,7 @@ public class RootView extends StandardLayout {
     Button createButton = new Button(VaadinIcon.PLUS.create());
     createButton.addClickListener(
         e -> {
-          CategoryDialog dialog = new CategoryDialog(client, settingsService);
+          CategoryDialog dialog = new CategoryDialog(client, settingsService, categoryService);
 
           dialog.addOpenedChangeListener(
               event -> {
