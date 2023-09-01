@@ -61,8 +61,7 @@ public class RootView extends StandardLayout {
 
     try {
       categories = categoryService.getCategories();
-    } catch (ResourceAccessException e) {
-
+    } catch (Exception e) {
       UI ui = UI.getCurrent();
       ui.access(() -> ui.navigate(ServerStartView.class));
       return;
