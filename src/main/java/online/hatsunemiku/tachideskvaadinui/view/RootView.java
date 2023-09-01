@@ -38,10 +38,10 @@ import org.springframework.web.client.RestTemplate;
 public class RootView extends StandardLayout {
 
   private final RestTemplate client;
-  private final SettingsService settingsService;
   private TabSheet tabs;
   private final LibUpdateService libUpdateService;
   private final MangaService mangaService;
+  private final CategoryService categoryService;
 
   public RootView(
       RestTemplate client,
@@ -52,8 +52,8 @@ public class RootView extends StandardLayout {
     super("Library");
 
     this.client = client;
-    this.settingsService = settingsService;
     this.libUpdateService = libUpdateService;
+    this.categoryService = categoryService;
     this.mangaService = mangaService;
 
     Settings settings = settingsService.getSettings();
@@ -166,8 +166,7 @@ public class RootView extends StandardLayout {
 
     deleteButton.addClickListener(
         e -> {
-          Settings s = settingsService.getSettings();
-          if (CategoryUtils.deleteCategory(client, s, c.getId())) {
+          if (categoryService.deleteCategory(c.getId())) {
             tabs.remove(tab);
           } else {
             Notification notification = new Notification("Failed to delete category", 3000);

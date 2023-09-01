@@ -30,4 +30,16 @@ public class CategoryService {
     }
   }
 
+  public boolean deleteCategory(int categoryId) {
+    URI baseUrl = URI.create(settingsService.getSettings().getUrl());
+
+    try {
+      categoryClient.deleteCategory(baseUrl, categoryId);
+      return true;
+    } catch (Exception e) {
+      log.error("Failed to delete category", e);
+      return false;
+    }
+  }
+
 }
