@@ -42,7 +42,7 @@ public class CategoryDialog extends Dialog {
     binder.setBean(categoryNameDTO);
     binder
         .forField(nameInput)
-        .withValidator(name -> name.length() > 0, "Name cannot be empty")
+        .withValidator(name -> !name.isEmpty(), "Name cannot be empty")
         .bind(CategoryNameDTO::getName, CategoryNameDTO::setName);
 
     Button cancelButton = new Button("Cancel");
