@@ -36,7 +36,8 @@ public class CategoryDialog extends Dialog {
     nameInput.setAutofocus(true);
 
     binder.setBean(categoryNameDTO);
-    binder.forField(nameInput)
+    binder
+        .forField(nameInput)
         .withValidator(name -> !name.isEmpty(), "Name cannot be empty")
         .bind(CategoryNameDTO::getName, CategoryNameDTO::setName);
 
