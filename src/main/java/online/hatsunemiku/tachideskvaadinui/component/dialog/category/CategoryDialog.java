@@ -32,6 +32,7 @@ public class CategoryDialog extends Dialog {
     nameInput.setLabel("Name");
     nameInput.setPlaceholder("Type a name");
     nameInput.setRequired(true);
+    nameInput.setAutofocus(true);
 
     binder.setBean(categoryNameDTO);
     binder
