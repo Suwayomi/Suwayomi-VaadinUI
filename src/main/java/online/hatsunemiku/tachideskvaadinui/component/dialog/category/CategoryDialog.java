@@ -1,5 +1,6 @@
 package online.hatsunemiku.tachideskvaadinui.component.dialog.category;
 
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -32,6 +33,7 @@ public class CategoryDialog extends Dialog {
     nameInput.setLabel("Name");
     nameInput.setPlaceholder("Type a name");
     nameInput.setRequired(true);
+    nameInput.setAutofocus(true);
 
     binder.setBean(categoryNameDTO);
     binder
@@ -44,6 +46,7 @@ public class CategoryDialog extends Dialog {
 
     Button createButton = new Button("Create");
     createButton.addClickListener(e -> createCategory(nameInput.getValue()));
+    createButton.addClickShortcut(Key.ENTER);
 
     add(nameInput);
 
