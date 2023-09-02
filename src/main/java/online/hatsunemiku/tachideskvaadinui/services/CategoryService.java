@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Category;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.services.client.CategoryClient;
 import org.jetbrains.annotations.Contract;
 import org.springframework.stereotype.Service;
@@ -79,6 +80,17 @@ public class CategoryService {
       return categoryClient.getCategories(baseUrl);
     } catch (Exception e) {
       log.error("Failed to get categories", e);
+      throw new RuntimeException(e);
+    }
+  }
+
+  public List<Manga> getMangaFromCategory(int categoryId) {
+    URI baseUrl = URI.create(settingsService.getSettings().getUrl());
+
+    try {
+      return categoryClient.getMangaFromCategory(baseUrl, categoryId);
+    } catch (Exception e) {
+      log.error("Failed to get manga from category", e);
       throw new RuntimeException(e);
     }
   }

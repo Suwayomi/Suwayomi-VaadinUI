@@ -1,7 +1,5 @@
 package online.hatsunemiku.tachideskvaadinui.view;
 
-import static org.springframework.http.HttpMethod.GET;
-
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -13,7 +11,6 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.TabSheetVariant;
 import com.vaadin.flow.router.Route;
-import java.util.ArrayList;
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.component.card.DraggableMangaCard;
 import online.hatsunemiku.tachideskvaadinui.component.card.MangaCard;
@@ -28,28 +25,23 @@ import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.web.client.RestTemplate;
 
 @Route("/")
 @CssImport("css/root.css")
 public class RootView extends StandardLayout {
 
-  private final RestTemplate client;
   private TabSheet tabs;
   private final LibUpdateService libUpdateService;
   private final MangaService mangaService;
   private final CategoryService categoryService;
 
   public RootView(
-      RestTemplate client,
       SettingsService settingsService,
       LibUpdateService libUpdateService,
       MangaService mangaService,
       CategoryService categoryService) {
     super("Library");
 
-    this.client = client;
     this.libUpdateService = libUpdateService;
     this.categoryService = categoryService;
     this.mangaService = mangaService;
@@ -121,20 +113,6 @@ public class RootView extends StandardLayout {
     setContent(tabs);
   }
 
-  private List<Manga> getManga(Category category, Settings settings) {
-    String template = "%s/api/v1/category/%d";
-    String categoryMangaEndpoint = String.format(template, settings.getUrl(), category.getId());
-
-    ParameterizedTypeReference<List<Manga>> typeRef = new ParameterizedTypeReference<>() {};
-    List<Manga> mangaList = client.exchange(categoryMangaEndpoint, GET, null, typeRef).getBody();
-
-    if (mangaList == null) {
-      return new ArrayList<>();
-    }
-
-    return mangaList;
-  }
-
   private void addCategoryTabs(List<Category> categories, Settings settings) {
     for (Category c : categories) {
       addCategoryTab(settings, c);
@@ -176,7 +154,14 @@ public class RootView extends StandardLayout {
 
   @NotNull
   private Div createMangaGrid(Settings settings, Category c) {
-    List<Manga> manga = getManga(c, settings);
+    List<Manga> manga;
+    try {
+      manga = categoryService.getMangaFromCategory(c.getId());
+    } catch (Exception e) {
+      UI ui = UI.getCurrent();
+      ui.access(() -> ui.navigate(ServerStartView.class));
+      return new Div();
+    }
 
     Div grid = new Div();
     grid.addClassName("library-grid");
