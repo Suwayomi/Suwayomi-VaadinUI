@@ -122,8 +122,6 @@ public class RootView extends StandardLayout {
   private void addCategoryTab(Settings settings, Category c) {
     CategoryTab tab = new CategoryTab(c, mangaService);
 
-
-
     Div grid = createMangaGrid(settings, c);
     tab.setGrid(grid);
 
