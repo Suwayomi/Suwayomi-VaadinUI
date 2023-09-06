@@ -37,7 +37,7 @@ public class TachideskMaintainer {
   private final TachideskStarter starter;
   private static final File serverDir = new File("server");
   @Getter
-  private File projectDir = getProjectDirFile();
+  private final File projectDir = getProjectDirFile();
   @Getter
   private boolean updating = false;
   @Getter
