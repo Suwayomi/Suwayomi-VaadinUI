@@ -77,6 +77,8 @@ tasks.named('test') {
 
 //new task to build bootJar
 tasks.register('buildReleaseJar', BootJar) {
+    group = 'build'
+
     dependsOn('vaadinBuildFrontend')
     enabled = true
     vaadin.productionMode = true
