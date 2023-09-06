@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import lombok.AccessLevel;
 import lombok.Getter;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
+import online.hatsunemiku.tachideskvaadinui.startup.TachideskMaintainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextClosedEvent;
@@ -27,15 +28,22 @@ public class SettingsService {
   @Getter(AccessLevel.NONE)
   private final ObjectMapper mapper;
 
-  public SettingsService(ObjectMapper mapper) {
+  @Getter(AccessLevel.NONE)
+  private final TachideskMaintainer maintainer;
+
+  public SettingsService(ObjectMapper mapper, TachideskMaintainer maintainer) {
     this.mapper = mapper;
+    this.maintainer = maintainer;
     settings = deserialize();
   }
 
   private Settings deserialize() {
     final Settings settings;
 
-    Path settingsFile = Path.of("settings.json");
+    var projectDir = maintainer.getProjectDir();
+
+    Path projectDirPath = projectDir.getAbsoluteFile().toPath();
+    Path settingsFile = projectDirPath.resolve("settings.json");
 
     if (!Files.exists(settingsFile)) {
       settings = getDefaults();
@@ -62,7 +70,10 @@ public class SettingsService {
   private void serialize() {
     ObjectMapper mapper = new ObjectMapper();
 
-    Path settingsFile = Path.of("settings.json");
+    var projectDir = maintainer.getProjectDir();
+
+    Path projectDirPath = projectDir.getAbsoluteFile().toPath();
+    Path settingsFile = projectDirPath.resolve("settings.json");
 
     try (var out = Files.newOutputStream(settingsFile, CREATE, WRITE)) {
       mapper.writeValue(out, settings);
