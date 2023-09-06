@@ -9,6 +9,7 @@ import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import online.hatsunemiku.tachideskvaadinui.data.Meta;
 import online.hatsunemiku.tachideskvaadinui.startup.download.ReadableProgressByteChannel;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.TachideskUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -34,6 +36,7 @@ public class TachideskMaintainer {
   private final RestTemplate client;
   private final TachideskStarter starter;
   private static final File serverDir = new File("server");
+  @Getter private final File projectDir = getProjectDirFile();
   @Getter private boolean updating = false;
   @Getter private double progress = 0;
 
@@ -46,6 +49,10 @@ public class TachideskMaintainer {
   @Async
   public void start() {
     logger.info("Starting Tachidesk...");
+
+    if (!checkProjectDir()) {
+      return;
+    }
 
     if (!checkServerDir()) {
       return;
@@ -112,15 +119,69 @@ public class TachideskMaintainer {
     SerializationUtils.serializeMetadata(oldServer);
 
     logger.info("Restarting server...");
-    starter.startJar();
+    starter.startJar(projectDir);
 
     logger.info("Update complete");
   }
 
-  private static void checkServerConfig() {
+  /**
+   * Retrieves the project directory.
+   *
+   * @return The project directory specified as a {@link File} object.
+   */
+  private @NotNull File getProjectDirFile() {
+    String os = System.getProperty("os.name").toLowerCase();
+
+    Path appdata;
+
+    if (os.contains("win")) {
+      // On Windows, the Local AppData directory is used
+      appdata = Path.of(System.getenv("LOCALAPPDATA"));
+    } else {
+      String userHome = System.getProperty("user.home");
+      if (os.contains("mac")) {
+        // On Mac, the Application Support directory is used
+        appdata = Path.of(userHome, "Library", "Application Support");
+      } else {
+        // On Linux, the user's home directory is used
+        appdata = Path.of(userHome);
+      }
+    }
+
+    Path projectDir;
+    // check for linux
+    if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
+      projectDir = appdata.resolve(".TachideskVaadinUI");
+    } else {
+      projectDir = appdata.resolve("TachideskVaadinUI");
+    }
+
+    log.debug("Project Dir: {}", projectDir);
+
+    return projectDir.toFile();
+  }
+
+  /**
+   * Checks if the project directory exists and creates it if it does not.
+   *
+   * @return {@code true} if the project directory exists or was successfully created, {@code false}
+   *     otherwise.
+   */
+  private boolean checkProjectDir() {
+    if (!projectDir.exists()) {
+      if (!projectDir.mkdir()) {
+        log.error("Failed to create project directory");
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private void checkServerConfig() {
     log.info("Checking for config File...");
 
-    File dataDir = new File(serverDir, "data");
+    File dataDir = new File(projectDir, "data");
 
     if (!dataDir.exists()) {
       if (!dataDir.mkdir()) {
@@ -227,6 +288,6 @@ public class TachideskMaintainer {
   }
 
   private void startup() {
-    starter.startJar();
+    starter.startJar(projectDir);
   }
 }

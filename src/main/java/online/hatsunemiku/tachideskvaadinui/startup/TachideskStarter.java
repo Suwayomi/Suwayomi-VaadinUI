@@ -17,7 +17,7 @@ public class TachideskStarter {
   private static final Logger logger = LoggerFactory.getLogger(TachideskStarter.class);
   private Process serverProcess;
 
-  public void startJar() {
+  public void startJar(File projectDir) {
 
     Meta meta = SerializationUtils.deseralizeMetadata();
 
@@ -28,13 +28,10 @@ public class TachideskStarter {
       return;
     }
 
-    String serverDir = jarLocation.substring(0, jarLocation.lastIndexOf("\\"));
+    File dataDirFile = new File(projectDir, "data");
 
-    File serverDirFile = new File(serverDir);
-    File dataDirFile = new File(serverDirFile, "data");
-
-    String dataDirArg =
-        "-Dsuwayomi.tachidesk.config.server.rootDir=" + dataDirFile.getAbsolutePath();
+    String dataDirFormat = "-Dsuwayomi.tachidesk.config.server.rootDir=%s";
+    String dataDirArg = String.format(dataDirFormat, dataDirFile.getAbsolutePath());
 
     ProcessBuilder processBuilder = new ProcessBuilder("java", dataDirArg, "-jar", jarLocation);
 
@@ -58,10 +55,5 @@ public class TachideskStarter {
     } else {
       serverProcess.destroyForcibly();
     }
-  }
-
-  public void restartJar() {
-    stopJar();
-    startJar();
   }
 }
