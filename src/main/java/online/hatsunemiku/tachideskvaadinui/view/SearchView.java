@@ -119,7 +119,8 @@ public class SearchView extends StandardLayout {
 
     CompletableFuture<?> future = CompletableFuture.runAsync(() -> search(searchField.getValue()));
 
-    future.thenRun(
+    future
+        .thenRun(
             () -> {
               var ui = getUI();
 
@@ -165,9 +166,10 @@ public class SearchView extends StandardLayout {
 
   public void search(String query) {
     var sources = sourceService.getSources();
-    var langGroupedSources = sources.stream()
-        .sorted((a, b) -> a.getDisplayName().compareToIgnoreCase(b.getDisplayName()))
-        .collect(Collectors.groupingBy(Source::getLang));
+    var langGroupedSources =
+        sources.stream()
+            .sorted((a, b) -> a.getDisplayName().compareToIgnoreCase(b.getDisplayName()))
+            .collect(Collectors.groupingBy(Source::getLang));
 
     searchSources(query, langGroupedSources);
   }
@@ -175,7 +177,7 @@ public class SearchView extends StandardLayout {
   /**
    * Adds a search result to the user interface.
    *
-   * @param source    the source of the search result
+   * @param source the source of the search result
    * @param mangaList the list of manga from the search result
    * @return true if the search result was successfully added, otherwise false
    */
@@ -251,10 +253,11 @@ public class SearchView extends StandardLayout {
 
       List<Callable<Void>> searchTasks = new ArrayList<>();
       for (var source : langSources) {
-        Callable<Void> runnable = () -> {
-          searchSource(query, source);
-          return null;
-        };
+        Callable<Void> runnable =
+            () -> {
+              searchSource(query, source);
+              return null;
+            };
         searchTasks.add(runnable);
       }
 
@@ -318,5 +321,4 @@ public class SearchView extends StandardLayout {
       log.error("Failed to add search result to UI for source {}", source.getDisplayName());
     }
   }
-
 }
