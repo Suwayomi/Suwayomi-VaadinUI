@@ -172,6 +172,13 @@ public class SearchView extends StandardLayout {
     searchSources(query, langGroupedSources);
   }
 
+  /**
+   * Adds a search result to the user interface.
+   *
+   * @param source    the source of the search result
+   * @param mangaList the list of manga from the search result
+   * @return true if the search result was successfully added, otherwise false
+   */
   private boolean addSearchResultToUI(Source source, List<Manga> mangaList) {
     Div searchResult = createSearchResultDiv(source, mangaList);
     UI realUI;
@@ -181,7 +188,7 @@ public class SearchView extends StandardLayout {
     if (ui.isEmpty()) {
       if (UI.getCurrent() == null) {
         log.error("UI is not present");
-        return true;
+        return false;
       }
 
       realUI = UI.getCurrent();
@@ -191,11 +198,11 @@ public class SearchView extends StandardLayout {
 
     if (!realUI.isAttached()) {
       log.debug("UI is not attached anymore");
-      return true;
+      return false;
     }
 
     realUI.access(() -> searchResults.add(searchResult));
-    return false;
+    return true;
   }
 
   private Div createSearchResultDiv(Source source, List<Manga> mangaList) {
@@ -307,7 +314,9 @@ public class SearchView extends StandardLayout {
       return;
     }
 
-    addSearchResultToUI(source, mangaList);
+    if (!addSearchResultToUI(source, mangaList)) {
+      log.error("Failed to add search result to UI for source {}", source.getDisplayName());
+    }
   }
 
 }
