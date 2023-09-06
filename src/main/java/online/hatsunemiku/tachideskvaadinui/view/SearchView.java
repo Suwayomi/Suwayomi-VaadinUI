@@ -2,18 +2,22 @@ package online.hatsunemiku.tachideskvaadinui.view;
 
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Svg;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.router.Route;
+import feign.FeignException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TreeMap;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.component.card.MangaCard;
@@ -22,6 +26,7 @@ import online.hatsunemiku.tachideskvaadinui.component.events.source.LanguageList
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Source;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.search.SearchResponse;
 import online.hatsunemiku.tachideskvaadinui.services.SearchService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.SourceService;
@@ -114,8 +119,7 @@ public class SearchView extends StandardLayout {
 
     CompletableFuture<?> future = CompletableFuture.runAsync(() -> search(searchField.getValue()));
 
-    future
-        .thenRun(
+    future.thenRun(
             () -> {
               var ui = getUI();
 
@@ -161,26 +165,37 @@ public class SearchView extends StandardLayout {
 
   public void search(String query) {
     var sources = sourceService.getSources();
-    var langGroupedSources = sources.stream().collect(Collectors.groupingBy(Source::getLang));
+    var langGroupedSources = sources.stream()
+        .sorted((a, b) -> a.getDisplayName().compareToIgnoreCase(b.getDisplayName()))
+        .collect(Collectors.groupingBy(Source::getLang));
 
-    var filteredMap = new TreeMap<>(searchSources(query, langGroupedSources));
+    searchSources(query, langGroupedSources);
+  }
 
-    for (var entry : filteredMap.entrySet()) {
-      Div searchResult = createSearchResultDiv(entry.getKey(), entry.getValue());
-      var ui = getUI();
+  private boolean addSearchResultToUI(Source source, List<Manga> mangaList) {
+    Div searchResult = createSearchResultDiv(source, mangaList);
+    UI realUI;
 
-      if (ui.isEmpty()) {
+    var ui = getUI();
+
+    if (ui.isEmpty()) {
+      if (UI.getCurrent() == null) {
         log.error("UI is not present");
-        return;
+        return true;
       }
 
-      if (!ui.get().isAttached()) {
-        log.debug("UI is not attached anymore");
-        return;
-      }
-
-      ui.get().access(() -> searchResults.add(searchResult));
+      realUI = UI.getCurrent();
+    } else {
+      realUI = ui.get();
     }
+
+    if (!realUI.isAttached()) {
+      log.debug("UI is not attached anymore");
+      return true;
+    }
+
+    realUI.access(() -> searchResults.add(searchResult));
+    return false;
   }
 
   private Div createSearchResultDiv(Source source, List<Manga> mangaList) {
@@ -214,11 +229,7 @@ public class SearchView extends StandardLayout {
     return searchResult;
   }
 
-  @NotNull
-  private Map<Source, List<Manga>> searchSources(
-      String query, Map<String, List<Source>> langGroupedSources) {
-    HashMap<Source, List<Manga>> mangaMap = new HashMap<>();
-
+  private void searchSources(String query, Map<String, List<Source>> langGroupedSources) {
     for (var langSet : langGroupedSources.entrySet()) {
 
       var lang = langSet.getKey();
@@ -229,35 +240,74 @@ public class SearchView extends StandardLayout {
 
       var langSources = langGroupedSources.get(lang);
 
+      var executor = Executors.newCachedThreadPool();
+
+      List<Callable<Void>> searchTasks = new ArrayList<>();
       for (var source : langSources) {
-        searchSource(query, source, mangaMap);
+        Callable<Void> runnable = () -> {
+          searchSource(query, source);
+          return null;
+        };
+        searchTasks.add(runnable);
+      }
+
+      try {
+        executor.invokeAll(searchTasks);
+        executor.shutdown();
+      } catch (InterruptedException e) {
+        log.error("Error waiting for search to finish", e);
       }
     }
-
-    return mangaMap.entrySet().stream()
-        .filter(entry -> !entry.getValue().isEmpty())
-        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
   }
 
-  private void searchSource(String query, Source source, HashMap<Source, List<Manga>> mangaMap) {
+  private void searchSource(String query, Source source) {
+    log.info("Started searching source {}", source.getDisplayName());
     boolean hasNext = true;
+
+    List<Manga> mangaList = new ArrayList<>();
+
     for (int i = 1; hasNext; i++) {
-      hasNext = searchPage(query, source, mangaMap, i);
+      SearchResponse searchResponse;
+      try {
+        searchResponse = searchService.search(query, source.getId(), i);
+      } catch (FeignException e) {
+        String message = "Source %s failed with error code %d";
+        String errorMessage = String.format(message, source.getDisplayName(), e.status());
+
+        Notification notification = new Notification(errorMessage, 3000, Position.BOTTOM_END);
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+
+        log.error(errorMessage);
+
+        UI ui = UI.getCurrent();
+
+        if (ui == null) {
+          if (getUI().isEmpty()) {
+            log.error("UI is not present");
+            return;
+          }
+
+          ui = getUI().get();
+        }
+
+        ui.access(notification::open);
+        return;
+      }
+
+      if (searchResponse.mangaList().isEmpty()) {
+        break;
+      }
+
+      mangaList.addAll(searchResponse.mangaList());
+
+      hasNext = searchResponse.hasNext();
     }
+
+    if (mangaList.isEmpty()) {
+      return;
+    }
+
+    addSearchResultToUI(source, mangaList);
   }
 
-  private boolean searchPage(
-      String query, Source source, HashMap<Source, List<Manga>> mangaMap, int pageNum) {
-    var searchResponse = searchService.search(query, source.getId(), pageNum);
-
-    if (searchResponse.mangaList().isEmpty()) {
-      return false;
-    }
-
-    mangaMap.putIfAbsent(source, new ArrayList<>());
-
-    mangaMap.get(source).addAll(searchResponse.mangaList());
-
-    return searchResponse.hasNext();
-  }
 }

@@ -1,7 +1,7 @@
 package online.hatsunemiku.tachideskvaadinui.services;
 
+import feign.FeignException;
 import java.net.URI;
-import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.search.SearchQueryParameters;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.search.SearchResponse;
@@ -19,6 +19,15 @@ public class SearchService {
     this.settingsService = settingsService;
   }
 
+  /**
+   * Performs a search using the provided query, sourceId, and pageNum.
+   *
+   * @param query    The search query.
+   * @param sourceId The sourceId to search within.
+   * @param pageNum  The page number for pagination.
+   * @return The search response containing the results.
+   * @throws FeignException if an error occurs during the search.
+   */
   public SearchResponse search(String query, long sourceId, int pageNum) {
 
     Settings settings = settingsService.getSettings();
@@ -28,10 +37,6 @@ public class SearchService {
     SearchQueryParameters searchQueryParameters =
         SearchQueryParameters.builder().pageNum(pageNum).searchTerm(query).build();
 
-    try {
-      return searchClient.search(baseUrl, sourceId, searchQueryParameters);
-    } catch (Exception e) {
-      return new SearchResponse(List.of(), false);
-    }
+    return searchClient.search(baseUrl, sourceId, searchQueryParameters);
   }
 }
