@@ -19,7 +19,7 @@ public class TachideskStarter {
 
   public void startJar(File projectDir) {
 
-    Meta meta = SerializationUtils.deseralizeMetadata();
+    Meta meta = SerializationUtils.deserializeMetadata(projectDir.toPath());
 
     String jarLocation = meta.getJarLocation();
 

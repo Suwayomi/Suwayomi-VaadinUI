@@ -67,7 +67,7 @@ public class TachideskMaintainer {
 
     logger.info("Checking for updates...");
 
-    Meta oldServer = SerializationUtils.deseralizeMetadata();
+    Meta oldServer = SerializationUtils.deserializeMetadata(projectDir.toPath());
 
     logger.info("Current jar file: {}", oldServer.getJarName());
 
@@ -119,7 +119,7 @@ public class TachideskMaintainer {
     oldServer.setJarRevision(newServerMeta.getJarRevision());
     oldServer.setJarLocation(serverFile.getPath());
 
-    SerializationUtils.serializeMetadata(oldServer);
+    SerializationUtils.serializeMetadata(oldServer, projectDir.toPath());
 
     logger.info("Restarting server...");
     starter.startJar(projectDir);
