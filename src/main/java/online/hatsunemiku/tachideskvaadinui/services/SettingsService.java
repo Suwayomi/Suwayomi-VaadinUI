@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.startup.TachideskMaintainer;
 import org.slf4j.Logger;
@@ -19,11 +20,13 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class SettingsService {
 
   private static final Logger logger = LoggerFactory.getLogger(SettingsService.class);
 
-  @Getter private final Settings settings;
+  @Getter
+  private final Settings settings;
 
   @Getter(AccessLevel.NONE)
   private final ObjectMapper mapper;
@@ -54,6 +57,9 @@ public class SettingsService {
     Settings tempSettings;
     try (var in = Files.newInputStream(settingsFile)) {
       tempSettings = mapper.readValue(in, Settings.class);
+      if (tempSettings == null) {
+        tempSettings = getDefaults();
+      }
     } catch (EOFException e) {
       settings = getDefaults();
       serialize();
@@ -74,6 +80,11 @@ public class SettingsService {
 
     Path projectDirPath = projectDir.getAbsoluteFile().toPath();
     Path settingsFile = projectDirPath.resolve("settings.json");
+
+    if (settings == null) {
+      logger.error("Settings are null");
+      return;
+    }
 
     try (var out = Files.newOutputStream(settingsFile, CREATE, WRITE)) {
       mapper.writeValue(out, settings);
