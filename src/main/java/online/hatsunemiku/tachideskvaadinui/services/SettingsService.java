@@ -25,8 +25,7 @@ public class SettingsService {
 
   private static final Logger logger = LoggerFactory.getLogger(SettingsService.class);
 
-  @Getter
-  private final Settings settings;
+  @Getter private final Settings settings;
 
   @Getter(AccessLevel.NONE)
   private final ObjectMapper mapper;
