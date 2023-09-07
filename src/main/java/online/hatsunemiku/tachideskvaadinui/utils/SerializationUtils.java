@@ -18,7 +18,7 @@ public class SerializationUtils {
   /**
    * Serializes the {@link Meta} object to a JSON file.
    *
-   * @param meta       the {@link Meta} object to be serialized
+   * @param meta the {@link Meta} object to be serialized
    * @param projectDir the directory where the JSON file will be created
    * @throws RuntimeException if there was an error during serialization
    */

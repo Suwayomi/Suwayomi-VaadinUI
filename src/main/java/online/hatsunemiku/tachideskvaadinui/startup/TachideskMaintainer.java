@@ -36,12 +36,9 @@ public class TachideskMaintainer {
   private final RestTemplate client;
   private final TachideskStarter starter;
   private static final File serverDir = new File("server");
-  @Getter
-  private final File projectDir = getProjectDirFile();
-  @Getter
-  private boolean updating = false;
-  @Getter
-  private double progress = 0;
+  @Getter private final File projectDir = getProjectDirFile();
+  @Getter private boolean updating = false;
+  @Getter private double progress = 0;
 
   public TachideskMaintainer(RestTemplate client, TachideskStarter starter) {
     this.client = client;
@@ -151,9 +148,8 @@ public class TachideskMaintainer {
       }
     }
 
-
     Path projectDir;
-    //check for linux
+    // check for linux
     if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
       projectDir = appdata.resolve(".TachideskVaadinUI");
     } else {
@@ -168,7 +164,8 @@ public class TachideskMaintainer {
   /**
    * Checks if the project directory exists and creates it if it does not.
    *
-   * @return {@code true} if the project directory exists or was successfully created, {@code false} otherwise.
+   * @return {@code true} if the project directory exists or was successfully created, {@code false}
+   *     otherwise.
    */
   private boolean checkProjectDir() {
     if (!projectDir.exists()) {
