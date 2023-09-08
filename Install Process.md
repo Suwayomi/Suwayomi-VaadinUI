@@ -41,7 +41,7 @@ Make sure you have the JRE or JDK installed on your system with a version greate
 ### Package Managers
 
 For updated versions of these commands please see [**this**](https://bell-sw.com/pages/package-managers/) and [**this**](https://bell-sw.com/pages/repositories/) link.
-\#### Winget
+#### Winget
 
 ``` powershell
 winget BellSoft.LibericaJDK17
