@@ -1,3 +1,5 @@
+import org.panteleyev.jpackage.ImageType
+import org.panteleyev.jpackage.JPackageTask
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
@@ -6,6 +8,9 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.0'
     //id 'org.graalvm.buildtools.native' version '0.9.20'
     id 'com.vaadin' version '24.1.6'
+
+    //Jpackage for building native installers
+    id("org.panteleyev.jpackageplugin") version "1.5.2"
 }
 
 group = 'online.hatsunemiku'
@@ -90,4 +95,91 @@ tasks.register('buildReleaseJar', BootJar) {
     classpath(sourceSets.main.runtimeClasspath)
 
     launchScript()
+}
+
+tasks.register('buildWindowsMsi', WindowsInstallTask) {
+    type = ImageType.MSI
+}
+
+tasks.register('buildWindowsExe', WindowsInstallTask) {
+    type = ImageType.EXE
+}
+
+tasks.register('buildLinuxDeb', LinuxInstallTask) {
+    type = ImageType.DEB
+}
+
+tasks.register('buildLinuxRpm', LinuxInstallTask) {
+    type = ImageType.RPM
+}
+
+tasks.register('buildMacDmg', MacInstallTask) {
+    type = ImageType.DMG
+}
+
+tasks.register('buildMacPkg', MacInstallTask) {
+    type = ImageType.PKG
+}
+
+class InstallTask extends JPackageTask {
+    InstallTask() {
+        super()
+        dependsOn('buildReleaseJar')
+        group = 'installers'
+        enabled = true
+
+        aboutUrl = "https://github.com/aless2003/Tachidesk-VaadinUI"
+        appDescription = "A simple Web UI for Tachidesk written in Java with Vaadin"
+        appName = "Tachidesk Vaadin UI"
+        appVersion = "${project.version}"
+        icon = "package/icons/icon.ico"
+        licenseFile = "LICENSE"
+        mainClass = "org.springframework.boot.loader.JarLauncher"
+        mainJar = "Tachidesk-VaadinUI-${project.version}.jar"
+        vendor = "Aless2003"
+        verbose = false
+        input = "build/libs"
+        destination = "build/installer"
+    }
+}
+
+class WindowsInstallTask extends InstallTask {
+
+    //inject annotation with full qualified class name
+    WindowsInstallTask() {
+        super()
+
+        //winConsole = true //enable only for debugging
+        winDirChooser = true
+        winHelpUrl = "https://github.com/aless2003/Tachidesk-VaadinUI"
+        winMenu = true
+        winMenuGroup = "DiamondMiku"
+        winPerUserInstall = true
+        winShortcut = true
+        winShortcutPrompt = true
+        winUpdateUrl = "https://github.com/aless2003/Tachidesk-VaadinUI"
+        winUpgradeUuid = "1fd89884-c606-4304-b9f0-f82c47ff7676"
+    }
+}
+
+class LinuxInstallTask extends InstallTask {
+    LinuxInstallTask() {
+        super()
+        linuxAppCategory = "Utility"
+        linuxDebMaintainer = "Alessandro.Schwaiger12@gmail.com"
+        linuxMenuGroup = "DiamondMiku"
+        linuxPackageName = "Tachidesk-VaadinUI"
+        linuxRpmLicenseType = "MIT"
+        linuxShortcut = true
+    }
+}
+
+class MacInstallTask extends InstallTask {
+    MacInstallTask() {
+        super()
+        macAppCategory = "public.app-category.books"
+        macAppStore = false
+        macPackageIdentifier = "online.hatsunemiku.tachideskvaadinui"
+        macPackageName = "Tachidesk-VaadinUI"
+    }
 }
