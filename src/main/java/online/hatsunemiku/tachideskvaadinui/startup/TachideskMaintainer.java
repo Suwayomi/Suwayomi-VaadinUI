@@ -60,11 +60,13 @@ public class TachideskMaintainer {
 
     checkServerConfig();
 
-    new Thread(this::startup).start();
-
     logger.info("Checking for updates...");
 
     Meta oldServer = SerializationUtils.deserializeMetadata(projectDir.toPath());
+
+    if (!oldServer.getJarLocation().isEmpty()) {
+      new Thread(this::startup).start();
+    }
 
     logger.info("Current jar file: {}", oldServer.getJarName());
 
