@@ -42,7 +42,7 @@ public class TachideskStarter {
     log.info("Checking for java installation...");
     boolean isJavaInstalled;
     try {
-      Process process = Runtime.getRuntime().exec(new String[]{"java", "-version"});
+      Process process = Runtime.getRuntime().exec(new String[] {"java", "-version"});
       isJavaInstalled = process.waitFor() == 0;
     } catch (IOException | InterruptedException e) {
       log.error("Failed to check if java is installed");
@@ -51,7 +51,8 @@ public class TachideskStarter {
 
     if (!isJavaInstalled) {
       Desktop desktop = Desktop.getDesktop();
-      String url = "https://github.com/aless2003/Tachidesk-VaadinUI/blob/master/Install%20Process.md#when-starting-its-stuck-on-waiting-for-server-to-start";
+      String url =
+          "https://github.com/aless2003/Tachidesk-VaadinUI/blob/master/Install%20Process.md#when-starting-its-stuck-on-waiting-for-server-to-start";
       try {
         desktop.browse(URI.create(url));
         Thread.sleep(6000);
@@ -100,5 +101,4 @@ public class TachideskStarter {
       serverProcess.destroyForcibly();
     }
   }
-
 }
