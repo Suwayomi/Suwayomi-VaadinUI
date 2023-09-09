@@ -105,6 +105,22 @@ tasks.register('buildWindowsExe', WindowsInstallTask) {
     type = ImageType.EXE
 }
 
+tasks.register('buildLinuxDeb', LinuxInstallTask) {
+    type = ImageType.DEB
+}
+
+tasks.register('buildLinuxRpm', LinuxInstallTask) {
+    type = ImageType.RPM
+}
+
+tasks.register('buildMacDmg', MacInstallTask) {
+    type = ImageType.DMG
+}
+
+tasks.register('buildMacPkg', MacInstallTask) {
+    type = ImageType.PKG
+}
+
 class InstallTask extends JPackageTask {
     InstallTask() {
         super()
@@ -143,5 +159,27 @@ class WindowsInstallTask extends InstallTask {
         winShortcutPrompt = true
         winUpdateUrl = "https://github.com/aless2003/Tachidesk-VaadinUI"
         winUpgradeUuid = "1fd89884-c606-4304-b9f0-f82c47ff7676"
+    }
+}
+
+class LinuxInstallTask extends InstallTask {
+    LinuxInstallTask() {
+        super()
+        linuxAppCategory = "Utility"
+        linuxDebMaintainer = "Alessandro.Schwaiger12@gmail.com"
+        linuxMenuGroup = "DiamondMiku"
+        linuxPackageName = "Tachidesk-VaadinUI"
+        linuxRpmLicenseType = "MIT"
+        linuxShortcut = true
+    }
+}
+
+class MacInstallTask extends InstallTask {
+    MacInstallTask() {
+        super()
+        macAppCategory = "public.app-category.books"
+        macAppStore = false
+        macPackageIdentifier = "online.hatsunemiku.tachideskvaadinui"
+        macPackageName = "Tachidesk-VaadinUI"
     }
 }
