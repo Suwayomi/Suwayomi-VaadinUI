@@ -10,6 +10,8 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.TabSheetVariant;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.component.card.DraggableMangaCard;
@@ -28,12 +30,13 @@ import org.jetbrains.annotations.NotNull;
 
 @Route("/")
 @CssImport("css/root.css")
-public class RootView extends StandardLayout {
+public class RootView extends StandardLayout implements BeforeEnterObserver {
 
   private TabSheet tabs;
   private final LibUpdateService libUpdateService;
   private final MangaService mangaService;
   private final CategoryService categoryService;
+  private final SettingsService settingsService;
 
   public RootView(
       SettingsService settingsService,
@@ -45,72 +48,7 @@ public class RootView extends StandardLayout {
     this.libUpdateService = libUpdateService;
     this.categoryService = categoryService;
     this.mangaService = mangaService;
-
-    Settings settings = settingsService.getSettings();
-
-    List<Category> categories;
-
-    try {
-      categories = categoryService.getCategories();
-    } catch (Exception e) {
-      UI ui = UI.getCurrent();
-      ui.access(() -> ui.navigate(ServerStartView.class));
-      return;
-    }
-
-    tabs = new TabSheet();
-    tabs.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
-    addCategoryTabs(categories, settings);
-
-    Div buttons = new Div();
-    buttons.setClassName("library-buttons");
-
-    Button createButton = new Button(VaadinIcon.PLUS.create());
-    createButton.addClickListener(
-        e -> {
-          CategoryDialog dialog = new CategoryDialog(categoryService);
-
-          dialog.addOpenedChangeListener(
-              event -> {
-                if (!event.isOpened()) {
-                  removeClassName("blur");
-                } else {
-                  addClassName("blur");
-                }
-              });
-
-          dialog.addOnCategoryCreationListener(
-              event -> {
-                Category c = event.getCategory();
-
-                Settings s = settingsService.getSettings();
-
-                addCategoryTab(s, c);
-              });
-
-          dialog.open();
-        });
-
-    Button refreshButton = new Button(VaadinIcon.REFRESH.create());
-    refreshButton.addClickListener(
-        e -> {
-          boolean success = this.libUpdateService.fetchUpdate();
-          Notification notification;
-          if (!success) {
-            notification = new Notification("Failed to fetch update", 3000);
-            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-          } else {
-            notification = new Notification("Updating library", 3000);
-            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-          }
-          notification.open();
-        });
-
-    buttons.add(refreshButton, createButton);
-
-    tabs.setSuffixComponent(buttons);
-
-    setContent(tabs);
+    this.settingsService = settingsService;
   }
 
   private void addCategoryTabs(List<Category> categories, Settings settings) {
@@ -175,5 +113,78 @@ public class RootView extends StandardLayout {
       MangaCard card = new DraggableMangaCard(settings, m, c);
       grid.add(card);
     }
+  }
+
+  @Override
+  public void beforeEnter(BeforeEnterEvent event) {
+
+    List<Category> categories;
+
+    try {
+      categories = categoryService.getCategories();
+    } catch (Exception e) {
+      UI ui = UI.getCurrent();
+      ui.access(() -> ui.navigate(ServerStartView.class));
+      return;
+    }
+
+    tabs = new TabSheet();
+    tabs.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
+    addCategoryTabs(categories, settingsService.getSettings());
+
+    Div buttons = getTabSheetButtons();
+    tabs.setSuffixComponent(buttons);
+
+    setContent(tabs);
+  }
+
+  @NotNull
+  private Div getTabSheetButtons() {
+    Div buttons = new Div();
+    buttons.setClassName("library-buttons");
+
+    Button createButton = new Button(VaadinIcon.PLUS.create());
+    createButton.addClickListener(
+        e -> {
+          CategoryDialog dialog = new CategoryDialog(categoryService);
+
+          dialog.addOpenedChangeListener(
+              openedChangeEvent -> {
+                if (!openedChangeEvent.isOpened()) {
+                  removeClassName("blur");
+                } else {
+                  addClassName("blur");
+                }
+              });
+
+          dialog.addOnCategoryCreationListener(
+              categoryCreationEvent -> {
+                Category c = categoryCreationEvent.getCategory();
+
+                Settings s = settingsService.getSettings();
+
+                addCategoryTab(s, c);
+              });
+
+          dialog.open();
+        });
+
+    Button refreshButton = new Button(VaadinIcon.REFRESH.create());
+    refreshButton.addClickListener(
+        e -> {
+          boolean success = this.libUpdateService.fetchUpdate();
+          Notification notification;
+          if (!success) {
+            notification = new Notification("Failed to fetch update", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+          } else {
+            notification = new Notification("Updating library", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+          }
+          notification.open();
+        });
+
+    buttons.add(refreshButton, createButton);
+    return buttons;
   }
 }

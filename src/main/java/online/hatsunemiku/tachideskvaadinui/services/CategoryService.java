@@ -79,7 +79,7 @@ public class CategoryService {
     try {
       return categoryClient.getCategories(baseUrl);
     } catch (Exception e) {
-      log.error("Failed to get categories", e);
+      log.debug("Failed to get categories", e);
       throw new RuntimeException(e);
     }
   }
