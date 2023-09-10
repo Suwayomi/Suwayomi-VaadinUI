@@ -166,7 +166,6 @@ public class RootView extends StandardLayout implements BeforeEnterObserver {
                 addCategoryTab(s, c);
               });
 
-
           dialog.open();
         });
 
