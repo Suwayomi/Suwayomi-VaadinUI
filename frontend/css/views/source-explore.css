@@ -1,3 +1,16 @@
 .source-explore-container {
+  display: grid;
   width: 100%;
+}
+
+.source-explore-buttons {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 1rem;
+  width: 100vw;
+  justify-content: center;
+}
+
+.source-explore-buttons vaadin-button {
+  margin: 0.5rem;
 }

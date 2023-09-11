@@ -1,8 +1,14 @@
 package online.hatsunemiku.tachideskvaadinui.component.scroller.source;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.dom.DomEvent;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import lombok.Getter;
 import online.hatsunemiku.tachideskvaadinui.component.card.MangaCard;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
@@ -15,10 +21,11 @@ public class SourceExploreScroller extends VScroller {
 
   private final SourceService sourceService;
   private int currentPage;
-  private final ExploreType type;
+  @Getter private final ExploreType type;
   private final long sourceId;
   private final Div content = new Div();
   private final SettingsService settingsService;
+  private final ExecutorService pageLoader = Executors.newFixedThreadPool(1);
 
   public SourceExploreScroller(
       SourceService sourceService,
@@ -34,7 +41,35 @@ public class SourceExploreScroller extends VScroller {
 
     setClassName("explore-scroller");
 
-    addScrollToEndListener(e -> loadNextPage());
+    var reg =
+        this.getElement()
+            .addEventListener(
+                "scroll",
+                (DomEvent e) -> {
+                  ThreadPoolExecutor executor = (ThreadPoolExecutor) pageLoader;
+
+                  if (executor.getActiveCount() > 0) {
+                    return;
+                  }
+
+                  double scrollTop = e.getEventData().getNumber("event.target.scrollTop");
+                  double scrollHeight = e.getEventData().getNumber("event.target.scrollHeight");
+                  double offsetHeight = e.getEventData().getNumber("event.target.offsetHeight");
+
+                  if (scrollHeight == 0 || scrollTop == 0) {
+                    return;
+                  }
+
+                  double percentage = scrollTop / (scrollHeight - offsetHeight) * 100;
+
+                  if (percentage > 75) {
+                    pageLoader.submit(this::loadNextPage);
+                  }
+                });
+
+    reg.addEventData("event.target.scrollTop");
+    reg.addEventData("event.target.scrollHeight");
+    reg.addEventData("event.target.offsetHeight");
 
     content.setClassName("explore-scroller-manga-grid");
     loadNextPage();
@@ -56,8 +91,26 @@ public class SourceExploreScroller extends VScroller {
 
     Settings settings = settingsService.getSettings();
 
+    var optUi = getUI();
+
+    UI ui;
+
+    if (optUi.isEmpty()) {
+      if (UI.getCurrent() == null) {
+        return;
+      }
+
+      ui = UI.getCurrent();
+    } else {
+      ui = optUi.get();
+    }
+
     for (Manga m : manga) {
-      content.add(new MangaCard(settings, m));
+      ui.access(
+          () -> {
+            MangaCard card = new MangaCard(settings, m);
+            content.add(card);
+          });
     }
   }
 
@@ -71,9 +124,5 @@ public class SourceExploreScroller extends VScroller {
     var manga = sourceService.getLatestManga(sourceId, currentPage);
 
     return manga.orElseGet(List::of);
-  }
-
-  public ExploreType getType() {
-    return type;
   }
 }

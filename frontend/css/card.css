@@ -13,11 +13,14 @@ img {
   border-radius: 0.5rem;
   box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  background-color: #fff;
+  background: var(--miku-loading);
+  background-repeat: no-repeat;
+  background-position: center;
   transition: all 0.2s ease-in-out;
   position: relative;
   cursor: pointer;
   height: 100%;
+  aspect-ratio: 2/3;
 }
 
 .card:hover {

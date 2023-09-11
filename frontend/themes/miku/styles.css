@@ -41,6 +41,8 @@ html {
 
   --miku-background-color-dark: hsl(177, 22%, 50%);
 
+  --miku-loading: url(images/loading.svg);
+
 
   /*dark*/
   --miku-selected-dark-color: hsl(193, 62%, 29%);
