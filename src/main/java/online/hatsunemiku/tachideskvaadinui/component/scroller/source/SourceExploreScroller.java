@@ -21,8 +21,7 @@ public class SourceExploreScroller extends VScroller {
 
   private final SourceService sourceService;
   private int currentPage;
-  @Getter
-  private final ExploreType type;
+  @Getter private final ExploreType type;
   private final long sourceId;
   private final Div content = new Div();
   private final SettingsService settingsService;
@@ -42,27 +41,31 @@ public class SourceExploreScroller extends VScroller {
 
     setClassName("explore-scroller");
 
-    var reg = this.getElement().addEventListener("scroll", (DomEvent e) -> {
-      ThreadPoolExecutor executor = (ThreadPoolExecutor) pageLoader;
+    var reg =
+        this.getElement()
+            .addEventListener(
+                "scroll",
+                (DomEvent e) -> {
+                  ThreadPoolExecutor executor = (ThreadPoolExecutor) pageLoader;
 
-      if (executor.getActiveCount() > 0) {
-        return;
-      }
+                  if (executor.getActiveCount() > 0) {
+                    return;
+                  }
 
-      double scrollTop = e.getEventData().getNumber("event.target.scrollTop");
-      double scrollHeight = e.getEventData().getNumber("event.target.scrollHeight");
-      double offsetHeight = e.getEventData().getNumber("event.target.offsetHeight");
+                  double scrollTop = e.getEventData().getNumber("event.target.scrollTop");
+                  double scrollHeight = e.getEventData().getNumber("event.target.scrollHeight");
+                  double offsetHeight = e.getEventData().getNumber("event.target.offsetHeight");
 
-      if (scrollHeight == 0 || scrollTop == 0) {
-        return;
-      }
+                  if (scrollHeight == 0 || scrollTop == 0) {
+                    return;
+                  }
 
-      double percentage = scrollTop / (scrollHeight - offsetHeight) * 100;
+                  double percentage = scrollTop / (scrollHeight - offsetHeight) * 100;
 
-      if (percentage > 75) {
-        pageLoader.submit(this::loadNextPage);
-      }
-    });
+                  if (percentage > 75) {
+                    pageLoader.submit(this::loadNextPage);
+                  }
+                });
 
     reg.addEventData("event.target.scrollTop");
     reg.addEventData("event.target.scrollHeight");
