@@ -1,14 +1,14 @@
 package online.hatsunemiku.tachideskvaadinui.component.card;
 
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
 import lombok.Getter;
 
 @Getter
 @CssImport("css/card.css")
-public class Card extends Div {
+public class Card extends Anchor {
 
   private final Paragraph textComponent;
 

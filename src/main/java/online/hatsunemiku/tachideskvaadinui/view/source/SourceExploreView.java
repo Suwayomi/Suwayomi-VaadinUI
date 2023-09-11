@@ -106,12 +106,10 @@ public class SourceExploreView extends StandardLayout
 
   private void disableButton(Button button) {
     button.setEnabled(false);
-    button.setVisible(false);
   }
 
   private void enableButton(Button button) {
     button.setEnabled(true);
-    button.setVisible(true);
   }
 
   private void switchOutScroller(Div content, ExploreType type, long sourceId) {

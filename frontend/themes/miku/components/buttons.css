@@ -9,3 +9,9 @@ vaadin-button:hover {
   background-color: var(--miku-frosted-glass);
   border: 1px solid var(--miku-main-color);
 }
+
+vaadin-button[disabled] {
+  color: var(--miku-unselected-color);
+  background-color: transparent;
+  border: 1px solid var(--miku-unselected-color);
+}
