@@ -43,6 +43,8 @@ html {
 
   --miku-loading: url(images/loading.svg);
 
+  --miku-grid-gap: 1rem;
+
 
   /*dark*/
   --miku-selected-dark-color: hsl(193, 62%, 29%);
