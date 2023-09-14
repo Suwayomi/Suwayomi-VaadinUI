@@ -1,10 +1,27 @@
 .library-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  grid-gap: 1rem;
+  grid-gap: var(--miku-grid-gap);
   padding: 1rem;
   max-width: 100%;
-  min-height: 50.5vh;
+}
+
+@media (max-width: 720px) {
+  .library-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .library-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .library-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .delete-category-button {

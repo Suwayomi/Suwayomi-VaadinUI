@@ -1,10 +1,29 @@
 .explore-scroller-manga-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  grid-gap: 1rem;
+  grid-gap: var(--miku-grid-gap);
   width: 95%;
   margin-right: 0;
   justify-self: center;
+}
+
+
+@media (max-width: 720px) {
+  .explore-scroller-manga-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .explore-scroller-manga-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 300px) {
+  .explore-scroller-manga-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .explore-scroller {

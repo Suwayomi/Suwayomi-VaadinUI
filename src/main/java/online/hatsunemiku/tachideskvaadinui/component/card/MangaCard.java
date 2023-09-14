@@ -11,6 +11,6 @@ public class MangaCard extends Card {
     super(manga.getTitle(), settings.getUrl() + manga.getThumbnailUrl());
 
     String link = "/manga/" + manga.getId();
-    this.getElement().setAttribute("href", link);
+    setHref(link);
   }
 }
