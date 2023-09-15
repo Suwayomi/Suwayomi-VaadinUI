@@ -204,39 +204,40 @@ public class MangaReader extends Div {
       this.chapter = chapter;
       this.settingsService = settingsService;
 
-      var config = SwiperConfig.builder()
-          .zoom(true)
-          .centeredSlides(true)
-          .build();
+      var config = SwiperConfig.builder().zoom(true).centeredSlides(true).build();
 
       swiper = new Swiper(config);
       swiper.changeLanguageDirection(LanguageDirection.RIGHT_TO_LEFT);
 
       /*This is a JavaScript function as it feels more sluggish when it has
-      * to send data back to the server. Therefore, the server is responsible
-      * for the mouse wheel's zoom function.
-      * */
-      swiper.getElement().executeJs("""
+       * to send data back to the server. Therefore, the server is responsible
+       * for the mouse wheel's zoom function.
+       * */
+      swiper
+          .getElement()
+          .executeJs(
+              """
           addEventListener('wheel', function (e) {
-            
+
             var zoom = $0.swiper.zoom.scale;
             if (e.deltaY < 0) {
               zoom += 0.5;
             } else {
               zoom -= 0.5;
             }
-            
+
             if (zoom < 1) {
               zoom = 1;
             }
-            
+
             if (zoom > 3) {
               zoom = 3;
             }
-            
+
             $0.swiper.zoom.in(zoom);
           });
-          """, swiper.getElement());
+          """,
+              swiper.getElement());
 
       loadChapter();
 
