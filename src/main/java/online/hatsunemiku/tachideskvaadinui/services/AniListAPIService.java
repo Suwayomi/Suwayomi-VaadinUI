@@ -7,7 +7,6 @@ import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.OkHttpClient;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.OAuthData;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.TrackerTokens;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListMangaListResponse;
@@ -49,7 +48,6 @@ public class AniListAPIService {
    */
   public AniListAPIService(SettingsService settingsService, ObjectMapper mapper) {
     this.settingsService = settingsService;
-    OkHttpClient client = new OkHttpClient();
     this.mapper = mapper;
     this.webClient = WebClient.create(ANILIST_API_URL);
 
