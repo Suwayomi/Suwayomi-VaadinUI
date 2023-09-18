@@ -8,10 +8,7 @@ import elemental.json.JsonValue;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import online.hatsunemiku.tachideskvaadinui.data.tracking.OAuthResponse;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.OAuthData;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.TrackerTokens;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListMangaListResponse;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListScoreFormat;
@@ -34,12 +31,9 @@ public class AniListAPIService {
 
   private static final String ANILIST_API_URL = "https://graphql.anilist.co";
   private static final String OAUTH_CLIENT_ID = "13903";
-  private static final String OAUTH_CLIENT_SECRET = "BNqU6CmatS5LgdJRYpNB3e0kgDdgupmoX8XU4PrG";
-  private static final String OAUTH_REDIRECT_URI = "http://localhost:8080/validate/anilist";
   public static final String OAUTH_URL = "https://anilist.co/api/v2/oauth";
   private static final String OAUTH_CODE_PATTERN =
-      OAUTH_URL + "/authorize?client_id=%s&redirect_uri=%s&response_type=code";
-  private final OkHttpClient client;
+      OAUTH_URL + "/authorize?client_id=%s&response_type=token";
 
   private final SettingsService settingsService;
   private final ObjectMapper mapper;
@@ -50,11 +44,12 @@ public class AniListAPIService {
    * dependencies.
    *
    * @param settingsService the SettingsService object to be used for accessing user settings.
-   * @param mapper the ObjectMapper object to be used for serializing and deserializing JSON data.
+   * @param mapper          the ObjectMapper object to be used for serializing and deserializing
+   *                        JSON data.
    */
   public AniListAPIService(SettingsService settingsService, ObjectMapper mapper) {
     this.settingsService = settingsService;
-    this.client = new OkHttpClient();
+    OkHttpClient client = new OkHttpClient();
     this.mapper = mapper;
     this.webClient = WebClient.create(ANILIST_API_URL);
 
@@ -69,16 +64,16 @@ public class AniListAPIService {
    * Retrieves the AniList token from the settings.
    *
    * @return an Optional containing the AniList token if it is present, otherwise returns an empty
-   *     Optional
+   * Optional
    */
-  private Optional<String> getAniListToken() {
-    String token = settingsService.getSettings().getTrackerTokens().getAniListToken();
+  private Optional<OAuthData> getAniListToken() {
+    TrackerTokens trackerTokens = settingsService.getSettings().getTrackerTokens();
 
-    if (token == null || token.isEmpty()) {
+    if (!trackerTokens.hasAniListToken()) {
       return Optional.empty();
     }
 
-    return Optional.of(token);
+    return Optional.of(trackerTokens.getAniListToken());
   }
 
   /**
@@ -90,13 +85,27 @@ public class AniListAPIService {
     return getAniListToken().isPresent();
   }
 
+  /**
+   * Retrieves the AniList token header.
+   *
+   * @return the AniList token header as a string
+   * @throws IllegalStateException if there is no AniList token available or if the token is not
+   *                               valid.
+   */
   private String getAniListTokenHeader() {
     if (!hasAniListToken()) {
       throw new IllegalStateException("No AniList Token");
     }
 
     //noinspection OptionalGetWithoutIsPresent - hasAniListToken() is called before this method
-    return "Bearer " + getAniListToken().get();
+
+    var token = getAniListToken().get();
+
+    if (!token.getTokenType().equals("Bearer")) {
+      throw new IllegalStateException("AniList token is not a Bearer token");
+    }
+
+    return "Bearer " + token.getAccessToken();
   }
 
   /**
@@ -106,64 +115,7 @@ public class AniListAPIService {
    * @return The generated authorization URL.
    */
   public String getAniListAuthUrl() {
-    return String.format(OAUTH_CODE_PATTERN, OAUTH_CLIENT_ID, OAUTH_REDIRECT_URI);
-  }
-
-  /**
-   * Requests an OAuth token using the given authorization code. The new OAuth Information is also
-   * saved via {@link TrackerTokens#setAniListAuth(OAuthResponse)}
-   *
-   * @param code The authorization code
-   * @throws RuntimeException If an error occurs while requesting the OAuth token
-   */
-  public void requestOAuthToken(String code) {
-
-    String oauthTokenUrl = OAUTH_URL + "/token";
-
-    // OAuth headers
-    okhttp3.Headers headers =
-        new okhttp3.Headers.Builder()
-            .add("Content-Type", "application/json")
-            .add("Accept", "application/json")
-            .build();
-
-    // OAuth json
-    String json =
-        """
-        {
-          "grant_type": "authorization_code",
-          "client_id": "%s",
-          "client_secret": "%s",
-          "redirect_uri": "%s",
-          "code": "%s"
-        }
-        """
-            .formatted(OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET, OAUTH_REDIRECT_URI, code);
-
-    RequestBody body =
-        RequestBody.create(json, okhttp3.MediaType.parse("application/json; charset=utf-8"));
-
-    Request request = new Request.Builder().url(oauthTokenUrl).headers(headers).post(body).build();
-
-    try (var response = client.newCall(request).execute()) {
-      if (!response.isSuccessful()) {
-        throw new RuntimeException("Unexpected code " + response);
-      }
-
-      ResponseBody accessTokenBody = response.body();
-
-      if (accessTokenBody == null) {
-        throw new RuntimeException("Access token body is null");
-      }
-
-      String responseJson = accessTokenBody.string();
-
-      OAuthResponse aniListAuth = mapper.readValue(responseJson, OAuthResponse.class);
-
-      settingsService.getSettings().getTrackerTokens().setAniListAuth(aniListAuth);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    return String.format(OAUTH_CODE_PATTERN, OAUTH_CLIENT_ID);
   }
 
   /**
@@ -176,32 +128,32 @@ public class AniListAPIService {
   public AniListMangaListResponse searchManga(String name) {
     String query =
         """
-        query Search($search: String) {
-            Page(perPage: 50) {
-              media(search: $search, type: MANGA, format_not_in: [NOVEL]) {
-                id
-                title {
-                  romaji
-                  english
-                  native
-                  userPreferred
-                }
-                coverImage {
-                  large
-                }
-                format
-                status
-                chapters
-                description
-                startDate {
-                  year
-                  month
-                  day
+            query Search($search: String) {
+                Page(perPage: 50) {
+                  media(search: $search, type: MANGA, format_not_in: [NOVEL]) {
+                    id
+                    title {
+                      romaji
+                      english
+                      native
+                      userPreferred
+                    }
+                    coverImage {
+                      large
+                    }
+                    format
+                    status
+                    chapters
+                    description
+                    startDate {
+                      year
+                      month
+                      day
+                    }
+                  }
                 }
               }
-            }
-          }
-        """;
+            """;
 
     String variables = """
         {
@@ -225,7 +177,7 @@ public class AniListAPIService {
    *
    * @return The current user's ID
    * @throws RuntimeException If no AniList token is available or if there is an error retrieving
-   *     the user ID
+   *                          the user ID
    */
   private int getCurrentUserId() {
     if (!hasAniListToken()) {
@@ -234,12 +186,12 @@ public class AniListAPIService {
 
     String query =
         """
-        query {
-          Viewer {
-            id
-          }
-        }
-        """;
+            query {
+              Viewer {
+                id
+              }
+            }
+            """;
 
     String variables = "{}";
 
@@ -265,21 +217,21 @@ public class AniListAPIService {
   public boolean isMangaInList(int mangaId) {
     String query =
         """
-        query ($userId: Int, $mangaId: Int) {
-          MediaList(userId: $userId, type: MANGA, mediaId: $mangaId) {
-            id
-            status
-          }
-        }
-        """;
+            query ($userId: Int, $mangaId: Int) {
+              MediaList(userId: $userId, type: MANGA, mediaId: $mangaId) {
+                id
+                status
+              }
+            }
+            """;
 
     String variables =
         """
-        {
-          "userId": %s,
-          "mangaId": %s
-        }
-        """
+            {
+              "userId": %s,
+              "mangaId": %s
+            }
+            """
             .formatted(getCurrentUserId(), mangaId);
 
     GraphQLRequest request = new GraphQLRequest(query, variables);
@@ -318,21 +270,21 @@ public class AniListAPIService {
   public void addMangaToList(int mangaId) {
     String query =
         """
-        mutation($mangaId: Int, $status: MediaListStatus){
-          SaveMediaListEntry(mediaId: $mangaId, status: $status) {
-            id
-            status
-          }
-        }
-        """;
+            mutation($mangaId: Int, $status: MediaListStatus){
+              SaveMediaListEntry(mediaId: $mangaId, status: $status) {
+                id
+                status
+              }
+            }
+            """;
 
     String variables =
         """
-        {
-          "mangaId": %s,
-          "status": "%s"
-        }
-        """
+            {
+              "mangaId": %s,
+              "status": "%s"
+            }
+            """
             .formatted(mangaId, AniListStatus.CURRENT.name());
 
     GraphQLRequest request = new GraphQLRequest(query, variables);
@@ -366,32 +318,32 @@ public class AniListAPIService {
   public AniListMangaStatistics getMangaFromList(int mangaId) {
     String query =
         """
-        query ($mangaId: Int, $userId: Int) {
-          MediaList(mediaId: $mangaId, userId: $userId) {
-            status
-            progress
-            score
-            startedAt {
-              year
-              month
-              day
+            query ($mangaId: Int, $userId: Int) {
+              MediaList(mediaId: $mangaId, userId: $userId) {
+                status
+                progress
+                score
+                startedAt {
+                  year
+                  month
+                  day
+                }
+                completedAt {
+                  year
+                  month
+                  day
+                }
+              }
             }
-            completedAt {
-              year
-              month
-              day
-            }
-          }
-        }
-        """;
+            """;
 
     String variables =
         """
-        {
-          "mangaId": %s,
-          "userId": %s
-        }
-        """
+            {
+              "mangaId": %s,
+              "userId": %s
+            }
+            """
             .formatted(mangaId, getCurrentUserId());
 
     GraphQLRequest request = new GraphQLRequest(query, variables);
@@ -428,14 +380,14 @@ public class AniListAPIService {
   public AniListScoreFormat getScoreFormat() {
     String query =
         """
-        query {
-          Viewer {
-            mediaListOptions {
-              scoreFormat
+            query {
+              Viewer {
+                mediaListOptions {
+                  scoreFormat
+                }
+              }
             }
-          }
-        }
-        """;
+            """;
 
     String variables = "{}";
 
@@ -459,19 +411,19 @@ public class AniListAPIService {
   public Optional<Integer> getChapterCount(int mangaId) {
     String query =
         """
-        query ($mangaId: Int) {
-          Media(id: $mangaId) {
-            chapters
-          }
-        }
-        """;
+            query ($mangaId: Int) {
+              Media(id: $mangaId) {
+                chapters
+              }
+            }
+            """;
 
     String variables =
         """
-        {
-          "mangaId": %s
-        }
-        """.formatted(mangaId);
+            {
+              "mangaId": %s
+            }
+            """.formatted(mangaId);
 
     String response = sendAuthGraphQLRequest(query, variables);
 
@@ -507,21 +459,21 @@ public class AniListAPIService {
   public void updateMangaProgress(int mangaId, int mangaProgress) {
     String query =
         """
-        mutation ($mangaId: Int, $progress: Int) {
-          SaveMediaListEntry (mediaId: $mangaId, progress: $progress) {
-            id
-            progress
-          }
-        }
-        """;
+            mutation ($mangaId: Int, $progress: Int) {
+              SaveMediaListEntry (mediaId: $mangaId, progress: $progress) {
+                id
+                progress
+              }
+            }
+            """;
 
     String variables =
         """
-        {
-          "mangaId": %s,
-          "progress": %s
-        }
-        """
+            {
+              "mangaId": %s,
+              "progress": %s
+            }
+            """
             .formatted(mangaId, mangaProgress);
 
     // {"data":{"SaveMediaListEntry":{"id":360194831,"progress":1}}}
@@ -542,21 +494,21 @@ public class AniListAPIService {
   public void updateMangaStatus(int aniListId, AniListStatus value) {
     String query =
         """
-        mutation ($mangaId: Int, $status: MediaListStatus) {
-          SaveMediaListEntry (mediaId: $mangaId, status: $status) {
-            id
-            status
-          }
-        }
-        """;
+            mutation ($mangaId: Int, $status: MediaListStatus) {
+              SaveMediaListEntry (mediaId: $mangaId, status: $status) {
+                id
+                status
+              }
+            }
+            """;
 
     String variables =
         """
-        {
-          "mangaId": %s,
-          "status": "%s"
-        }
-        """
+            {
+              "mangaId": %s,
+              "status": "%s"
+            }
+            """
             .formatted(aniListId, value.name());
 
     var json = Json.parse(sendAuthGraphQLRequest(query, variables));
@@ -578,21 +530,21 @@ public class AniListAPIService {
 
     String query =
         """
-        mutation ($mangaId: Int, $score: Float) {
-          SaveMediaListEntry (mediaId: $mangaId, score: $score) {
-            id
-            score
-          }
-        }
-        """;
+            mutation ($mangaId: Int, $score: Float) {
+              SaveMediaListEntry (mediaId: $mangaId, score: $score) {
+                id
+                score
+              }
+            }
+            """;
 
     String variables =
         """
-        {
-          "mangaId": %s,
-          "score": %s
-        }
-        """
+            {
+              "mangaId": %s,
+              "score": %s
+            }
+            """
             .formatted(aniListId, value);
 
     var json = Json.parse(sendAuthGraphQLRequest(query, variables));
@@ -613,29 +565,29 @@ public class AniListAPIService {
   public void updateMangaStartDate(int aniListId, MediaDate date) {
     String query =
         """
-        mutation ($mangaId: Int, $startDate: FuzzyDateInput) {
-          SaveMediaListEntry (mediaId: $mangaId, startedAt: $startDate) {
-            id
-            startedAt {
-              year
-              month
-              day
+            mutation ($mangaId: Int, $startDate: FuzzyDateInput) {
+              SaveMediaListEntry (mediaId: $mangaId, startedAt: $startDate) {
+                id
+                startedAt {
+                  year
+                  month
+                  day
+                }
+              }
             }
-          }
-        }
-        """;
+            """;
 
     String variables =
         """
-        {
-          "mangaId": %s,
-          "startDate": {
-            "year": %s,
-            "month": %s,
-            "day": %s
-          }
-        }
-        """
+            {
+              "mangaId": %s,
+              "startDate": {
+                "year": %s,
+                "month": %s,
+                "day": %s
+              }
+            }
+            """
             .formatted(aniListId, date.year(), date.month(), date.day());
 
     var json = Json.parse(sendAuthGraphQLRequest(query, variables));
@@ -656,29 +608,29 @@ public class AniListAPIService {
   public void updateMangaEndDate(int aniListId, MediaDate date) {
     String query =
         """
-        mutation ($mangaId: Int, $endDate: FuzzyDateInput) {
-          SaveMediaListEntry (mediaId: $mangaId, completedAt: $endDate) {
-            id
-            completedAt {
-              year
-              month
-              day
+            mutation ($mangaId: Int, $endDate: FuzzyDateInput) {
+              SaveMediaListEntry (mediaId: $mangaId, completedAt: $endDate) {
+                id
+                completedAt {
+                  year
+                  month
+                  day
+                }
+              }
             }
-          }
-        }
-        """;
+            """;
 
     String variables =
         """
-        {
-          "mangaId": %s,
-          "endDate": {
-            "year": %s,
-            "month": %s,
-            "day": %s
-          }
-        }
-        """
+            {
+              "mangaId": %s,
+              "endDate": {
+                "year": %s,
+                "month": %s,
+                "day": %s
+              }
+            }
+            """
             .formatted(aniListId, date.year(), date.month(), date.day());
 
     var json = Json.parse(sendAuthGraphQLRequest(query, variables));
