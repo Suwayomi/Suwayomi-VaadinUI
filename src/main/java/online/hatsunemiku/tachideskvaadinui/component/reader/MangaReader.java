@@ -195,7 +195,6 @@ public class MangaReader extends Div {
 
     private final Chapter chapter;
     private final Swiper swiper;
-    private final TrackingDataService dataService;
     private final SettingsService settingsService;
 
     public Reader(
@@ -207,7 +206,6 @@ public class MangaReader extends Div {
       addClassName("reader");
       this.chapter = chapter;
       this.settingsService = settingsService;
-      this.dataService = dataService;
 
       var config = SwiperConfig.builder().zoom(true).centeredSlides(true).build();
 
