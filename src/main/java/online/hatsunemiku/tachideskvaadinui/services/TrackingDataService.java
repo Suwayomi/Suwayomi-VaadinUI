@@ -23,16 +23,13 @@ public class TrackingDataService {
   private final ObjectMapper mapper;
   private final Path tokenFile;
   private final Path trackerFile;
-  @Getter
-  private TrackerTokens tokens;
+  @Getter private TrackerTokens tokens;
   private final HashMap<Long, Tracker> mangaTrackers = new HashMap<>();
 
   public TrackingDataService(ObjectMapper mapper, TachideskMaintainer maintainer) {
     this.mapper = mapper;
 
-    Path projectDirPath = maintainer.getProjectDir()
-        .getAbsoluteFile()
-        .toPath();
+    Path projectDirPath = maintainer.getProjectDir().getAbsoluteFile().toPath();
 
     this.tokenFile = projectDirPath.resolve("tokens.json");
     this.trackerFile = projectDirPath.resolve("trackers.json");

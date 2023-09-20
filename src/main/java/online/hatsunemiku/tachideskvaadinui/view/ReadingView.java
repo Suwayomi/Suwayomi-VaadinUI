@@ -27,7 +27,9 @@ public class ReadingView extends StandardLayout
   private final TrackingCommunicationService communicationService;
 
   public ReadingView(
-      MangaService mangaService, SettingsService settingsService, TrackingDataService dataService,
+      MangaService mangaService,
+      SettingsService settingsService,
+      TrackingDataService dataService,
       TrackingCommunicationService communicationService) {
     super("Reading");
 
@@ -76,8 +78,9 @@ public class ReadingView extends StandardLayout
       return;
     }
 
-    var reader = new MangaReader(chapterObj, settingsService, dataService, mangaService,
-        communicationService, hasNext);
+    var reader =
+        new MangaReader(
+            chapterObj, settingsService, dataService, mangaService, communicationService, hasNext);
 
     setContent(reader);
   }

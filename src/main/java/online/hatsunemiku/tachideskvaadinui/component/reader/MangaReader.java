@@ -46,7 +46,9 @@ public class MangaReader extends Div {
       boolean hasNext) {
     addClassName("manga-reader");
 
-    Reader reader = new Reader(chapter, dataService, settingsService, trackingCommunicationService, mangaService);
+    Reader reader =
+        new Reader(
+            chapter, dataService, settingsService, trackingCommunicationService, mangaService);
     Sidebar sidebar = new Sidebar(mangaService, chapter, reader.swiper, hasNext);
     Controls controls = new Controls(reader, hasNext, chapter);
     add(sidebar, reader, controls);
@@ -251,7 +253,8 @@ public class MangaReader extends Div {
             e -> {
               if (e.getActiveIndex() == chapter.getPageCount() - 1) {
                 log.info("Last page of chapter {}", chapter.getIndex());
-                trackingCommunicationService.setChapterProgress(chapter.getMangaId(), chapter.getIndex(), true);
+                trackingCommunicationService.setChapterProgress(
+                    chapter.getMangaId(), chapter.getIndex(), true);
                 e.unregisterListener();
               }
             });

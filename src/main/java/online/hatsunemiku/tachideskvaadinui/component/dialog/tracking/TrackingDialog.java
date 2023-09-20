@@ -32,7 +32,8 @@ public class TrackingDialog extends Dialog {
   private final AniListAPIService aniListAPI;
   private final TrackingDataService dataService;
 
-  public TrackingDialog(TrackingDataService dataService, Manga manga, AniListAPIService aniListAPIService) {
+  public TrackingDialog(
+      TrackingDataService dataService, Manga manga, AniListAPIService aniListAPIService) {
     super();
     this.dataService = dataService;
     this.aniListAPI = aniListAPIService;

@@ -11,9 +11,11 @@ public class OAuthData {
   @Getter
   @JsonProperty("access_token")
   private final String accessToken;
+
   @Getter
   @JsonProperty("token_type")
   private final String tokenType;
+
   @JsonProperty("expires")
   private final String expires;
 

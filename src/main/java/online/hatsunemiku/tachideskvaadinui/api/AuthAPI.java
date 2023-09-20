@@ -29,20 +29,21 @@ public class AuthAPI {
    * URL.
    *
    * @return the HTML content with the JavaScript code to execute the data extraction and redirect
-   * to the response URL
+   *     to the response URL
    */
   @GetMapping(value = "anilist", produces = MediaType.TEXT_HTML_VALUE)
   public String validateAniListToken() {
     @Language("JavaScript")
-    String jsToExecute = """
+    String jsToExecute =
+        """
         var hash = window.location.hash.substring(1);
-                
+
         // Split the hash by & to get an array of key-value pairs
         var pairs = hash.split("&");
-                
+
         // Create an empty object to store the fragments
         var fragments = {};
-                
+
         // Loop through the pairs and assign them to the object
         for (var i = 0; i < pairs.length; i++) {
           // Split each pair by = to get the key and value
@@ -50,13 +51,13 @@ public class AuthAPI {
           // Decode the key and value and assign them to the object
           fragments[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
         }
-                
+
         console.log(fragments);
-                
+
         var body = JSON.stringify(fragments);
-                
+
         console.log(body);
-                
+
         fetch('/validate/anilist', {
           method: 'POST',
           headers: {
@@ -70,17 +71,19 @@ public class AuthAPI {
         .catch((error) => {
           console.error('Error:', error);
         });
-           
+
         """;
 
     @Language("HTML")
-    String html = """
+    String html =
+        """
         <script>
           document.addEventListener("DOMContentLoaded", function() {
             %s
           });
         </script>
-        """.formatted(jsToExecute);
+        """
+            .formatted(jsToExecute);
 
     return html;
   }

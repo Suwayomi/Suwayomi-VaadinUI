@@ -7,6 +7,7 @@ import org.springframework.lang.NonNull;
 public class Settings {
 
   @NonNull private String url;
+
   public Settings(@NotNull @JsonProperty("url") String url) {
     this.url = url;
   }

@@ -10,8 +10,8 @@ public class TrackingCommunicationService {
   private final AniListAPIService aniListAPIService;
   private final TrackingDataService dataService;
 
-  public TrackingCommunicationService(AniListAPIService aniListAPIService,
-      TrackingDataService dataService) {
+  public TrackingCommunicationService(
+      AniListAPIService aniListAPIService, TrackingDataService dataService) {
     this.aniListAPIService = aniListAPIService;
     this.dataService = dataService;
   }
@@ -23,10 +23,10 @@ public class TrackingCommunicationService {
    * chapter number, the method returns without making any changes. Should the Chapter count pass
    * the condition, any valid tracker will get the updated chapter progress.
    *
-   * @param mangaId        the ID of the manga
-   * @param chapter        the chapter number to set the progress to
+   * @param mangaId the ID of the manga
+   * @param chapter the chapter number to set the progress to
    * @param onlyWhenBigger a flag indicating whether to update the progress only when the chapter is
-   *                       bigger than the current progress
+   *     bigger than the current progress
    */
   public void setChapterProgress(int mangaId, int chapter, boolean onlyWhenBigger) {
     var tracker = dataService.getTracker(mangaId);
