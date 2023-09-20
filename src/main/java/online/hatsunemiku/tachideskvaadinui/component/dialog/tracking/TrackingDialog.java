@@ -20,7 +20,7 @@ import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListStatus;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDate;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.responses.AniListMangaStatistics;
 import online.hatsunemiku.tachideskvaadinui.services.AniListAPIService;
-import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
+import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import org.jetbrains.annotations.NotNull;
 import org.vaadin.miki.superfields.dates.SuperDatePicker;
 import org.vaadin.miki.superfields.numbers.SuperIntegerField;
@@ -30,16 +30,16 @@ import org.vaadin.miki.superfields.numbers.SuperIntegerField;
 public class TrackingDialog extends Dialog {
 
   private final AniListAPIService aniListAPI;
-  private final SettingsService settingsService;
+  private final TrackingDataService dataService;
 
-  public TrackingDialog(SettingsService service, Manga manga, AniListAPIService aniListAPIService) {
+  public TrackingDialog(TrackingDataService dataService, Manga manga, AniListAPIService aniListAPIService) {
     super();
-    this.settingsService = service;
+    this.dataService = dataService;
     this.aniListAPI = aniListAPIService;
 
     VerticalLayout buttons = new VerticalLayout();
 
-    Tracker tracker = service.getSettings().getTracker(manga.getId());
+    Tracker tracker = dataService.getTracker(manga.getId());
 
     if (!tracker.hasAniListId()) {
       Button aniListBtn = new Button("Anilist");
@@ -270,13 +270,13 @@ public class TrackingDialog extends Dialog {
   }
 
   private void displaySearch(String mangaName, long mangaId) {
-    var dialog = new TrackingMangaChoiceDialog(mangaName, mangaId, aniListAPI, settingsService);
+    var dialog = new TrackingMangaChoiceDialog(mangaName, mangaId, aniListAPI, dataService);
     dialog.open();
 
     dialog.addOpenedChangeListener(
         e -> {
           if (!e.isOpened()) {
-            Tracker tracker = settingsService.getSettings().getTracker(mangaId);
+            Tracker tracker = dataService.getTracker(mangaId);
             if (tracker.hasAniListId()) {
               removeAll();
               add(getTrackingStatistics(tracker));

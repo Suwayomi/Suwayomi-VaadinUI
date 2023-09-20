@@ -2,7 +2,7 @@ package online.hatsunemiku.tachideskvaadinui.api;
 
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.OAuthResponse;
-import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
+import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import org.intellij.lang.annotations.Language;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,10 +17,10 @@ import org.springframework.web.servlet.view.RedirectView;
 @Slf4j
 public class AuthAPI {
 
-  private final SettingsService settingsService;
+  private final TrackingDataService dataService;
 
-  public AuthAPI(SettingsService settingsService) {
-    this.settingsService = settingsService;
+  public AuthAPI(TrackingDataService dataService) {
+    this.dataService = dataService;
   }
 
   /**
@@ -86,8 +86,8 @@ public class AuthAPI {
   }
 
   /**
-   * Validates the AniList token received in the request body. If the token is valid, it is saved
-   * in the application settings. Otherwise, redirects the user to the homepage.
+   * Validates the AniList token received in the request body. If the token is valid, it is saved in
+   * the application settings. Otherwise, redirects the user to the homepage.
    *
    * @param response the OAuthResponse object containing the access token to be validated
    * @return the RedirectView object to redirect the user to the appropriate page
@@ -107,7 +107,7 @@ public class AuthAPI {
       return new RedirectView("/");
     }
 
-    settingsService.getSettings().getTrackerTokens().setAniListAuth(response);
+    dataService.getTokens().setAniListAuth(response);
     return new RedirectView("/");
   }
 }

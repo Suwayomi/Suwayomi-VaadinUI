@@ -34,7 +34,7 @@ public class AniListAPIService {
   private static final String OAUTH_CODE_PATTERN =
       OAUTH_URL + "/authorize?client_id=%s&response_type=token";
 
-  private final SettingsService settingsService;
+  private final TrackingDataService dataService;
   private final ObjectMapper mapper;
   private final WebClient webClient;
 
@@ -42,12 +42,13 @@ public class AniListAPIService {
    * Constructs an AniListAPIService object with the given SettingsService and ObjectMapper
    * dependencies.
    *
-   * @param settingsService the SettingsService object to be used for accessing user settings.
-   * @param mapper          the ObjectMapper object to be used for serializing and deserializing
-   *                        JSON data.
+   * @param dataService the TrackingDataService object to be used for retrieving and updating the
+   *                    AniList token and manga trackers
+   * @param mapper      the ObjectMapper object to be used for serializing and deserializing JSON
+   *                    data.
    */
-  public AniListAPIService(SettingsService settingsService, ObjectMapper mapper) {
-    this.settingsService = settingsService;
+  public AniListAPIService(TrackingDataService dataService, ObjectMapper mapper) {
+    this.dataService = dataService;
     this.mapper = mapper;
     this.webClient = WebClient.create(ANILIST_API_URL);
 
@@ -65,7 +66,7 @@ public class AniListAPIService {
    * Optional
    */
   private Optional<OAuthData> getAniListToken() {
-    TrackerTokens trackerTokens = settingsService.getSettings().getTrackerTokens();
+    TrackerTokens trackerTokens = dataService.getTokens();
 
     if (!trackerTokens.hasAniListToken()) {
       return Optional.empty();

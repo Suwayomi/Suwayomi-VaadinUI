@@ -26,6 +26,7 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.services.AniListAPIService;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
+import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import online.hatsunemiku.tachideskvaadinui.utils.RouteUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import org.jetbrains.annotations.NotNull;
@@ -37,15 +38,18 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
   private final MangaService mangaService;
   private final SettingsService settingsService;
   private final AniListAPIService aniListAPIService;
+  private final TrackingDataService dataService;
 
   public MangaView(
       MangaService mangaService,
       SettingsService settingsService,
-      AniListAPIService aniListAPIService) {
+      AniListAPIService aniListAPIService,
+      TrackingDataService dataService) {
     super("Manga");
     this.mangaService = mangaService;
     this.settingsService = settingsService;
     this.aniListAPIService = aniListAPIService;
+    this.dataService = dataService;
   }
 
   @Override
@@ -111,7 +115,7 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
 
     trackBtn.addClickListener(
         e -> {
-          TrackingDialog dialog = new TrackingDialog(settingsService, manga, aniListAPIService);
+          TrackingDialog dialog = new TrackingDialog(dataService, manga, aniListAPIService);
           dialog.open();
         });
 

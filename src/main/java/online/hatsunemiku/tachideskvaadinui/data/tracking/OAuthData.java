@@ -1,15 +1,20 @@
 package online.hatsunemiku.tachideskvaadinui.data.tracking;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Instant;
 import lombok.Getter;
 
 public class OAuthData {
 
   @Getter
+  @JsonProperty("access_token")
   private final String accessToken;
   @Getter
+  @JsonProperty("token_type")
   private final String tokenType;
+  @JsonProperty("expires")
   private final String expires;
 
   OAuthData(OAuthResponse response) {
@@ -23,6 +28,13 @@ public class OAuthData {
 
     this.accessToken = access_token;
     this.tokenType = token_type;
+    this.expires = expires;
+  }
+
+  @JsonCreator
+  private OAuthData(String accessToken, String tokenType, String expires) {
+    this.accessToken = accessToken;
+    this.tokenType = tokenType;
     this.expires = expires;
   }
 

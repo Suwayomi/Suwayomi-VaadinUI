@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListMedia;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDate;
 import online.hatsunemiku.tachideskvaadinui.services.AniListAPIService;
-import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
+import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import org.jetbrains.annotations.NotNull;
 import org.vaadin.miki.shared.labels.LabelPosition;
 import org.vaadin.miki.superfields.text.LabelField;
@@ -25,7 +25,7 @@ public class TrackingMangaChoiceDialog extends Dialog {
       String mangaName,
       long mangaId,
       AniListAPIService aniListAPI,
-      SettingsService settingsService) {
+      TrackingDataService dataService) {
     TextField searchField = new TextField("Search Manga");
     searchField.setValue(mangaName);
 
@@ -70,7 +70,7 @@ public class TrackingMangaChoiceDialog extends Dialog {
           }
           int aniListId = manga.id();
 
-          settingsService.getSettings().getTracker(mangaId).setAniListId(aniListId);
+          dataService.getTracker(mangaId).setAniListId(aniListId);
 
           close();
         });
