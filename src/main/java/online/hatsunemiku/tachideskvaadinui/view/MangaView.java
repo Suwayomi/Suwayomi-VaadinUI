@@ -129,25 +129,26 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
   private Button getDownloadBtn(List<Chapter> chapters) {
     Button downloadBtn = new Button("Download", LumoIcon.DOWNLOAD.create());
     downloadBtn.addClassName("manga-btn");
-    downloadBtn.addClickListener(e -> {
-      var ids = chapters.stream().map(Chapter::getId).toList();
+    downloadBtn.addClickListener(
+        e -> {
+          var ids = chapters.stream().map(Chapter::getId).toList();
 
-      if (!mangaService.downloadMultipleChapter(ids)) {
-        Notification notification = new Notification("Failed to download chapters", 3000);
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        notification.setPosition(Notification.Position.MIDDLE);
-        notification.open();
-        return;
-      }
+          if (!mangaService.downloadMultipleChapter(ids)) {
+            Notification notification = new Notification("Failed to download chapters", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.setPosition(Notification.Position.MIDDLE);
+            notification.open();
+            return;
+          }
 
-      UI ui = UI.getCurrent();
-      ComponentUtil.fireEvent(ui, new DownloadAllChapterEvent(this, false));
+          UI ui = UI.getCurrent();
+          ComponentUtil.fireEvent(ui, new DownloadAllChapterEvent(this, false));
 
-      Notification notification = new Notification("Downloading chapters", 3000);
-      notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-      notification.setPosition(Notification.Position.MIDDLE);
-      notification.open();
-    });
+          Notification notification = new Notification("Downloading chapters", 3000);
+          notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+          notification.setPosition(Notification.Position.MIDDLE);
+          notification.open();
+        });
     return downloadBtn;
   }
 
@@ -155,7 +156,7 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
    * Creates and retrieves the resume button for a manga, which allows the user to resume reading
    * from the last chapter they left off.
    *
-   * @param manga    The manga object for which to retrieve the resume button.
+   * @param manga The manga object for which to retrieve the resume button.
    * @param chapters The list of chapters available for the manga.
    * @return The resume button with the appropriate click listener.
    */
@@ -222,16 +223,15 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     return libraryBtn;
   }
 
-
   public static class DownloadAllChapterEvent extends ComponentEvent<MangaView> {
 
     /**
      * Creates a new event using the given source and indicator whether the event originated from
      * the client side or the server side.
      *
-     * @param source     the source component
-     * @param fromClient <code>true</code> if the event originated from the client
-     *                   side, <code>false</code> otherwise
+     * @param source the source component
+     * @param fromClient <code>true</code> if the event originated from the client side, <code>false
+     *     </code> otherwise
      */
     public DownloadAllChapterEvent(MangaView source, boolean fromClient) {
       super(source, fromClient);

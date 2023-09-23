@@ -17,32 +17,33 @@ public interface DownloadClient {
   /**
    * Downloads a single chapter of a manga from a specified base URL.
    *
-   * @param baseUrl      the base URL of the manga server
-   * @param mangaId      the ID of the manga
+   * @param baseUrl the base URL of the manga server
+   * @param mangaId the ID of the manga
    * @param chapterIndex the index of the chapter to download
    */
   @GetMapping("/api/v1/download/{mangaId}/chapter/{chapterIndex}")
-  void downloadSingleChapter(URI baseUrl, @PathVariable int mangaId, @PathVariable int chapterIndex);
+  void downloadSingleChapter(
+      URI baseUrl, @PathVariable int mangaId, @PathVariable int chapterIndex);
 
   /**
    * Downloads multiple chapters of a manga from a specified base URL.
    *
-   * @param baseUrl         the base URL of the manga server
+   * @param baseUrl the base URL of the manga server
    * @param downloadRequest the request containing the IDs of the chapters to download
    */
   @PostMapping("/api/v1/download/batch")
   void downloadMultipleChapters(URI baseUrl, @RequestBody DownloadChapterRequest downloadRequest);
 
-  //http://localhost:4567/api/v1/manga/4687/chapter/1
+  // http://localhost:4567/api/v1/manga/4687/chapter/1
   @DeleteMapping("/api/v1/manga/{mangaId}/chapter/{chapterIndex}")
   void deleteSingleChapter(URI baseUrl, @PathVariable int mangaId, @PathVariable int chapterIndex);
 
   /**
    * Represents a request to download chapters.
-   * <p>
-   * The {@code DownloadChapterRequest} class is a data class that encapsulates the chapter IDs to be downloaded.
-   * It is used to communicate between the TachideskUI backend and the Tachidesk Server.
-   * </p>
+   *
+   * <p>The {@code DownloadChapterRequest} class is a data class that encapsulates the chapter IDs
+   * to be downloaded. It is used to communicate between the TachideskUI backend and the Tachidesk
+   * Server.
    */
   @Data
   @AllArgsConstructor

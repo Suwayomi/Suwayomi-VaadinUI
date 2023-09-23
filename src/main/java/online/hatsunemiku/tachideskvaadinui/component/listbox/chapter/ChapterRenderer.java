@@ -92,100 +92,111 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
   private static Button getDownloadBtn(Chapter chapter, MangaService mangaService, Div rightSide) {
     if (chapter.isDownloaded()) {
       Button deleteBtn = new Button(VaadinIcon.TRASH.create());
-      deleteBtn.addClickListener(e -> {
-        var success = mangaService.deleteSingleChapter(chapter.getMangaId(), chapter.getIndex());
+      deleteBtn.addClickListener(
+          e -> {
+            var success =
+                mangaService.deleteSingleChapter(chapter.getMangaId(), chapter.getIndex());
 
-        Notification notification;
+            Notification notification;
 
-        if (!success) {
-          log.error("Failed to delete chapter");
-          notification = new Notification("Failed to delete chapter", 5000);
-          notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        } else {
-          notification = new Notification("Deleting chapter", 5000);
-          notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            if (!success) {
+              log.error("Failed to delete chapter");
+              notification = new Notification("Failed to delete chapter", 5000);
+              notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            } else {
+              notification = new Notification("Deleting chapter", 5000);
+              notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
-          Chapter chapterCopy = chapter.withDownloaded(false);
-          rightSide.replace(deleteBtn, getDownloadBtn(chapterCopy, mangaService, rightSide));
-        }
+              Chapter chapterCopy = chapter.withDownloaded(false);
+              rightSide.replace(deleteBtn, getDownloadBtn(chapterCopy, mangaService, rightSide));
+            }
 
-        notification.setPosition(Notification.Position.MIDDLE);
-        notification.open();
-      });
+            notification.setPosition(Notification.Position.MIDDLE);
+            notification.open();
+          });
       return deleteBtn;
     } else {
       Button downloadBtn = new Button(VaadinIcon.DOWNLOAD.create());
-      downloadBtn.addClickListener(e -> {
-        var success = mangaService.downloadSingleChapter(chapter.getMangaId(), chapter.getIndex());
+      downloadBtn.addClickListener(
+          e -> {
+            var success =
+                mangaService.downloadSingleChapter(chapter.getMangaId(), chapter.getIndex());
 
-        Notification notification;
+            Notification notification;
 
-        if (!success) {
-          log.error("Failed to download chapter");
-          notification = new Notification("Failed to download chapter", 5000);
-          notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        } else {
-          notification = new Notification("Downloading chapter", 5000);
-          notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-          downloadBtn.setEnabled(false);
-          downloadBtn.addClassName("downloading");
+            if (!success) {
+              log.error("Failed to download chapter");
+              notification = new Notification("Failed to download chapter", 5000);
+              notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            } else {
+              notification = new Notification("Downloading chapter", 5000);
+              notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+              downloadBtn.setEnabled(false);
+              downloadBtn.addClassName("downloading");
 
-          UI ui = UI.getCurrent();
+              UI ui = UI.getCurrent();
 
-          trackChapterDownload(chapter, mangaService, rightSide, ui, downloadBtn);
-        }
+              trackChapterDownload(chapter, mangaService, rightSide, ui, downloadBtn);
+            }
 
-        notification.setPosition(Notification.Position.MIDDLE);
-        notification.open();
-      });
+            notification.setPosition(Notification.Position.MIDDLE);
+            notification.open();
+          });
 
       UI ui = UI.getCurrent();
 
-      ComponentUtil.addListener(ui, DownloadAllChapterEvent.class, e -> {
-        downloadBtn.setEnabled(false);
-        downloadBtn.addClassName("downloading");
-        trackChapterDownload(chapter, mangaService, rightSide, ui, downloadBtn);
-      });
-
+      ComponentUtil.addListener(
+          ui,
+          DownloadAllChapterEvent.class,
+          e -> {
+            downloadBtn.setEnabled(false);
+            downloadBtn.addClassName("downloading");
+            trackChapterDownload(chapter, mangaService, rightSide, ui, downloadBtn);
+          });
 
       return downloadBtn;
     }
   }
 
-  private static void trackChapterDownload(Chapter chapter, MangaService mangaService,
-      Div rightSide, UI ui, Button downloadBtn) {
-    CompletableFuture<?> future = CompletableFuture.runAsync(() -> {
-      while (true) {
+  private static void trackChapterDownload(
+      Chapter chapter, MangaService mangaService, Div rightSide, UI ui, Button downloadBtn) {
+    CompletableFuture<?> future =
+        CompletableFuture.runAsync(
+            () -> {
+              while (true) {
 
-        if (Thread.currentThread().isInterrupted()) {
-          break;
-        }
+                if (Thread.currentThread().isInterrupted()) {
+                  break;
+                }
 
-        var tempChapter = mangaService.getChapter(chapter.getMangaId(), chapter.getIndex());
+                var tempChapter = mangaService.getChapter(chapter.getMangaId(), chapter.getIndex());
 
-        if (!tempChapter.isDownloaded()) {
-          try {
-            Thread.sleep(1000);
-          } catch (InterruptedException interruptedException) {
-            log.debug("Download Tracker thread stopping for ChapterID: {}", chapter.getId());
-            break;
-          }
-          continue;
-        }
+                if (!tempChapter.isDownloaded()) {
+                  try {
+                    Thread.sleep(1000);
+                  } catch (InterruptedException interruptedException) {
+                    log.debug(
+                        "Download Tracker thread stopping for ChapterID: {}", chapter.getId());
+                    break;
+                  }
+                  continue;
+                }
 
-        ui.access(() -> {
-          Chapter chapterCopy = chapter.withDownloaded(true);
-          Button deleteBtn = getDownloadBtn(chapterCopy, mangaService, rightSide);
-          rightSide.replace(downloadBtn, deleteBtn);
+                ui.access(
+                    () -> {
+                      Chapter chapterCopy = chapter.withDownloaded(true);
+                      Button deleteBtn = getDownloadBtn(chapterCopy, mangaService, rightSide);
+                      rightSide.replace(downloadBtn, deleteBtn);
+                    });
+                break;
+              }
+            });
+
+    future.exceptionally(
+        throwable -> {
+          log.error("Failed to track chapter download", throwable);
+          return null;
         });
-        break;
-      }
-    });
-
-    future.exceptionally(throwable -> {
-      log.error("Failed to track chapter download", throwable);
-      return null;
-    });
 
     ui.addDetachListener(detachEvent -> future.cancel(true));
   }

@@ -18,13 +18,14 @@ import org.springframework.stereotype.Service;
 public class MangaService {
 
   private final MangaClient mangaClient;
-  //I chose to use the download client here as you only really use it in combination with Manga and not on its own
+  // I chose to use the download client here as you only really use it in combination with Manga and
+  // not on its own
   private final DownloadClient downloadClient;
   private final SettingsService settingsService;
 
   @Autowired
-  public MangaService(MangaClient mangaClient, DownloadClient downloadClient,
-      SettingsService settingsService) {
+  public MangaService(
+      MangaClient mangaClient, DownloadClient downloadClient, SettingsService settingsService) {
     this.mangaClient = mangaClient;
     this.downloadClient = downloadClient;
     this.settingsService = settingsService;
@@ -91,7 +92,7 @@ public class MangaService {
   /**
    * Adds a manga to a category.
    *
-   * @param mangaId    the ID of the manga to be added
+   * @param mangaId the ID of the manga to be added
    * @param categoryId the ID of the category to add the manga to
    */
   public void addMangaToCategory(long mangaId, long categoryId) {
@@ -103,7 +104,7 @@ public class MangaService {
   /**
    * Removes a manga from a category.
    *
-   * @param mangaId    the ID of the manga to be removed
+   * @param mangaId the ID of the manga to be removed
    * @param categoryId the ID of the category to remove the manga from
    */
   public void removeMangaFromCategory(long mangaId, long categoryId) {
@@ -133,7 +134,7 @@ public class MangaService {
   /**
    * Downloads a single chapter of a manga.
    *
-   * @param mangaId      the ID of the manga to download
+   * @param mangaId the ID of the manga to download
    * @param chapterIndex the index of the chapter to download
    * @return true if downloading was queued, false otherwise
    */
@@ -178,7 +179,7 @@ public class MangaService {
   /**
    * Deletes a single chapter of manga.
    *
-   * @param mangaId      the ID of the manga
+   * @param mangaId the ID of the manga
    * @param chapterIndex the index of the chapter to delete
    * @return true if deletion was successful, false otherwise
    */
@@ -196,5 +197,4 @@ public class MangaService {
       throw new RuntimeException(e);
     }
   }
-
 }
