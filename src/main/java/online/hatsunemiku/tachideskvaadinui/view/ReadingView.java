@@ -12,7 +12,8 @@ import online.hatsunemiku.tachideskvaadinui.component.reader.MangaReader;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
-import online.hatsunemiku.tachideskvaadinui.services.TrackingService;
+import online.hatsunemiku.tachideskvaadinui.services.TrackingCommunicationService;
+import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 
 @Route("reading/:mangaId(\\d+)/:chapterIndex(\\d+(?:\\.\\d+)?)")
@@ -22,15 +23,20 @@ public class ReadingView extends StandardLayout
 
   private final MangaService mangaService;
   private final SettingsService settingsService;
-  private final TrackingService trackingService;
+  private final TrackingDataService dataService;
+  private final TrackingCommunicationService communicationService;
 
   public ReadingView(
-      MangaService mangaService, SettingsService settingsService, TrackingService trackingService) {
+      MangaService mangaService,
+      SettingsService settingsService,
+      TrackingDataService dataService,
+      TrackingCommunicationService communicationService) {
     super("Reading");
 
     this.mangaService = mangaService;
     this.settingsService = settingsService;
-    this.trackingService = trackingService;
+    this.dataService = dataService;
+    this.communicationService = communicationService;
 
     fullScreen();
   }
@@ -73,7 +79,8 @@ public class ReadingView extends StandardLayout
     }
 
     var reader =
-        new MangaReader(chapterObj, settingsService, mangaService, trackingService, hasNext);
+        new MangaReader(
+            chapterObj, settingsService, dataService, mangaService, communicationService, hasNext);
 
     setContent(reader);
   }

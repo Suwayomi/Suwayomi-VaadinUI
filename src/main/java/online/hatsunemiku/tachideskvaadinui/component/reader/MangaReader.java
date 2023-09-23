@@ -23,7 +23,8 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.Tracker;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
-import online.hatsunemiku.tachideskvaadinui.services.TrackingService;
+import online.hatsunemiku.tachideskvaadinui.services.TrackingCommunicationService;
+import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import online.hatsunemiku.tachideskvaadinui.utils.NavigationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.ReadingView;
 import online.hatsunemiku.tachideskvaadinui.view.RootView;
@@ -39,12 +40,15 @@ public class MangaReader extends Div {
   public MangaReader(
       Chapter chapter,
       SettingsService settingsService,
+      TrackingDataService dataService,
       MangaService mangaService,
-      TrackingService trackingService,
+      TrackingCommunicationService trackingCommunicationService,
       boolean hasNext) {
     addClassName("manga-reader");
 
-    Reader reader = new Reader(chapter, settingsService, trackingService, mangaService);
+    Reader reader =
+        new Reader(
+            chapter, dataService, settingsService, trackingCommunicationService, mangaService);
     Sidebar sidebar = new Sidebar(mangaService, chapter, reader.swiper, hasNext);
     Controls controls = new Controls(reader, hasNext, chapter);
     add(sidebar, reader, controls);
@@ -197,8 +201,9 @@ public class MangaReader extends Div {
 
     public Reader(
         Chapter chapter,
+        TrackingDataService dataService,
         SettingsService settingsService,
-        TrackingService trackingService,
+        TrackingCommunicationService trackingCommunicationService,
         MangaService mangaService) {
       addClassName("reader");
       this.chapter = chapter;
@@ -241,14 +246,15 @@ public class MangaReader extends Div {
 
       loadChapter();
 
-      Tracker tracker = settingsService.getSettings().getTracker(chapter.getMangaId());
+      Tracker tracker = dataService.getTracker(chapter.getMangaId());
 
       if (tracker.hasAniListId()) {
         swiper.addActiveIndexChangeEventListener(
             e -> {
               if (e.getActiveIndex() == chapter.getPageCount() - 1) {
                 log.info("Last page of chapter {}", chapter.getIndex());
-                trackingService.setChapterProgress(chapter.getMangaId(), chapter.getIndex(), true);
+                trackingCommunicationService.setChapterProgress(
+                    chapter.getMangaId(), chapter.getIndex(), true);
                 e.unregisterListener();
               }
             });

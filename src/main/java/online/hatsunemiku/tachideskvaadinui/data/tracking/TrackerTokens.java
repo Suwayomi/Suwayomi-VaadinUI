@@ -1,25 +1,29 @@
 package online.hatsunemiku.tachideskvaadinui.data.tracking;
 
+import java.time.Instant;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 public class TrackerTokens {
-  @Setter private String aniListToken;
-
-  private String refreshToken;
+  private OAuthData aniListToken;
 
   public TrackerTokens() {
-    aniListToken = "";
-    refreshToken = "";
+    aniListToken = null;
   }
 
   public boolean hasAniListToken() {
-    return !aniListToken.isEmpty();
+    if (aniListToken == null) {
+      return false;
+    }
+
+    if (aniListToken.getAccessToken().isEmpty()) {
+      return false;
+    }
+
+    return !aniListToken.getExpiresAsInstant().isBefore(Instant.now());
   }
 
   public void setAniListAuth(OAuthResponse response) {
-    aniListToken = response.getAccessToken();
-    refreshToken = response.getRefreshToken();
+    aniListToken = new OAuthData(response);
   }
 }
