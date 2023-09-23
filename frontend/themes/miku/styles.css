@@ -11,6 +11,9 @@ html {
 
   --lumo-header-text-color: hsl(193, 62%, 89%);
 
+  --miku-background-color-p1: #e12885;
+  --miku-background-color-p2: #137a7f;
+  --miku-background-color-p3: #86cecb;
   --miku-background: linear-gradient(302deg, #e12885, #137a7f, #86cecb);
 
   --miku-highlight-color: rgba(108, 225, 180, 0.5);
