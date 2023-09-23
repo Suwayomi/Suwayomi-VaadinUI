@@ -50,3 +50,27 @@
 .chapter-list-box-item-right-side vaadin-button {
   border: none;
 }
+
+.downloading {
+  animation: downloading 5s infinite;
+}
+
+@keyframes downloading {
+  0% {
+    background-position: 0 0;
+    color: var(--miku-background-color-p1);
+    border-color: var(--miku-background-color-p1);
+  }
+
+  50% {
+    background-position: 0 100%;
+    color: var(--miku-background-color-p2);
+    border-color: var(--miku-background-color-p2);
+  }
+
+  100% {
+    background-position: 0 0;
+    color: var(--miku-background-color-p1);
+    border-color: var(--miku-background-color-p1);
+  }
+}

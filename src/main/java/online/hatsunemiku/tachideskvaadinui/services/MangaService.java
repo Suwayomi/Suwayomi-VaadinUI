@@ -1,24 +1,33 @@
 package online.hatsunemiku.tachideskvaadinui.services;
 
+import feign.FeignException;
 import java.net.URI;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
+import online.hatsunemiku.tachideskvaadinui.services.client.DownloadClient;
 import online.hatsunemiku.tachideskvaadinui.services.client.MangaClient;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class MangaService {
 
   private final MangaClient mangaClient;
+  // I chose to use the download client here as you only really use it in combination with Manga and
+  // not on its own
+  private final DownloadClient downloadClient;
   private final SettingsService settingsService;
 
   @Autowired
-  public MangaService(MangaClient mangaClient, SettingsService settingsService) {
+  public MangaService(
+      MangaClient mangaClient, DownloadClient downloadClient, SettingsService settingsService) {
     this.mangaClient = mangaClient;
+    this.downloadClient = downloadClient;
     this.settingsService = settingsService;
   }
 
@@ -120,5 +129,72 @@ public class MangaService {
     Settings settings = settingsService.getSettings();
 
     return URI.create(settings.getUrl());
+  }
+
+  /**
+   * Downloads a single chapter of a manga.
+   *
+   * @param mangaId the ID of the manga to download
+   * @param chapterIndex the index of the chapter to download
+   * @return true if downloading was queued, false otherwise
+   */
+  public boolean downloadSingleChapter(int mangaId, int chapterIndex) {
+    URI baseUrl = getBaseUrl();
+
+    try {
+      downloadClient.downloadSingleChapter(baseUrl, mangaId, chapterIndex);
+      return true;
+    } catch (FeignException e) {
+      log.debug("Failed to download chapter", e);
+      return false;
+    } catch (Exception e) {
+      log.error("Failed to download chapter", e);
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Downloads multiple chapters of manga.
+   *
+   * @param chapterIds the IDs of the chapters to download
+   * @return true if downloading was queued, false otherwise
+   */
+  public boolean downloadMultipleChapter(List<Integer> chapterIds) {
+    URI baseUrl = getBaseUrl();
+
+    try {
+      var tempList = List.copyOf(chapterIds);
+      var request = new DownloadClient.DownloadChapterRequest(tempList);
+      downloadClient.downloadMultipleChapters(baseUrl, request);
+      return true;
+    } catch (FeignException e) {
+      log.debug("Failed to download chapter", e);
+      return false;
+    } catch (Exception e) {
+      log.error("Failed to download chapter", e);
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Deletes a single chapter of manga.
+   *
+   * @param mangaId the ID of the manga
+   * @param chapterIndex the index of the chapter to delete
+   * @return true if deletion was successful, false otherwise
+   */
+  public boolean deleteSingleChapter(int mangaId, int chapterIndex) {
+    URI baseUrl = getBaseUrl();
+
+    try {
+      downloadClient.deleteSingleChapter(baseUrl, mangaId, chapterIndex);
+      return true;
+    } catch (FeignException e) {
+      log.debug("Failed to delete chapter", e);
+      return false;
+    } catch (Exception e) {
+      log.error("Failed to delete chapter", e);
+      throw new RuntimeException(e);
+    }
   }
 }

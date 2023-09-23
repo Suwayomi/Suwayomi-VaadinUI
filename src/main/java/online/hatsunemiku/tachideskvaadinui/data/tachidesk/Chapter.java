@@ -1,10 +1,16 @@
 package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.With;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@With
 @EqualsAndHashCode
 public class Chapter {
 
