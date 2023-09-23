@@ -42,7 +42,7 @@ public class TrackingDialog extends Dialog {
 
     Tracker tracker = dataService.getTracker(manga.getId());
 
-    if (!tracker.hasAniListId()) {
+    if (!tracker.hasAniListId() || !aniListAPI.hasAniListToken()) {
       Button aniListBtn = new Button("Anilist");
       aniListBtn.addClickListener(
           e -> {
