@@ -29,7 +29,7 @@ import reactor.core.publisher.Mono;
 public class AniListAPIService {
 
   private static final String ANILIST_API_URL = "https://graphql.anilist.co";
-  private static final String OAUTH_CLIENT_ID = "13903";
+  private static final String OAUTH_CLIENT_ID = "14576";
   public static final String OAUTH_URL = "https://anilist.co/api/v2/oauth";
   private static final String OAUTH_CODE_PATTERN =
       OAUTH_URL + "/authorize?client_id=%s&response_type=token";
