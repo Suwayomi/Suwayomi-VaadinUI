@@ -7,7 +7,6 @@ import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.router.Route;
@@ -32,7 +31,7 @@ public class ServerStartView extends VerticalLayout {
   private final SettingsService settingsService;
   private final Div updateNotice;
   private final ProgressBar progress;
-  private final Label downloadLabel;
+  private final Div downloadText;
 
   public ServerStartView(
       RestTemplate client, TachideskMaintainer maintainer, SettingsService settingsService) {
@@ -51,10 +50,10 @@ public class ServerStartView extends VerticalLayout {
     progress = new VProgressBar();
     progress.setClassName("waiting-bar");
 
-    downloadLabel = new Label("");
-    downloadLabel.setClassName("waiting-label");
+    downloadText = new Div();
+    downloadText.setClassName("waiting-label");
 
-    progressContainer.add(progress, downloadLabel);
+    progressContainer.add(progress, downloadText);
 
     progress.setIndeterminate(true);
     progress.setWidth(90, Unit.PERCENTAGE);
@@ -94,7 +93,7 @@ public class ServerStartView extends VerticalLayout {
                       () -> {
                         updateNotice.setVisible(true);
                         progress.setValue(maintainer.getProgress());
-                        downloadLabel.setText(updateText);
+                        downloadText.setText(updateText);
                         progress.setIndeterminate(false);
                       }));
     } else {
@@ -104,7 +103,7 @@ public class ServerStartView extends VerticalLayout {
                   ui.access(
                       () -> {
                         updateNotice.setVisible(false);
-                        downloadLabel.setVisible(false);
+                        downloadText.setVisible(false);
                         progress.setIndeterminate(true);
                       }));
     }
