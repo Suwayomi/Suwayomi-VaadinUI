@@ -17,9 +17,8 @@ public class CacheConfig implements CacheManagerCustomizer<CaffeineCacheManager>
 
     Duration expiry = Duration.ofMinutes(10);
 
-    Caffeine<Object, Object> cache = Caffeine.newBuilder()
-        .maximumSize(1000)
-        .expireAfterWrite(expiry);
+    Caffeine<Object, Object> cache =
+        Caffeine.newBuilder().maximumSize(1000).expireAfterWrite(expiry);
 
     cacheManager.setCaffeine(cache);
   }

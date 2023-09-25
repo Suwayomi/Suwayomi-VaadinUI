@@ -20,7 +20,9 @@ public class LibUpdateService {
     this.client = client;
   }
 
-  @CacheEvict(value = {"manga"}, allEntries = true)
+  @CacheEvict(
+      value = {"manga"},
+      allEntries = true)
   public boolean fetchUpdate() {
     var settings = settingsService.getSettings();
 
