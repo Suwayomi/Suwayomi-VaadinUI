@@ -26,24 +26,27 @@ public class SettingsView extends StandardLayout {
 
     SuperTextField urlField = new SuperTextField("URL");
     Binder<Settings> binder = new Binder<>(Settings.class);
-    binder.forField(urlField)
-        .withValidator((url, context) -> {
-          if (url == null || url.isEmpty()) {
-            return ValidationResult.error("URL cannot be empty");
-          }
+    binder
+        .forField(urlField)
+        .withValidator(
+            (url, context) -> {
+              if (url == null || url.isEmpty()) {
+                return ValidationResult.error("URL cannot be empty");
+              }
 
-          if (!url.startsWith("http://") && !url.startsWith("https://")) {
-            return ValidationResult.error("URL must start with http:// or https://");
-          }
+              if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                return ValidationResult.error("URL must start with http:// or https://");
+              }
 
-          String urlWithoutPort = url.split(":\\d+")[0];
+              String urlWithoutPort = url.split(":\\d+")[0];
 
-          if (!urlValidator.isValid(urlWithoutPort)) {
-            return ValidationResult.error("URL is not valid");
-          }
+              if (!urlValidator.isValid(urlWithoutPort)) {
+                return ValidationResult.error("URL is not valid");
+              }
 
-          return ValidationResult.ok();
-        }).bind(Settings::getUrl, Settings::setUrl);
+              return ValidationResult.ok();
+            })
+        .bind(Settings::getUrl, Settings::setUrl);
 
     binder.setBean(settingsService.getSettings());
 
@@ -51,5 +54,4 @@ public class SettingsView extends StandardLayout {
 
     setContent(content);
   }
-
 }
