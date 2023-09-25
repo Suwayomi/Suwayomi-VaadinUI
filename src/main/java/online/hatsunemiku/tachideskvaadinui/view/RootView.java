@@ -29,7 +29,7 @@ import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import org.jetbrains.annotations.NotNull;
 
 @Route("/")
-@CssImport("css/root.css")
+@CssImport("./css/root.css")
 public class RootView extends StandardLayout implements BeforeEnterObserver {
 
   private TabSheet tabs;
