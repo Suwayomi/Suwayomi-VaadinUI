@@ -15,19 +15,17 @@ import org.vaadin.miki.superfields.text.SuperTextField;
 @CssImport("./css/views/settings-view.css")
 public class SettingsView extends StandardLayout {
 
-  private final SettingsService settingsService;
-  private final Binder<Settings> binder = new Binder<>(Settings.class);
   private static final UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
 
   public SettingsView(SettingsService settingsService) {
     super("Settings");
-    this.settingsService = settingsService;
     setClassName("settings-view");
 
     FormLayout content = new FormLayout();
     content.setClassName("settings-content");
 
     SuperTextField urlField = new SuperTextField("URL");
+    Binder<Settings> binder = new Binder<>(Settings.class);
     binder.forField(urlField)
         .withValidator((url, context) -> {
           if (url == null || url.isEmpty()) {
