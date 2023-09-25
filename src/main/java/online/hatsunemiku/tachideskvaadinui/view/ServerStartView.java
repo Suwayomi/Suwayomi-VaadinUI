@@ -4,9 +4,11 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.router.Route;
@@ -70,7 +72,15 @@ public class ServerStartView extends VerticalLayout {
 
     head.add(title, updateNotice);
 
-    add(head, progressContainer);
+    Button settingsBtn = new Button(VaadinIcon.COG.create());
+    settingsBtn.addClickListener(
+        e -> {
+          UI ui = UI.getCurrent();
+          ui.navigate(SettingsView.class);
+        });
+
+    settingsBtn.setClassName("waiting-settings-btn");
+    add(head, progressContainer, settingsBtn);
   }
 
   private void update() {

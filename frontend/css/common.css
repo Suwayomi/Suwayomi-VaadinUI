@@ -43,10 +43,16 @@ footer {
 }
 
 .btn-container {
+  display: flex;
   border: 0.1rem solid var(--miku-main-color);
   flex-grow: 1;
+  padding-right: 0.5rem;
 }
 
 .nav-btn {
   margin-left: 0.5rem;
+}
+
+.spacer {
+  flex-grow: 1;
 }

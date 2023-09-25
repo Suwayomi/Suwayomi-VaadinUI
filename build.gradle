@@ -55,9 +55,10 @@ dependencies {
     implementation 'io.github.openfeign.form:feign-form-spring:3.8.0'
     implementation 'io.github.openfeign:feign-okhttp:12.4'
 
-
     implementation 'pl.unforgiven:superfields:0.18.3'
     implementation 'com.squareup.okhttp3:okhttp:4.11.0'
+    implementation 'commons-validator:commons-validator:1.7'
+
 
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
