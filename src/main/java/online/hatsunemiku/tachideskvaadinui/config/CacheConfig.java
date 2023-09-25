@@ -1,7 +1,7 @@
 package online.hatsunemiku.tachideskvaadinui.config;
 
-import com.github.benmanes.caffeine.cache.CaffeineSpec;
-import java.util.List;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import java.time.Duration;
 import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
@@ -13,10 +13,13 @@ public class CacheConfig implements CacheManagerCustomizer<CaffeineCacheManager>
 
   @Override
   public void customize(CaffeineCacheManager cacheManager) {
-    cacheManager.setCacheNames(List.of("extensions"));
+    cacheManager.setAllowNullValues(false);
 
-    CaffeineSpec spec = CaffeineSpec.parse("maximumSize=1500,expireAfterWrite=30m");
+    Duration expiry = Duration.ofMinutes(10);
 
-    cacheManager.setCaffeineSpec(spec);
+    Caffeine<Object, Object> cache =
+        Caffeine.newBuilder().maximumSize(1000).expireAfterWrite(expiry);
+
+    cacheManager.setCaffeine(cache);
   }
 }
