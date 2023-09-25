@@ -11,6 +11,7 @@ import online.hatsunemiku.tachideskvaadinui.services.client.DownloadClient;
 import online.hatsunemiku.tachideskvaadinui.services.client.MangaClient;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -49,6 +50,7 @@ public class MangaService {
     return mangaClient.getChapterList(baseUrl, mangaId);
   }
 
+  @Cacheable(value = "chapter", key = "#mangaId + #chapterIndex")
   public Chapter getChapter(long mangaId, int chapterIndex) {
     URI baseUrl = getBaseUrl();
 
@@ -83,6 +85,7 @@ public class MangaService {
    * @param mangaId the ID of the manga to retrieve
    * @return a Manga object containing the full data of the manga
    */
+  @Cacheable(value = "manga", key = "#mangaId")
   public Manga getMangaFull(long mangaId) {
     URI baseUrl = getBaseUrl();
 
