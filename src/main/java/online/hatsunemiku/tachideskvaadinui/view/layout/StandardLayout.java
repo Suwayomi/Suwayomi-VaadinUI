@@ -16,7 +16,7 @@ import online.hatsunemiku.tachideskvaadinui.view.SearchView;
 import online.hatsunemiku.tachideskvaadinui.view.source.SourcesView;
 import org.jetbrains.annotations.NotNull;
 
-@CssImport("css/common.css")
+@CssImport("./css/common.css")
 public class StandardLayout extends VerticalLayout {
 
   private HorizontalLayout navBar;

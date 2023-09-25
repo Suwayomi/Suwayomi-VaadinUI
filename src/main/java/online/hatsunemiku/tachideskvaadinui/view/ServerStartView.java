@@ -7,7 +7,6 @@ import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.router.Route;
@@ -32,7 +31,7 @@ public class ServerStartView extends VerticalLayout {
   private final SettingsService settingsService;
   private final Div updateNotice;
   private final ProgressBar progress;
-  private final Label downloadLabel;
+  private final Div downloadText;
 
   public ServerStartView(
       RestTemplate client, TachideskMaintainer maintainer, SettingsService settingsService) {
@@ -51,10 +50,10 @@ public class ServerStartView extends VerticalLayout {
     progress = new VProgressBar();
     progress.setClassName("waiting-bar");
 
-    downloadLabel = new Label("");
-    downloadLabel.setClassName("waiting-label");
+    downloadText = new Div();
+    downloadText.setClassName("waiting-label");
 
-    progressContainer.add(progress, downloadLabel);
+    progressContainer.add(progress, downloadText);
 
     progress.setIndeterminate(true);
     progress.setWidth(90, Unit.PERCENTAGE);
@@ -82,31 +81,32 @@ public class ServerStartView extends VerticalLayout {
   private void updateUi() {
     boolean updating = maintainer.isUpdating();
 
+    var possibleUI = getUI();
+
+    if (possibleUI.isEmpty()) {
+      return;
+    }
+
+    UI ui = possibleUI.get();
+
     if (updating) {
       double progressPercent = maintainer.getProgress() * 100;
 
       String updateText = "%.2f%%".formatted(progressPercent);
-
-      getUI()
-          .ifPresent(
-              ui ->
-                  ui.access(
-                      () -> {
-                        updateNotice.setVisible(true);
-                        progress.setValue(maintainer.getProgress());
-                        downloadLabel.setText(updateText);
-                        progress.setIndeterminate(false);
-                      }));
+      ui.access(
+          () -> {
+            updateNotice.setVisible(true);
+            progress.setValue(maintainer.getProgress());
+            downloadText.setText(updateText);
+            progress.setIndeterminate(false);
+          });
     } else {
-      getUI()
-          .ifPresent(
-              ui ->
-                  ui.access(
-                      () -> {
-                        updateNotice.setVisible(false);
-                        downloadLabel.setVisible(false);
-                        progress.setIndeterminate(true);
-                      }));
+      ui.access(
+          () -> {
+            updateNotice.setVisible(false);
+            downloadText.setVisible(false);
+            progress.setIndeterminate(true);
+          });
     }
   }
 
