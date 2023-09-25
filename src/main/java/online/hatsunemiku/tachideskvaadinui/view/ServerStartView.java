@@ -81,31 +81,30 @@ public class ServerStartView extends VerticalLayout {
   private void updateUi() {
     boolean updating = maintainer.isUpdating();
 
+    var possibleUI = getUI();
+
+    if (possibleUI.isEmpty()) {
+      return;
+    }
+
+    UI ui = possibleUI.get();
+
     if (updating) {
       double progressPercent = maintainer.getProgress() * 100;
 
       String updateText = "%.2f%%".formatted(progressPercent);
-
-      getUI()
-          .ifPresent(
-              ui ->
-                  ui.access(
-                      () -> {
-                        updateNotice.setVisible(true);
-                        progress.setValue(maintainer.getProgress());
-                        downloadText.setText(updateText);
-                        progress.setIndeterminate(false);
-                      }));
+      ui.access(() -> {
+        updateNotice.setVisible(true);
+        progress.setValue(maintainer.getProgress());
+        downloadText.setText(updateText);
+        progress.setIndeterminate(false);
+      });
     } else {
-      getUI()
-          .ifPresent(
-              ui ->
-                  ui.access(
-                      () -> {
-                        updateNotice.setVisible(false);
-                        downloadText.setVisible(false);
-                        progress.setIndeterminate(true);
-                      }));
+      ui.access(() -> {
+        updateNotice.setVisible(false);
+        downloadText.setVisible(false);
+        progress.setIndeterminate(true);
+      });
     }
   }
 
