@@ -18,7 +18,7 @@ import online.hatsunemiku.tachideskvaadinui.component.card.DraggableMangaCard;
 import online.hatsunemiku.tachideskvaadinui.component.card.MangaCard;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.category.CategoryDialog;
 import online.hatsunemiku.tachideskvaadinui.component.tab.CategoryTab;
-import online.hatsunemiku.tachideskvaadinui.data.Settings;
+import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Category;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.services.CategoryService;

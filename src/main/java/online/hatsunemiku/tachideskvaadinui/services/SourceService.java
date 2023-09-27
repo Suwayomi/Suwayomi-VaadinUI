@@ -3,7 +3,7 @@ package online.hatsunemiku.tachideskvaadinui.services;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
-import online.hatsunemiku.tachideskvaadinui.data.Settings;
+import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Source;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.SourceMangaList;

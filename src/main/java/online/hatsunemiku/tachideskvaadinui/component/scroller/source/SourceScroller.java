@@ -14,7 +14,7 @@ import online.hatsunemiku.tachideskvaadinui.component.events.source.SourceLangFi
 import online.hatsunemiku.tachideskvaadinui.component.items.BlurryItem;
 import online.hatsunemiku.tachideskvaadinui.component.items.LangItem;
 import online.hatsunemiku.tachideskvaadinui.component.items.SourceItem;
-import online.hatsunemiku.tachideskvaadinui.data.Settings;
+import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Source;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.SourceService;

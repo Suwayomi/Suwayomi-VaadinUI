@@ -1,7 +1,7 @@
 package online.hatsunemiku.tachideskvaadinui.component.card;
 
 import lombok.extern.slf4j.Slf4j;
-import online.hatsunemiku.tachideskvaadinui.data.Settings;
+import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 
 @Slf4j

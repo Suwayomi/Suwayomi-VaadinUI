@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.component.card.data.MangaCategoryDragData;
 import online.hatsunemiku.tachideskvaadinui.component.card.event.MangaCategoryUpdateEvent;
 import online.hatsunemiku.tachideskvaadinui.component.tab.event.CategoryTabHighlightEvent;
-import online.hatsunemiku.tachideskvaadinui.data.Settings;
+import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Category;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 

@@ -3,7 +3,7 @@ package online.hatsunemiku.tachideskvaadinui.services;
 import com.vaadin.flow.component.UI;
 import java.net.URI;
 import java.util.List;
-import online.hatsunemiku.tachideskvaadinui.data.Settings;
+import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Extension;
 import online.hatsunemiku.tachideskvaadinui.services.client.ExtensionClient;
 import online.hatsunemiku.tachideskvaadinui.view.ServerStartView;
