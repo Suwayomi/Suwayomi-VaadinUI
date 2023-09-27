@@ -14,7 +14,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.Tracker;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.TrackerTokens;
-import online.hatsunemiku.tachideskvaadinui.startup.TachideskMaintainer;
+import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,10 +26,10 @@ public class TrackingDataService {
   @Getter private TrackerTokens tokens;
   private final HashMap<Long, Tracker> mangaTrackers = new HashMap<>();
 
-  public TrackingDataService(ObjectMapper mapper, TachideskMaintainer maintainer) {
+  public TrackingDataService(ObjectMapper mapper) {
     this.mapper = mapper;
 
-    Path projectDirPath = maintainer.getProjectDir().getAbsoluteFile().toPath();
+    Path projectDirPath = PathUtils.getProjectDir();
 
     this.tokenFile = projectDirPath.resolve("tokens.json");
     this.trackerFile = projectDirPath.resolve("trackers.json");
