@@ -31,7 +31,6 @@ public class TachideskStarter {
     this.settingsService = settingsService;
   }
 
-
   public void startJar(File projectDir) {
     log.info("Starting Tachidesk Server Jar...");
 
@@ -124,5 +123,4 @@ public class TachideskStarter {
       stopJar();
     }
   }
-
 }

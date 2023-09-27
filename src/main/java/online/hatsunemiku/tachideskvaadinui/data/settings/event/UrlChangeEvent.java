@@ -12,5 +12,4 @@ public class UrlChangeEvent extends ApplicationEvent {
     super(source);
     this.url = url;
   }
-
 }

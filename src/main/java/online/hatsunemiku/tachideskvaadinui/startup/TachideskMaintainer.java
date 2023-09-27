@@ -43,7 +43,8 @@ public class TachideskMaintainer {
   @Getter private boolean updating = false;
   @Getter private double progress = 0;
 
-  public TachideskMaintainer(RestTemplate client, TachideskStarter starter, SettingsService settingsService) {
+  public TachideskMaintainer(
+      RestTemplate client, TachideskStarter starter, SettingsService settingsService) {
     this.client = client;
     this.starter = starter;
     this.settingsService = settingsService;
@@ -60,7 +61,6 @@ public class TachideskMaintainer {
     if (!settings.getUrl().equals(defaultSettings.getUrl())) {
       return;
     }
-
 
     if (!checkProjectDir()) {
       return;

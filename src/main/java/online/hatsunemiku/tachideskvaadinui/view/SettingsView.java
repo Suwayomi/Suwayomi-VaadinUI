@@ -50,10 +50,12 @@ public class SettingsView extends StandardLayout {
 
               return ValidationResult.ok();
             })
-        .bind(Settings::getUrl, (settings, url) -> {
-          settings.setUrl(url);
-          settingsEventPublisher.publishUrlChangeEvent(this, url);
-        });
+        .bind(
+            Settings::getUrl,
+            (settings, url) -> {
+              settings.setUrl(url);
+              settingsEventPublisher.publishUrlChangeEvent(this, url);
+            });
 
     binder.setBean(settingsService.getSettings());
 
