@@ -249,8 +249,6 @@ public class SearchView extends StandardLayout {
 
       var langSources = langGroupedSources.get(lang);
 
-      var executor = Executors.newCachedThreadPool();
-
       List<Callable<Void>> searchTasks = new ArrayList<>();
       for (var source : langSources) {
         Callable<Void> runnable =
@@ -261,7 +259,7 @@ public class SearchView extends StandardLayout {
         searchTasks.add(runnable);
       }
 
-      try {
+      try (var executor = Executors.newCachedThreadPool()) {
         executor.invokeAll(searchTasks);
         executor.shutdown();
       } catch (InterruptedException e) {
