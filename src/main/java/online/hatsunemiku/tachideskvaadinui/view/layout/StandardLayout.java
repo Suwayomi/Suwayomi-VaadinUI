@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import online.hatsunemiku.tachideskvaadinui.view.ExtensionsView;
 import online.hatsunemiku.tachideskvaadinui.view.RootView;
 import online.hatsunemiku.tachideskvaadinui.view.SearchView;
+import online.hatsunemiku.tachideskvaadinui.view.SettingsView;
 import online.hatsunemiku.tachideskvaadinui.view.source.SourcesView;
 import org.jetbrains.annotations.NotNull;
 
@@ -50,8 +51,27 @@ public class StandardLayout extends VerticalLayout {
     addExtensionsBtn(btnContainer);
     addSourcesBtn(btnContainer);
     addSearchBtn(btnContainer);
+    addSpacer(btnContainer);
+    addSettingsBtn(btnContainer);
 
     navBar.add(btnContainer);
+  }
+
+  public void addSettingsBtn(Div btnContainer) {
+    if (this instanceof SettingsView) {
+      return;
+    }
+
+    Button settingsButton = new Button(VaadinIcon.COG.create());
+    settingsButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(SettingsView.class)));
+
+    addBtn(btnContainer, settingsButton);
+  }
+
+  private void addSpacer(Div btnContainer) {
+    Div spacer = new Div();
+    spacer.setClassName("spacer");
+    btnContainer.add(spacer);
   }
 
   private void addSearchBtn(Div btnContainer) {

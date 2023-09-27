@@ -2,7 +2,7 @@ package online.hatsunemiku.tachideskvaadinui.services;
 
 import feign.FeignException;
 import java.net.URI;
-import online.hatsunemiku.tachideskvaadinui.data.Settings;
+import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.search.SearchQueryParameters;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.search.SearchResponse;
 import online.hatsunemiku.tachideskvaadinui.services.client.SearchClient;

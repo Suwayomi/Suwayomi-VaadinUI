@@ -9,15 +9,17 @@ import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Optional;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.Meta;
+import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
+import online.hatsunemiku.tachideskvaadinui.data.settings.event.UrlChangeEvent;
+import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.startup.download.ReadableProgressByteChannel;
+import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.TachideskUtils;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -35,20 +37,30 @@ public class TachideskMaintainer {
   private static final Logger logger = LoggerFactory.getLogger(TachideskMaintainer.class);
   private final RestTemplate client;
   private final TachideskStarter starter;
+  private final SettingsService settingsService;
   private static final File serverDir = new File("server");
-  @Getter private final File projectDir = getProjectDirFile();
+  private final File projectDir = PathUtils.getProjectDir().toFile();
   @Getter private boolean updating = false;
   @Getter private double progress = 0;
 
-  public TachideskMaintainer(RestTemplate client, TachideskStarter starter) {
+  public TachideskMaintainer(
+      RestTemplate client, TachideskStarter starter, SettingsService settingsService) {
     this.client = client;
     this.starter = starter;
+    this.settingsService = settingsService;
   }
 
-  @EventListener(ApplicationReadyEvent.class)
+  @EventListener({ApplicationReadyEvent.class, UrlChangeEvent.class})
   @Async
   public void start() {
     logger.info("Starting Tachidesk...");
+
+    Settings settings = settingsService.getSettings();
+    Settings defaultSettings = settingsService.getDefaults();
+
+    if (!settings.getUrl().equals(defaultSettings.getUrl())) {
+      return;
+    }
 
     if (!checkProjectDir()) {
       return;
@@ -124,43 +136,6 @@ public class TachideskMaintainer {
     starter.startJar(projectDir);
 
     logger.info("Update complete");
-  }
-
-  /**
-   * Retrieves the project directory.
-   *
-   * @return The project directory specified as a {@link File} object.
-   */
-  private @NotNull File getProjectDirFile() {
-    String os = System.getProperty("os.name").toLowerCase();
-
-    Path appdata;
-
-    if (os.contains("win")) {
-      // On Windows, the Local AppData directory is used
-      appdata = Path.of(System.getenv("LOCALAPPDATA"));
-    } else {
-      String userHome = System.getProperty("user.home");
-      if (os.contains("mac")) {
-        // On Mac, the Application Support directory is used
-        appdata = Path.of(userHome, "Library", "Application Support");
-      } else {
-        // On Linux, the user's home directory is used
-        appdata = Path.of(userHome);
-      }
-    }
-
-    Path projectDir;
-    // check for linux
-    if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
-      projectDir = appdata.resolve(".TachideskVaadinUI");
-    } else {
-      projectDir = appdata.resolve("TachideskVaadinUI");
-    }
-
-    log.debug("Project Dir: {}", projectDir);
-
-    return projectDir.toFile();
   }
 
   /**

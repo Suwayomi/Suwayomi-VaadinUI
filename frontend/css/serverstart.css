@@ -49,3 +49,9 @@
 .waiting-bar::part(value)::before {
   background-color: var(--miku-main-color);
 }
+
+.waiting-settings-btn {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+}

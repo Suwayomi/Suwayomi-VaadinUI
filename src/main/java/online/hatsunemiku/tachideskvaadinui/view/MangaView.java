@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.TrackingDialog;
 import online.hatsunemiku.tachideskvaadinui.component.listbox.chapter.ChapterListBox;
-import online.hatsunemiku.tachideskvaadinui.data.Settings;
+import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.services.AniListAPIService;

@@ -1,0 +1,11 @@
+.settings-content {
+  display: flex;
+  justify-content: start;
+  flex-direction: column;
+  flex-grow: 1;
+  max-width: 100%;
+}
+
+.settings-view .content {
+  flex-direction: row;
+}

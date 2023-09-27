@@ -11,8 +11,8 @@ import java.nio.file.Path;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import online.hatsunemiku.tachideskvaadinui.data.Settings;
-import online.hatsunemiku.tachideskvaadinui.startup.TachideskMaintainer;
+import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
+import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextClosedEvent;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class SettingsService {
-
   private static final Logger logger = LoggerFactory.getLogger(SettingsService.class);
 
   @Getter private final Settings settings;
@@ -30,21 +29,16 @@ public class SettingsService {
   @Getter(AccessLevel.NONE)
   private final ObjectMapper mapper;
 
-  @Getter(AccessLevel.NONE)
-  private final TachideskMaintainer maintainer;
-
-  public SettingsService(ObjectMapper mapper, TachideskMaintainer maintainer) {
+  public SettingsService(ObjectMapper mapper) {
     this.mapper = mapper;
-    this.maintainer = maintainer;
     settings = deserialize();
   }
 
   private Settings deserialize() {
     final Settings settings;
 
-    var projectDir = maintainer.getProjectDir();
+    var projectDirPath = PathUtils.getProjectDir();
 
-    Path projectDirPath = projectDir.getAbsoluteFile().toPath();
     Path settingsFile = projectDirPath.resolve("settings.json");
 
     if (!Files.exists(settingsFile)) {
@@ -75,9 +69,8 @@ public class SettingsService {
   private void serialize() {
     ObjectMapper mapper = new ObjectMapper();
 
-    var projectDir = maintainer.getProjectDir();
+    var projectDirPath = PathUtils.getProjectDir();
 
-    Path projectDirPath = projectDir.getAbsoluteFile().toPath();
     Path settingsFile = projectDirPath.resolve("settings.json");
 
     if (settings == null) {
@@ -99,7 +92,7 @@ public class SettingsService {
     serialize();
   }
 
-  private Settings getDefaults() {
+  public Settings getDefaults() {
     return new Settings("http://localhost:4567");
   }
 }

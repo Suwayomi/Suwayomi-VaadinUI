@@ -1,4 +1,4 @@
-package online.hatsunemiku.tachideskvaadinui.data;
+package online.hatsunemiku.tachideskvaadinui.data.settings;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
