@@ -93,7 +93,7 @@ public class SettingsService {
     serialize();
   }
 
-  private Settings getDefaults() {
+  public Settings getDefaults() {
     return new Settings("http://localhost:4567");
   }
 }

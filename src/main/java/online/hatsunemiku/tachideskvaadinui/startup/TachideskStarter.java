@@ -10,9 +10,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.Meta;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
+import online.hatsunemiku.tachideskvaadinui.data.settings.event.UrlChangeEvent;
+import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,6 +25,12 @@ public class TachideskStarter {
   private static final Logger logger = LoggerFactory.getLogger(TachideskStarter.class);
   private Process serverProcess;
   private ScheduledExecutorService serverChecker;
+  private final SettingsService settingsService;
+
+  public TachideskStarter(SettingsService settingsService) {
+    this.settingsService = settingsService;
+  }
+
 
   public void startJar(File projectDir) {
     log.info("Starting Tachidesk Server Jar...");
@@ -102,4 +111,18 @@ public class TachideskStarter {
       serverProcess.destroyForcibly();
     }
   }
+
+  @EventListener(UrlChangeEvent.class)
+  public void onUrlChange(UrlChangeEvent event) {
+    String newUrl = event.getUrl();
+
+    log.info("Url changed to {}", newUrl);
+
+    Settings defaults = settingsService.getDefaults();
+
+    if (!newUrl.equals(defaults.getUrl())) {
+      stopJar();
+    }
+  }
+
 }

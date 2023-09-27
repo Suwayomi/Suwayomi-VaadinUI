@@ -14,6 +14,8 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.Meta;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
+import online.hatsunemiku.tachideskvaadinui.data.settings.event.UrlChangeEvent;
+import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.startup.download.ReadableProgressByteChannel;
 import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
@@ -35,20 +37,30 @@ public class TachideskMaintainer {
   private static final Logger logger = LoggerFactory.getLogger(TachideskMaintainer.class);
   private final RestTemplate client;
   private final TachideskStarter starter;
+  private final SettingsService settingsService;
   private static final File serverDir = new File("server");
   private final File projectDir = PathUtils.getProjectDir().toFile();
   @Getter private boolean updating = false;
   @Getter private double progress = 0;
 
-  public TachideskMaintainer(RestTemplate client, TachideskStarter starter) {
+  public TachideskMaintainer(RestTemplate client, TachideskStarter starter, SettingsService settingsService) {
     this.client = client;
     this.starter = starter;
+    this.settingsService = settingsService;
   }
 
-  @EventListener(ApplicationReadyEvent.class)
+  @EventListener({ApplicationReadyEvent.class, UrlChangeEvent.class})
   @Async
   public void start() {
     logger.info("Starting Tachidesk...");
+
+    Settings settings = settingsService.getSettings();
+    Settings defaultSettings = settingsService.getDefaults();
+
+    if (!settings.getUrl().equals(defaultSettings.getUrl())) {
+      return;
+    }
+
 
     if (!checkProjectDir()) {
       return;
