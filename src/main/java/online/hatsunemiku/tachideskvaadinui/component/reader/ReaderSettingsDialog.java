@@ -38,7 +38,8 @@ public class ReaderSettingsDialog extends Dialog {
     buttonContainer.addClassName("button-container");
 
     Button saveBtn = new Button("Save as Default", e -> {
-      if (!binder.writeBeanIfValid(readerSettings)) {
+      var defaultSettings = settings.getDefaultReaderSettings();
+      if (!binder.writeBeanIfValid(defaultSettings)) {
         Notification notification = new Notification("Invalid inputs", 3000);
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
         notification.setPosition(Notification.Position.MIDDLE);
@@ -53,7 +54,10 @@ public class ReaderSettingsDialog extends Dialog {
       close();
 
       UI ui = UI.getCurrent();
-      ComponentUtil.fireEvent(ui, new ReaderSettingsChangeEvent(this, false, readerSettings));
+
+      if (!settings.hasMangaReaderSettings(mangaId)) {
+        ComponentUtil.fireEvent(ui, new ReaderSettingsChangeEvent(this, false, defaultSettings));
+      }
     });
 
     Button saveForMangaBtn = new Button("Save for this manga", e -> {

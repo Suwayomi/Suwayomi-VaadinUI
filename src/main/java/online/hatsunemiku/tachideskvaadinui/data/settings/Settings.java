@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.Getter;
 import online.hatsunemiku.tachideskvaadinui.data.settings.reader.ReaderSettings;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.lang.NonNull;
@@ -13,6 +14,7 @@ public class Settings {
   @NonNull
   @JsonProperty("url")
   private String url;
+  @Getter
   @JsonProperty("defaultReaderSettings")
   private final ReaderSettings defaultReaderSettings;
   @JsonProperty("mangaReaderSettings")
@@ -20,7 +22,7 @@ public class Settings {
 
   @JsonCreator
   public Settings(@NotNull @JsonProperty("url") String url,
-      @JsonProperty("readerSettings") ReaderSettings defaultReaderSettings,
+      @JsonProperty("defaultReaderSettings") ReaderSettings defaultReaderSettings,
       @JsonProperty("mangaReaderSettings") Map<Integer, ReaderSettings> mangaReaderSettings) {
 
     if (defaultReaderSettings == null) {
@@ -62,5 +64,9 @@ public class Settings {
 
   public void addMangaReaderSettings(int mangaId, ReaderSettings readerSettings) {
     mangaReaderSettings.put(mangaId, readerSettings);
+  }
+
+  public boolean hasMangaReaderSettings(int mangaId) {
+    return mangaReaderSettings.containsKey(mangaId);
   }
 }
