@@ -62,10 +62,22 @@ public class Settings {
     return mangaReaderSettings.getOrDefault(mangaId, defaultReaderSettings);
   }
 
+  /**
+   * Adds {@link ReaderSettings} for a Manga based on the given Manga ID.
+   *
+   * @param mangaId The ID of the Manga to add the reader settings for.
+   * @param readerSettings The ReaderSettings object containing the Reader settings for the Manga.
+   */
   public void addMangaReaderSettings(int mangaId, ReaderSettings readerSettings) {
     mangaReaderSettings.put(mangaId, readerSettings);
   }
 
+  /**
+   * Checks if the manga reader has {@link ReaderSettings} for the given manga ID.
+   *
+   * @param mangaId The ID of the manga to check for settings.
+   * @return {@code true} if the manga reader has settings for the given manga ID, {@code false} otherwise.
+   */
   public boolean hasMangaReaderSettings(int mangaId) {
     return mangaReaderSettings.containsKey(mangaId);
   }
