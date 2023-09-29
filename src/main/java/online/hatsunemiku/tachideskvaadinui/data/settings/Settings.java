@@ -35,7 +35,7 @@ public class Settings {
 
     this.url = url;
     this.defaultReaderSettings = defaultReaderSettings;
-    this.mangaReaderSettings = mangaReaderSettings;
+    this.mangaReaderSettings = new HashMap<>(mangaReaderSettings);
   }
 
   public Settings(@NotNull String url) {
