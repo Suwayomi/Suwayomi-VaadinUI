@@ -91,3 +91,9 @@
 .chapter-select vaadin-combo-box-overlay::part(overlay) {
   color: var(--miku-main-color);
 }
+
+.sidebar #settings-btn {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+}

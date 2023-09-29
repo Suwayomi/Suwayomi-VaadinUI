@@ -1,0 +1,8 @@
+.reader-settings-dialog::part(content) {
+  background-color: var(--miku-background-color-dark);
+}
+
+.reader-settings-dialog .button-container {
+  display: flex;
+  gap: 0.5rem;
+}

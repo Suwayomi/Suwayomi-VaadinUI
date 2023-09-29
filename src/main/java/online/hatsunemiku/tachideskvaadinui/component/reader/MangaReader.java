@@ -1,5 +1,6 @@
 package online.hatsunemiku.tachideskvaadinui.component.reader;
 
+import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
@@ -19,6 +20,8 @@ import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
+import online.hatsunemiku.tachideskvaadinui.data.settings.event.ReaderSettingsChangeEvent;
+import online.hatsunemiku.tachideskvaadinui.data.settings.reader.ReaderSettings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.Tracker;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
@@ -37,6 +40,8 @@ import org.vaadin.addons.online.hatsunemiku.diamond.swiper.constants.LanguageDir
 @Slf4j
 public class MangaReader extends Div {
 
+  private final SettingsService settingsService;
+
   public MangaReader(
       Chapter chapter,
       SettingsService settingsService,
@@ -46,15 +51,16 @@ public class MangaReader extends Div {
       boolean hasNext) {
     addClassName("manga-reader");
 
-    Reader reader =
-        new Reader(
-            chapter, dataService, settingsService, trackingCommunicationService, mangaService);
+    this.settingsService = settingsService;
+
+    Reader reader = new Reader(chapter, dataService, trackingCommunicationService, mangaService);
     Sidebar sidebar = new Sidebar(mangaService, chapter, reader.swiper, hasNext);
     Controls controls = new Controls(reader, hasNext, chapter);
     add(sidebar, reader, controls);
   }
 
-  private static class Sidebar extends Div {
+  // skipcq: JAVA-W1019
+  private class Sidebar extends Div {
 
     public Sidebar(MangaService mangaService, Chapter chapter, Swiper swiper, boolean hasNext) {
       addClassName("sidebar");
@@ -74,7 +80,16 @@ public class MangaReader extends Div {
 
       chapterSelect.add(leftBtn, chapterComboBox, rightBtn);
 
-      add(home, chapterSelect);
+      Button settingsBtn = new Button(VaadinIcon.COG.create());
+      settingsBtn.setId("settings-btn");
+      settingsBtn.addClickListener(
+          e -> {
+            var dialog =
+                new ReaderSettingsDialog(settingsService.getSettings(), chapter.getMangaId());
+            dialog.open();
+          });
+
+      add(home, chapterSelect, settingsBtn);
     }
 
     @NotNull
@@ -193,55 +208,74 @@ public class MangaReader extends Div {
     }
   }
 
-  private static class Reader extends Div {
+  private class Reader extends Div {
 
     private final Chapter chapter;
     private final Swiper swiper;
-    private final SettingsService settingsService;
 
     public Reader(
         Chapter chapter,
         TrackingDataService dataService,
-        SettingsService settingsService,
         TrackingCommunicationService trackingCommunicationService,
         MangaService mangaService) {
       addClassName("reader");
       this.chapter = chapter;
-      this.settingsService = settingsService;
 
       var config = SwiperConfig.builder().zoom(true).centeredSlides(true).build();
 
       swiper = new Swiper(config);
-      swiper.changeLanguageDirection(LanguageDirection.RIGHT_TO_LEFT);
+
+      UI ui = UI.getCurrent();
+      ComponentUtil.addListener(
+          ui,
+          ReaderSettingsChangeEvent.class,
+          e -> {
+            var direction = e.getNewSettings().getDirection();
+
+            switch (direction) {
+              case RTL -> swiper.changeLanguageDirection(LanguageDirection.RIGHT_TO_LEFT);
+              case LTR -> swiper.changeLanguageDirection(LanguageDirection.LEFT_TO_RIGHT);
+              default -> throw new IllegalStateException("Unexpected value: " + direction);
+            }
+          });
+
+      ReaderSettings settings =
+          settingsService.getSettings().getReaderSettings(chapter.getMangaId());
+
+      switch (settings.getDirection()) {
+        case RTL -> swiper.changeLanguageDirection(LanguageDirection.RIGHT_TO_LEFT);
+        case LTR -> swiper.changeLanguageDirection(LanguageDirection.LEFT_TO_RIGHT);
+        default -> throw new IllegalStateException("Unexpected value: " + settings.getDirection());
+      }
 
       /*This is a JavaScript function as it feels more sluggish when it has
        * to send data back to the server. Therefore, the server is responsible
        * for the mouse wheel's zoom function.
-       * */
+       */
       swiper
           .getElement()
           .executeJs(
               """
-          addEventListener('wheel', function (e) {
+                  addEventListener('wheel', function (e) {
 
-            var zoom = $0.swiper.zoom.scale;
-            if (e.deltaY < 0) {
-              zoom += 0.5;
-            } else {
-              zoom -= 0.5;
-            }
+                    var zoom = $0.swiper.zoom.scale;
+                    if (e.deltaY < 0) {
+                      zoom += 0.5;
+                    } else {
+                      zoom -= 0.5;
+                    }
 
-            if (zoom < 1) {
-              zoom = 1;
-            }
+                    if (zoom < 1) {
+                      zoom = 1;
+                    }
 
-            if (zoom > 3) {
-              zoom = 3;
-            }
+                    if (zoom > 3) {
+                      zoom = 3;
+                    }
 
-            $0.swiper.zoom.in(zoom);
-          });
-          """,
+                    $0.swiper.zoom.in(zoom);
+                  });
+                  """,
               swiper.getElement());
 
       loadChapter();
