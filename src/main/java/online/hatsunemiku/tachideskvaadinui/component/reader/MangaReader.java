@@ -59,6 +59,7 @@ public class MangaReader extends Div {
     add(sidebar, reader, controls);
   }
 
+  //skipcq: JAVA-W1019
   private class Sidebar extends Div {
 
     public Sidebar(MangaService mangaService, Chapter chapter, Swiper swiper, boolean hasNext) {
