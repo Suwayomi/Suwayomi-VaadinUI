@@ -29,7 +29,8 @@ public class ReaderSettingsDialog extends Dialog {
     directionComboBox.setItems(ReaderDirection.values());
     directionComboBox.setAllowCustomValue(false);
 
-    binder.forField(directionComboBox)
+    binder
+        .forField(directionComboBox)
         .bind(ReaderSettings::getDirection, ReaderSettings::setDirection);
 
     binder.readBean(readerSettings);
@@ -37,50 +38,57 @@ public class ReaderSettingsDialog extends Dialog {
     Div buttonContainer = new Div();
     buttonContainer.addClassName("button-container");
 
-    Button saveBtn = new Button("Save as Default", e -> {
-      var defaultSettings = settings.getDefaultReaderSettings();
-      if (!binder.writeBeanIfValid(defaultSettings)) {
-        Notification notification = new Notification("Invalid inputs", 3000);
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        notification.setPosition(Notification.Position.MIDDLE);
-        notification.open();
-        return;
-      }
+    Button saveBtn =
+        new Button(
+            "Save as Default",
+            e -> {
+              var defaultSettings = settings.getDefaultReaderSettings();
+              if (!binder.writeBeanIfValid(defaultSettings)) {
+                Notification notification = new Notification("Invalid inputs", 3000);
+                notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                notification.setPosition(Notification.Position.MIDDLE);
+                notification.open();
+                return;
+              }
 
-      Notification notification = new Notification("Saved Settings", 3000);
-      notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-      notification.setPosition(Notification.Position.MIDDLE);
-      notification.open();
-      close();
+              Notification notification = new Notification("Saved Settings", 3000);
+              notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+              notification.setPosition(Notification.Position.MIDDLE);
+              notification.open();
+              close();
 
-      UI ui = UI.getCurrent();
+              UI ui = UI.getCurrent();
 
-      if (!settings.hasMangaReaderSettings(mangaId)) {
-        ComponentUtil.fireEvent(ui, new ReaderSettingsChangeEvent(this, false, defaultSettings));
-      }
-    });
+              if (!settings.hasMangaReaderSettings(mangaId)) {
+                ComponentUtil.fireEvent(
+                    ui, new ReaderSettingsChangeEvent(this, false, defaultSettings));
+              }
+            });
 
-    Button saveForMangaBtn = new Button("Save for this manga", e -> {
-      ReaderSettings newSettings = new ReaderSettings();
-      if (!binder.writeBeanIfValid(newSettings)) {
-        Notification notification = new Notification("Invalid inputs", 3000);
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        notification.setPosition(Notification.Position.MIDDLE);
-        notification.open();
-        return;
-      }
+    Button saveForMangaBtn =
+        new Button(
+            "Save for this manga",
+            e -> {
+              ReaderSettings newSettings = new ReaderSettings();
+              if (!binder.writeBeanIfValid(newSettings)) {
+                Notification notification = new Notification("Invalid inputs", 3000);
+                notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                notification.setPosition(Notification.Position.MIDDLE);
+                notification.open();
+                return;
+              }
 
-      settings.addMangaReaderSettings(mangaId, newSettings);
+              settings.addMangaReaderSettings(mangaId, newSettings);
 
-      Notification notification = new Notification("Saved Settings", 3000);
-      notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-      notification.setPosition(Notification.Position.MIDDLE);
-      notification.open();
-      close();
+              Notification notification = new Notification("Saved Settings", 3000);
+              notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+              notification.setPosition(Notification.Position.MIDDLE);
+              notification.open();
+              close();
 
-      UI ui = UI.getCurrent();
-      ComponentUtil.fireEvent(ui, new ReaderSettingsChangeEvent(this, false, newSettings));
-    });
+              UI ui = UI.getCurrent();
+              ComponentUtil.fireEvent(ui, new ReaderSettingsChangeEvent(this, false, newSettings));
+            });
 
     Button cancelBtn = new Button("Cancel", e -> close());
 
