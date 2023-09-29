@@ -81,10 +81,12 @@ public class MangaReader extends Div {
 
       Button settingsBtn = new Button(VaadinIcon.COG.create());
       settingsBtn.setId("settings-btn");
-      settingsBtn.addClickListener(e -> {
-        var dialog = new ReaderSettingsDialog(settingsService.getSettings(), chapter.getMangaId());
-        dialog.open();
-      });
+      settingsBtn.addClickListener(
+          e -> {
+            var dialog =
+                new ReaderSettingsDialog(settingsService.getSettings(), chapter.getMangaId());
+            dialog.open();
+          });
 
       add(home, chapterSelect, settingsBtn);
     }
@@ -218,26 +220,26 @@ public class MangaReader extends Div {
       addClassName("reader");
       this.chapter = chapter;
 
-      var config = SwiperConfig.builder()
-          .zoom(true)
-          .centeredSlides(true)
-          .build();
+      var config = SwiperConfig.builder().zoom(true).centeredSlides(true).build();
 
       swiper = new Swiper(config);
 
       UI ui = UI.getCurrent();
-      ComponentUtil.addListener(ui, ReaderSettingsChangeEvent.class, e -> {
-        var direction = e.getNewSettings().getDirection();
+      ComponentUtil.addListener(
+          ui,
+          ReaderSettingsChangeEvent.class,
+          e -> {
+            var direction = e.getNewSettings().getDirection();
 
-        switch (direction) {
-          case RTL -> swiper.changeLanguageDirection(LanguageDirection.RIGHT_TO_LEFT);
-          case LTR -> swiper.changeLanguageDirection(LanguageDirection.LEFT_TO_RIGHT);
-          default -> throw new IllegalStateException("Unexpected value: " + direction);
-        }
-      });
+            switch (direction) {
+              case RTL -> swiper.changeLanguageDirection(LanguageDirection.RIGHT_TO_LEFT);
+              case LTR -> swiper.changeLanguageDirection(LanguageDirection.LEFT_TO_RIGHT);
+              default -> throw new IllegalStateException("Unexpected value: " + direction);
+            }
+          });
 
-      ReaderSettings settings = settingsService.getSettings()
-          .getReaderSettings(chapter.getMangaId());
+      ReaderSettings settings =
+          settingsService.getSettings().getReaderSettings(chapter.getMangaId());
 
       switch (settings.getDirection()) {
         case RTL -> swiper.changeLanguageDirection(LanguageDirection.RIGHT_TO_LEFT);

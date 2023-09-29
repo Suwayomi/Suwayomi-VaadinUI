@@ -12,5 +12,4 @@ public class ReaderSettings {
   public ReaderSettings() {
     this.direction = ReaderDirection.RTL;
   }
-
 }

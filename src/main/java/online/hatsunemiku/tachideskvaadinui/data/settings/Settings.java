@@ -14,14 +14,17 @@ public class Settings {
   @NonNull
   @JsonProperty("url")
   private String url;
+
   @Getter
   @JsonProperty("defaultReaderSettings")
   private final ReaderSettings defaultReaderSettings;
+
   @JsonProperty("mangaReaderSettings")
   private final Map<Integer, ReaderSettings> mangaReaderSettings;
 
   @JsonCreator
-  public Settings(@NotNull @JsonProperty("url") String url,
+  public Settings(
+      @NotNull @JsonProperty("url") String url,
       @JsonProperty("defaultReaderSettings") ReaderSettings defaultReaderSettings,
       @JsonProperty("mangaReaderSettings") Map<Integer, ReaderSettings> mangaReaderSettings) {
 
@@ -76,7 +79,8 @@ public class Settings {
    * Checks if the manga reader has {@link ReaderSettings} for the given manga ID.
    *
    * @param mangaId The ID of the manga to check for settings.
-   * @return {@code true} if the manga reader has settings for the given manga ID, {@code false} otherwise.
+   * @return {@code true} if the manga reader has settings for the given manga ID, {@code false}
+   *     otherwise.
    */
   public boolean hasMangaReaderSettings(int mangaId) {
     return mangaReaderSettings.containsKey(mangaId);
