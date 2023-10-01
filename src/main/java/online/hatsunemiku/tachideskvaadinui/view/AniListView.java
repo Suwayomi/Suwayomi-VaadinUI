@@ -19,10 +19,11 @@ public class AniListView extends StandardLayout {
     super("AniList");
     if (!apiService.hasAniListToken()) {
       Button authBtn = new Button("Authenticate");
-      authBtn.addClickListener(e -> {
-        String url = apiService.getAniListAuthUrl();
-        getUI().ifPresent(ui -> ui.getPage().open(url));
-      });
+      authBtn.addClickListener(
+          e -> {
+            String url = apiService.getAniListAuthUrl();
+            getUI().ifPresent(ui -> ui.getPage().open(url));
+          });
 
       add(authBtn);
       return;

@@ -73,20 +73,21 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     btnContainer.addClassName("search-btn-container");
 
     Button importBtn = new Button("Import from AniList", VaadinIcon.DOWNLOAD.create());
-    importBtn.addClickListener(e -> {
-      UI ui = UI.getCurrent();
+    importBtn.addClickListener(
+        e -> {
+          UI ui = UI.getCurrent();
 
-      if (ui == null) {
-        if (getUI().isEmpty()) {
-          log.error("UI is not present");
-          return;
-        }
+          if (ui == null) {
+            if (getUI().isEmpty()) {
+              log.error("UI is not present");
+              return;
+            }
 
-        ui = getUI().get();
-      }
+            ui = getUI().get();
+          }
 
-      ui.navigate(AniListView.class);
-    });
+          ui.navigate(AniListView.class);
+        });
 
     btnContainer.add(importBtn);
 
@@ -204,7 +205,7 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   /**
    * Adds a search result to the user interface.
    *
-   * @param source    the source of the search result
+   * @param source the source of the search result
    * @param mangaList the list of manga from the search result
    * @return true if the search result was successfully added, otherwise false
    */
