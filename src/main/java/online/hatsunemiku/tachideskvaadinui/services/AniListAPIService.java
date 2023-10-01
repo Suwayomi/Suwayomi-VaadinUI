@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import elemental.json.Json;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -712,7 +713,7 @@ public class AniListAPIService {
     int listSize = lists.length();
 
     List<AniListMedia> completed = null;
-    List<AniListMedia> reading = null;
+    List<AniListMedia> reading = new ArrayList<>();
     List<AniListMedia> dropped = null;
     List<AniListMedia> onHold = null;
     List<AniListMedia> planToRead = null;
@@ -743,10 +744,11 @@ public class AniListAPIService {
 
         switch (status) {
           case COMPLETED -> completed = tempList;
-          case CURRENT -> reading = tempList;
+          case CURRENT, REPEATING -> reading.addAll(tempList);
           case DROPPED -> dropped = tempList;
           case PAUSED -> onHold = tempList;
           case PLANNING -> planToRead = tempList;
+          default -> log.warn("Unknown status: {}", status);
         }
 
       } catch (JsonProcessingException e) {
