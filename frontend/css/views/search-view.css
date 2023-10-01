@@ -48,3 +48,10 @@
   min-width: 1.5rem;
   margin-left: 2rem;
 }
+
+.search-btn-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+}

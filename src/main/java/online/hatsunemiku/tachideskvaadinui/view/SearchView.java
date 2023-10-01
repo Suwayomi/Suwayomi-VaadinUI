@@ -3,12 +3,17 @@ package online.hatsunemiku.tachideskvaadinui.view;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Svg;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import feign.FeignException;
 import java.io.IOException;
@@ -40,7 +45,7 @@ import org.vaadin.miki.superfields.text.SuperTextField;
 @CssImport("./css/views/search-view.css")
 @Slf4j
 @Route("search")
-public class SearchView extends StandardLayout {
+public class SearchView extends StandardLayout implements HasUrlParameter<String> {
 
   private final Div searchResults;
   private final LangComboBox langFilter;
@@ -64,9 +69,32 @@ public class SearchView extends StandardLayout {
     this.searchField = searchField;
     this.langFilter = langFilter;
 
+    Div btnContainer = new Div();
+    btnContainer.addClassName("search-btn-container");
+
+    Button importBtn = new Button("Import from AniList", VaadinIcon.DOWNLOAD.create());
+    importBtn.addClickListener(
+        e -> {
+          UI ui = UI.getCurrent();
+
+          if (ui == null) {
+            if (getUI().isEmpty()) {
+              log.error("UI is not present");
+              return;
+            }
+
+            ui = getUI().get();
+          }
+
+          ui.navigate(AniListView.class);
+        });
+
+    btnContainer.add(importBtn);
+
     Div content = new Div();
     content.setClassName("search-content");
 
+    content.add(btnContainer);
     content.add(searchField);
     content.add(langFilter);
     content.add(searchResults);
@@ -318,5 +346,15 @@ public class SearchView extends StandardLayout {
     if (!addSearchResultToUI(source, mangaList)) {
       log.error("Failed to add search result to UI for source {}", source.getDisplayName());
     }
+  }
+
+  @Override
+  public void setParameter(BeforeEvent event, @OptionalParameter String query) {
+    if (query == null) {
+      return;
+    }
+
+    searchField.setValue(query);
+    runSearch(searchField);
   }
 }
