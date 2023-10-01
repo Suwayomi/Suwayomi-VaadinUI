@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Copyright-Scope" pattern="(file[Tachidesk-VaadinUI.main]:*/||file[Tachidesk-VaadinUI.test]:*/||file[Tachidesk-VaadinUI]:frontend//*||file[Tachidesk-VaadinUI]:build.gradle||file[Tachidesk-VaadinUI]:settings.gradle)&amp;&amp;!file[Tachidesk-VaadinUI]:vite.config.ts&amp;&amp;!file[Tachidesk-VaadinUI]:gradlew&amp;&amp;!file[Tachidesk-VaadinUI]:gradle/wrapper/*&amp;&amp;!file[Tachidesk-VaadinUI]:gradle/wrapper//*" />
+</component>
