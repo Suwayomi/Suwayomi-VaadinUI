@@ -762,10 +762,6 @@ public class AniListAPIService {
       completed = List.of();
     }
 
-    if (reading == null) {
-      reading = List.of();
-    }
-
     if (dropped == null) {
       dropped = List.of();
     }
