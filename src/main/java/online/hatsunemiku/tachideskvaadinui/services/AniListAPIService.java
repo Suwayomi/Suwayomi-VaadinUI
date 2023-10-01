@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import elemental.json.Json;
+import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import java.util.ArrayList;
@@ -655,6 +656,13 @@ public class AniListAPIService {
     }
   }
 
+  /**
+   * Retrieves the user's manga list.
+   *
+   * @return The manga list containing the user's reading, plan to read, completed, on hold, and
+   * dropped manga
+   * @throws RuntimeException If an error occurs while retrieving the manga list
+   */
   public MangaList getMangaList() {
     String query = """
         query ($userId: Int) {
@@ -705,18 +713,15 @@ public class AniListAPIService {
       throw new RuntimeException("Response is null");
     }
 
-    JsonObject json = Json.parse(response);
-    var data = json.getObject("data");
-    var collection = data.getObject("MediaListCollection");
-    var lists = collection.getArray("lists");
+    var lists = getListsFromResponse(response);
 
     int listSize = lists.length();
 
-    List<AniListMedia> completed = null;
+    List<AniListMedia> completed = new ArrayList<>();
     List<AniListMedia> reading = new ArrayList<>();
-    List<AniListMedia> dropped = null;
-    List<AniListMedia> onHold = null;
-    List<AniListMedia> planToRead = null;
+    List<AniListMedia> dropped = new ArrayList<>();
+    List<AniListMedia> onHold = new ArrayList<>();
+    List<AniListMedia> planToRead = new ArrayList<>();
 
     for (int i = 0; i < listSize; i++) {
       var list = lists.getObject(i).getArray("entries");
@@ -725,15 +730,7 @@ public class AniListAPIService {
       };
       try {
         for (int j = 0; j < list.length(); j++) {
-          var media = list.getObject(j).getObject("media");
-          var coverImage = media.getObject("coverImage");
-          var title = media.getObject("title");
-
-          //remove media from object
-          list.getObject(j).remove("media");
-          //add back the two keys
-          list.getObject(j).put("coverImage", coverImage);
-          list.getObject(j).put("title", title);
+          replaceMediaWithImageAndTitle(list, j);
         }
 
         String listJson = list.toJson();
@@ -743,11 +740,11 @@ public class AniListAPIService {
         var status = AniListStatus.valueOf(tempList.get(0).status());
 
         switch (status) {
-          case COMPLETED -> completed = tempList;
+          case COMPLETED -> completed.addAll(tempList);
           case CURRENT, REPEATING -> reading.addAll(tempList);
-          case DROPPED -> dropped = tempList;
-          case PAUSED -> onHold = tempList;
-          case PLANNING -> planToRead = tempList;
+          case DROPPED -> dropped.addAll(tempList);
+          case PAUSED -> onHold.addAll(tempList);
+          case PLANNING -> planToRead.addAll(tempList);
           default -> log.warn("Unknown status: {}", status);
         }
 
@@ -758,22 +755,37 @@ public class AniListAPIService {
       }
     }
 
-    if (completed == null) {
-      completed = List.of();
-    }
-
-    if (dropped == null) {
-      dropped = List.of();
-    }
-
-    if (onHold == null) {
-      onHold = List.of();
-    }
-
-    if (planToRead == null) {
-      planToRead = List.of();
-    }
-
     return new MangaList(reading, planToRead, completed, onHold, dropped);
+  }
+
+  /**
+   * Replaces the "media" object in a JsonArray with "coverImage" and "title" objects.
+   *
+   * @param list The JsonArray containing the media object to be replaced
+   * @param j    The index of the media object within the JsonArray
+   */
+  private void replaceMediaWithImageAndTitle(JsonArray list, int j) {
+    var media = list.getObject(j).getObject("media");
+    var coverImage = media.getObject("coverImage");
+    var title = media.getObject("title");
+
+    //remove media from object
+    list.getObject(j).remove("media");
+    //add back the two keys
+    list.getObject(j).put("coverImage", coverImage);
+    list.getObject(j).put("title", title);
+  }
+
+  /**
+   * Parses a JSON response and returns the "lists" array from the "MediaListCollection" object.
+   *
+   * @param response The JSON response to parse
+   * @return The "lists" array from the "MediaListCollection" object
+   */
+  private JsonArray getListsFromResponse(String response) {
+    JsonObject json = Json.parse(response);
+    var data = json.getObject("data");
+    var collection = data.getObject("MediaListCollection");
+    return collection.getArray("lists");
   }
 }
