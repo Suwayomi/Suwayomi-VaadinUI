@@ -13,7 +13,5 @@ import org.springframework.boot.test.context.SpringBootTest;
 class TachideskVaadinUiApplicationTests {
 
   @Test
-  void contextLoads() {
-  }
-
+  void contextLoads() {}
 }
