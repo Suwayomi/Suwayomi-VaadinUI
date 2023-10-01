@@ -291,7 +291,10 @@ public class MangaReader extends Div {
             e -> {
               if (e.getActiveIndex() == chapter.getPageCount() - 1) {
                 log.info("Last page of chapter {}", chapter.getIndex());
-                trackerExecutor.submit(() -> trackingCommunicationService.setChapterProgress(chapter.getMangaId(), chapter.getIndex(), true));
+                trackerExecutor.submit(
+                    () ->
+                        trackingCommunicationService.setChapterProgress(
+                            chapter.getMangaId(), chapter.getIndex(), true));
                 e.unregisterListener();
               }
             });
