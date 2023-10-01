@@ -18,6 +18,8 @@ import com.vaadin.flow.router.RouteParam;
 import com.vaadin.flow.router.RouteParameters;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.settings.event.ReaderSettingsChangeEvent;
@@ -41,6 +43,7 @@ import org.vaadin.addons.online.hatsunemiku.diamond.swiper.constants.LanguageDir
 public class MangaReader extends Div {
 
   private final SettingsService settingsService;
+  private final ExecutorService trackerExecutor;
 
   public MangaReader(
       Chapter chapter,
@@ -52,6 +55,7 @@ public class MangaReader extends Div {
     addClassName("manga-reader");
 
     this.settingsService = settingsService;
+    this.trackerExecutor = Executors.newSingleThreadExecutor();
 
     Reader reader = new Reader(chapter, dataService, trackingCommunicationService, mangaService);
     Sidebar sidebar = new Sidebar(mangaService, chapter, reader.swiper, hasNext);
@@ -287,8 +291,10 @@ public class MangaReader extends Div {
             e -> {
               if (e.getActiveIndex() == chapter.getPageCount() - 1) {
                 log.info("Last page of chapter {}", chapter.getIndex());
-                trackingCommunicationService.setChapterProgress(
-                    chapter.getMangaId(), chapter.getIndex(), true);
+                trackerExecutor.submit(
+                    () ->
+                        trackingCommunicationService.setChapterProgress(
+                            chapter.getMangaId(), chapter.getIndex(), true));
                 e.unregisterListener();
               }
             });
