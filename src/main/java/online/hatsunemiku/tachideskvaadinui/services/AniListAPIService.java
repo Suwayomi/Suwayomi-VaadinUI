@@ -49,9 +49,8 @@ public class AniListAPIService {
    * dependencies.
    *
    * @param dataService the TrackingDataService object to be used for retrieving and updating the
-   *                    AniList token and manga trackers
-   * @param mapper      the ObjectMapper object to be used for serializing and deserializing JSON
-   *                    data.
+   *     AniList token and manga trackers
+   * @param mapper the ObjectMapper object to be used for serializing and deserializing JSON data.
    */
   public AniListAPIService(TrackingDataService dataService, ObjectMapper mapper) {
     this.dataService = dataService;
@@ -69,7 +68,7 @@ public class AniListAPIService {
    * Retrieves the AniList token from the settings.
    *
    * @return an Optional containing the AniList token if it is present, otherwise returns an empty
-   * Optional
+   *     Optional
    */
   private Optional<OAuthData> getAniListToken() {
     TrackerTokens trackerTokens = dataService.getTokens();
@@ -95,7 +94,7 @@ public class AniListAPIService {
    *
    * @return the AniList token header as a string
    * @throws IllegalStateException if there is no AniList token available or if the token is not
-   *                               valid.
+   *     valid.
    */
   private String getAniListTokenHeader() {
     if (!hasAniListToken()) {
@@ -182,7 +181,7 @@ public class AniListAPIService {
    *
    * @return The current user's ID
    * @throws RuntimeException If no AniList token is available or if there is an error retrieving
-   *                          the user ID
+   *     the user ID
    */
   private int getCurrentUserId() {
     if (!hasAniListToken()) {
@@ -655,7 +654,8 @@ public class AniListAPIService {
   }
 
   public MangaList getMangaList() {
-    String query = """
+    String query =
+        """
         query ($userId: Int) {
           MediaListCollection(userId: $userId, type: MANGA) {
             lists {
@@ -692,7 +692,8 @@ public class AniListAPIService {
         }
         """;
 
-    String variables = """
+    String variables =
+        """
         {
           "userId": %s
         }
@@ -720,17 +721,16 @@ public class AniListAPIService {
     for (int i = 0; i < listSize; i++) {
       var list = lists.getObject(i).getArray("entries");
 
-      var typeRef = new TypeReference<List<AniListMedia>>() {
-      };
+      var typeRef = new TypeReference<List<AniListMedia>>() {};
       try {
         for (int j = 0; j < list.length(); j++) {
           var media = list.getObject(j).getObject("media");
           var coverImage = media.getObject("coverImage");
           var title = media.getObject("title");
 
-          //remove media from object
+          // remove media from object
           list.getObject(j).remove("media");
-          //add back the two keys
+          // add back the two keys
           list.getObject(j).put("coverImage", coverImage);
           list.getObject(j).put("title", title);
         }
