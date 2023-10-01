@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class Extension{
+public class Extension {
 	@JsonProperty("isInstalled")
 	private boolean installed;
 	private boolean hasUpdate;
