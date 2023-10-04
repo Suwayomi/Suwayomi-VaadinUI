@@ -308,9 +308,7 @@ public class MangaReader extends Div {
 
       swiper.addReachEndEventListener(
           e -> {
-            int mangaId = chapter.getMangaId();
-            int chapterIndex = chapter.getIndex();
-            if (mangaService.setChapterRead(mangaId, chapterIndex)) {
+            if (mangaService.setChapterRead(chapter.getId())) {
               log.info("Set chapter {} to read", chapter.getName());
             } else {
               log.warn("Couldn't set chapter {} to read", chapter.getName());

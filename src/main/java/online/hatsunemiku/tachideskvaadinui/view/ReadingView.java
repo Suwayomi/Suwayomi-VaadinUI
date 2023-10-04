@@ -50,7 +50,7 @@ public class ReadingView extends StandardLayout
   @Override
   public void beforeEnter(BeforeEnterEvent event) {
     var idparam = event.getRouteParameters().get("mangaId");
-    var chapterparam = event.getRouteParameters().get("chapterIndex");
+    var chapterparam = event.getRouteParameters().get("chapterId");
 
     if (idparam.isEmpty()) {
       event.rerouteToError(NotFoundException.class, "Manga not found");

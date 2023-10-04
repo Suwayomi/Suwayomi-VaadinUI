@@ -23,8 +23,8 @@ public class Chapter {
   @JsonProperty("pageCount")
   private int pageCount;
 
-  @JsonProperty("read")
-  private boolean read;
+  @JsonProperty("isRead")
+  private boolean isRead;
 
   @JsonProperty("mangaId")
   private int mangaId;
@@ -38,17 +38,14 @@ public class Chapter {
   @JsonProperty("chapterCount")
   private int chapterCount;
 
-  @JsonProperty("index")
-  private int index;
-
   @JsonProperty("fetchedAt")
   private int fetchedAt;
 
   @JsonProperty("chapterNumber")
-  private int chapterNumber;
+  private float chapterNumber;
 
-  @JsonProperty("downloaded")
-  private boolean downloaded;
+  @JsonProperty("isDownloaded")
+  private boolean isDownloaded;
 
   @JsonProperty("url")
   private String url;
