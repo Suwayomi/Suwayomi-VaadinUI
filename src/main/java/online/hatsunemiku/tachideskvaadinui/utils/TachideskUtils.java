@@ -19,12 +19,11 @@ import org.springframework.web.client.RestTemplate;
 public class TachideskUtils {
 
   private static final Logger logger = LoggerFactory.getLogger(TachideskUtils.class);
-  private static final Pattern JAR_PATTERN =
-      Pattern.compile(
-          "https://github\\.com/Suwayomi/Tachidesk-Server/releases/download/v\\d+\\.\\d+\\.\\d+/(Tachidesk-Server-v(\\d+\\.\\d+\\.\\d+)-r(\\d+)\\.jar)");
+  private static final Pattern JAR_PATTERN = Pattern.compile(
+      "https://github\\.com/Suwayomi/Tachidesk-Server-preview/releases/download/v\\d+\\.\\d+\\.\\d+-r\\d+/(Tachidesk-Server-v(\\d+\\.\\d+\\.\\d+)-r(\\d+)\\.jar)");
 
   public static String getNewestJarUrl(RestTemplate client) {
-    String githubApi = "https://api.github.com/repos/Suwayomi/Tachidesk-Server/releases/latest";
+    String githubApi = "https://api.github.com/repos/Suwayomi/Tachidesk-Server-preview/releases/latest";
     String json = client.getForObject(githubApi, String.class);
 
     if (json == null) {
@@ -59,4 +58,5 @@ public class TachideskUtils {
 
     return Optional.of(meta);
   }
+
 }
