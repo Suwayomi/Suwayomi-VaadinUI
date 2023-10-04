@@ -78,6 +78,25 @@ public class TrackingDataService {
   private void serializeTokens() {
     log.info("Serializing Tokens");
 
+    if (Files.notExists(tokenFile)) {
+      try {
+        log.info("Creating tokens file");
+
+        Path parent = tokenFile.getParent();
+
+        if (Files.notExists(parent)) {
+          Files.createDirectories(parent);
+          log.info("Created tokens parent directory");
+        }
+
+        Files.createFile(tokenFile);
+        log.info("Created tokens file");
+      } catch (IOException e) {
+        log.error("Failed to create tokens file", e);
+        throw new RuntimeException(e);
+      }
+    }
+
     try (var out = Files.newOutputStream(tokenFile)) {
       mapper.writeValue(out, tokens);
     } catch (StreamWriteException e) {
