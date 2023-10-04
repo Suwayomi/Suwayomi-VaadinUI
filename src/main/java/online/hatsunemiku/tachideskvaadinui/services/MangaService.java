@@ -15,7 +15,6 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.services.client.DownloadClient;
 import online.hatsunemiku.tachideskvaadinui.services.client.MangaClient;
-import online.hatsunemiku.tachideskvaadinui.services.client.MangaClientGraph;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -24,22 +23,17 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class MangaService {
-
   private final MangaClient mangaClient;
-  private final MangaClientGraph newMangaClient;
   // I chose to use the download client here as you only really use it in combination with Manga and
   // not on its own
   private final DownloadClient downloadClient;
   private final SettingsService settingsService;
 
   @Autowired
-  public MangaService(
-      MangaClient mangaClient, DownloadClient downloadClient, SettingsService settingsService,
-      MangaClientGraph newMangaClient) {
-    this.mangaClient = mangaClient;
+  public MangaService(DownloadClient downloadClient, SettingsService settingsService, MangaClient mangaClient) {
     this.downloadClient = downloadClient;
     this.settingsService = settingsService;
-    this.newMangaClient = newMangaClient;
+    this.mangaClient = mangaClient;
   }
 
   /**
@@ -50,7 +44,7 @@ public class MangaService {
    * otherwise
    */
   public boolean addMangaToLibrary(int mangaId) {
-    return newMangaClient.addMangaToLibrary(mangaId);
+    return mangaClient.addMangaToLibrary(mangaId);
   }
 
 
@@ -62,18 +56,16 @@ public class MangaService {
    * otherwise
    */
   public boolean removeMangaFromLibrary(int mangaId) {
-    return newMangaClient.removeMangaFromLibrary(mangaId);
+    return mangaClient.removeMangaFromLibrary(mangaId);
   }
 
   public List<Chapter> getChapterList(int mangaId) {
-    return newMangaClient.getChapterList(mangaId);
+    return mangaClient.getChapterList(mangaId);
   }
 
-  @Cacheable(value = "chapter", key = "#mangaId + #chapterIndex")
-  public Chapter getChapter(long mangaId, int chapterIndex) {
-    URI baseUrl = getBaseUrl();
-
-    return mangaClient.getChapter(baseUrl, mangaId, chapterIndex);
+  @Cacheable(value = "chapter", key = "#chapterId")
+  public Chapter getChapter(int chapterId) {
+    return mangaClient.getChapter(chapterId);
   }
 
   /**
@@ -84,7 +76,7 @@ public class MangaService {
    */
   public boolean setChapterRead(int chapterId) {
     try {
-      return newMangaClient.setChapterRead(chapterId);
+      return mangaClient.setChapterRead(chapterId);
     } catch (Exception e) {
       return false;
     }
@@ -98,7 +90,7 @@ public class MangaService {
    */
   public boolean setChapterUnread(int chapterId) {
     try {
-      return newMangaClient.setChapterUnread(chapterId);
+      return mangaClient.setChapterUnread(chapterId);
     } catch (Exception e) {
       return false;
     }
@@ -112,7 +104,7 @@ public class MangaService {
    */
   @Cacheable(value = "manga", key = "#mangaId")
   public Manga getManga(long mangaId) {
-    return newMangaClient.getManga(mangaId);
+    return mangaClient.getManga(mangaId);
   }
 
   /**
@@ -121,10 +113,8 @@ public class MangaService {
    * @param mangaId    the ID of the manga to be added
    * @param categoryId the ID of the category to add the manga to
    */
-  public void addMangaToCategory(long mangaId, long categoryId) {
-    URI baseUrl = getBaseUrl();
-
-    mangaClient.addMangaToCategory(baseUrl, mangaId, categoryId);
+  public void addMangaToCategory(int mangaId, int categoryId) {
+    mangaClient.addMangaToCategories(List.of(categoryId), mangaId);
   }
 
   /**
@@ -133,13 +123,11 @@ public class MangaService {
    * @param mangaId    the ID of the manga to be removed
    * @param categoryId the ID of the category to remove the manga from
    */
-  public void removeMangaFromCategory(long mangaId, long categoryId) {
-    URI baseUrl = getBaseUrl();
-
-    mangaClient.removeMangaFromCategory(baseUrl, mangaId, categoryId);
+  public void removeMangaFromCategory(int mangaId, int categoryId) {
+    mangaClient.removeMangaFromCategories(List.of(categoryId), mangaId);
   }
 
-  public void moveMangaToCategory(long mangaId, long newCategoryId, long oldCategoryId) {
+  public void moveMangaToCategory(int mangaId, int newCategoryId, int oldCategoryId) {
     addMangaToCategory(mangaId, newCategoryId);
     removeMangaFromCategory(mangaId, oldCategoryId);
   }

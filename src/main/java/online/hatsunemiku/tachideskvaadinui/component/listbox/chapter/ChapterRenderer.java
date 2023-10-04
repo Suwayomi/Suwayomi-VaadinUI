@@ -175,7 +175,7 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
                   break;
                 }
 
-                var tempChapter = mangaService.getChapter(chapter.getMangaId(), chapter.getIndex());
+                var tempChapter = mangaService.getChapter(chapter.getId());
 
                 if (!tempChapter.isDownloaded()) {
                   try {
@@ -215,16 +215,9 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
           int mangaId = chapter.getMangaId();
 
           RouteParam mangaIdParam = new RouteParam("mangaId", String.valueOf(mangaId));
+          RouteParam chapterIdParam = new RouteParam("chapterId", String.valueOf(chapter.getId()));
 
-          double chapterNumber = chapter.getIndex();
-          RouteParam chapterIndexParam;
-          if (chapterNumber % 1 == 0) {
-            chapterIndexParam = new RouteParam("chapterIndex", String.valueOf((int) chapterNumber));
-          } else {
-            chapterIndexParam = new RouteParam("chapterIndex", String.valueOf(chapterNumber));
-          }
-
-          RouteParameters params = new RouteParameters(mangaIdParam, chapterIndexParam);
+          RouteParameters params = new RouteParameters(mangaIdParam, chapterIdParam);
 
           UI.getCurrent().navigate(ReadingView.class, params);
         });

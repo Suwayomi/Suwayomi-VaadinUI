@@ -296,7 +296,7 @@ public class MangaReader extends Div {
         swiper.addActiveIndexChangeEventListener(
             e -> {
               if (e.getActiveIndex() == chapter.getPageCount() - 1) {
-                log.info("Last page of chapter {}", chapter.getIndex());
+                log.info("Last page of chapter {}", chapter.getChapterNumber());
                 trackerExecutor.submit(
                     () ->
                         trackingCommunicationService.setChapterProgress(

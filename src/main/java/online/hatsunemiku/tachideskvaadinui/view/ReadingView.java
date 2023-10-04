@@ -14,6 +14,7 @@ import com.vaadin.flow.router.BeforeLeaveEvent;
 import com.vaadin.flow.router.BeforeLeaveObserver;
 import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.Route;
+import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.component.reader.MangaReader;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
@@ -65,19 +66,17 @@ public class ReadingView extends StandardLayout
     String mangaIdStr = idparam.get();
     String chapter = chapterparam.get();
 
-    long mangaId = Long.parseLong(mangaIdStr);
+    int mangaId = Integer.parseInt(mangaIdStr);
 
-    int chapterIndex = Integer.parseInt(chapter);
+    int chapterId = Integer.parseInt(chapter);
 
-    Chapter chapterObj = mangaService.getChapter(mangaId, chapterIndex);
+    List<Chapter> chapters = mangaService.getChapterList(mangaId);
 
-    boolean hasNext;
+    Chapter chapterObj = chapters.stream().filter(c -> c.getId() == chapterId).findFirst().orElse(null);
 
-    try {
-      hasNext = mangaService.getChapter(mangaId, chapterIndex + 1) != null;
-    } catch (Exception e) {
-      hasNext = false;
-    }
+    int index = chapters.indexOf(chapterObj);
+
+    boolean hasNext = index < chapters.size() - 1;
 
     if (chapterObj == null) {
       event.rerouteToError(NotFoundException.class, "Chapter not found");
