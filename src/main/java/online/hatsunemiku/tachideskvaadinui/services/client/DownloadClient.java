@@ -6,55 +6,113 @@
 
 package online.hatsunemiku.tachideskvaadinui.services.client;
 
-import java.net.URI;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import elemental.json.Json;
+import elemental.json.JsonObject;
+import java.util.HashSet;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import lombok.extern.slf4j.Slf4j;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
+import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
+import online.hatsunemiku.tachideskvaadinui.utils.GraphQLUtils;
+import org.springframework.stereotype.Component;
 
-@FeignClient(name = "download", url = "localhost:8080")
-public interface DownloadClient {
+@Slf4j
+@Component
+public class DownloadClient {
 
-  /**
-   * Downloads a single chapter of a manga from a specified base URL.
-   *
-   * @param baseUrl the base URL of the manga server
-   * @param mangaId the ID of the manga
-   * @param chapterIndex the index of the chapter to download
-   */
-  @GetMapping("/api/v1/download/{mangaId}/chapter/{chapterIndex}")
-  void downloadSingleChapter(
-      URI baseUrl, @PathVariable int mangaId, @PathVariable int chapterIndex);
+  private final WebClientService clientService;
+  private final ObjectMapper mapper;
+
+  public DownloadClient(WebClientService clientService, ObjectMapper mapper) {
+    this.clientService = clientService;
+    this.mapper = mapper;
+  }
 
   /**
-   * Downloads multiple chapters of a manga from a specified base URL.
+   * Downloads the chapters specified by the given list of chapterIds.
    *
-   * @param baseUrl the base URL of the manga server
-   * @param downloadRequest the request containing the IDs of the chapters to download
+   * @param chapterIds The list of {@link Chapter#getId() chapter IDs} to download.
+   * @return True if all chapters were successfully downloaded, false otherwise.
    */
-  @PostMapping("/api/v1/download/batch")
-  void downloadMultipleChapters(URI baseUrl, @RequestBody DownloadChapterRequest downloadRequest);
+  public boolean downloadChapters(List<Integer> chapterIds) {
+    String query = """
+        mutation downloadChapters($chapterIds: [Int!]!) {
+          enqueueChapterDownloads(input: {ids: $chapterIds}) {
+            downloadStatus {
+              queue {
+                chapter {
+                  id
+                }
+              }
+            }
+          }
+        }
+        """;
 
-  // http://localhost:4567/api/v1/manga/4687/chapter/1
-  @DeleteMapping("/api/v1/manga/{mangaId}/chapter/{chapterIndex}")
-  void deleteSingleChapter(URI baseUrl, @PathVariable int mangaId, @PathVariable int chapterIndex);
+    String variables = """
+        {
+          "chapterIds": %s
+        }
+        """.formatted(chapterIds.toString());
 
-  /**
-   * Represents a request to download chapters.
-   *
-   * <p>The {@code DownloadChapterRequest} class is a data class that encapsulates the chapter IDs
-   * to be downloaded. It is used to communicate between the TachideskUI backend and the Tachidesk
-   * Server.
-   */
-  @Data
-  @AllArgsConstructor
-  class DownloadChapterRequest {
+    var webClient = clientService.getWebClient();
 
-    private List<Integer> chapterIds;
+    String json = GraphQLUtils.sendGraphQLRequest(query, variables, webClient);
+
+    try {
+      JsonObject jsonObject = Json.parse(json);
+      var data = jsonObject.getObject("data");
+      var enqueueChapterDownloads = data.getObject("enqueueChapterDownloads");
+      var downloadStatus = enqueueChapterDownloads.getObject("downloadStatus");
+      var queue = downloadStatus.getArray("queue");
+
+      HashSet<Integer> ids = new HashSet<>();
+
+      for (int i = 0; i < queue.length(); i++) {
+        var chapter = queue.getObject(i).getObject("chapter");
+        var id = (int) chapter.getNumber("id");
+        ids.add(id);
+      }
+
+      return ids.containsAll(chapterIds);
+    } catch (Exception e) {
+      log.error("Error while parsing JSON", e);
+      throw new RuntimeException(e);
+    }
+  }
+
+  public boolean deleteChapter(int chapterId) {
+    String query = """
+        mutation deleteChapter($id: Int!) {
+          deleteDownloadedChapter(input: {id: $id}) {
+            chapters {
+              isDownloaded
+            }
+          }
+        }
+        """;
+
+    String variables = """
+        {
+          "id": %d
+        }
+        """.formatted(chapterId);
+
+    var webClient = clientService.getWebClient();
+
+    String json = GraphQLUtils.sendGraphQLRequest(query, variables, webClient);
+
+    try {
+      JsonObject jsonObject = Json.parse(json);
+      var data = jsonObject.getObject("data");
+      var deleteDownloadedChapter = data.getObject("deleteDownloadedChapter");
+      var chapters = deleteDownloadedChapter.getObject("chapters");
+      boolean isDownloaded = chapters.getBoolean("isDownloaded");
+      return !isDownloaded;
+    } catch (Exception e) {
+      log.error("Error while parsing JSON", e);
+      throw new RuntimeException(e);
+    }
   }
 }

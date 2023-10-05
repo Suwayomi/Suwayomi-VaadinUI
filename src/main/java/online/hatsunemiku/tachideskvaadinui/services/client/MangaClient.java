@@ -156,6 +156,7 @@ public class MangaClient {
             chapterNumber
             name
             id
+            pageCount
           }
         }
         """;
@@ -184,7 +185,7 @@ public class MangaClient {
 
   public List<Chapter> getChapterList(int mangaId) {
     String query = """
-        query GetMangaList($id: Int!) {
+        query GetChapterList($id: Int!) {
           manga(id: $id) {
             chapters {
               nodes {
@@ -196,6 +197,14 @@ public class MangaClient {
                 isRead
                 isDownloaded
                 id
+                pageCount
+                manga {
+                  chapters {
+                    edges {
+                      cursor
+                    }
+                  }
+                }
               }
             }
           }
@@ -394,4 +403,35 @@ public class MangaClient {
     }
   }
 
+  public List<String> getChapterPages(int chapterId) {
+    String query = """
+        mutation getChapterPages($chapterId: Int!) {
+          fetchChapterPages(input: {chapterId: $chapterId}) {
+            pages
+          }
+        }
+        """;
+
+    String variables = """
+        {
+          "chapterId": %d
+        }
+        """.formatted(chapterId);
+
+    var webClient = clientService.getWebClient();
+
+    String json = GraphQLUtils.sendGraphQLRequest(query, variables, webClient);
+    TypeReference<List<String>> typeReference = new TypeReference<>() {
+    };
+    try {
+      JsonObject jsonObject = Json.parse(json);
+      JsonObject data = jsonObject.getObject("data");
+      JsonObject fetchChapterPages = data.getObject("fetchChapterPages");
+      JsonArray pages = fetchChapterPages.getArray("pages");
+      return mapper.readValue(pages.toJson(), typeReference);
+    } catch (Exception e) {
+      log.error("Error while parsing JSON response", e);
+      throw new RuntimeException(e);
+    }
+  }
 }

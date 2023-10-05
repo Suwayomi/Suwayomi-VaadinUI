@@ -100,8 +100,7 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
       Button deleteBtn = new Button(VaadinIcon.TRASH.create());
       deleteBtn.addClickListener(
           e -> {
-            var success =
-                mangaService.deleteSingleChapter(chapter.getMangaId(), chapter.getIndex());
+            var success = mangaService.deleteSingleChapter(chapter.getId());
 
             Notification notification;
 
@@ -125,8 +124,7 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
       Button downloadBtn = new Button(VaadinIcon.DOWNLOAD.create());
       downloadBtn.addClickListener(
           e -> {
-            var success =
-                mangaService.downloadSingleChapter(chapter.getMangaId(), chapter.getIndex());
+            var success = mangaService.downloadSingleChapter(chapter.getId());
 
             Notification notification;
 

@@ -92,4 +92,45 @@ public class Manga {
 
   @JsonProperty("status")
   private String status;
+  @JsonProperty("chapters")
+  @Getter(value = lombok.AccessLevel.NONE)
+  private Chapters chapters;
+
+  public int getLastChapterId() {
+    List<Edge> edges = chapters.getEdge();
+
+    if (edges.isEmpty()) {
+      return 0;
+    }
+
+    return edges.get(edges.size() - 1).getNode().getId();
+  }
+
+  public int getFirstChapterId() {
+    List<Edge> edges = chapters.getEdge();
+
+    if (edges.isEmpty()) {
+      return 0;
+    }
+
+    return edges.get(0).getNode().getId();
+  }
+
+  @Getter
+  private static class Chapters {
+    @JsonProperty("edges")
+    private List<Edge> edge;
+  }
+
+  @Getter
+  private static class Edge {
+    @JsonProperty("node")
+    private Node node;
+  }
+
+  @Getter
+  private static class Node {
+    @JsonProperty("id")
+    private int id;
+  }
 }

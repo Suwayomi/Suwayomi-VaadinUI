@@ -68,6 +68,9 @@ public class Chapter {
   @JsonProperty("id")
   private int id;
 
+  @JsonProperty("manga")
+  private Manga manga;
+
   @Override
   public String toString() {
     return name;

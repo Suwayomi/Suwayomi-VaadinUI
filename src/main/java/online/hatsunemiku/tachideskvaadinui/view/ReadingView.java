@@ -23,7 +23,7 @@ import online.hatsunemiku.tachideskvaadinui.services.TrackingCommunicationServic
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 
-@Route("reading/:mangaId(\\d+)/:chapterIndex(\\d+(?:\\.\\d+)?)")
+@Route("reading/:mangaId(\\d+)/:chapterId(\\d+)")
 @CssImport("./css/reading.css")
 public class ReadingView extends StandardLayout
     implements BeforeEnterObserver, BeforeLeaveObserver {
@@ -72,11 +72,14 @@ public class ReadingView extends StandardLayout
 
     List<Chapter> chapters = mangaService.getChapterList(mangaId);
 
-    Chapter chapterObj = chapters.stream().filter(c -> c.getId() == chapterId).findFirst().orElse(null);
+    Chapter chapterObj = null;
 
-    int index = chapters.indexOf(chapterObj);
-
-    boolean hasNext = index < chapters.size() - 1;
+    for (Chapter c : chapters) {
+      if (c.getId() == chapterId) {
+        chapterObj = c;
+        break;
+      }
+    }
 
     if (chapterObj == null) {
       event.rerouteToError(NotFoundException.class, "Chapter not found");
@@ -84,8 +87,7 @@ public class ReadingView extends StandardLayout
     }
 
     var reader =
-        new MangaReader(
-            chapterObj, settingsService, dataService, mangaService, communicationService, hasNext);
+        new MangaReader(chapterObj, settingsService, dataService, mangaService, communicationService, chapters);
 
     setContent(reader);
   }
