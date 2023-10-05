@@ -6,7 +6,6 @@
 
 package online.hatsunemiku.tachideskvaadinui.services.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import elemental.json.Json;
 import elemental.json.JsonObject;
 import java.util.HashSet;
@@ -22,11 +21,9 @@ import org.springframework.stereotype.Component;
 public class DownloadClient {
 
   private final WebClientService clientService;
-  private final ObjectMapper mapper;
 
-  public DownloadClient(WebClientService clientService, ObjectMapper mapper) {
+  public DownloadClient(WebClientService clientService) {
     this.clientService = clientService;
-    this.mapper = mapper;
   }
 
   /**

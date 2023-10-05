@@ -6,15 +6,12 @@
 
 package online.hatsunemiku.tachideskvaadinui.services;
 
-import java.net.URI;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.services.client.DownloadClient;
 import online.hatsunemiku.tachideskvaadinui.services.client.MangaClient;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -127,19 +124,6 @@ public class MangaService {
   public void moveMangaToCategory(int mangaId, int newCategoryId, int oldCategoryId) {
     addMangaToCategory(mangaId, newCategoryId);
     removeMangaFromCategory(mangaId, oldCategoryId);
-  }
-
-  /**
-   * Retrieves the base URL for the manga service.
-   *
-   * @return the base URL for the manga service
-   * @throws NullPointerException if the URL is null
-   */
-  @NotNull
-  private URI getBaseUrl() {
-    Settings settings = settingsService.getSettings();
-
-    return URI.create(settings.getUrl());
   }
 
   /**
