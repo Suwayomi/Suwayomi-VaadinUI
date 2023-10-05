@@ -21,11 +21,9 @@ import org.springframework.stereotype.Service;
 public class MangaService {
   private final MangaClient mangaClient;
   private final DownloadClient downloadClient;
-  private final SettingsService settingsService;
 
   @Autowired
-  public MangaService(SettingsService settingsService, MangaClient mangaClient, DownloadClient downloadCLient) {
-    this.settingsService = settingsService;
+  public MangaService(MangaClient mangaClient, DownloadClient downloadCLient) {
     this.mangaClient = mangaClient;
     this.downloadClient = downloadCLient;
   }
