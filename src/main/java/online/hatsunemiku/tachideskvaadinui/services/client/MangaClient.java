@@ -6,18 +6,12 @@
 
 package online.hatsunemiku.tachideskvaadinui.services.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import elemental.json.Json;
-import elemental.json.JsonArray;
-import elemental.json.JsonObject;
 import java.util.List;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
-import online.hatsunemiku.tachideskvaadinui.utils.GraphQLUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -25,10 +19,8 @@ import org.springframework.stereotype.Component;
 public class MangaClient {
 
   private final WebClientService clientService;
-  private final ObjectMapper mapper;
 
-  public MangaClient(ObjectMapper mapper, WebClientService clientService) {
-    this.mapper = mapper;
+  public MangaClient(WebClientService clientService) {
     this.clientService = clientService;
   }
 
@@ -49,36 +41,31 @@ public class MangaClient {
         }
         """;
 
-    String variables = """
-        {
-          "categoryIds": %s,
-          "mangaId": %d
-        }
-        """.formatted(categoryIds, mangaId);
+    var graphClient = clientService.getGraphQlClient();
 
-    var webClient = clientService.getWebClient();
+    var tempCategoryIds = graphClient.document(query)
+        .variable("categoryIds", categoryIds)
+        .variable("mangaId", mangaId)
+        .retrieve("updateMangaCategories.manga.categories.nodes")
+        .toEntityList(UpdateMangaCategoryId.class)
+        .block();
 
-    String json = GraphQLUtils.sendGraphQLRequest(query, variables, webClient);
-
-    try {
-      JsonArray nodes = getMangaCategoriesFromResponse(json);
-
-      for (int i = 0; i < nodes.length(); i++) {
-        JsonObject node = nodes.getObject(i);
-        int id = (int) node.getNumber("id");
-
-        //If the manga is not in the category, adding it failed
-        if (!categoryIds.contains(id)) {
-          return false;
-        }
-      }
-
-      //If the manga is in all the categories in the list, adding it succeeded
-      return true;
-    } catch (Exception e) {
-      log.error("Error while parsing JSON response", e);
-      throw new RuntimeException(e);
+    if (tempCategoryIds == null) {
+      throw new RuntimeException("Error while adding manga to categories");
     }
+
+    var newCategoryIds = tempCategoryIds.stream()
+        .filter(Objects::nonNull)
+        .map(UpdateMangaCategoryId::id)
+        .toList();
+
+    for (int categoryId : newCategoryIds) {
+      if (!categoryIds.contains(categoryId)) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   public boolean removeMangaFromCategories(List<Integer> categoryIds, int mangaId) {
@@ -98,46 +85,31 @@ public class MangaClient {
         }
         """;
 
-    String variables = """
-        {
-          "categoryIds": %s,
-          "mangaId": %d
-        }
-        """.formatted(categoryIds, mangaId);
+    var graphClient = clientService.getGraphQlClient();
 
-    var webClient = clientService.getWebClient();
+    var tempCategoryIds = graphClient.document(query)
+        .variable("categoryIds", categoryIds)
+        .variable("mangaId", mangaId)
+        .retrieve("updateMangaCategories.manga.categories.nodes")
+        .toEntityList(UpdateMangaCategoryId.class)
+        .block();
 
-    String json = GraphQLUtils.sendGraphQLRequest(query, variables, webClient);
-
-    try {
-      JsonArray nodes = getMangaCategoriesFromResponse(json);
-
-      for (int i = 0; i < nodes.length(); i++) {
-        JsonObject node = nodes.getObject(i);
-        int id = (int) node.getNumber("id");
-
-        //If the manga is in any of the categories, removing it failed
-        if (categoryIds.contains(id)) {
-          return false;
-        }
-      }
-
-      //If the manga is not in any of the categories, removing it succeeded
-      return true;
-    } catch (Exception e) {
-      log.error("Error while parsing JSON response", e);
-      throw new RuntimeException(e);
+    if (tempCategoryIds == null) {
+      throw new RuntimeException("Error while removing manga from categories");
     }
 
-  }
+    var newCategoryIds = tempCategoryIds.stream()
+        .filter(Objects::nonNull)
+        .map(UpdateMangaCategoryId::id)
+        .toList();
 
-  private JsonArray getMangaCategoriesFromResponse(String json) {
-    JsonObject jsonObject = Json.parse(json);
-    JsonObject data = jsonObject.getObject("data");
-    JsonObject updateMangaCategories = data.getObject("updateMangaCategories");
-    JsonObject manga = updateMangaCategories.getObject("manga");
-    JsonObject categories = manga.getObject("categories");
-    return categories.getArray("nodes");
+    for (int id : newCategoryIds) {
+      if (categoryIds.contains(id)) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /**
@@ -161,26 +133,13 @@ public class MangaClient {
         }
         """;
 
-    String variables = """
-        {
-          "id": %d
-        }
-        """.formatted(chapterId);
+    var graphClient = clientService.getGraphQlClient();
 
-    var webClient = clientService.getWebClient();
-
-    String json = GraphQLUtils.sendGraphQLRequest(query, variables, webClient);
-
-    try {
-      JsonObject jsonObject = Json.parse(json);
-      JsonObject data = jsonObject.getObject("data");
-      JsonObject chapter = data.getObject("chapter");
-      return mapper.readValue(chapter.toJson(), Chapter.class);
-    } catch (JsonProcessingException e) {
-      log.error("Error while parsing JSON", e);
-      throw new RuntimeException(e);
-    }
-
+    return graphClient.document(query)
+        .variable("id", chapterId)
+        .retrieve("chapter")
+        .toEntity(Chapter.class)
+        .block();
   }
 
   public List<Chapter> getChapterList(int mangaId) {
@@ -211,30 +170,13 @@ public class MangaClient {
         }
         """;
 
-    String variables = """
-          {
-            "id": %d
-          }
-        """.formatted(mangaId);
+    var graphClient = clientService.getGraphQlClient();
 
-    var webClient = clientService.getWebClient();
-    String json = GraphQLUtils.sendGraphQLRequest(query, variables, webClient);
-
-    TypeReference<List<Chapter>> typeReference = new TypeReference<>() {
-    };
-
-    try {
-      JsonObject jsonObject = Json.parse(json);
-      JsonObject data = jsonObject.getObject("data");
-      JsonObject manga = data.getObject("manga");
-      JsonObject chapters = manga.getObject("chapters");
-      JsonArray nodes = chapters.getArray("nodes");
-
-      return mapper.readValue(nodes.toJson(), typeReference);
-    } catch (JsonProcessingException e) {
-      log.error("Error while parsing JSON", e);
-      throw new RuntimeException(e);
-    }
+    return graphClient.document(query)
+        .variable("id", mangaId)
+        .retrieve("manga.chapters.nodes")
+        .toEntityList(Chapter.class)
+        .block();
   }
 
   /**
@@ -299,25 +241,13 @@ public class MangaClient {
         }
         """;
 
-    String variables = """
-        {
-          "id": %d
-        }""".formatted(mangaId);
+    var graphClient = clientService.getGraphQlClient();
 
-    var webClient = clientService.getWebClient();
-
-    String json = GraphQLUtils.sendGraphQLRequest(query, variables, webClient);
-
-    try {
-      JsonObject jsonObject = Json.parse(json);
-      JsonObject data = jsonObject.getObject("data");
-      JsonObject fetchManga = data.getObject("fetchManga");
-      JsonObject manga = fetchManga.getObject("manga");
-      return mapper.readValue(manga.toJson(), Manga.class);
-    } catch (JsonProcessingException e) {
-      log.error("Error while parsing JSON", e);
-      throw new RuntimeException(e);
-    }
+    return graphClient.document(query)
+        .variable("id", mangaId)
+        .retrieve("fetchManga.manga")
+        .toEntity(Manga.class)
+        .block();
   }
 
   /**
@@ -339,26 +269,15 @@ public class MangaClient {
           }
         }""";
 
-    String variables = """
-        {
-        "id": %d,
-        "isRead": %s
-        }""".formatted(chapterId, read);
+    var graphClient = clientService.getGraphQlClient();
+    Boolean readStatus = graphClient.document(query)
+        .variable("id", chapterId)
+        .variable("isRead", read)
+        .retrieve("updateChapter.chapter.isRead")
+        .toEntity(Boolean.class)
+        .block();
 
-    var webClient = clientService.getWebClient();
-
-    String json = GraphQLUtils.sendGraphQLRequest(query, variables, webClient);
-
-    try {
-      JsonObject jsonObject = Json.parse(json);
-      JsonObject data = jsonObject.getObject("data");
-      JsonObject updateChapter = data.getObject("updateChapter");
-      JsonObject chapter = updateChapter.getObject("chapter");
-      return chapter.getBoolean("isRead");
-    } catch (Exception e) {
-      log.error("Error while parsing JSON response", e);
-      throw new RuntimeException(e);
-    }
+    return Objects.requireNonNullElse(readStatus, false);
   }
 
   /**
@@ -380,27 +299,15 @@ public class MangaClient {
         }
         """;
 
-    String variables = """
-        {
-          "id": %d,
-          "add": %s
-        }
-        """.formatted(mangaId, add);
+    var graphClient = clientService.getGraphQlClient();
+    Boolean success = graphClient.document(query)
+        .variable("id", mangaId)
+        .variable("add", add)
+        .retrieve("updateManga.manga.inLibrary")
+        .toEntity(Boolean.class)
+        .block();
 
-    var webClient = clientService.getWebClient();
-
-    String json = GraphQLUtils.sendGraphQLRequest(query, variables, webClient);
-
-    try {
-      JsonObject jsonObject = Json.parse(json);
-      JsonObject data = jsonObject.getObject("data");
-      JsonObject updateManga = data.getObject("updateManga");
-      JsonObject manga = updateManga.getObject("manga");
-      return manga.getBoolean("inLibrary");
-    } catch (Exception e) {
-      log.error("Error while parsing JSON response", e);
-      throw new RuntimeException(e);
-    }
+    return Objects.requireNonNullElse(success, false);
   }
 
   public List<String> getChapterPages(int chapterId) {
@@ -412,26 +319,14 @@ public class MangaClient {
         }
         """;
 
-    String variables = """
-        {
-          "chapterId": %d
-        }
-        """.formatted(chapterId);
+    var graphClient = clientService.getGraphQlClient();
 
-    var webClient = clientService.getWebClient();
-
-    String json = GraphQLUtils.sendGraphQLRequest(query, variables, webClient);
-    TypeReference<List<String>> typeReference = new TypeReference<>() {
-    };
-    try {
-      JsonObject jsonObject = Json.parse(json);
-      JsonObject data = jsonObject.getObject("data");
-      JsonObject fetchChapterPages = data.getObject("fetchChapterPages");
-      JsonArray pages = fetchChapterPages.getArray("pages");
-      return mapper.readValue(pages.toJson(), typeReference);
-    } catch (Exception e) {
-      log.error("Error while parsing JSON response", e);
-      throw new RuntimeException(e);
-    }
+    return graphClient.document(query)
+        .variable("chapterId", chapterId)
+        .retrieve("fetchChapterPages.pages")
+        .toEntityList(String.class)
+        .block();
   }
+
+  private record UpdateMangaCategoryId(int id) {}
 }

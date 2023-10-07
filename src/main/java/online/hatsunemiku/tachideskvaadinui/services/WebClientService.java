@@ -10,6 +10,7 @@ import lombok.Getter;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.settings.event.UrlChangeEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.graphql.client.HttpGraphQlClient;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -17,15 +18,27 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Service
 public class WebClientService {
   private WebClient webClient;
+  private HttpGraphQlClient graphQlClient;
   public WebClientService(SettingsService settingsService) {
     Settings settings = settingsService.getSettings();
 
     this.webClient = WebClient.create(settings.getUrl());
+    initGraphQlClient(settings.getUrl());
   }
 
   @EventListener(UrlChangeEvent.class)
   protected void onUrlChange(UrlChangeEvent event) {
     this.webClient = WebClient.create(event.getUrl());
+
+    initGraphQlClient(event.getUrl());
+  }
+
+  private void initGraphQlClient(String url) {
+    url = url + "/api/graphql";
+    url = url.replace("//api", "/api");
+
+    WebClient graphClient = WebClient.create(url);
+    this.graphQlClient = HttpGraphQlClient.create(graphClient);
   }
 
 
