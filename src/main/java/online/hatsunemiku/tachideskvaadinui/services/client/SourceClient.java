@@ -6,18 +6,64 @@
 
 package online.hatsunemiku.tachideskvaadinui.services.client;
 
-import java.net.URI;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.SourceMangaList;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
+import org.springframework.stereotype.Component;
 
-@FeignClient(name = "sourceClient", url = "http://localhost:4567")
-public interface SourceClient {
+@Component
+public class SourceClient {
 
-  @GetMapping("/source/{sourceId}/popular/{page}")
-  SourceMangaList getPopularManga(URI baseUrl, @PathVariable long sourceId, @PathVariable int page);
+  private final WebClientService webClientService;
 
-  @GetMapping("/source/{sourceId}/latest/{page}")
-  SourceMangaList getLatestManga(URI baseUrl, @PathVariable long sourceId, @PathVariable int page);
+  public SourceClient(WebClientService webClientService) {
+    this.webClientService = webClientService;
+  }
+
+  public SourceMangaList getPopularManga(String sourceId, int page) {
+    return getMangaFromSource(sourceId, page, SourceType.POPULAR);
+  }
+
+  public SourceMangaList getLatestManga(String sourceId, int page) {
+    return getMangaFromSource(sourceId, page, SourceType.LATEST);
+  }
+
+  private SourceMangaList getMangaFromSource(String sourceId, int page, SourceType type) {
+    //language=GraphQL
+    String query = """
+        mutation getPopularSourceManga($sourceId: LongString!, $page: Int!, $type: FetchSourceMangaType!) {
+          fetchSourceManga(input: {page: $page, source: $sourceId, type: $type}) {
+            hasNextPage
+            mangas {
+              id
+              thumbnailUrl
+              title
+            }
+          }
+        }
+        """;
+
+    var graphClient = webClientService.getGraphQlClient();
+
+    var result = graphClient.document(query)
+        .variable("sourceId", sourceId)
+        .variable("page", page)
+        .variable("type", type)
+        .retrieve("fetchSourceManga")
+        .toEntity(SourceMangaList.class)
+        .block();
+
+    if (result == null) {
+      throw new RuntimeException("Error while fetching popular manga");
+    }
+
+    return result;
+  }
+
+
+
+  private enum SourceType {
+    POPULAR,
+    LATEST
+  }
+
 }

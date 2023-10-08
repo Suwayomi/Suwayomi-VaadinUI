@@ -18,4 +18,6 @@ public class SourceMangaList {
 
   @JsonProperty("hasNextPage")
   private boolean hasNextPage;
+
+  private int page;
 }
