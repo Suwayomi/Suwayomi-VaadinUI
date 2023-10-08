@@ -145,37 +145,36 @@ public class MangaClient {
 
   public List<Chapter> getChapterList(int mangaId) {
     String query = """
-        query GetChapterList($id: Int!) {
-          manga(id: $id) {
-            chapters {
-              nodes {
-                url
-                chapterNumber
-                mangaId
-                name
-                uploadDate
-                isRead
-                isDownloaded
-                id
-                pageCount
-                manga {
-                  chapters {
-                    edges {
-                      cursor
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
+        mutation MyMutation($mangaId: Int!) {
+             fetchChapters(input: { mangaId: $mangaId }) {
+               chapters {
+                 url
+                 chapterNumber
+                 mangaId
+                 name
+                 uploadDate
+                 isRead
+                 isDownloaded
+                 id
+                 pageCount
+                 manga {
+                   chapters {
+                     edges {
+                       cursor
+                     }
+                   }
+                 }
+               }
+             }
+           }
+           
         """;
 
     var graphClient = clientService.getGraphQlClient();
 
     return graphClient.document(query)
-        .variable("id", mangaId)
-        .retrieve("manga.chapters.nodes")
+        .variable("mangaId", mangaId)
+        .retrieve("fetchChapters.chapters")
         .toEntityList(Chapter.class)
         .block();
   }
