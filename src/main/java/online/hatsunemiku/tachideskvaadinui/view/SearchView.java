@@ -37,7 +37,7 @@ import online.hatsunemiku.tachideskvaadinui.component.events.source.LanguageList
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Source;
-import online.hatsunemiku.tachideskvaadinui.data.tachidesk.search.SearchResponse;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.search.SourceSearchResult;
 import online.hatsunemiku.tachideskvaadinui.services.SearchService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.SourceService;
@@ -309,7 +309,7 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     List<Manga> mangaList = new ArrayList<>();
 
     for (int i = 1; hasNext; i++) {
-      SearchResponse searchResponse;
+      SourceSearchResult searchResponse;
       try {
         searchResponse = searchService.search(query, source.getId(), i);
       } catch (FeignException e) {
@@ -336,13 +336,13 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
         return;
       }
 
-      if (searchResponse.mangaList().isEmpty()) {
+      if (searchResponse.manga().isEmpty()) {
         break;
       }
 
-      mangaList.addAll(searchResponse.mangaList());
+      mangaList.addAll(searchResponse.manga());
 
-      hasNext = searchResponse.hasNext();
+      hasNext = searchResponse.hasNextPage();
     }
 
     if (mangaList.isEmpty()) {

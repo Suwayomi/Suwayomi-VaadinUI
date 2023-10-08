@@ -29,7 +29,7 @@ public class Source implements Comparable<Source> {
   private String name;
 
   @JsonProperty("id")
-  private long id;
+  private String id;
 
   @JsonProperty("iconUrl")
   private String iconUrl;
