@@ -6,7 +6,6 @@
 
 package online.hatsunemiku.tachideskvaadinui.services;
 
-import java.net.URI;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.services.client.LibUpdateClient;
@@ -18,11 +17,9 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class LibUpdateService {
 
-  private final SettingsService settingsService;
   private final LibUpdateClient client;
 
-  public LibUpdateService(SettingsService settingsService, LibUpdateClient client) {
-    this.settingsService = settingsService;
+  public LibUpdateService(LibUpdateClient client) {
     this.client = client;
   }
 
@@ -30,13 +27,7 @@ public class LibUpdateService {
       value = {"manga"},
       allEntries = true)
   public boolean fetchUpdate() {
-    var settings = settingsService.getSettings();
-
-    URI baseUrl = URI.create(settings.getUrl());
-
-    var response = client.fetchUpdate(baseUrl);
-
-    return response.getStatusCode().is2xxSuccessful();
+    return client.fetchUpdate();
   }
 
   @Scheduled(initialDelay = 1, fixedRate = 10, timeUnit = TimeUnit.MINUTES)

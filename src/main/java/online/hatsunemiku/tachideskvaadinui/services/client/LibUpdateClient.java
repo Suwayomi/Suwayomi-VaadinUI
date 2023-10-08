@@ -6,14 +6,41 @@
 
 package online.hatsunemiku.tachideskvaadinui.services.client;
 
-import java.net.URI;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
+import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
+import org.springframework.stereotype.Component;
 
-@FeignClient(name = "lib-update-client", url = "http://localhost:8080")
-public interface LibUpdateClient {
+@Component
+public class LibUpdateClient {
 
-  @PostMapping("/api/v1/update/fetch")
-  ResponseEntity<Void> fetchUpdate(URI baseUrl);
+  private final WebClientService webClientService;
+
+  public LibUpdateClient(WebClientService webClientService) {
+    this.webClientService = webClientService;
+  }
+
+  public boolean fetchUpdate() {
+    //language=GraphQL
+    String query = """
+        mutation updateLibraryManga {
+          updateLibraryManga(input: {}) {
+            updateStatus {
+              isRunning
+            }
+          }
+        }
+        """;
+
+    var graphClient = webClientService.getGraphQlClient();
+
+    Boolean isRunning = graphClient.document(query)
+        .retrieve("updateLibraryManga.updateStatus.isRunning")
+        .toEntity(Boolean.class)
+        .block();
+
+    if (isRunning == null) {
+      throw new RuntimeException("Error while updating library");
+    }
+
+    return isRunning;
+  }
 }
