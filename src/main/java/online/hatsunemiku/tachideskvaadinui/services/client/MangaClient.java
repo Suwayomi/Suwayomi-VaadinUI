@@ -9,6 +9,7 @@ package online.hatsunemiku.tachideskvaadinui.services.client;
 import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Category;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
@@ -191,13 +192,32 @@ public class MangaClient {
   }
 
   /**
-   * Remove a manga from the library.
+   * Remove a manga from the library and all categories it's currently in.
    *
    * @param mangaId the ID of the manga to be removed
-   * @return true if the manga was successfully removed from the library, false otherwise
-   * @throws RuntimeException if there is an error while parsing the JSON response
+   * @return true if the manga was successfully removed from the library and its categories, false
+   * otherwise
    */
   public boolean removeMangaFromLibrary(int mangaId) {
+
+    var manga = getManga(mangaId);
+
+    if (manga == null) {
+      return false;
+    }
+
+    var categories = manga.getMangaCategories();
+
+    if (categories != null) {
+      var categoryIds = categories.stream()
+          .map(Category::getId)
+          .toList();
+
+      if (!removeMangaFromCategories(categoryIds, mangaId)) {
+        return false;
+      }
+    }
+
     return !updateMangaLibraryStatus(mangaId, false);
   }
 
@@ -235,6 +255,11 @@ public class MangaClient {
               id
               lastReadChapter {
                 id
+              }
+              categories {
+                nodes {
+                  id
+                }
               }
             }
           }
@@ -328,5 +353,7 @@ public class MangaClient {
         .block();
   }
 
-  private record UpdateMangaCategoryId(int id) {}
+  private record UpdateMangaCategoryId(int id) {
+
+  }
 }
