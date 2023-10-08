@@ -6,14 +6,12 @@
 
 package online.hatsunemiku.tachideskvaadinui.services.client;
 
-import elemental.json.Json;
-import elemental.json.JsonObject;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
-import online.hatsunemiku.tachideskvaadinui.utils.GraphQLUtils;
+import online.hatsunemiku.tachideskvaadinui.services.client.DownloadClient.EnqueueChapterDownloadId.EnqueuedChapter;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -47,38 +45,40 @@ public class DownloadClient {
         }
         """;
 
-    String variables = """
-        {
-          "chapterIds": %s
-        }
-        """.formatted(chapterIds.toString());
+    var graphClient = clientService.getGraphQlClient();
 
-    var webClient = clientService.getWebClient();
+    var tempChapterIds = graphClient.document(query)
+        .variable("chapterIds", chapterIds)
+        .retrieve("enqueueChapterDownloads.downloadStatus.queue")
+        .toEntityList(EnqueueChapterDownloadId.class)
+        .block();
 
-    String json = GraphQLUtils.sendGraphQLRequest(query, variables, webClient);
-
-    try {
-      JsonObject jsonObject = Json.parse(json);
-      var data = jsonObject.getObject("data");
-      var enqueueChapterDownloads = data.getObject("enqueueChapterDownloads");
-      var downloadStatus = enqueueChapterDownloads.getObject("downloadStatus");
-      var queue = downloadStatus.getArray("queue");
-
-      HashSet<Integer> ids = new HashSet<>();
-
-      for (int i = 0; i < queue.length(); i++) {
-        var chapter = queue.getObject(i).getObject("chapter");
-        var id = (int) chapter.getNumber("id");
-        ids.add(id);
-      }
-
-      return ids.containsAll(chapterIds);
-    } catch (Exception e) {
-      log.error("Error while parsing JSON", e);
-      throw new RuntimeException(e);
+    if (tempChapterIds == null) {
+      throw new RuntimeException("Error while downloading chapters");
     }
+
+    var newChapterIds = tempChapterIds.stream()
+        .filter(Objects::nonNull)
+        .map(EnqueueChapterDownloadId::chapter)
+        .map(EnqueuedChapter::id)
+        .toList();
+
+    //check if newChapterIds contains all chapterIds
+    for (int chapterId : chapterIds) {
+      if (!newChapterIds.contains(chapterId)) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
+  /**
+   * Deletes the chapter specified by the given chapterId.
+   *
+   * @param chapterId The {@link Chapter#getId() chapter ID} to delete.
+   * @return True if the chapter was successfully deleted, false otherwise.
+   */
   public boolean deleteChapter(int chapterId) {
     String query = """
         mutation deleteChapter($id: Int!) {
@@ -90,26 +90,23 @@ public class DownloadClient {
         }
         """;
 
-    String variables = """
-        {
-          "id": %d
-        }
-        """.formatted(chapterId);
+    var graphClient = clientService.getGraphQlClient();
 
-    var webClient = clientService.getWebClient();
+    var deletionFail = graphClient.document(query)
+        .variable("id", chapterId)
+        .retrieve("deleteDownloadedChapter.chapters.isDownloaded")
+        .toEntity(Boolean.class)
+        .block();
 
-    String json = GraphQLUtils.sendGraphQLRequest(query, variables, webClient);
-
-    try {
-      JsonObject jsonObject = Json.parse(json);
-      var data = jsonObject.getObject("data");
-      var deleteDownloadedChapter = data.getObject("deleteDownloadedChapter");
-      var chapters = deleteDownloadedChapter.getObject("chapters");
-      boolean isDownloaded = chapters.getBoolean("isDownloaded");
-      return !isDownloaded;
-    } catch (Exception e) {
-      log.error("Error while parsing JSON", e);
-      throw new RuntimeException(e);
+    if (deletionFail == null) {
+      throw new RuntimeException("Error while deleting chapter");
     }
+
+    return !deletionFail;
+  }
+
+  protected record EnqueueChapterDownloadId(EnqueuedChapter chapter) {
+
+    protected record EnqueuedChapter(int id) {}
   }
 }
