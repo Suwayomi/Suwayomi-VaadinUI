@@ -6,6 +6,7 @@
 
 package online.hatsunemiku.tachideskvaadinui.services.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Extension;
@@ -17,9 +18,11 @@ import org.springframework.stereotype.Component;
 public class ExtensionClient {
 
   private final WebClientService clientService;
+  private final ObjectMapper objectMapper;
 
-  public ExtensionClient(WebClientService clientService) {
+  public ExtensionClient(WebClientService clientService, ObjectMapper objectMapper) {
     this.clientService = clientService;
+    this.objectMapper = objectMapper;
   }
 
   public boolean updateExtension(String extensionId) {
