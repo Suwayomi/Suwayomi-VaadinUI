@@ -17,8 +17,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Getter
 @Service
 public class WebClientService {
+
   private WebClient webClient;
   private HttpGraphQlClient graphQlClient;
+
   public WebClientService(SettingsService settingsService) {
     Settings settings = settingsService.getSettings();
 
@@ -37,9 +39,12 @@ public class WebClientService {
     url = url + "/api/graphql";
     url = url.replace("//api", "/api");
 
-    WebClient graphClient = WebClient.create(url);
+    //4MB memory limit
+    WebClient graphClient = WebClient.builder()
+        .baseUrl(url)
+        .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(4 * 1024 * 1024))
+        .build();
+
     this.graphQlClient = HttpGraphQlClient.create(graphClient);
   }
-
-
 }

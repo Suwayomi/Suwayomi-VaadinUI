@@ -86,23 +86,18 @@ public class ExtensionItem extends BlurryItem {
     uninstallBtn.addClickListener(
         e -> {
           uninstallBtn.setEnabled(false);
-          var status = service.uninstallExtension(extension.getPkgName());
+          var success = service.uninstallExtension(extension.getPkgName());
           uninstallBtn.setEnabled(true);
 
           Notification notification = new Notification();
 
-          if (status.is2xxSuccessful()) {
-            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-            notification.setText("Extension uninstalled successfully");
-          } else if (status.is3xxRedirection()) {
-            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-            notification.setText("Extension exists, but couldn't be uninstalled");
-          } else if (status.is4xxClientError()) {
-            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-            notification.setText("Extension doesn't exist");
-          } else {
+          if (!success) {
             notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
             notification.setText("Extension couldn't be uninstalled");
+          } else {
+            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            notification.setText("Extension uninstalled successfully");
+            extension.setInstalled(false);
           }
 
           notification.setDuration(3000);
@@ -134,20 +129,17 @@ public class ExtensionItem extends BlurryItem {
             return;
           }
 
-          var status = service.installExtension(extension.getPkgName());
+          var success = service.installExtension(extension.getPkgName());
           installBtn.setEnabled(true);
           Notification notification = new Notification();
 
-          if (status.is2xxSuccessful()) {
+          if (!success) {
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.setText("Extension couldn't be installed");
+          } else {
             notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
             notification.setText("Extension installed successfully");
             extension.setInstalled(true);
-          } else if (status.is3xxRedirection()) {
-            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-            notification.setText("Extension exists, but couldn't be installed");
-          } else {
-            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-            notification.setText("Extension couldn't be installed");
           }
 
           notification.setDuration(3000);

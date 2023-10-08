@@ -6,16 +6,20 @@
 
 package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
 public class Extension{
+	@JsonProperty("isInstalled")
 	private boolean installed;
 	private boolean hasUpdate;
 	private String apkName;
+	@JsonProperty("isNsfw")
 	private boolean isNsfw;
 	private String pkgName;
 	private String name;
+	@JsonProperty("isObsolete")
 	private boolean obsolete;
 	private String iconUrl;
 	private String versionName;
