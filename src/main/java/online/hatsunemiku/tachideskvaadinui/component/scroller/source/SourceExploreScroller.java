@@ -83,8 +83,7 @@ public class SourceExploreScroller extends VScroller {
   }
 
   private void loadNextPage() {
-    var manga =
-        switch (type) {
+    var manga = switch (type) {
           case POPULAR -> loadPopularPage();
           case LATEST -> loadLatestPage();
         };

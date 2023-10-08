@@ -47,7 +47,7 @@ public class SourceClient {
     var result = graphClient.document(query)
         .variable("sourceId", sourceId)
         .variable("page", page)
-        .variable("type", type)
+        .variable("type", type.name())
         .retrieve("fetchSourceManga")
         .toEntity(SourceMangaList.class)
         .block();

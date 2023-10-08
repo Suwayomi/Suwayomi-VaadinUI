@@ -13,7 +13,7 @@ import lombok.Data;
 @Data
 public class SourceMangaList {
 
-  @JsonProperty("mangaList")
+  @JsonProperty("mangas")
   private List<Manga> mangaList;
 
   @JsonProperty("hasNextPage")
