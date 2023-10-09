@@ -42,12 +42,6 @@ public class ExtensionItem extends BlurryItem {
     buttons.add(uninstallBtn);
     buttons.add(installBtn);
 
-    if (extension.isInstalled()) {
-      setBtnInstalled(installBtn, uninstallBtn);
-    } else {
-      setBtnUninstalled(installBtn, uninstallBtn);
-    }
-
     add(extensionData, buttons);
   }
 
@@ -123,14 +117,15 @@ public class ExtensionItem extends BlurryItem {
 
           if (extension.isObsolete()) {
             service.uninstallExtension(extension.getPkgName());
+            extension.setInstalled(false);
             updateStatus(extension, installBtn, uninstallBtn);
             return;
           }
 
           if (extension.isHasUpdate()) {
             service.updateExtension(extension.getPkgName());
+            extension.setHasUpdate(false);
             updateStatus(extension, installBtn, uninstallBtn);
-            installBtn.setEnabled(true);
             return;
           }
 
@@ -159,6 +154,7 @@ public class ExtensionItem extends BlurryItem {
 
   private void updateStatus(Extension extension, Button installBtn, Button uninstallBtn) {
     if (!extension.isInstalled()) {
+      setBtnUninstalled(installBtn, uninstallBtn);
       return;
     }
 
