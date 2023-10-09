@@ -72,8 +72,7 @@
     "lit": "2.7.6",
     "lumo-css-framework": "3.0.11",
     "mobile-drag-drop": "2.3.0-rc.2",
-    "swiper": "^10.0.3",
-    "vanilla-lazyload": "17.8.3"
+    "swiper": "^10.0.3"
   },
   "devDependencies": {
     "@rollup/plugin-replace": "5.0.2",
@@ -164,8 +163,7 @@
       "lit": "2.7.6",
       "lumo-css-framework": "3.0.11",
       "mobile-drag-drop": "2.3.0-rc.2",
-      "swiper": "^10.0.3",
-      "vanilla-lazyload": "17.8.3"
+      "swiper": "^10.0.3"
     },
     "devDependencies": {
       "@rollup/plugin-replace": "5.0.2",
@@ -185,7 +183,7 @@
       "workbox-core": "7.0.0",
       "workbox-precaching": "7.0.0"
     },
-    "hash": "2a4350aa90d74001f936428c5f0b8d09dc4e53f3095fec098367d852a2059c1b"
+    "hash": "3f994000a3983f7191242d4a4f0fdf03b63b929e50816cd6ea1a7128d9155bd1"
   },
   "overrides": {
     "@vaadin/bundles": "$@vaadin/bundles",
@@ -257,7 +255,6 @@
     "@vaadin/vaadin-themable-mixin": "$@vaadin/vaadin-themable-mixin",
     "date-fns": "$date-fns",
     "lumo-css-framework": "$lumo-css-framework",
-    "mobile-drag-drop": "$mobile-drag-drop",
-    "vanilla-lazyload": "$vanilla-lazyload"
+    "mobile-drag-drop": "$mobile-drag-drop"
   }
 }
