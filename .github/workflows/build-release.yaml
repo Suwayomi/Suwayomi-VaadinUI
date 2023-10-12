@@ -38,6 +38,8 @@ jobs:
           java-version: '17'
           distribution: 'liberica'
           cache: gradle
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
       - name: Build Release
         run: ./gradlew ${{ matrix.gradle_task }}
       - name: Upload Release
