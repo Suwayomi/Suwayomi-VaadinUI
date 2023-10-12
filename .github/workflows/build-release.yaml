@@ -1,0 +1,48 @@
+# This is used to build a release for each platform - Windows, Linux, and macOS.
+# Each platform has multiple installers/packages (e.g. Windows has .exe and .msi).
+# To Build one gradle is used via the build{OS}{Installer} task. (e.g. buildWindowsExe)
+
+name: Build Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-release:
+    name: Build Release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ macos-latest, windows-latest, ubuntu-latest ]
+        include:
+          - os: macos-latest
+            gradle_task: buildMacDmg
+          - os: macos-latest
+            gradle_task: buildMacPkg
+          - os: windows-latest
+            gradle_task: buildWindowsExe
+          - os: windows-latest
+            gradle_task: buildWindowsMsi
+          - os: ubuntu-latest
+            gradle_task: buildLinuxDeb
+          - os: ubuntu-latest
+            gradle_task: buildLinuxRpm
+            steps:
+              - uses: actions/checkout@v3
+              - name: Set up JDK 17
+                uses: actions/setup-java@v3
+                with:
+                  java-version: '17'
+                  distribution: 'liberica'
+                  cache: gradle
+              - name: Build Release
+                run: ./gradlew ${{ matrix.gradle_task }}
+              - name: Upload Release
+                uses: actions/upload-artifact@v3
+                with:
+                  name: ${{ matrix.gradle_task }}
+                  path: 'build/installer/*.jar'
+                  if-no-files-found: error
+                  retention-days: 14
