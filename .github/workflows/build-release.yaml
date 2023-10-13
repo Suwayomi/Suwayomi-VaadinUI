@@ -17,7 +17,6 @@ jobs:
       matrix:
         OS: [Windows, Linux, macOS]
         INSTALLER: [Exe, Msi, Deb, Dmg, Pkg, Rpm]
-        gradle_task: build${{ matrix.OS }}${{ matrix.INSTALLER }}
         include:
           - OS: Windows
             INSTALLER: Exe
@@ -50,7 +49,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build Release
-        run: ./gradlew ${{ matrix.gradle_task }}
+        run: ./gradlew build${{ matrix.OS }}${{ matrix.INSTALLER }}
       - name: List files
         run: ls -R ${{ github.workspace }}/build/installer
       - name: Upload Release
