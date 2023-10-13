@@ -16,7 +16,7 @@ jobs:
       matrix:
         OS: [Windows, Linux, macOS]
         INSTALLER: [Exe, Msi, Deb, Dmg, Pkg, Rpm]
-        gradle_task: [build${{ matrix.OS }}${{ matrix.INSTALLER }}]
+        gradle_task: build${{ matrix.OS }}${{ matrix.INSTALLER }}
         include:
           - OS: Windows
             INSTALLER: Exe
