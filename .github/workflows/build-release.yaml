@@ -12,7 +12,7 @@ on:
 
 jobs:
   build-release:
-    name: Build Release ${{ matrix.gradle_task }}
+    name: ${{ matrix.gradle_task }} for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -20,16 +20,22 @@ jobs:
         type: [Dmg, Pkg, Exe, Msi, Deb, Rpm]
         include:
           - os: macos-latest
+            type: Dmg
             gradle_task: buildMacDmg
           - os: macos-latest
+            type: Pkg
             gradle_task: buildMacPkg
           - os: windows-latest
+            type: Exe
             gradle_task: buildWindowsExe
           - os: windows-latest
+            type: Msi
             gradle_task: buildWindowsMsi
           - os: ubuntu-latest
+            type: Deb
             gradle_task: buildLinuxDeb
           - os: ubuntu-latest
+            type: Rpm
             gradle_task: buildLinuxRpm
     steps:
       - uses: actions/checkout@v3
