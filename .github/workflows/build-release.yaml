@@ -60,7 +60,7 @@ jobs:
       - name: Upload Release
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.gradle_task }}
+          name: ${{ matrix.OS }}-${{ matrix.INSTALLER }}
           path: ${{ github.workspace }}/build/installer/*
           if-no-files-found: error
           retention-days: 14
