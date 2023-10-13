@@ -14,28 +14,34 @@ jobs:
   BuildRelease:
     strategy:
       matrix:
-        OS: [Windows, Linux, macOS]
-        INSTALLER: [Exe, Msi, Deb, Dmg, Pkg, Rpm]
+        TASK: [buildWindowsExe, buildWindowsMsi, buildLinuxDeb, buildLinuxRpm, buildMacOsPkg, buildMacOsDmg]
         include:
-          - OS: Windows
-            INSTALLER: Exe
-            RUNTIME: windows-latest
-          - OS: Windows
-            INSTALLER: Msi
-            RUNTIME: windows-latest
-          - OS: Linux
-            INSTALLER: Deb
-            RUNTIME: ubuntu-latest
-          - OS: Linux
-            INSTALLER: Rpm
-            RUNTIME: ubuntu-latest
-          - OS: macOS
-            INSTALLER: Dmg
-            RUNTIME: macos-latest
-          - OS: macOS
-            INSTALLER: Pkg
-            RUNTIME: macos-latest
+            - TASK: buildWindowsExe
+              OS: Windows
+              INSTALLER: Exe
+              RUNTIME: windows-latest
+            - TASK: buildWindowsMsi
+              OS: Windows
+              INSTALLER: Msi
+              RUNTIME: windows-latest
+            - TASK: buildLinuxDeb
+              OS: Linux
+              INSTALLER: Deb
+              RUNTIME: ubuntu-latest
+            - TASK: buildLinuxRpm
+              OS: Linux
+              INSTALLER: Rpm
+              RUNTIME: ubuntu-latest
+            - TASK: buildMacOsPkg
+              OS: MacOs
+              INSTALLER: Pkg
+              RUNTIME: macos-latest
+            - TASK: buildMacOsDmg
+              OS: MacOs
+              INSTALLER: Dmg
+              RUNTIME: macos-latest
     runs-on: ${{ matrix.RUNTIME }}
+    name: Build {{ matrix.INSTALLER }} for {{ matrix.OS }}
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK 17
