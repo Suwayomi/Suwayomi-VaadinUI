@@ -14,7 +14,7 @@ jobs:
   BuildRelease:
     strategy:
       matrix:
-        TASK: [buildWindowsExe, buildWindowsMsi, buildLinuxDeb, buildLinuxRpm, buildMacOsPkg, buildMacOsDmg]
+        TASK: [buildWindowsExe, buildWindowsMsi, buildLinuxDeb, buildLinuxRpm, buildMacPkg, buildMacDmg]
         include:
             - TASK: buildWindowsExe
               OS: Windows
