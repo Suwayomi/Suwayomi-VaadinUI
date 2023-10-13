@@ -21,7 +21,7 @@ jobs:
           - os: macos-latest
             gradle_task: buildMacDmg
           - os: macos-latest
-            gradle_task: buildMacPkg
+            gradle_task: buildMacPkg --warning-mode all
           - os: windows-latest
             gradle_task: buildWindowsExe
           - os: windows-latest
