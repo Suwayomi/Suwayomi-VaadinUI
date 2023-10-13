@@ -169,7 +169,7 @@ class LinuxInstallTask extends InstallTask {
         linuxAppCategory = "Utility"
         linuxDebMaintainer = "Alessandro.Schwaiger12@gmail.com"
         linuxMenuGroup = "DiamondMiku"
-        linuxPackageName = "Tachidesk-VaadinUI"
+        linuxPackageName = "tachidesk-vaaui"
         linuxRpmLicenseType = "MIT"
         linuxShortcut = true
     }
