@@ -36,7 +36,7 @@ jobs:
               OS: MacOs
               INSTALLER: Pkg
               RUNTIME: macos-latest
-            - TASK: buildMacOsDmg
+            - TASK: buildMacDmg
               OS: MacOs
               INSTALLER: Dmg
               RUNTIME: macos-latest
