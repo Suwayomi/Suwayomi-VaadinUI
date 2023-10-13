@@ -11,23 +11,32 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-release:
-    name: ${{ matrix.type }} for ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+  BuildRelease:
     strategy:
       matrix:
-        os: [ macos-latest, windows-latest, ubuntu-latest ]
-        type: [ Dmg, Pkg, Exe, Msi, Deb, Rpm ]
+        OS: [Windows, Linux, macOS]
+        INSTALLER: [Exe, Msi, Deb, Dmg, Pkg, Rpm]
+        gradle_task: [build${{ matrix.OS }}${{ matrix.INSTALLER }}]
         include:
-          - os: windows-latest
-            type: [ Msi, Exe ]
-            gradle_task: buildWindows
-          - os: ubuntu-latest
-            type: [ Deb, Rpm ]
-            gradle_task: buildLinux
-          - os: macos-latest
-            type: [ Dmg, Pkg ]
-            gradle_task: buildMac
+          - OS: Windows
+            INSTALLER: Exe
+            RUNTIME: windows-latest
+          - OS: Windows
+            INSTALLER: Msi
+            RUNTIME: windows-latest
+          - OS: Linux
+            INSTALLER: Deb
+            RUNTIME: ubuntu-latest
+          - OS: Linux
+            INSTALLER: Rpm
+            RUNTIME: ubuntu-latest
+          - OS: macOS
+            INSTALLER: Dmg
+            RUNTIME: macos-latest
+          - OS: macOS
+            INSTALLER: Pkg
+            RUNTIME: macos-latest
+    runs-on: ${{ matrix.RUNTIME }}
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK 17
@@ -40,7 +49,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build Release
-        run: ./gradlew ${{ matrix.gradle_task }}${{ matrix.type }}
+        run: ./gradlew ${{ matrix.gradle_task }}
       - name: List files
         run: ls -R ${{ github.workspace }}/build/installer
       - name: Upload Release
