@@ -49,6 +49,6 @@ jobs:
           name: ${{ matrix.gradle_task }}
           # This is producing a Unrecognized named-value: 'GITHUB_WORKSPACE' error
           # so the
-          path: ${{ env.GITHUB_WORKSPACE }} + '/build/installer/*.jar'
+          path: ${{ env.GITHUB_WORKSPACE }} + './build/installer/*'
           if-no-files-found: error
           retention-days: 14
