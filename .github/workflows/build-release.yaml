@@ -12,19 +12,22 @@ on:
 
 jobs:
   build-release:
-    name: ${{ matrix.gradle_task }} for ${{ matrix.os }}
+    name: ${{ matrix.type }} for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ macos-latest, windows-latest, ubuntu-latest ]
         type: [ Dmg, Pkg, Exe, Msi, Deb, Rpm ]
-        exclude:
+        include:
           - os: windows-latest
-            type: [ Dmg, Pkg, Deb, Rpm ]
+            type: [ Msi, Exe ]
+            gradle_task: buildWindows
           - os: ubuntu-latest
-            type: [ Exe, Msi, Pkg, Dmg ]
+            type: [ Deb, Rpm ]
+            gradle_task: buildLinux
           - os: macos-latest
-            type: [ Exe, Msi, Deb, Rpm ]
+            type: [ Dmg, Pkg ]
+            gradle_task: buildMac
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK 17
@@ -37,7 +40,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build Release
-        run: ./gradlew build${{ matrix.os }}${{ matrix.type }}
+        run: ./gradlew ${{ matrix.gradle_task }}${{ matrix.type }}
       - name: List files
         run: ls -R ${{ github.workspace }}/build/installer
       - name: Upload Release
