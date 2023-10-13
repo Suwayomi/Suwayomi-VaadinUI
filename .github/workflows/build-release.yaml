@@ -49,8 +49,6 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.gradle_task }}
-          # This is producing a Unrecognized named-value: 'GITHUB_WORKSPACE' error
-          # so the
-          path: ${{ github.workspace }}/build/installer/*.{exe,msi,dmg,pkg,deb,rpm}
+          path: ${{ github.workspace }}/build/installer/[*.exe,*.msi,*.pkg,*.dmg,*.deb,*.rpm]
           if-no-files-found: error
           retention-days: 14
