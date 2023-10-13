@@ -178,6 +178,10 @@ class LinuxInstallTask extends InstallTask {
 class MacInstallTask extends InstallTask {
     MacInstallTask() {
         super()
+
+        //mac app version can't be 0.x.x or it will fail therefor we increment the version by 1
+        //TODO change this when we reach 1.0.0
+        appVersion = "${project.version}".replaceFirst("0.", "1.")
         macAppCategory = "public.app-category.books"
         macAppStore = false
         macPackageIdentifier = "online.hatsunemiku.tachideskvaadinui"
