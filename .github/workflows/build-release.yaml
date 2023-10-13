@@ -17,26 +17,15 @@ jobs:
     strategy:
       matrix:
         os: [ macos-latest, windows-latest, ubuntu-latest ]
-        type: [Dmg, Pkg, Exe, Msi, Deb, Rpm]
-        include:
-          - os: macos-latest
-            type: Dmg
-            gradle_task: buildMacDmg
-          - os: macos-latest
-            type: Pkg
-            gradle_task: buildMacPkg
+        type: [ Dmg, Pkg, Exe, Msi, Deb, Rpm ]
+        exclude:
           - os: windows-latest
-            type: Exe
-            gradle_task: buildWindowsExe
-          - os: windows-latest
-            type: Msi
-            gradle_task: buildWindowsMsi
+            type: [ Dmg, Pkg, Deb, Rpm ]
           - os: ubuntu-latest
-            type: Deb
-            gradle_task: buildLinuxDeb
-          - os: ubuntu-latest
-            type: Rpm
-            gradle_task: buildLinuxRpm
+            type: [ Exe, Msi, Pkg, Dmg ]
+          - os: macos-latest
+            type: [ Exe, Msi, Deb, Rpm ]
+        gradle_task: build${{ matrix.os }}${{ matrix.type }}
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK 17
