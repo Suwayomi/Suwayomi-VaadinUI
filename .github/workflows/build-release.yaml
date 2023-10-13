@@ -43,6 +43,8 @@ jobs:
         run: chmod +x gradlew
       - name: Build Release
         run: ./gradlew ${{ matrix.gradle_task }}
+      - name: List files
+        run: ls -R ${{ github.workspace }}/build/installer
       - name: Upload Release
         uses: actions/upload-artifact@v3
         with:
