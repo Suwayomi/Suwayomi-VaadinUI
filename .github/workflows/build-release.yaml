@@ -32,7 +32,7 @@ jobs:
               OS: Linux
               INSTALLER: Rpm
               RUNTIME: ubuntu-latest
-            - TASK: buildMacOsPkg
+            - TASK: buildMacPkg
               OS: MacOs
               INSTALLER: Pkg
               RUNTIME: macos-latest
