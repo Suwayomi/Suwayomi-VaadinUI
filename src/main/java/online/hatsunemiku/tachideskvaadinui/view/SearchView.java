@@ -293,7 +293,9 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
         searchTasks.add(runnable);
       }
 
-      try (var executor = Executors.newCachedThreadPool()) {
+      //When upgrading to Java 21 put the executor in a try-with-resources block instead
+      var executor = Executors.newCachedThreadPool();
+      try {
         executor.invokeAll(searchTasks);
         executor.shutdown();
       } catch (InterruptedException e) {
