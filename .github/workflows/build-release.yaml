@@ -12,16 +12,17 @@ on:
 
 jobs:
   build-release:
-    name: Build Release
+    name: Build Release ${{ matrix.gradle_task }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ macos-latest, windows-latest, ubuntu-latest ]
+        type: [Dmg, Pkg, Exe, Msi, Deb, Rpm]
         include:
           - os: macos-latest
             gradle_task: buildMacDmg
           - os: macos-latest
-            gradle_task: buildMacPkg --info
+            gradle_task: buildMacPkg
           - os: windows-latest
             gradle_task: buildWindowsExe
           - os: windows-latest
