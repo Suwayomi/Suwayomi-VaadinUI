@@ -54,7 +54,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build Release
-        run: ./gradlew ${{ matrix.TASK }}
+        run: ./gradlew ${{ matrix.TASK }} --info
       - name: List files
         run: ls -R ${{ github.workspace }}/build/installer
       - name: Upload Release
