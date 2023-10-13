@@ -12,6 +12,7 @@ on:
 
 jobs:
   BuildRelease:
+    name: Build Release
     strategy:
       matrix:
         OS: [Windows, Linux, macOS]
