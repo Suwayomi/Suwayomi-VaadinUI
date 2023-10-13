@@ -41,7 +41,7 @@ jobs:
               INSTALLER: Dmg
               RUNTIME: macos-latest
     runs-on: ${{ matrix.RUNTIME }}
-    name: Build {{ matrix.INSTALLER }} for {{ matrix.OS }}
+    name: Build ${{ matrix.INSTALLER }} for ${{ matrix.OS }}
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK 17
