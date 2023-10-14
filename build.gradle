@@ -172,7 +172,7 @@ class LinuxInstallTask extends InstallTask {
         linuxDebMaintainer = "Alessandro.Schwaiger12@gmail.com"
         linuxMenuGroup = "DiamondMiku"
         linuxPackageName = "tachidesk-vaaui"
-        linuxRpmLicenseType = "MIT"
+        linuxRpmLicenseType = "MPLv2.0"
         linuxShortcut = true
     }
 }
