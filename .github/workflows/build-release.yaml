@@ -6,9 +6,9 @@ name: Build Release
 
 on:
   push:
-    branches:
-      - actions
-  workflow_dispatch:
+    tags:
+      - v*
+
 
 jobs:
   BuildRelease:
@@ -64,3 +64,27 @@ jobs:
           path: ${{ github.workspace }}/build/installer/*
           if-no-files-found: error
           retention-days: 14
+
+  PublishRelease:
+    # This is a new job that depends on the BuildRelease job
+    # It downloads the uploaded releases from the previous job and publishes them as a draft release on GitHub
+    # It uses ncipollo/release-action@v1 to create the release
+
+    name: Publish Release
+
+    needs: [ BuildRelease ]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Download Release Artifacts
+        uses: actions/download-artifact@v3
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "*/**/*.*" # This will include all the files from the downloaded artifacts
+          draft: true # This will make the release a draft, so you can edit it before publishing
+          token: ${{ secrets.GITHUB_TOKEN }} # This is the token to authenticate with GitHub
