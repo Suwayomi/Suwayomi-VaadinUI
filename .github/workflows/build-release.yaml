@@ -66,10 +66,6 @@ jobs:
           retention-days: 14
 
   PublishRelease:
-    # This is a new job that depends on the BuildRelease job
-    # It downloads the uploaded releases from the previous job and publishes them as a draft release on GitHub
-    # It uses ncipollo/release-action@v1 to create the release
-
     name: Publish Release
 
     needs: [ BuildRelease ]
