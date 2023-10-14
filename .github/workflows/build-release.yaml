@@ -78,6 +78,6 @@ jobs:
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "*"
+          artifacts: "*/**/*"
           draft: true # This will make the release a draft, so you can edit it before publishing
           token: ${{ secrets.GITHUB_TOKEN }} # This is the token to authenticate with GitHub
