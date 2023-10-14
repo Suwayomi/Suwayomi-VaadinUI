@@ -169,8 +169,8 @@ class LinuxInstallTask extends InstallTask {
         linuxAppCategory = "Utility"
         linuxDebMaintainer = "Alessandro.Schwaiger12@gmail.com"
         linuxMenuGroup = "DiamondMiku"
-        linuxPackageName = "Tachidesk-VaadinUI"
-        linuxRpmLicenseType = "MIT"
+        linuxPackageName = "tachidesk-vaaui"
+        linuxRpmLicenseType = "MPLv2.0"
         linuxShortcut = true
     }
 }
@@ -178,6 +178,11 @@ class LinuxInstallTask extends InstallTask {
 class MacInstallTask extends InstallTask {
     MacInstallTask() {
         super()
+        if (project.version.startsWith("0.")) {
+            appVersion = project.version.replaceFirst("0.", "1.")
+        } else {
+            appVersion = project.version
+        }
         macAppCategory = "public.app-category.books"
         macAppStore = false
         macPackageIdentifier = "online.hatsunemiku.tachideskvaadinui"
