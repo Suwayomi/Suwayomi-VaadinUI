@@ -6,8 +6,8 @@ name: Build Release
 
 on:
   push:
-    branches:
-      - master
+    tags:
+      - 'v*.*.*'
 
 
 jobs:
