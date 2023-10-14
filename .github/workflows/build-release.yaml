@@ -1,0 +1,86 @@
+# This is used to build a release for each platform - Windows, Linux, and macOS.
+# Each platform has multiple installers/packages (e.g. Windows has .exe and .msi).
+# To Build one gradle is used via the build{OS}{Installer} task. (e.g. buildWindowsExe)
+
+name: Build Release
+
+on:
+  push:
+    tags:
+      - v*
+
+
+jobs:
+  BuildRelease:
+    strategy:
+      matrix:
+        TASK: [buildWindowsExe, buildWindowsMsi, buildLinuxDeb, buildLinuxRpm, buildMacPkg, buildMacDmg]
+        include:
+            - TASK: buildWindowsExe
+              OS: Windows
+              INSTALLER: Exe
+              RUNTIME: windows-latest
+            - TASK: buildWindowsMsi
+              OS: Windows
+              INSTALLER: Msi
+              RUNTIME: windows-latest
+            - TASK: buildLinuxDeb
+              OS: Linux
+              INSTALLER: Deb
+              RUNTIME: ubuntu-latest
+            - TASK: buildLinuxRpm
+              OS: Linux
+              INSTALLER: Rpm
+              RUNTIME: ubuntu-latest
+            - TASK: buildMacPkg
+              OS: MacOs
+              INSTALLER: Pkg
+              RUNTIME: macos-latest
+            - TASK: buildMacDmg
+              OS: MacOs
+              INSTALLER: Dmg
+              RUNTIME: macos-latest
+    runs-on: ${{ matrix.RUNTIME }}
+    name: Build ${{ matrix.INSTALLER }} for ${{ matrix.OS }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'liberica'
+          cache: gradle
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Build Release
+        run: ./gradlew ${{ matrix.TASK }} --info
+      - name: List files
+        run: ls -R ${{ github.workspace }}/build/installer
+      - name: Upload Release
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.OS }}-${{ matrix.INSTALLER }}
+          path: ${{ github.workspace }}/build/installer/*
+          if-no-files-found: error
+          retention-days: 14
+
+  PublishRelease:
+    name: Publish Release
+
+    needs: [ BuildRelease ]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Download Release Artifacts
+        uses: actions/download-artifact@v3
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "*/**/*.*" # This will include all the files from the downloaded artifacts
+          draft: true # This will make the release a draft, so you can edit it before publishing
+          token: ${{ secrets.GITHUB_TOKEN }} # This is the token to authenticate with GitHub
