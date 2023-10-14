@@ -5,9 +5,7 @@
 name: Build Release
 
 on:
-  push:
-    tags:
-      - v*
+  workflow_dispatch:
 
 
 jobs:
