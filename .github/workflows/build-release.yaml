@@ -76,11 +76,13 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - name: list artifacts
+        run: ls -R ${{ github.workspace }}/build/installer
       - name: Download Release Artifacts
         uses: actions/download-artifact@v3
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "*/**/*.*" # This will include all the files from the downloaded artifacts
+          artifacts: ${{ github.workspace }}/build/installer/*
           draft: true # This will make the release a draft, so you can edit it before publishing
           token: ${{ secrets.GITHUB_TOKEN }} # This is the token to authenticate with GitHub
