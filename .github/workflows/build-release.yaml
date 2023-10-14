@@ -14,32 +14,32 @@ jobs:
   BuildRelease:
     strategy:
       matrix:
-        TASK: [buildWindowsExe, buildWindowsMsi, buildLinuxDeb, buildLinuxRpm, buildMacPkg, buildMacDmg]
+        TASK: [ buildWindowsExe, buildWindowsMsi, buildLinuxDeb, buildLinuxRpm, buildMacPkg, buildMacDmg ]
         include:
-            - TASK: buildWindowsExe
-              OS: Windows
-              INSTALLER: Exe
-              RUNTIME: windows-latest
-            - TASK: buildWindowsMsi
-              OS: Windows
-              INSTALLER: Msi
-              RUNTIME: windows-latest
-            - TASK: buildLinuxDeb
-              OS: Linux
-              INSTALLER: Deb
-              RUNTIME: ubuntu-latest
-            - TASK: buildLinuxRpm
-              OS: Linux
-              INSTALLER: Rpm
-              RUNTIME: ubuntu-latest
-            - TASK: buildMacPkg
-              OS: MacOs
-              INSTALLER: Pkg
-              RUNTIME: macos-latest
-            - TASK: buildMacDmg
-              OS: MacOs
-              INSTALLER: Dmg
-              RUNTIME: macos-latest
+          - TASK: buildWindowsExe
+            OS: Windows
+            INSTALLER: Exe
+            RUNTIME: windows-latest
+          - TASK: buildWindowsMsi
+            OS: Windows
+            INSTALLER: Msi
+            RUNTIME: windows-latest
+          - TASK: buildLinuxDeb
+            OS: Linux
+            INSTALLER: Deb
+            RUNTIME: ubuntu-latest
+          - TASK: buildLinuxRpm
+            OS: Linux
+            INSTALLER: Rpm
+            RUNTIME: ubuntu-latest
+          - TASK: buildMacPkg
+            OS: MacOs
+            INSTALLER: Pkg
+            RUNTIME: macos-latest
+          - TASK: buildMacDmg
+            OS: MacOs
+            INSTALLER: Dmg
+            RUNTIME: macos-latest
     runs-on: ${{ matrix.RUNTIME }}
     name: Build ${{ matrix.INSTALLER }} for ${{ matrix.OS }}
     steps:
@@ -80,6 +80,6 @@ jobs:
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: *
+          artifacts: "*"
           draft: true # This will make the release a draft, so you can edit it before publishing
           token: ${{ secrets.GITHUB_TOKEN }} # This is the token to authenticate with GitHub
