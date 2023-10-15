@@ -6,15 +6,13 @@
 
 package online.hatsunemiku.tachideskvaadinui.view;
 
-import com.vaadin.flow.component.ComponentUtil;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.router.Route;
-import online.hatsunemiku.tachideskvaadinui.component.events.source.LanguageListChangeEvent;
+import java.util.ArrayList;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.settings.event.SettingsEventPublisher;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Source;
@@ -24,10 +22,6 @@ import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jetbrains.annotations.NotNull;
 import org.vaadin.miki.superfields.text.SuperTextField;
-
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.concurrent.CompletableFuture;
 
 @Route("settings")
 @CssImport("./css/views/settings-view.css")
