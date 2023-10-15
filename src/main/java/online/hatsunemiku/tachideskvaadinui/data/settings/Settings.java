@@ -109,6 +109,6 @@ public class Settings {
    *     otherwise.
    */
   public boolean hasDefaultSearchLang() {
-    return defaultSearchLang != null;
+    return defaultSearchLang != null && !defaultSearchLang.isEmpty();
   }
 }

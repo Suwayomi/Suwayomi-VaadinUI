@@ -119,9 +119,8 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
       langFilter.setItems(langs);
 
       Settings settings = settingsService.getSettings();
-      String defaultSearchLang = settings.getDefaultSearchLang();
-      if (defaultSearchLang != null && !defaultSearchLang.isEmpty()) {
-        langFilter.setValue(defaultSearchLang);
+      if (settings.hasDefaultSearchLang()) {
+        langFilter.setValue(settings.getDefaultSearchLang());
       }
     }
 
