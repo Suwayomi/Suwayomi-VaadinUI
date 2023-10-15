@@ -10,6 +10,7 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Svg;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
@@ -33,7 +34,6 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.component.card.MangaCard;
 import online.hatsunemiku.tachideskvaadinui.component.combo.LangComboBox;
-import online.hatsunemiku.tachideskvaadinui.component.events.source.LanguageListChangeEvent;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Source;
@@ -54,7 +54,7 @@ import org.vaadin.miki.superfields.text.SuperTextField;
 public class SearchView extends StandardLayout implements HasUrlParameter<String> {
 
   private final Div searchResults;
-  private final LangComboBox langFilter;
+  private final ComboBox<String> langFilter;
   private final SuperTextField searchField;
   private final SourceService sourceService;
   private final SearchService searchService;
@@ -70,7 +70,7 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     searchResults = new Div();
 
     SuperTextField searchField = createSearchField();
-    LangComboBox langFilter = createLanguageComboBox(sourceService);
+    var langFilter = createLanguageComboBox(sourceService);
 
     this.searchField = searchField;
     this.langFilter = langFilter;
@@ -109,20 +109,29 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   }
 
   @NotNull
-  private LangComboBox createLanguageComboBox(SourceService sourceService) {
-    LangComboBox langFilter = new LangComboBox();
+  private ComboBox<String> createLanguageComboBox(SourceService sourceService) {
+    ComboBox<String> langFilter = new LangComboBox();
     langFilter.addClassName("search-lang-filter");
 
-    addListener(LanguageListChangeEvent.class, langFilter);
-    CompletableFuture.runAsync(
-        () -> {
-          var sources = sourceService.getSources();
-          var langs = sources.stream().map(Source::getLang).distinct().toList();
-          LanguageListChangeEvent event = new LanguageListChangeEvent(this, langs);
-          fireEvent(event);
-        });
+    var sources = sourceService.getSources();
+    var langs = sources.stream().map(Source::getLang).distinct().toList();
+    if (!langs.isEmpty()) {
+      langFilter.setItems(langs);
 
-    langFilter.addValueChangeListener(e -> runSearch(searchField));
+      Settings settings = settingsService.getSettings();
+      String defaultSearchLang = settings.getDefaultSearchLang();
+      if (defaultSearchLang != null && !defaultSearchLang.isEmpty()) {
+        langFilter.setValue(defaultSearchLang);
+      }
+    }
+
+    langFilter.addValueChangeListener(
+        e -> {
+          if (!e.isFromClient()) {
+            return;
+          }
+          runSearch(searchField);
+        });
 
     return langFilter;
   }

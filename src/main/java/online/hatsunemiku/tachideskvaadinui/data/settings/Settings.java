@@ -8,9 +8,12 @@ package online.hatsunemiku.tachideskvaadinui.data.settings;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import lombok.Getter;
+import lombok.Setter;
 import online.hatsunemiku.tachideskvaadinui.data.settings.reader.ReaderSettings;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.lang.NonNull;
@@ -28,11 +31,17 @@ public class Settings {
   @JsonProperty("mangaReaderSettings")
   private final Map<Integer, ReaderSettings> mangaReaderSettings;
 
+  @JsonProperty("defaultSearchLang")
+  @Getter
+  @Setter
+  private String defaultSearchLang;
+
   @JsonCreator
   public Settings(
       @NotNull @JsonProperty("url") String url,
       @JsonProperty("defaultReaderSettings") ReaderSettings defaultReaderSettings,
-      @JsonProperty("mangaReaderSettings") Map<Integer, ReaderSettings> mangaReaderSettings) {
+      @JsonProperty("mangaReaderSettings") Map<Integer, ReaderSettings> mangaReaderSettings,
+      @JsonProperty("defaultSearchLang") String defaultSearchLang) {
 
     if (defaultReaderSettings == null) {
       defaultReaderSettings = new ReaderSettings();
@@ -45,6 +54,7 @@ public class Settings {
     this.url = url;
     this.defaultReaderSettings = defaultReaderSettings;
     this.mangaReaderSettings = new HashMap<>(mangaReaderSettings);
+    this.defaultSearchLang = defaultSearchLang;
   }
 
   public Settings(@NotNull String url) {
@@ -90,5 +100,15 @@ public class Settings {
    */
   public boolean hasMangaReaderSettings(int mangaId) {
     return mangaReaderSettings.containsKey(mangaId);
+  }
+
+  /**
+   * Checks if the User has a default search language set.
+   *
+   * @return {@code true} if the manga reader has a default search language set, {@code false}
+   *     otherwise.
+   */
+  public boolean hasDefaultSearchLang() {
+    return defaultSearchLang != null;
   }
 }
