@@ -68,6 +68,46 @@ build/installer folder.
 To build a MacOS installer, just run 'gradlew buildMacDmg' for a .dmg file or 'gradlew buildMacPkg'
 for a .pkg file. Whichever you prefer. The installer will be located in the build/installer folder.
 
+# Development Guidelines
+
+## Formatting
+
+Please use the Google Java Format to format your code. You can find an IntelliJ plugin, which will format the code for
+you [here](https://plugins.jetbrains.com/plugin/8527-google-java-format).
+
+## Commit Messages
+
+Explain what the commit does in a simple manner. Don't explain the whole algorithm you implemented, but rather what the
+commit does. For example: "Add support for reading Manga" or "Fix bug where Manga Page doesn't load correctly".
+
+## Pull Requests
+
+Please make sure that your code compiles and runs before making a pull request. Also make sure that your code is well
+formatted. If you want to make a pull request, feel free to do so. I'll review it and if it's good, I'll merge it in a
+timely manner.
+
+**Note**: If you want to make a big change, please open an issue first and discuss if the change is needed/wanted. This
+way you won't have done a lot of work for nothing and I won't have to reject your pull request.
+
+## Code
+
+Please make sure your code is readable and follows the guidelines above. Also make sure new methods are documented with
+a proper JavaDoc. For example:
+
+```java
+/**
+ * This method returns the {@link Manga} title.
+ *
+ * @param mangaId The id of the Manga to get the tile from.
+ * @return The title of the Manga. 
+ */
+public String getMangaTitle(String mangaId) {
+    /* Code here
+            
+     */
+}
+```
+
 # Credit
 
 The `Tachidesk-Server` project is developed by [AriaMoradi](https://github.com/AriaMoradi) and other
