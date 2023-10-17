@@ -23,7 +23,14 @@ import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 public class AniListView extends StandardLayout {
   public AniListView(AniListAPIService apiService) {
     super("AniList");
+
+    addClassName("anilist-view");
+
     if (!apiService.hasAniListToken()) {
+
+      Div content = new Div();
+      content.addClassName("button-container");
+
       Button authBtn = new Button("Authenticate");
       authBtn.addClickListener(
           e -> {
@@ -31,7 +38,8 @@ public class AniListView extends StandardLayout {
             getUI().ifPresent(ui -> ui.getPage().open(url));
           });
 
-      add(authBtn);
+      content.add(authBtn);
+      setContent(content);
       return;
     }
 
