@@ -18,11 +18,9 @@ import org.springframework.stereotype.Component;
 public class ExtensionClient {
 
   private final WebClientService clientService;
-  private final ObjectMapper objectMapper;
 
-  public ExtensionClient(WebClientService clientService, ObjectMapper objectMapper) {
+  public ExtensionClient(WebClientService clientService) {
     this.clientService = clientService;
-    this.objectMapper = objectMapper;
   }
 
   public boolean updateExtension(String extensionId) {
