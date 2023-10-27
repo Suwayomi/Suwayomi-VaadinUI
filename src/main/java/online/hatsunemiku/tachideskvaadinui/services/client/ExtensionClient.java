@@ -6,7 +6,6 @@
 
 package online.hatsunemiku.tachideskvaadinui.services.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Extension;
