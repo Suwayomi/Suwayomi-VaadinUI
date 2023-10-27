@@ -26,8 +26,9 @@ public class ExtensionClient {
   }
 
   public boolean updateExtension(String extensionId) {
-    //language=GraphQL
-    String query = """
+    // language=GraphQL
+    String query =
+        """
         mutation UpdateExtension($extensionId: String!) {
           updateExtension(input: {id: $extensionId, patch: {update: true}}) {
             extension {
@@ -39,11 +40,13 @@ public class ExtensionClient {
 
     var graphClient = clientService.getGraphQlClient();
 
-    Boolean hasUpdate = graphClient.document(query)
-        .variable("extensionId", extensionId)
-        .retrieve("updateExtension.extension.hasUpdate")
-        .toEntity(Boolean.class)
-        .block();
+    Boolean hasUpdate =
+        graphClient
+            .document(query)
+            .variable("extensionId", extensionId)
+            .retrieve("updateExtension.extension.hasUpdate")
+            .toEntity(Boolean.class)
+            .block();
 
     if (hasUpdate == null) {
       throw new RuntimeException("Error while updating extension");
@@ -59,32 +62,34 @@ public class ExtensionClient {
    * @throws RuntimeException if there is an error while retrieving the extensions
    */
   public List<Extension> getExtensions() {
-    //language=GraphQL
-    String query = """
-        query GetExtensions {
-          extensions {
-            nodes {
-              pkgName
-              apkName
-              isInstalled
-              isNsfw
-              isObsolete
-              lang
-              name
-              hasUpdate
-              iconUrl
+    // language=GraphQL
+    String query =
+        """
+        mutation GetExtensions {
+            fetchExtensions(input: {clientMutationId: ""}) {
+                extensions {
+                    pkgName
+                    apkName
+                    isInstalled
+                    isNsfw
+                    isObsolete
+                    lang
+                    name
+                    hasUpdate
+                    iconUrl
+                }
             }
-          }
-        }
-        """;
+        }""";
 
     var graphClient = clientService.getGraphQlClient();
 
-    //can't use toEntityList because there's too much data, so it exceeds the default buffer size
-    var extensions = graphClient.document(query)
-        .retrieve("extensions.nodes")
-        .toEntityList(Extension.class)
-        .block();
+    // can't use toEntityList because there's too much data, so it exceeds the default buffer size
+    var extensions =
+        graphClient
+            .document(query)
+            .retrieve("fetchExtensions.extensions")
+            .toEntityList(Extension.class)
+            .block();
 
     if (extensions == null || extensions.isEmpty()) {
       throw new RuntimeException("Error while retrieving extensions");
@@ -116,25 +121,29 @@ public class ExtensionClient {
   }
 
   private boolean updateExtensionInstallStatus(String extensionId, boolean install) {
-    //language=GraphQL
-    String query = """
-        mutation installExtension($extensionId: String!, $install: Boolean!) {
-          updateExtension(input: {id: $extensionId, patch: {install: $install}}) {
-            extension {
-              isInstalled
+    // language=GraphQL
+    String query =
+        """
+            mutation installExtension($extensionId: String!, $install: Boolean!, $uninstall:Boolean!) {
+              updateExtension(input: {id: $extensionId, patch: {install: $install, uninstall: $uninstall}}) {
+                extension {
+                  isInstalled
+                }
+              }
             }
-          }
-        }
-        """;
+            """;
 
     var graphClient = clientService.getGraphQlClient();
 
-    Boolean isInstalled = graphClient.document(query)
-        .variable("extensionId", extensionId)
-        .variable("install", install)
-        .retrieve("updateExtension.extension.isInstalled")
-        .toEntity(Boolean.class)
-        .block();
+    Boolean isInstalled =
+        graphClient
+            .document(query)
+            .variable("extensionId", extensionId)
+            .variable("install", install)
+            .variable("uninstall", !install)
+            .retrieve("updateExtension.extension.isInstalled")
+            .toEntity(Boolean.class)
+            .block();
 
     if (isInstalled == null) {
       throw new RuntimeException("Error while updating extension install status");
