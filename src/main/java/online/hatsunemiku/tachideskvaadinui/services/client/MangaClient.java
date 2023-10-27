@@ -13,6 +13,8 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Category;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
+import online.hatsunemiku.tachideskvaadinui.services.client.exception.InvalidResponseException;
+import org.springframework.graphql.client.FieldAccessException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -26,7 +28,8 @@ public class MangaClient {
   }
 
   public boolean addMangaToCategories(List<Integer> categoryIds, int mangaId) {
-    String query = """
+    String query =
+        """
         mutation addMangaToCategories($categoryIds: [Int!], $mangaId: Int!) {
           updateMangaCategories(
             input: {id: $mangaId, patch: {addToCategories: $categoryIds}}
@@ -44,21 +47,21 @@ public class MangaClient {
 
     var graphClient = clientService.getGraphQlClient();
 
-    var tempCategoryIds = graphClient.document(query)
-        .variable("categoryIds", categoryIds)
-        .variable("mangaId", mangaId)
-        .retrieve("updateMangaCategories.manga.categories.nodes")
-        .toEntityList(UpdateMangaCategoryId.class)
-        .block();
+    var tempCategoryIds =
+        graphClient
+            .document(query)
+            .variable("categoryIds", categoryIds)
+            .variable("mangaId", mangaId)
+            .retrieve("updateMangaCategories.manga.categories.nodes")
+            .toEntityList(UpdateMangaCategoryId.class)
+            .block();
 
     if (tempCategoryIds == null) {
       throw new RuntimeException("Error while adding manga to categories");
     }
 
-    var newCategoryIds = tempCategoryIds.stream()
-        .filter(Objects::nonNull)
-        .map(UpdateMangaCategoryId::id)
-        .toList();
+    var newCategoryIds =
+        tempCategoryIds.stream().filter(Objects::nonNull).map(UpdateMangaCategoryId::id).toList();
 
     for (int categoryId : newCategoryIds) {
       if (!categoryIds.contains(categoryId)) {
@@ -70,7 +73,8 @@ public class MangaClient {
   }
 
   public boolean removeMangaFromCategories(List<Integer> categoryIds, int mangaId) {
-    String query = """
+    String query =
+        """
         mutation removeMangaFromCategories($categoryIds: [Int!], $mangaId: Int!) {
           updateMangaCategories(
             input: {id: $mangaId, patch: {removeFromCategories: $categoryIds}}
@@ -88,21 +92,21 @@ public class MangaClient {
 
     var graphClient = clientService.getGraphQlClient();
 
-    var tempCategoryIds = graphClient.document(query)
-        .variable("categoryIds", categoryIds)
-        .variable("mangaId", mangaId)
-        .retrieve("updateMangaCategories.manga.categories.nodes")
-        .toEntityList(UpdateMangaCategoryId.class)
-        .block();
+    var tempCategoryIds =
+        graphClient
+            .document(query)
+            .variable("categoryIds", categoryIds)
+            .variable("mangaId", mangaId)
+            .retrieve("updateMangaCategories.manga.categories.nodes")
+            .toEntityList(UpdateMangaCategoryId.class)
+            .block();
 
     if (tempCategoryIds == null) {
       throw new RuntimeException("Error while removing manga from categories");
     }
 
-    var newCategoryIds = tempCategoryIds.stream()
-        .filter(Objects::nonNull)
-        .map(UpdateMangaCategoryId::id)
-        .toList();
+    var newCategoryIds =
+        tempCategoryIds.stream().filter(Objects::nonNull).map(UpdateMangaCategoryId::id).toList();
 
     for (int id : newCategoryIds) {
       if (categoryIds.contains(id)) {
@@ -121,7 +125,8 @@ public class MangaClient {
    * @throws RuntimeException if an error occurs while parsing the JSON response.
    */
   public Chapter getChapter(long chapterId) {
-    String query = """
+    String query =
+        """
         query MyQuery($id: Int!) {
           chapter(id: $id) {
             mangaId
@@ -136,16 +141,59 @@ public class MangaClient {
 
     var graphClient = clientService.getGraphQlClient();
 
-    return graphClient.document(query)
+    return graphClient
+        .document(query)
         .variable("id", chapterId)
         .retrieve("chapter")
         .toEntity(Chapter.class)
         .block();
   }
 
-  public List<Chapter> getChapterList(int mangaId) {
-    String query = """
-        mutation MyMutation($mangaId: Int!) {
+  public List<Chapter> getChapters(int mangaId) {
+    // language=GraphQL
+    String query =
+        """
+        query getMangaChapters($mangaId: Int!) {
+          manga(id: $mangaId) {
+            chapters {
+              nodes {
+                url
+                chapterNumber
+                mangaId
+                name
+                uploadDate
+                isRead
+                isDownloaded
+                id
+                pageCount
+                manga {
+                  chapters {
+                    edges {
+                      cursor
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        """;
+
+    var graphClient = clientService.getGraphQlClient();
+
+    return graphClient
+        .document(query)
+        .variable("mangaId", mangaId)
+        .retrieve("manga.chapters.nodes")
+        .toEntityList(Chapter.class)
+        .block();
+  }
+
+  public List<Chapter> fetchChapterList(int mangaId) {
+    // language=graphql
+    String query =
+        """
+        mutation fetchChapterList($mangaId: Int!) {
              fetchChapters(input: { mangaId: $mangaId }) {
                chapters {
                  url
@@ -167,16 +215,20 @@ public class MangaClient {
                }
              }
            }
-           
         """;
 
     var graphClient = clientService.getGraphQlClient();
 
-    return graphClient.document(query)
+    return graphClient
+        .document(query)
         .variable("mangaId", mangaId)
         .retrieve("fetchChapters.chapters")
         .toEntityList(Chapter.class)
-        .block();
+        .doOnError(throwable -> {
+          if (throwable instanceof FieldAccessException) {
+            throw new InvalidResponseException("Invalid response from server for manga " + mangaId, throwable);
+          }
+        }).block();
   }
 
   /**
@@ -195,7 +247,7 @@ public class MangaClient {
    *
    * @param mangaId the ID of the manga to be removed
    * @return true if the manga was successfully removed from the library and its categories, false
-   * otherwise
+   *     otherwise
    */
   public boolean removeMangaFromLibrary(int mangaId) {
 
@@ -208,9 +260,7 @@ public class MangaClient {
     var categories = manga.getMangaCategories();
 
     if (categories != null) {
-      var categoryIds = categories.stream()
-          .map(Category::getId)
-          .toList();
+      var categoryIds = categories.stream().map(Category::getId).toList();
 
       if (!removeMangaFromCategories(categoryIds, mangaId)) {
         return false;
@@ -242,9 +292,9 @@ public class MangaClient {
     return !updateChapterReadStatus(chapterId, false);
   }
 
-
   public Manga getManga(long mangaId) {
-    String query = """
+    String query =
+        """
         mutation FetchManga($id: Int!) {
           fetchManga(input: {id: $id}) {
             manga {
@@ -267,7 +317,8 @@ public class MangaClient {
 
     var graphClient = clientService.getGraphQlClient();
 
-    return graphClient.document(query)
+    return graphClient
+        .document(query)
         .variable("id", mangaId)
         .retrieve("fetchManga.manga")
         .toEntity(Manga.class)
@@ -278,13 +329,14 @@ public class MangaClient {
    * Update the read status of a specific chapter.
    *
    * @param chapterId the ID of the chapter to update
-   * @param read      the new read status of the chapter
-   * @return the new read status of the chapter after the update, either {@code true} or
-   * {@code false}
+   * @param read the new read status of the chapter
+   * @return the new read status of the chapter after the update, either {@code true} or {@code
+   *     false}
    * @throws RuntimeException if there is an error while parsing the JSON response
    */
   private boolean updateChapterReadStatus(int chapterId, boolean read) {
-    String query = """
+    String query =
+        """
         mutation SetChapterReadStatus($id: Int!, $isRead: Boolean!) {
           updateChapter(input: {patch: {isRead: $isRead}, id: $id}) {
             chapter {
@@ -294,12 +346,14 @@ public class MangaClient {
         }""";
 
     var graphClient = clientService.getGraphQlClient();
-    Boolean readStatus = graphClient.document(query)
-        .variable("id", chapterId)
-        .variable("isRead", read)
-        .retrieve("updateChapter.chapter.isRead")
-        .toEntity(Boolean.class)
-        .block();
+    Boolean readStatus =
+        graphClient
+            .document(query)
+            .variable("id", chapterId)
+            .variable("isRead", read)
+            .retrieve("updateChapter.chapter.isRead")
+            .toEntity(Boolean.class)
+            .block();
 
     return Objects.requireNonNullElse(readStatus, false);
   }
@@ -308,12 +362,13 @@ public class MangaClient {
    * Updates the library status of a manga.
    *
    * @param mangaId the ID of the manga to update
-   * @param add     true to add the manga to the library, false to remove it from the library
+   * @param add true to add the manga to the library, false to remove it from the library
    * @return true if the manga is in the library after the update, false otherwise
    * @throws RuntimeException if there is an error while parsing the JSON response
    */
   private boolean updateMangaLibraryStatus(int mangaId, boolean add) {
-    String query = """
+    String query =
+        """
         mutation UpdateMangaLibraryStatus($id: Int!, $add: Boolean!) {
           updateManga(input: {id: $id, patch: {inLibrary: $add}}) {
             manga {
@@ -324,18 +379,21 @@ public class MangaClient {
         """;
 
     var graphClient = clientService.getGraphQlClient();
-    Boolean success = graphClient.document(query)
-        .variable("id", mangaId)
-        .variable("add", add)
-        .retrieve("updateManga.manga.inLibrary")
-        .toEntity(Boolean.class)
-        .block();
+    Boolean success =
+        graphClient
+            .document(query)
+            .variable("id", mangaId)
+            .variable("add", add)
+            .retrieve("updateManga.manga.inLibrary")
+            .toEntity(Boolean.class)
+            .block();
 
     return Objects.requireNonNullElse(success, false);
   }
 
   public List<String> getChapterPages(int chapterId) {
-    String query = """
+    String query =
+        """
         mutation getChapterPages($chapterId: Int!) {
           fetchChapterPages(input: {chapterId: $chapterId}) {
             pages
@@ -345,14 +403,60 @@ public class MangaClient {
 
     var graphClient = clientService.getGraphQlClient();
 
-    return graphClient.document(query)
+    return graphClient
+        .document(query)
         .variable("chapterId", chapterId)
         .retrieve("fetchChapterPages.pages")
         .toEntityList(String.class)
         .block();
   }
 
-  private record UpdateMangaCategoryId(int id) {
+  /**
+   * Retrieves a list of {@link Manga} that are currently in the library.
+   *
+   * @return the list of manga, which are in the library
+   */
+  public List<Manga> getLibraryManga() {
+    // language=GraphQL
+    String query =
+        """
+            query getLibraryManga {
+              categories {
+                nodes {
+                  mangas {
+                    nodes {
+                      thumbnailUrl
+                      title
+                      inLibrary
+                      id
+                      lastReadChapter {
+                        id
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """;
 
+    var graphClient = clientService.getGraphQlClient();
+
+    List<LibraryCategory> mangaLibrary = graphClient.document(query)
+        .retrieve("categories.nodes")
+        .toEntityList(LibraryCategory.class)
+        .block();
+
+    if (mangaLibrary == null){
+      throw new RuntimeException("Error while retrieving library manga");
+    }
+
+    return mangaLibrary.parallelStream()
+        .flatMap(libraryManga -> libraryManga.mangas().nodes().stream())
+        .toList();
   }
+
+  private record UpdateMangaCategoryId(int id) {}
+
+  private record LibraryCategory(LibraryMangaList mangas) {}
+  private record LibraryMangaList(List<Manga> nodes) {}
 }

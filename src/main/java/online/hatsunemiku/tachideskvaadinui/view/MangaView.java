@@ -99,6 +99,10 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
 
     List<Chapter> chapters = mangaService.getChapterList(mangaId);
 
+    if (chapters.isEmpty()) {
+      chapters = mangaService.fetchChapterList(mangaId);
+    }
+
     Collections.reverse(chapters);
 
     ListBox<Chapter> chapterListBox = new ChapterListBox(chapters, mangaService);
@@ -229,7 +233,8 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
             boolean success = mangaService.removeMangaFromLibrary(manga.getId());
 
             if (!success) {
-              Notification notification = new Notification("Failed to remove manga from library", 3000);
+              Notification notification =
+                  new Notification("Failed to remove manga from library", 3000);
               notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
               notification.setPosition(Notification.Position.MIDDLE);
               notification.open();

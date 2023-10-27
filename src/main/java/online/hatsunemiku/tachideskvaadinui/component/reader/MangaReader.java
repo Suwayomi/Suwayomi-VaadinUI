@@ -81,6 +81,11 @@ public class MangaReader extends Div {
       Button home = getHomeButton();
 
       List<Chapter> chapters = mangaService.getChapterList(chapter.getMangaId());
+
+      if (chapters.isEmpty()) {
+        chapters = mangaService.fetchChapterList(chapter.getMangaId());
+      }
+
       Div chapterSelect = new Div();
       chapterSelect.setClassName("chapter-select");
       chapterSelect.getStyle().set("--vaadin-combo-box-overlay-width", "20vw");

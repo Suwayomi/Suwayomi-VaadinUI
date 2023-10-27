@@ -72,6 +72,10 @@ public class ReadingView extends StandardLayout
 
     List<Chapter> chapters = mangaService.getChapterList(mangaId);
 
+    if (chapters.isEmpty()) {
+      chapters = mangaService.fetchChapterList(mangaId);
+    }
+
     Chapter chapterObj = null;
 
     for (Chapter c : chapters) {
@@ -87,7 +91,8 @@ public class ReadingView extends StandardLayout
     }
 
     var reader =
-        new MangaReader(chapterObj, settingsService, dataService, mangaService, communicationService, chapters);
+        new MangaReader(
+            chapterObj, settingsService, dataService, mangaService, communicationService, chapters);
 
     setContent(reader);
   }

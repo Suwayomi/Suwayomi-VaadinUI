@@ -33,26 +33,43 @@ public class MangaService {
    *
    * @param mangaId the ID of the manga to be added
    * @return {@code true} if the manga was successfully added to the library, {@code false}
-   * otherwise
+   *     otherwise
    */
   public boolean addMangaToLibrary(int mangaId) {
     return mangaClient.addMangaToLibrary(mangaId);
   }
-
 
   /**
    * Removes a manga from the library.
    *
    * @param mangaId the ID of the manga to be removed
    * @return {@code true} if the manga was successfully removed from the library, {@code false}
-   * otherwise
+   *     otherwise
    */
   public boolean removeMangaFromLibrary(int mangaId) {
     return mangaClient.removeMangaFromLibrary(mangaId);
   }
 
+  /**
+   * Retrieves the cached list of chapters for a manga. This method does NOT find new chapters. Use
+   * {@link #fetchChapterList(int)} to find new chapters.
+   *
+   * @param mangaId the ID of the manga for which to get the chapter list
+   * @return the list of Chapter objects representing the chapters of the manga
+   */
   public List<Chapter> getChapterList(int mangaId) {
-    return mangaClient.getChapterList(mangaId);
+    return mangaClient.getChapters(mangaId);
+  }
+
+  /**
+   * Retrieves the list of chapters for a manga from the server. This method finds new chapters and
+   * updates the cache. Use {@link #getChapterList(int)} to retrieve the cached list of chapters.
+   *
+   * @param mangaId the ID of the manga for which to get the chapter list
+   * @return the list of Chapter objects representing the chapters of the manga
+   */
+  public List<Chapter> fetchChapterList(int mangaId) {
+    return mangaClient.fetchChapterList(mangaId);
   }
 
   @Cacheable(value = "chapter", key = "#chapterId")
@@ -102,7 +119,7 @@ public class MangaService {
   /**
    * Adds a manga to a category.
    *
-   * @param mangaId    the ID of the manga to be added
+   * @param mangaId the ID of the manga to be added
    * @param categoryId the ID of the category to add the manga to
    */
   public void addMangaToCategory(int mangaId, int categoryId) {
@@ -112,7 +129,7 @@ public class MangaService {
   /**
    * Removes a manga from a category.
    *
-   * @param mangaId    the ID of the manga to be removed
+   * @param mangaId the ID of the manga to be removed
    * @param categoryId the ID of the category to remove the manga from
    */
   public void removeMangaFromCategory(int mangaId, int categoryId) {
@@ -131,7 +148,7 @@ public class MangaService {
    * @return true if the download was successful, false otherwise
    */
   public boolean downloadSingleChapter(int chapterId) {
-      return downloadClient.downloadChapters(List.of(chapterId));
+    return downloadClient.downloadChapters(List.of(chapterId));
   }
 
   /**
@@ -143,7 +160,6 @@ public class MangaService {
   public boolean downloadMultipleChapter(List<Integer> chapterIds) {
     return downloadClient.downloadChapters(List.copyOf(chapterIds));
   }
-
 
   /**
    * Deletes a single downloaded chapter of a manga.
@@ -157,5 +173,14 @@ public class MangaService {
 
   public List<String> getChapterPages(int chapterId) {
     return mangaClient.getChapterPages(chapterId);
+  }
+
+  /**
+   * Retrieves the list of {@link Manga} in the user's library.
+   *
+   * @return the list of manga in the library
+   */
+  public List<Manga> getLibraryManga() {
+    return mangaClient.getLibraryManga();
   }
 }
