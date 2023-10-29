@@ -43,7 +43,17 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
     container.add(background);
 
     Div title = new Div();
-    title.setText("Chapter " + chapter.getChapterNumber());
+
+    float chapterNumber = chapter.getChapterNumber();
+    String chapterNumberStr;
+
+    if (chapterNumber % 1 == 0) {
+      chapterNumberStr = String.valueOf((int) chapterNumber);
+    } else {
+      chapterNumberStr = String.valueOf(chapterNumber);
+    }
+
+    title.setText("Chapter " + chapterNumberStr);
     title.setClassName("chapter-list-box-item-title");
 
     long dateLong = chapter.getUploadDate();
@@ -100,8 +110,7 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
       Button deleteBtn = new Button(VaadinIcon.TRASH.create());
       deleteBtn.addClickListener(
           e -> {
-            var success =
-                mangaService.deleteSingleChapter(chapter.getMangaId(), chapter.getIndex());
+            var success = mangaService.deleteSingleChapter(chapter.getId());
 
             Notification notification;
 
@@ -125,8 +134,7 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
       Button downloadBtn = new Button(VaadinIcon.DOWNLOAD.create());
       downloadBtn.addClickListener(
           e -> {
-            var success =
-                mangaService.downloadSingleChapter(chapter.getMangaId(), chapter.getIndex());
+            var success = mangaService.downloadSingleChapter(chapter.getId());
 
             Notification notification;
 
@@ -175,7 +183,7 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
                   break;
                 }
 
-                var tempChapter = mangaService.getChapter(chapter.getMangaId(), chapter.getIndex());
+                var tempChapter = mangaService.getChapter(chapter.getId());
 
                 if (!tempChapter.isDownloaded()) {
                   try {
@@ -215,16 +223,9 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
           int mangaId = chapter.getMangaId();
 
           RouteParam mangaIdParam = new RouteParam("mangaId", String.valueOf(mangaId));
+          RouteParam chapterIdParam = new RouteParam("chapterId", String.valueOf(chapter.getId()));
 
-          double chapterNumber = chapter.getIndex();
-          RouteParam chapterIndexParam;
-          if (chapterNumber % 1 == 0) {
-            chapterIndexParam = new RouteParam("chapterIndex", String.valueOf((int) chapterNumber));
-          } else {
-            chapterIndexParam = new RouteParam("chapterIndex", String.valueOf(chapterNumber));
-          }
-
-          RouteParameters params = new RouteParameters(mangaIdParam, chapterIndexParam);
+          RouteParameters params = new RouteParameters(mangaIdParam, chapterIdParam);
 
           UI.getCurrent().navigate(ReadingView.class, params);
         });
@@ -236,7 +237,7 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
     Button readButton = new Button(VaadinIcon.EYE.create());
     readButton.addClickListener(
         e -> {
-          if (!mangaService.setChapterRead(chapter.getMangaId(), chapter.getIndex())) {
+          if (!mangaService.setChapterRead(chapter.getId())) {
             log.error("Failed to set chapter read");
             Notification notification = new Notification("Failed to set chapter read", 5000);
             notification.setPosition(Notification.Position.MIDDLE);
@@ -259,7 +260,7 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
     Button unreadButton = new Button(VaadinIcon.EYE_SLASH.create());
     unreadButton.addClickListener(
         e -> {
-          if (!mangaService.setChapterUnread(chapter.getMangaId(), chapter.getIndex())) {
+          if (!mangaService.setChapterUnread(chapter.getId())) {
             log.error("Failed to set chapter unread");
             Notification notification = new Notification("Failed to set chapter unread", 5000);
             notification.setPosition(Notification.Position.MIDDLE);

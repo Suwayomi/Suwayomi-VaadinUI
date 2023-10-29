@@ -15,14 +15,14 @@ import online.hatsunemiku.tachideskvaadinui.view.ReadingView;
 @UtilityClass
 public class NavigationUtils {
 
-  public void navigateToReader(int mangaId, int chapterIndex, UI ui) {
+  public void navigateToReader(int mangaId, int chapterId, UI ui) {
     String mangaIdStr = Integer.toString(mangaId);
-    String chapterIndexStr = Integer.toString(chapterIndex);
+    String chapterIdString = Integer.toString(chapterId);
 
     RouteParam mangaIdParam = new RouteParam("mangaId", mangaIdStr);
-    RouteParam chapterIndexParam = new RouteParam("chapterIndex", chapterIndexStr);
+    RouteParam chapterIdParam = new RouteParam("chapterId", chapterIdString);
 
-    RouteParameters params = new RouteParameters(mangaIdParam, chapterIndexParam);
+    RouteParameters params = new RouteParameters(mangaIdParam, chapterIdParam);
 
     ui.navigate(ReadingView.class, params);
   }

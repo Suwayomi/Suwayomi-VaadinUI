@@ -6,10 +6,16 @@
 
 package online.hatsunemiku.tachideskvaadinui.services;
 
-import java.net.URI;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.services.client.LibUpdateClient;
+import online.hatsunemiku.tachideskvaadinui.services.client.exception.InvalidResponseException;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -18,30 +24,59 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class LibUpdateService {
 
-  private final SettingsService settingsService;
   private final LibUpdateClient client;
+  private final MangaService mangaService;
+  private final Lock lock = new ReentrantLock();
 
-  public LibUpdateService(SettingsService settingsService, LibUpdateClient client) {
-    this.settingsService = settingsService;
+  public LibUpdateService(LibUpdateClient client, MangaService mangaService) {
     this.client = client;
+    this.mangaService = mangaService;
   }
 
   @CacheEvict(
       value = {"manga"},
       allEntries = true)
-  public boolean fetchUpdate() {
-    var settings = settingsService.getSettings();
+  public boolean fetchUpdate(UI ui) {
 
-    URI baseUrl = URI.create(settings.getUrl());
+    if (!lock.tryLock()) {
+      return false;
+    }
 
-    var response = client.fetchUpdate(baseUrl);
+    boolean fetchUpdate = client.fetchUpdate();
 
-    return response.getStatusCode().is2xxSuccessful();
+    if (!fetchUpdate) {
+      lock.unlock();
+      return false;
+    }
+
+    var manga = mangaService.getLibraryManga();
+
+    for (var m : manga) {
+      try {
+        mangaService.fetchChapterList(m.getId());
+      } catch (InvalidResponseException e) {
+        if (ui == null){
+          log.warn(e.getMessage());
+          continue;
+        }
+
+        Notification notification = new Notification(e.getMessage(), 5000, Position.BOTTOM_END);
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        ui.access(notification::open);
+      } catch (Exception e) {
+        log.error("Could not fetch chapter list for manga {}", m.getId(), e);
+        lock.unlock();
+        return false;
+      }
+    }
+
+    lock.unlock();
+    return true;
   }
 
-  @Scheduled(initialDelay = 1, fixedRate = 10, timeUnit = TimeUnit.MINUTES)
+  @Scheduled(initialDelay = 1, fixedRate = 30, timeUnit = TimeUnit.MINUTES)
   protected void scheduledUpdate() {
-    boolean success = fetchUpdate();
+    boolean success = fetchUpdate(null);
 
     if (success) {
       log.info("Library update started");

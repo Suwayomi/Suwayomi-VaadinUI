@@ -257,7 +257,6 @@
     "@vaadin/vaadin-themable-mixin": "$@vaadin/vaadin-themable-mixin",
     "date-fns": "$date-fns",
     "lumo-css-framework": "$lumo-css-framework",
-    "mobile-drag-drop": "$mobile-drag-drop",
-    "vanilla-lazyload": "$vanilla-lazyload"
+    "mobile-drag-drop": "$mobile-drag-drop"
   }
 }

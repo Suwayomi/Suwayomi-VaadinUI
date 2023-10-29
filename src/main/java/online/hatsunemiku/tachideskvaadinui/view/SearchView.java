@@ -10,6 +10,7 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Svg;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
@@ -33,11 +34,10 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.component.card.MangaCard;
 import online.hatsunemiku.tachideskvaadinui.component.combo.LangComboBox;
-import online.hatsunemiku.tachideskvaadinui.component.events.source.LanguageListChangeEvent;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Source;
-import online.hatsunemiku.tachideskvaadinui.data.tachidesk.search.SearchResponse;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.search.SourceSearchResult;
 import online.hatsunemiku.tachideskvaadinui.services.SearchService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.SourceService;
@@ -54,7 +54,7 @@ import org.vaadin.miki.superfields.text.SuperTextField;
 public class SearchView extends StandardLayout implements HasUrlParameter<String> {
 
   private final Div searchResults;
-  private final LangComboBox langFilter;
+  private final ComboBox<String> langFilter;
   private final SuperTextField searchField;
   private final SourceService sourceService;
   private final SearchService searchService;
@@ -70,7 +70,7 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     searchResults = new Div();
 
     SuperTextField searchField = createSearchField();
-    LangComboBox langFilter = createLanguageComboBox(sourceService);
+    var langFilter = createLanguageComboBox(sourceService);
 
     this.searchField = searchField;
     this.langFilter = langFilter;
@@ -109,20 +109,28 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   }
 
   @NotNull
-  private LangComboBox createLanguageComboBox(SourceService sourceService) {
-    LangComboBox langFilter = new LangComboBox();
+  private ComboBox<String> createLanguageComboBox(SourceService sourceService) {
+    ComboBox<String> langFilter = new LangComboBox();
     langFilter.addClassName("search-lang-filter");
 
-    addListener(LanguageListChangeEvent.class, langFilter);
-    CompletableFuture.runAsync(
-        () -> {
-          var sources = sourceService.getSources();
-          var langs = sources.stream().map(Source::getLang).distinct().toList();
-          LanguageListChangeEvent event = new LanguageListChangeEvent(this, langs);
-          fireEvent(event);
-        });
+    var sources = sourceService.getSources();
+    var langs = sources.stream().map(Source::getLang).distinct().toList();
+    if (!langs.isEmpty()) {
+      langFilter.setItems(langs);
 
-    langFilter.addValueChangeListener(e -> runSearch(searchField));
+      Settings settings = settingsService.getSettings();
+      if (settings.hasDefaultSearchLang()) {
+        langFilter.setValue(settings.getDefaultSearchLang());
+      }
+    }
+
+    langFilter.addValueChangeListener(
+        e -> {
+          if (!e.isFromClient()) {
+            return;
+          }
+          runSearch(searchField);
+        });
 
     return langFilter;
   }
@@ -293,7 +301,9 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
         searchTasks.add(runnable);
       }
 
-      try (var executor = Executors.newCachedThreadPool()) {
+      // When upgrading to Java 21 put the executor in a try-with-resources block instead
+      var executor = Executors.newCachedThreadPool();
+      try {
         executor.invokeAll(searchTasks);
         executor.shutdown();
       } catch (InterruptedException e) {
@@ -309,7 +319,7 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     List<Manga> mangaList = new ArrayList<>();
 
     for (int i = 1; hasNext; i++) {
-      SearchResponse searchResponse;
+      SourceSearchResult searchResponse;
       try {
         searchResponse = searchService.search(query, source.getId(), i);
       } catch (FeignException e) {
@@ -336,13 +346,13 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
         return;
       }
 
-      if (searchResponse.mangaList().isEmpty()) {
+      if (searchResponse.manga().isEmpty()) {
         break;
       }
 
-      mangaList.addAll(searchResponse.mangaList());
+      mangaList.addAll(searchResponse.manga());
 
-      hasNext = searchResponse.hasNext();
+      hasNext = searchResponse.hasNextPage();
     }
 
     if (mangaList.isEmpty()) {

@@ -469,7 +469,7 @@ public class AniListAPIService {
         .block();
   }
 
-  public void updateMangaProgress(int mangaId, int mangaProgress) {
+  public void updateMangaProgress(int mangaId, float mangaProgress) {
     String query =
         """
             mutation ($mangaId: Int, $progress: Int) {

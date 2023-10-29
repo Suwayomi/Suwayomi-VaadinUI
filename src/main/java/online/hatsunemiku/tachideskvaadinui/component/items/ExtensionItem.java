@@ -42,12 +42,6 @@ public class ExtensionItem extends BlurryItem {
     buttons.add(uninstallBtn);
     buttons.add(installBtn);
 
-    if (extension.isInstalled()) {
-      setBtnInstalled(installBtn, uninstallBtn);
-    } else {
-      setBtnUninstalled(installBtn, uninstallBtn);
-    }
-
     add(extensionData, buttons);
   }
 
@@ -86,23 +80,18 @@ public class ExtensionItem extends BlurryItem {
     uninstallBtn.addClickListener(
         e -> {
           uninstallBtn.setEnabled(false);
-          var status = service.uninstallExtension(extension.getPkgName());
+          var success = service.uninstallExtension(extension.getPkgName());
           uninstallBtn.setEnabled(true);
 
           Notification notification = new Notification();
 
-          if (status.is2xxSuccessful()) {
-            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-            notification.setText("Extension uninstalled successfully");
-          } else if (status.is3xxRedirection()) {
-            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-            notification.setText("Extension exists, but couldn't be uninstalled");
-          } else if (status.is4xxClientError()) {
-            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-            notification.setText("Extension doesn't exist");
-          } else {
+          if (!success) {
             notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
             notification.setText("Extension couldn't be uninstalled");
+          } else {
+            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            notification.setText("Extension uninstalled successfully");
+            extension.setInstalled(false);
           }
 
           notification.setDuration(3000);
@@ -123,31 +112,29 @@ public class ExtensionItem extends BlurryItem {
 
           if (extension.isObsolete()) {
             service.uninstallExtension(extension.getPkgName());
+            extension.setInstalled(false);
             updateStatus(extension, installBtn, uninstallBtn);
             return;
           }
 
           if (extension.isHasUpdate()) {
             service.updateExtension(extension.getPkgName());
+            extension.setHasUpdate(false);
             updateStatus(extension, installBtn, uninstallBtn);
-            installBtn.setEnabled(true);
             return;
           }
 
-          var status = service.installExtension(extension.getPkgName());
+          var success = service.installExtension(extension.getPkgName());
           installBtn.setEnabled(true);
           Notification notification = new Notification();
 
-          if (status.is2xxSuccessful()) {
+          if (!success) {
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.setText("Extension couldn't be installed");
+          } else {
             notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
             notification.setText("Extension installed successfully");
             extension.setInstalled(true);
-          } else if (status.is3xxRedirection()) {
-            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-            notification.setText("Extension exists, but couldn't be installed");
-          } else {
-            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-            notification.setText("Extension couldn't be installed");
           }
 
           notification.setDuration(3000);
@@ -159,6 +146,7 @@ public class ExtensionItem extends BlurryItem {
 
   private void updateStatus(Extension extension, Button installBtn, Button uninstallBtn) {
     if (!extension.isInstalled()) {
+      setBtnUninstalled(installBtn, uninstallBtn);
       return;
     }
 

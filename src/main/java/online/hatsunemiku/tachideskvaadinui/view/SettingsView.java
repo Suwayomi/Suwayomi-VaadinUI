@@ -6,16 +6,21 @@
 
 package online.hatsunemiku.tachideskvaadinui.view;
 
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.router.Route;
+import java.util.ArrayList;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.settings.event.SettingsEventPublisher;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Source;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
+import online.hatsunemiku.tachideskvaadinui.services.SourceService;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import org.apache.commons.validator.routines.UrlValidator;
+import org.jetbrains.annotations.NotNull;
 import org.vaadin.miki.superfields.text.SuperTextField;
 
 @Route("settings")
@@ -25,7 +30,10 @@ public class SettingsView extends StandardLayout {
   private static final UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
   private final SettingsEventPublisher settingsEventPublisher;
 
-  public SettingsView(SettingsService settingsService, SettingsEventPublisher eventPublisher) {
+  public SettingsView(
+      SettingsService settingsService,
+      SettingsEventPublisher eventPublisher,
+      SourceService sourceService) {
     super("Settings");
     setClassName("settings-view");
 
@@ -34,8 +42,48 @@ public class SettingsView extends StandardLayout {
     FormLayout content = new FormLayout();
     content.setClassName("settings-content");
 
-    SuperTextField urlField = new SuperTextField("URL");
     Binder<Settings> binder = new Binder<>(Settings.class);
+    SuperTextField urlField = createUrlFieldWithValidation(binder);
+    var defaultSearchLangField = createSearchLangField(sourceService, binder);
+
+    binder.setBean(settingsService.getSettings());
+
+    content.add(urlField, defaultSearchLangField);
+
+    setContent(content);
+  }
+
+  private ComboBox<String> createSearchLangField(
+      SourceService sourceService, Binder<Settings> binder) {
+    ComboBox<String> defaultSearchLang = new ComboBox<>("Default Search Language");
+    defaultSearchLang.setAllowCustomValue(false);
+
+    var sources = sourceService.getSources();
+    var langs = new ArrayList<>(sources.stream().map(Source::getLang).distinct().toList());
+    defaultSearchLang.setItems(langs);
+
+    binder
+        .forField(defaultSearchLang)
+        .withValidator(
+            (lang, context) -> {
+              if (lang == null || lang.isEmpty()) {
+                return ValidationResult.error("Default Search Language cannot be empty");
+              }
+
+              if (lang.equals("Loading...")) {
+                return ValidationResult.error("Default Search Language cannot be Loading...");
+              }
+
+              return ValidationResult.ok();
+            })
+        .bind(Settings::getDefaultSearchLang, Settings::setDefaultSearchLang);
+
+    return defaultSearchLang;
+  }
+
+  @NotNull
+  private SuperTextField createUrlFieldWithValidation(Binder<Settings> binder) {
+    SuperTextField urlField = new SuperTextField("URL");
     binder
         .forField(urlField)
         .withValidator(
@@ -62,11 +110,6 @@ public class SettingsView extends StandardLayout {
               settings.setUrl(url);
               settingsEventPublisher.publishUrlChangeEvent(this, url);
             });
-
-    binder.setBean(settingsService.getSettings());
-
-    content.add(urlField);
-
-    setContent(content);
+    return urlField;
   }
 }

@@ -6,11 +6,8 @@
 
 package online.hatsunemiku.tachideskvaadinui.services;
 
-import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
-import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Source;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.SourceMangaList;
 import online.hatsunemiku.tachideskvaadinui.services.client.SourceClient;
@@ -46,35 +43,11 @@ public class SourceService {
     return List.of(sources);
   }
 
-  public Optional<List<Manga>> getPopularManga(long sourceId, int page) {
-
-    Settings settings = settingsService.getSettings();
-
-    URI baseUrl = URI.create(settings.getUrl() + "/api/v1");
-
-    SourceMangaList list;
-    try {
-      list = sourceClient.getPopularManga(baseUrl, sourceId, page);
-    } catch (Exception e) {
-      return Optional.empty();
-    }
-
-    return Optional.ofNullable(list.getMangaList());
+  public SourceMangaList getPopularManga(String sourceId, int page) {
+    return sourceClient.getPopularManga(sourceId, page);
   }
 
-  public Optional<List<Manga>> getLatestManga(long sourceId, int page) {
-
-    Settings settings = settingsService.getSettings();
-
-    URI baseUrl = URI.create(settings.getUrl() + "/api/v1");
-
-    SourceMangaList list;
-    try {
-      list = sourceClient.getLatestManga(baseUrl, sourceId, page);
-    } catch (Exception e) {
-      return Optional.empty();
-    }
-
-    return Optional.ofNullable(list.getMangaList());
+  public SourceMangaList getLatestManga(String sourceId, int page) {
+    return sourceClient.getLatestManga(sourceId, page);
   }
 }
