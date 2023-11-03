@@ -19,7 +19,6 @@ import com.vaadin.flow.router.RouteParam;
 import com.vaadin.flow.router.RouteParameters;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.CompletableFuture;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.component.listbox.chapter.event.ChapterReadStatusChangeEvent;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
