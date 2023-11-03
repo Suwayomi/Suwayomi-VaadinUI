@@ -11,21 +11,27 @@ import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.services.client.DownloadClient;
+import online.hatsunemiku.tachideskvaadinui.services.client.DownloadClient.DownloadChangeEvent;
 import online.hatsunemiku.tachideskvaadinui.services.client.MangaClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import reactor.core.Disposable;
+import reactor.core.Disposables;
+import reactor.core.publisher.Flux;
 
 @Service
 @Slf4j
 public class MangaService {
   private final MangaClient mangaClient;
   private final DownloadClient downloadClient;
+  private final Flux<List<DownloadChangeEvent>> downloadChangeEventTracker;
 
   @Autowired
   public MangaService(MangaClient mangaClient, DownloadClient downloadCLient) {
     this.mangaClient = mangaClient;
     this.downloadClient = downloadCLient;
+    this.downloadChangeEventTracker = downloadCLient.trackDownloads();
   }
 
   /**
@@ -182,5 +188,31 @@ public class MangaService {
    */
   public List<Manga> getLibraryManga() {
     return mangaClient.getLibraryManga();
+  }
+
+  /**
+   * Adds a listener to the download change event tracker.
+   * @param chapterId The id of the chapter to listen for
+   * @param callback The callback to run when the chapter is downloaded
+   */
+  public void addDownloadTrackListener(int chapterId, Runnable callback) {
+    Disposable.Composite cancellation = Disposables.composite();
+
+    var subscription = downloadChangeEventTracker.subscribe(events -> {
+      events.forEach(event -> {
+        if (event.chapter().id() != chapterId){
+          return;
+        }
+
+        if (event.progress() != 1) {
+          return;
+        }
+
+        callback.run();
+        cancellation.dispose();
+      });
+    });
+
+    cancellation.add(subscription);
   }
 }

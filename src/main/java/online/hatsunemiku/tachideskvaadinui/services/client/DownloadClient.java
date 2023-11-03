@@ -13,6 +13,7 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
 import online.hatsunemiku.tachideskvaadinui.services.client.DownloadClient.EnqueueChapterDownloadId.EnqueuedChapter;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 
 @Slf4j
 @Component
@@ -31,7 +32,8 @@ public class DownloadClient {
    * @return True if all chapters were successfully downloaded, false otherwise.
    */
   public boolean downloadChapters(List<Integer> chapterIds) {
-    String query = """
+    String query =
+        """
         mutation downloadChapters($chapterIds: [Int!]!) {
           enqueueChapterDownloads(input: {ids: $chapterIds}) {
             downloadStatus {
@@ -47,23 +49,26 @@ public class DownloadClient {
 
     var graphClient = clientService.getGraphQlClient();
 
-    var tempChapterIds = graphClient.document(query)
-        .variable("chapterIds", chapterIds)
-        .retrieve("enqueueChapterDownloads.downloadStatus.queue")
-        .toEntityList(EnqueueChapterDownloadId.class)
-        .block();
+    var tempChapterIds =
+        graphClient
+            .document(query)
+            .variable("chapterIds", chapterIds)
+            .retrieve("enqueueChapterDownloads.downloadStatus.queue")
+            .toEntityList(EnqueueChapterDownloadId.class)
+            .block();
 
     if (tempChapterIds == null) {
       throw new RuntimeException("Error while downloading chapters");
     }
 
-    var newChapterIds = tempChapterIds.stream()
-        .filter(Objects::nonNull)
-        .map(EnqueueChapterDownloadId::chapter)
-        .map(EnqueuedChapter::id)
-        .toList();
+    var newChapterIds =
+        tempChapterIds.stream()
+            .filter(Objects::nonNull)
+            .map(EnqueueChapterDownloadId::chapter)
+            .map(EnqueuedChapter::id)
+            .toList();
 
-    //check if newChapterIds contains all chapterIds
+    // check if newChapterIds contains all chapterIds
     for (int chapterId : chapterIds) {
       if (!newChapterIds.contains(chapterId)) {
         return false;
@@ -80,7 +85,8 @@ public class DownloadClient {
    * @return True if the chapter was successfully deleted, false otherwise.
    */
   public boolean deleteChapter(int chapterId) {
-    String query = """
+    String query =
+        """
         mutation deleteChapter($id: Int!) {
           deleteDownloadedChapter(input: {id: $id}) {
             chapters {
@@ -92,11 +98,13 @@ public class DownloadClient {
 
     var graphClient = clientService.getGraphQlClient();
 
-    var deletionFail = graphClient.document(query)
-        .variable("id", chapterId)
-        .retrieve("deleteDownloadedChapter.chapters.isDownloaded")
-        .toEntity(Boolean.class)
-        .block();
+    var deletionFail =
+        graphClient
+            .document(query)
+            .variable("id", chapterId)
+            .retrieve("deleteDownloadedChapter.chapters.isDownloaded")
+            .toEntity(Boolean.class)
+            .block();
 
     if (deletionFail == null) {
       throw new RuntimeException("Error while deleting chapter");
@@ -105,8 +113,34 @@ public class DownloadClient {
     return !deletionFail;
   }
 
+  public Flux<List<DownloadChangeEvent>> trackDownloads() {
+    // language=graphql
+    String query =
+        """
+            subscription trackDownloads {
+                  downloadChanged {
+                    queue {
+                      progress
+                      state
+                      chapter {
+                        id
+                      }
+                    }
+                  }
+                }
+            """;
+
+    var graphClient = clientService.getWebSocketGraphQlClient();
+
+    return graphClient.document(query)
+        .retrieveSubscription("downloadChanged.queue")
+        .toEntityList(DownloadChangeEvent.class);
+  }
+
   protected record EnqueueChapterDownloadId(EnqueuedChapter chapter) {
 
-    protected record EnqueuedChapter(int id) {}
+    public record EnqueuedChapter(int id) {}
   }
+
+  public record DownloadChangeEvent(float progress, String state, EnqueuedChapter chapter) {}
 }

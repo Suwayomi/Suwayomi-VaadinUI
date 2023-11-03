@@ -174,45 +174,20 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
 
   private static void trackChapterDownload(
       Chapter chapter, MangaService mangaService, Div rightSide, UI ui, Button downloadBtn) {
-    CompletableFuture<?> future =
-        CompletableFuture.runAsync(
-            () -> {
-              while (true) {
+    mangaService.addDownloadTrackListener(
+        chapter.getId(),
+        () -> {
+          if (!ui.isAttached()) {
+            return;
+          }
 
-                if (Thread.currentThread().isInterrupted()) {
-                  break;
-                }
-
-                var tempChapter = mangaService.getChapter(chapter.getId());
-
-                if (!tempChapter.isDownloaded()) {
-                  try {
-                    Thread.sleep(1000);
-                  } catch (InterruptedException interruptedException) {
-                    log.debug(
-                        "Download Tracker thread stopping for ChapterID: {}", chapter.getId());
-                    break;
-                  }
-                  continue;
-                }
-
-                ui.access(
-                    () -> {
-                      Chapter chapterCopy = chapter.withDownloaded(true);
-                      Button deleteBtn = getDownloadBtn(chapterCopy, mangaService, rightSide);
-                      rightSide.replace(downloadBtn, deleteBtn);
-                    });
-                break;
-              }
-            });
-
-    future.exceptionally(
-        throwable -> {
-          log.error("Failed to track chapter download", throwable);
-          return null;
+          ui.access(
+              () -> {
+                Chapter chapterCopy = chapter.withDownloaded(true);
+                Button deleteBtn = getDownloadBtn(chapterCopy, mangaService, rightSide);
+                rightSide.replace(downloadBtn, deleteBtn);
+              });
         });
-
-    ui.addDetachListener(detachEvent -> future.cancel(true));
   }
 
   @NotNull
