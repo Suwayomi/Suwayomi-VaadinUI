@@ -189,7 +189,22 @@ public class MangaClient {
         .block();
   }
 
+  /**
+   * Fetches the list of chapters for the given manga ID.
+   *
+   * @param mangaId The ID of the manga for which to fetch the chapters.
+   * @return The list of {@link Chapter} objects representing the fetched chapters.
+   * @throws InvalidResponseException if the response from the server is invalid
+   * @throws RuntimeException if there's an error fetching the corresponding manga
+   */
   public List<Chapter> fetchChapterList(int mangaId) {
+    // Fetch Manga to be able to fetch all chapters for it
+    var manga = getManga(mangaId);
+
+    if (manga == null) {
+      throw new RuntimeException("Error while fetching manga " + mangaId);
+    }
+
     // language=graphql
     String query =
         """
@@ -224,11 +239,14 @@ public class MangaClient {
         .variable("mangaId", mangaId)
         .retrieve("fetchChapters.chapters")
         .toEntityList(Chapter.class)
-        .doOnError(throwable -> {
-          if (throwable instanceof FieldAccessException) {
-            throw new InvalidResponseException("Invalid response from server for manga " + mangaId, throwable);
-          }
-        }).block();
+        .doOnError(
+            throwable -> {
+              if (throwable instanceof FieldAccessException) {
+                throw new InvalidResponseException(
+                    "Invalid response from server for manga " + mangaId, throwable);
+              }
+            })
+        .block();
   }
 
   /**
@@ -441,12 +459,14 @@ public class MangaClient {
 
     var graphClient = clientService.getGraphQlClient();
 
-    List<LibraryCategory> mangaLibrary = graphClient.document(query)
-        .retrieve("categories.nodes")
-        .toEntityList(LibraryCategory.class)
-        .block();
+    List<LibraryCategory> mangaLibrary =
+        graphClient
+            .document(query)
+            .retrieve("categories.nodes")
+            .toEntityList(LibraryCategory.class)
+            .block();
 
-    if (mangaLibrary == null){
+    if (mangaLibrary == null) {
       throw new RuntimeException("Error while retrieving library manga");
     }
 
@@ -458,5 +478,6 @@ public class MangaClient {
   private record UpdateMangaCategoryId(int id) {}
 
   private record LibraryCategory(LibraryMangaList mangas) {}
+
   private record LibraryMangaList(List<Manga> nodes) {}
 }
