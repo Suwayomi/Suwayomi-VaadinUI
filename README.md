@@ -1,3 +1,5 @@
+[![DeepSource](https://app.deepsource.com/gh/Suwayomi/Tachidesk-VaadinUI.svg/?label=active+issues&show_trend=false&token=tKg4kpGGJ0EAGMnueg1OgOpQ)](https://app.deepsource.com/gh/Suwayomi/Tachidesk-VaadinUI/)
+
 # Tachidesk-VaadinUI
 
 A free and open source manga reader that
