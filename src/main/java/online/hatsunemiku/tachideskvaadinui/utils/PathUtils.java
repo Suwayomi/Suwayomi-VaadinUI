@@ -6,6 +6,8 @@
 
 package online.hatsunemiku.tachideskvaadinui.utils;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -49,5 +51,28 @@ public class PathUtils {
     log.debug("Project Dir: {}", projectDir);
 
     return projectDir;
+  }
+
+
+/**
+ * Retrieves the development directory based on the specified profile.
+ *
+ * @param profile The profile indicating the mode of operation.
+ * @return The development directory specified as a {@link Path} object.
+ * @throws IllegalStateException if the profile is not set to "dev".
+ */
+  public static Path getDevDir() {
+    Path devDir = Path.of("./devDir");
+
+    if (Files.notExists(devDir)) {
+      try {
+        Files.createDirectories(devDir);
+      } catch (IOException e) {
+        log.error("Failed to create dev directory", e);
+        throw new RuntimeException(e);
+      }
+    }
+
+    return devDir;
   }
 }

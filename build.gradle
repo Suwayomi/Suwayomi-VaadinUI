@@ -1,6 +1,7 @@
 import org.panteleyev.jpackage.ImageType
 import org.panteleyev.jpackage.JPackageTask
 import org.springframework.boot.gradle.tasks.bundling.BootJar
+import org.springframework.boot.gradle.tasks.run.BootRun
 
 plugins {
     id 'java'
@@ -78,6 +79,13 @@ dependencyManagement {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+tasks.register('runDebug', BootRun) {
+    group = 'application'
+    systemProperty 'spring.profiles.active', 'dev'
+    mainClass = 'online.hatsunemiku.tachideskvaadinui.TachideskVaadinUiApplication'
+    classpath(sourceSets.main.runtimeClasspath)
 }
 
 
