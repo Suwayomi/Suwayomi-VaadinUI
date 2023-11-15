@@ -54,13 +54,12 @@ public class PathUtils {
   }
 
 
-/**
- * Retrieves the development directory based on the specified profile.
- *
- * @param profile The profile indicating the mode of operation.
- * @return The development directory specified as a {@link Path} object.
- * @throws IllegalStateException if the profile is not set to "dev".
- */
+  /**
+   * Retrieves the development directory.
+   *
+   * @return The development directory specified as a {@link Path} object.
+   * @throws RuntimeException if the dev directory creation fails.
+   */
   public static Path getDevDir() {
     Path devDir = Path.of("./devDir");
 
