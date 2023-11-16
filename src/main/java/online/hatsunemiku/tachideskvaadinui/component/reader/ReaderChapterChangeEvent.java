@@ -1,7 +1,9 @@
 package online.hatsunemiku.tachideskvaadinui.component.reader;
 
 import com.vaadin.flow.component.ComponentEvent;
+import lombok.Getter;
 
+@Getter
 public class ReaderChapterChangeEvent extends ComponentEvent<MangaReader> {
   private final long mangaId;
   private final int chapterIndex;
@@ -23,11 +25,4 @@ public class ReaderChapterChangeEvent extends ComponentEvent<MangaReader> {
     this.chapterIndex = chapterIndex;
   }
 
-  public int getChapterIndex() {
-    return chapterIndex;
-  }
-
-  public long getMangaId() {
-    return mangaId;
-  }
 }
