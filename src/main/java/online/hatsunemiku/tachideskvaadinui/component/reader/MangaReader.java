@@ -6,6 +6,7 @@
 
 package online.hatsunemiku.tachideskvaadinui.component.reader;
 
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Text;
@@ -20,8 +21,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.LitRenderer;
 import com.vaadin.flow.data.renderer.Renderer;
-import com.vaadin.flow.router.RouteParam;
-import com.vaadin.flow.router.RouteParameters;
+import com.vaadin.flow.shared.Registration;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -36,8 +36,6 @@ import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingCommunicationService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
-import online.hatsunemiku.tachideskvaadinui.utils.NavigationUtils;
-import online.hatsunemiku.tachideskvaadinui.view.ReadingView;
 import online.hatsunemiku.tachideskvaadinui.view.RootView;
 import org.jetbrains.annotations.NotNull;
 import org.vaadin.addons.online.hatsunemiku.diamond.swiper.Swiper;
@@ -67,6 +65,11 @@ public class MangaReader extends Div {
     Sidebar sidebar = new Sidebar(mangaService, chapter, reader.swiper, hasNext);
     Controls controls = new Controls(reader, hasNext, chapter);
     add(sidebar, reader, controls);
+  }
+
+  public Registration addReaderChapterChangeEventListener(
+      ComponentEventListener<ReaderChapterChangeEvent> listener) {
+    return addListener(ReaderChapterChangeEvent.class, listener);
   }
 
   // skipcq: JAVA-W1019
@@ -126,9 +129,10 @@ public class MangaReader extends Div {
               chapterIndex++;
             }
 
-            UI ui = UI.getCurrent();
-
-            NavigationUtils.navigateToReader(chapter.getMangaId(), chapterIndex, ui);
+            var changeEvent =
+                new ReaderChapterChangeEvent(
+                    MangaReader.this, false, chapter.getMangaId(), chapterIndex);
+            MangaReader.this.fireEvent(changeEvent);
           });
       return rightBtn;
     }
@@ -156,16 +160,13 @@ public class MangaReader extends Div {
               return;
             }
 
-            UI ui = getUI().orElseThrow();
+            var mangaId = c.getMangaId();
+            var chapterIndex = c.getIndex();
 
-            String mangaId = String.valueOf(c.getMangaId());
-            String chapterIndex = String.valueOf(c.getIndex());
+            var event =
+                new ReaderChapterChangeEvent(MangaReader.this, false, mangaId, chapterIndex);
 
-            RouteParam mangaIdParam = new RouteParam("mangaId", mangaId);
-            RouteParam chapterIndexParam = new RouteParam("chapterIndex", chapterIndex);
-
-            RouteParameters params = new RouteParameters(mangaIdParam, chapterIndexParam);
-            ui.navigate(ReadingView.class, params);
+            MangaReader.this.fireEvent(event);
           });
       return chapterComboBox;
     }
@@ -178,6 +179,7 @@ public class MangaReader extends Div {
           e -> {
             int chapterIndex = chapter.getIndex();
 
+            int mangaId = chapter.getMangaId();
             if (swiper.getLanguageDirection() == LanguageDirection.RIGHT_TO_LEFT) {
 
               if (!hasNext) {
@@ -190,13 +192,13 @@ public class MangaReader extends Div {
               if (chapterIndex <= 1) {
                 return;
               }
-
               chapterIndex--;
             }
 
-            UI ui = UI.getCurrent();
+            var changeEvent =
+                new ReaderChapterChangeEvent(MangaReader.this, false, mangaId, chapterIndex);
 
-            NavigationUtils.navigateToReader(chapter.getMangaId(), chapterIndex, ui);
+            MangaReader.this.fireEvent(changeEvent);
           });
       return leftBtn;
     }
@@ -343,7 +345,7 @@ public class MangaReader extends Div {
     }
   }
 
-  private static class Controls extends Div {
+  private class Controls extends Div {
 
     private final int pageCount;
     private final int mangaId;
@@ -468,16 +470,10 @@ public class MangaReader extends Div {
         return;
       }
 
-      UI ui = getUI().orElseThrow();
+      int chapterIndex = this.chapterIndex + 1;
 
-      RouteParam mangaIdParam = new RouteParam("mangaId", String.valueOf(this.mangaId));
-      int newChapterIndex = this.chapterIndex + 1;
-      RouteParam chapterIndexParam =
-          new RouteParam("chapterIndex", String.valueOf(newChapterIndex));
-
-      RouteParameters params = new RouteParameters(mangaIdParam, chapterIndexParam);
-
-      ui.navigate(ReadingView.class, params);
+      var event = new ReaderChapterChangeEvent(MangaReader.this, false, mangaId, chapterIndex);
+      MangaReader.this.fireEvent(event);
     }
 
     private void prevPage(Swiper swiper) {
@@ -487,20 +483,14 @@ public class MangaReader extends Div {
         return;
       }
 
-      if (chapterIndex <= 1) {
+      if (this.chapterIndex <= 1) {
         return;
       }
 
-      UI ui = getUI().orElseThrow();
+      int chapterIndex = this.chapterIndex - 1;
 
-      RouteParam mangaIdParam = new RouteParam("mangaId", String.valueOf(this.mangaId));
-      int newChapterIndex = this.chapterIndex - 1;
-      RouteParam chapterIndexParam =
-          new RouteParam("chapterIndex", String.valueOf(newChapterIndex));
-
-      RouteParameters params = new RouteParameters(mangaIdParam, chapterIndexParam);
-
-      ui.navigate(ReadingView.class, params);
+      var event = new ReaderChapterChangeEvent(MangaReader.this, false, mangaId, chapterIndex);
+      MangaReader.this.fireEvent(event);
     }
   }
 }
