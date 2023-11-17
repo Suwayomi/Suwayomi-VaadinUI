@@ -8,10 +8,8 @@ package online.hatsunemiku.tachideskvaadinui.data.settings;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import lombok.Getter;
 import lombok.Setter;
 import online.hatsunemiku.tachideskvaadinui.data.settings.reader.ReaderSettings;
