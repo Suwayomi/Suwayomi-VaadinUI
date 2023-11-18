@@ -53,7 +53,6 @@ public class PathUtils {
     return projectDir;
   }
 
-
   /**
    * Retrieves the development directory.
    *

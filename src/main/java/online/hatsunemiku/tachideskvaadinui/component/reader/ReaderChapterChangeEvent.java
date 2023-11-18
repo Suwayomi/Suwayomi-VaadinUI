@@ -19,10 +19,10 @@ public class ReaderChapterChangeEvent extends ComponentEvent<MangaReader> {
    *     Manga} to which the next chapter belongs
    * @param chapterIndex The index of the next chapter
    */
-  public ReaderChapterChangeEvent(MangaReader source, boolean fromClient, long mangaId, int chapterIndex) {
+  public ReaderChapterChangeEvent(
+      MangaReader source, boolean fromClient, long mangaId, int chapterIndex) {
     super(source, fromClient);
     this.mangaId = mangaId;
     this.chapterIndex = chapterIndex;
   }
-
 }

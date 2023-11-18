@@ -36,7 +36,9 @@ public class SettingsService {
 
   @Getter(AccessLevel.NONE)
   private final ObjectMapper mapper;
+
   private final Environment env;
+
   public SettingsService(ObjectMapper mapper, Environment env) {
     this.mapper = mapper;
     this.env = env;
