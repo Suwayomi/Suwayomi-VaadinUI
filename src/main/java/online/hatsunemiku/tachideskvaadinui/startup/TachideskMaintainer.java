@@ -24,12 +24,14 @@ import online.hatsunemiku.tachideskvaadinui.data.settings.event.UrlChangeEvent;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.startup.download.ReadableProgressByteChannel;
 import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
+import online.hatsunemiku.tachideskvaadinui.utils.ProfileUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.TachideskUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.scheduling.annotation.Async;
@@ -45,15 +47,24 @@ public class TachideskMaintainer {
   private final TachideskStarter starter;
   private final SettingsService settingsService;
   private static final File serverDir = new File("server");
-  private final File projectDir = PathUtils.getProjectDir().toFile();
+  private final File projectDir;
   @Getter private boolean updating = false;
   @Getter private double progress = 0;
 
   public TachideskMaintainer(
-      RestTemplate client, TachideskStarter starter, SettingsService settingsService) {
+      RestTemplate client,
+      TachideskStarter starter,
+      SettingsService settingsService,
+      Environment env) {
     this.client = client;
     this.starter = starter;
     this.settingsService = settingsService;
+
+    if (ProfileUtils.isDev(env)) {
+      projectDir = PathUtils.getDevDir().toFile();
+    } else {
+      projectDir = PathUtils.getProjectDir().toFile();
+    }
   }
 
   @EventListener({ApplicationReadyEvent.class, UrlChangeEvent.class})
