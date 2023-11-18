@@ -19,10 +19,12 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
+import online.hatsunemiku.tachideskvaadinui.utils.ProfileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -35,15 +37,23 @@ public class SettingsService {
   @Getter(AccessLevel.NONE)
   private final ObjectMapper mapper;
 
-  public SettingsService(ObjectMapper mapper) {
+  private final Environment env;
+
+  public SettingsService(ObjectMapper mapper, Environment env) {
     this.mapper = mapper;
+    this.env = env;
     settings = deserialize();
   }
 
   private Settings deserialize() {
     final Settings settings;
 
-    var projectDirPath = PathUtils.getProjectDir();
+    Path projectDirPath;
+    if (ProfileUtils.isDev(env)) {
+      projectDirPath = PathUtils.getDevDir();
+    } else {
+      projectDirPath = PathUtils.getProjectDir();
+    }
 
     Path settingsFile = projectDirPath.resolve("settings.json");
 
@@ -75,7 +85,12 @@ public class SettingsService {
   private void serialize() {
     ObjectMapper mapper = new ObjectMapper();
 
-    var projectDirPath = PathUtils.getProjectDir();
+    Path projectDirPath;
+    if (ProfileUtils.isDev(env)) {
+      projectDirPath = PathUtils.getDevDir();
+    } else {
+      projectDirPath = PathUtils.getProjectDir();
+    }
 
     Path settingsFile = projectDirPath.resolve("settings.json");
 
