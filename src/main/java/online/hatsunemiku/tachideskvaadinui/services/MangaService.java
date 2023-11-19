@@ -78,7 +78,7 @@ public class MangaService {
     return mangaClient.fetchChapterList(mangaId);
   }
 
-  @Cacheable(value = "chapter", key = "#chapterId")
+  @Cacheable(value = "chapter", key = "#chapterId", unless = "#result.pageCount == -1")
   public Chapter getChapter(int chapterId) {
     return mangaClient.getChapter(chapterId);
   }
