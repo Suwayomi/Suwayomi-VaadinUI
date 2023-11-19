@@ -36,7 +36,6 @@ import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingCommunicationService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
-import online.hatsunemiku.tachideskvaadinui.utils.NavigationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.RootView;
 import org.jetbrains.annotations.NotNull;
 import org.vaadin.addons.online.hatsunemiku.diamond.swiper.Swiper;
