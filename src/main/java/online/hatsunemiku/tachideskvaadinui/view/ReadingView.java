@@ -19,6 +19,7 @@ import com.vaadin.flow.router.Route;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.component.reader.MangaReader;
+import online.hatsunemiku.tachideskvaadinui.component.reader.ReaderChapterChangeEvent;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
@@ -104,18 +105,11 @@ public class ReadingView extends StandardLayout
   }
 
   private void processReaderChapterChangeEvent(ReaderChapterChangeEvent event) {
-    var nextChapterIndex = event.getChapterIndex();
+    var nextChapterId = event.getChapterId();
     var nextMangaId = event.getMangaId();
 
-    var nextChapter = mangaService.getChapter(nextMangaId, nextChapterIndex);
-
-    boolean hasNextChapter;
-
-    try {
-      hasNextChapter = mangaService.getChapter(nextMangaId, nextChapterIndex + 1) != null;
-    } catch (Exception ex) {
-      hasNextChapter = false;
-    }
+    var nextChapter = mangaService.getChapter(nextChapterId);
+    var chapters = event.getChapters();
 
     var nextReader =
         new MangaReader(
@@ -124,12 +118,12 @@ public class ReadingView extends StandardLayout
             dataService,
             mangaService,
             communicationService,
-            hasNextChapter);
+            chapters);
 
     nextReader.addReaderChapterChangeEventListener(this::processReaderChapterChangeEvent);
 
     replaceReader(nextReader);
-    log.debug("Set content to next chapter {} for manga {}", nextChapterIndex, nextMangaId);
+    log.debug("Set content to next chapter {} for manga {}", nextChapterId, nextMangaId);
 
     UI ui = getUI().orElseGet(UI::getCurrent);
 
@@ -142,7 +136,7 @@ public class ReadingView extends StandardLayout
 
     String template = "reading/%d/%d";
 
-    String readerUrl = template.formatted(event.getMangaId(), event.getChapterIndex());
+    String readerUrl = template.formatted(event.getMangaId(), event.getChapterId());
 
     Location location = new Location(readerUrl);
 

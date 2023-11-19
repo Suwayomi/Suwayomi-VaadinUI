@@ -65,7 +65,7 @@ public class MangaReader extends Div {
     this.settingsService = settingsService;
     this.mangaService = mangaService;
     this.trackerExecutor = Executors.newSingleThreadExecutor();
-    this.chapterIndex = chapters.indexOf(chapter);
+    this.chapterIndex = chapters.stream().map(Chapter::getId).toList().indexOf(chapter.getId());
     this.chapters = List.copyOf(chapters);
 
     Reader reader = new Reader(chapter, dataService, trackingCommunicationService, mangaService);
@@ -123,7 +123,6 @@ public class MangaReader extends Div {
       rightBtn.setId("rightBtn");
       rightBtn.addClickListener(
           e -> {
-
             int newChapterId;
 
             if (swiper.getLanguageDirection() == LanguageDirection.RIGHT_TO_LEFT) {
@@ -142,9 +141,10 @@ public class MangaReader extends Div {
               newChapterId = chapters.get(chapterIndex + 1).getId();
             }
 
+            int mangaId = chapter.getMangaId();
             var changeEvent =
                 new ReaderChapterChangeEvent(
-                    MangaReader.this, false, chapter.getMangaId(), chapterIndex);
+                    MangaReader.this, false, mangaId, newChapterId, chapters);
             MangaReader.this.fireEvent(changeEvent);
           });
       return rightBtn;
@@ -174,10 +174,10 @@ public class MangaReader extends Div {
             }
 
             var mangaId = c.getMangaId();
-            var chapterIndex = c.getIndex();
+            var chapterId = c.getId();
 
             var event =
-                new ReaderChapterChangeEvent(MangaReader.this, false, mangaId, chapterIndex);
+                new ReaderChapterChangeEvent(MangaReader.this, false, mangaId, chapterId, chapters);
 
             MangaReader.this.fireEvent(event);
           });
@@ -209,7 +209,8 @@ public class MangaReader extends Div {
             }
 
             var changeEvent =
-                new ReaderChapterChangeEvent(MangaReader.this, false, mangaId, chapterIndex);
+                new ReaderChapterChangeEvent(
+                    MangaReader.this, false, mangaId, newChapterId, chapters);
 
             MangaReader.this.fireEvent(changeEvent);
           });
@@ -341,7 +342,6 @@ public class MangaReader extends Div {
 
       Settings settings = settingsService.getSettings();
       String baseUrl = settings.getUrl();
-
 
       for (int i = 0; i < urls.size(); i++) {
         String url = baseUrl + urls.get(i);
@@ -489,12 +489,11 @@ public class MangaReader extends Div {
       }
 
       int chapterIndex = this.chapterIndex + 1;
-      UI ui = getUI().orElseThrow();
-
       Chapter nextChapter = chapters.get(chapterIndex + 1);
-      int nextChapterId = nextChapter.getId();
 
-      var event = new ReaderChapterChangeEvent(MangaReader.this, false, mangaId, chapterIndex);
+      int nextChapterId = nextChapter.getId();
+      var event =
+          new ReaderChapterChangeEvent(MangaReader.this, false, mangaId, nextChapterId, chapters);
       MangaReader.this.fireEvent(event);
     }
 
@@ -509,13 +508,12 @@ public class MangaReader extends Div {
         return;
       }
 
-      UI ui = getUI().orElseThrow();
-
       var prevChapter = chapters.get(chapterIndex - 1);
 
       int prevChapterId = prevChapter.getId();
 
-      var event = new ReaderChapterChangeEvent(MangaReader.this, false, mangaId, chapterIndex);
+      var event =
+          new ReaderChapterChangeEvent(MangaReader.this, false, mangaId, prevChapterId, chapters);
       MangaReader.this.fireEvent(event);
     }
   }
