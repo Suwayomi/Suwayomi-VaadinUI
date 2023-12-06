@@ -18,6 +18,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.router.Route;
+import feign.FeignException;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -127,7 +128,7 @@ public class ServerStartView extends VerticalLayout {
   }
 
   private void checkConnection() {
-    String url = settingsService.getSettings().getUrl() + "/api/v1/meta";
+    String url = settingsService.getSettings().getUrl() + "/api/v1/settings/about";
 
     try {
       var response = client.getForEntity(url, Void.class);
@@ -147,7 +148,7 @@ public class ServerStartView extends VerticalLayout {
 
         executor.shutdownNow();
       }
-    } catch (Exception e) {
+    } catch (FeignException e) {
       logger.debug("No Connection to Server yet", e);
     }
   }
