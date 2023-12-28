@@ -18,11 +18,14 @@ import online.hatsunemiku.tachideskvaadinui.data.Meta;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.settings.event.UrlChangeEvent;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
+import online.hatsunemiku.tachideskvaadinui.utils.BrowserUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+
+import javax.swing.*;
 
 @Service
 @Slf4j
@@ -65,16 +68,12 @@ public class TachideskStarter {
     }
 
     if (!isJavaInstalled) {
-      Desktop desktop = Desktop.getDesktop();
       String url =
           "https://github.com/aless2003/Tachidesk-VaadinUI/blob/master/Install%20Process.md#when-starting-its-stuck-on-waiting-for-server-to-start";
       try {
-        desktop.browse(URI.create(url));
-        Thread.sleep(6000);
+        BrowserUtils.openBrowser(url);
       } catch (IOException e) {
         log.error("Failed to open browser", e);
-      } catch (InterruptedException e) {
-        log.error("Failed to sleep", e);
       }
       System.exit(-1);
       return;
