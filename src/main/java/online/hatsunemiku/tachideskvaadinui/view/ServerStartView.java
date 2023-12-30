@@ -26,6 +26,7 @@ import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.startup.TachideskMaintainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.vaadin.firitin.components.progressbar.VProgressBar;
 
@@ -148,7 +149,7 @@ public class ServerStartView extends VerticalLayout {
 
         executor.shutdownNow();
       }
-    } catch (FeignException e) {
+    } catch (ResourceAccessException e) {
       logger.debug("No Connection to Server yet", e);
     }
   }
