@@ -81,7 +81,10 @@ public class TachideskStarter {
 
     log.info("Starting jar with data dir: {}", dataDirFile.getAbsolutePath());
     ProcessBuilder processBuilder = new ProcessBuilder("java", dataDirArg, "-jar", jarLocation);
-    processBuilder.redirectOutput(new File("server.log"));
+
+    File logFile = new File(projectDir, "server.log");
+
+    processBuilder.redirectOutput(logFile);
 
     try {
       serverProcess = processBuilder.start();

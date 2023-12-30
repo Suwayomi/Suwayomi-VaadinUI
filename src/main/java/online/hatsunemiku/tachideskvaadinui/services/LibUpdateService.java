@@ -8,9 +8,12 @@ package online.hatsunemiku.tachideskvaadinui.services;
 
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
+
+import feign.RetryableException;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.services.client.LibUpdateClient;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +37,13 @@ public class LibUpdateService {
 
     URI baseUrl = URI.create(settings.getUrl());
 
-    var response = client.fetchUpdate(baseUrl);
+
+    ResponseEntity<Void> response;
+    try {
+      response = client.fetchUpdate(baseUrl);
+    } catch (RetryableException e) {
+      return false;
+    }
 
     return response.getStatusCode().is2xxSuccessful();
   }
