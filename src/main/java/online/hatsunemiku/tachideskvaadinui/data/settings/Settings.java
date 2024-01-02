@@ -69,6 +69,7 @@ public class Settings {
     this.url = url;
     this.defaultReaderSettings = new ReaderSettings();
     this.mangaReaderSettings = new HashMap<>();
+    this.startPopup = true;
   }
 
   public void setUrl(@NonNull String url) {
