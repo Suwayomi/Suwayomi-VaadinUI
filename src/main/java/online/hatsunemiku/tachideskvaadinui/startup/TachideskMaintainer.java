@@ -46,7 +46,7 @@ public class TachideskMaintainer {
   private final RestTemplate client;
   private final TachideskStarter starter;
   private final SettingsService settingsService;
-  private static final File serverDir = new File("server");
+  private static File serverDir;
   private final File projectDir;
   @Getter private boolean updating = false;
   @Getter private double progress = 0;
@@ -65,6 +65,8 @@ public class TachideskMaintainer {
     } else {
       projectDir = PathUtils.getProjectDir().toFile();
     }
+
+    serverDir = new File(projectDir, "server");
   }
 
   @EventListener({ApplicationReadyEvent.class, UrlChangeEvent.class})

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import online.hatsunemiku.tachideskvaadinui.data.settings.reader.ReaderSettings;
@@ -21,6 +22,11 @@ public class Settings {
   @NonNull
   @JsonProperty("url")
   private String url;
+
+  @Getter
+  @Setter
+  @JsonProperty("startPopup")
+  private boolean startPopup;
 
   @Getter
   @JsonProperty("defaultReaderSettings")
@@ -37,9 +43,12 @@ public class Settings {
   @JsonCreator
   public Settings(
       @NotNull @JsonProperty("url") String url,
+      @JsonProperty("startPopup") Boolean startPopup,
       @JsonProperty("defaultReaderSettings") ReaderSettings defaultReaderSettings,
       @JsonProperty("mangaReaderSettings") Map<Integer, ReaderSettings> mangaReaderSettings,
       @JsonProperty("defaultSearchLang") String defaultSearchLang) {
+
+    this.startPopup = Objects.requireNonNullElse(startPopup, true);
 
     if (defaultReaderSettings == null) {
       defaultReaderSettings = new ReaderSettings();
@@ -59,6 +68,7 @@ public class Settings {
     this.url = url;
     this.defaultReaderSettings = new ReaderSettings();
     this.mangaReaderSettings = new HashMap<>();
+    this.startPopup = true;
   }
 
   public void setUrl(@NonNull String url) {

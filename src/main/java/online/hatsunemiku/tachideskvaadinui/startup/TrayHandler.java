@@ -16,8 +16,13 @@ import java.awt.Toolkit;
 import java.awt.TrayIcon;
 import java.awt.TrayIcon.MessageType;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URI;
+import javax.swing.*;
 import lombok.extern.slf4j.Slf4j;
+import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
+import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
+import online.hatsunemiku.tachideskvaadinui.utils.BrowserUtils;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -26,6 +31,12 @@ import org.springframework.util.ResourceUtils;
 @Service
 @Slf4j
 public class TrayHandler {
+
+  private final SettingsService settingsService;
+
+  public TrayHandler(SettingsService settingsService) {
+    this.settingsService = settingsService;
+  }
 
   @EventListener(ApplicationStartedEvent.class)
   public void registerTray() {
@@ -53,11 +64,10 @@ public class TrayHandler {
 
         trayIcon.addActionListener(
             e -> {
-              Desktop desktop = Desktop.getDesktop();
               try {
-                desktop.browse(URI.create("http://localhost:8080"));
-              } catch (Exception ex) {
-                throw new RuntimeException(ex);
+                BrowserUtils.openBrowser("http://localhost:8080");
+              } catch (IOException ex) {
+                log.error("Couldn't open browser", ex);
               }
             });
       } catch (FileNotFoundException e) {
@@ -71,6 +81,8 @@ public class TrayHandler {
     } else {
       log.info("System tray not supported");
     }
+
+    showPopup();
   }
 
   private PopupMenu createTrayMenu() {
@@ -96,4 +108,40 @@ public class TrayHandler {
 
     return menu;
   }
+
+  private void showPopup() {
+    Settings settings = settingsService.getSettings();
+
+    if (!settings.isStartPopup()) {
+      return;
+    }
+
+    String title = "Tachidesk VaadinUI started";
+    String message =
+        """
+      Please visit http://localhost:8080 to use the UI.
+      If you have a System Tray, you can also click the tray icon there to open the UI.
+      Do you want to open the UI in your browser now?
+      """;
+
+    Thread thread =
+        new Thread(
+            () -> {
+              int answer =
+                  JOptionPane.showConfirmDialog(null, message, title, JOptionPane.YES_NO_OPTION);
+
+              if (answer == JOptionPane.YES_OPTION) {
+                try {
+                  BrowserUtils.openBrowser("http://localhost:8080");
+                } catch (IOException e) {
+                  log.error("Couldn't open browser", e);
+                }
+              } else {
+                log.info("User didn't want to open browser");
+              }
+            });
+
+    thread.start();
+  }
 }
+;

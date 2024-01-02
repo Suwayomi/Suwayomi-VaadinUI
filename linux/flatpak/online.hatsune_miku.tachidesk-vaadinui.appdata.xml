@@ -42,14 +42,19 @@
         </screenshot>
     </screenshots>
     <releases>
-        <release version="1.0.3" date="2023-12-06">
+        <release version="1.0.4" date="2024-01-02">
             <description>
-                <p>Fixes an issue where the Client might not start correctly, because of an invalid Server response</p>
+                <p>Adds a Popup on startup, as some systems don't have a Task Tray. Also fixes some general issues</p>
                 <ul>
-                    <li>Refine server connection check route by @aless2003</li>
-                    <li>bump version by @aless2003</li>
-                    <li>style: format code with Google Java Format by @deepsource-autofix[bot]</li>
-                    <li>Merge pull request #84 from Suwayomi/start-error by @aless2003</li>
+                    <li>Refactor browser opening logic and add initialization notification</li>
+                    <li>Update file and server directory definitions</li>
+                    <li>Optimize Imports</li>
+                    <li>Replace FeignException with ResourceAccessException in ServerStartView</li>
+                    <li>Add start popup enable/disable setting</li>
+                    <li>rename super-checkbox.css to checkbox.css</li>
+                    <li>The code has been updated to ensure that the SettingsView does not fail when the server isn't running yet</li>
+                    <li>Add default initialization for Settings#startPopup</li>
+                    <li>Bump version to 1.0.4</li>
                 </ul>
             </description>
         </release>
