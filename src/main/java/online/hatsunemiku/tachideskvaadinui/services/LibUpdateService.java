@@ -6,10 +6,9 @@
 
 package online.hatsunemiku.tachideskvaadinui.services;
 
+import feign.RetryableException;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
-
-import feign.RetryableException;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.services.client.LibUpdateClient;
 import org.springframework.cache.annotation.CacheEvict;
@@ -36,7 +35,6 @@ public class LibUpdateService {
     var settings = settingsService.getSettings();
 
     URI baseUrl = URI.create(settings.getUrl());
-
 
     ResponseEntity<Void> response;
     try {
