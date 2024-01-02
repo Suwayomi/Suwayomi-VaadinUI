@@ -29,10 +29,10 @@ public class BrowserUtils {
       }
     } else {
       log.info("Desktop not supported, opening browser via xdg-open");
-      Runtime runtime = Runtime.getRuntime();
+
       try {
-        String[] command = {"xdg-open", url};
-        var process = runtime.exec(command);
+        ProcessBuilder pb = new ProcessBuilder("xdg-open", url);
+        var process = pb.start();
 
         if (process.waitFor() != 0) {
           throw new IOException("Could not open browser via xdg-open");
