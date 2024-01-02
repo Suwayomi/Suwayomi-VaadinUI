@@ -9,6 +9,7 @@ package online.hatsunemiku.tachideskvaadinui.view;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.router.Route;
@@ -21,6 +22,7 @@ import online.hatsunemiku.tachideskvaadinui.services.SourceService;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jetbrains.annotations.NotNull;
+import org.vaadin.miki.superfields.checkbox.SuperCheckbox;
 import org.vaadin.miki.superfields.text.SuperTextField;
 
 @Route("settings")
@@ -46,9 +48,19 @@ public class SettingsView extends StandardLayout {
     SuperTextField urlField = createUrlFieldWithValidation(binder);
     var defaultSearchLangField = createSearchLangField(sourceService, binder);
 
+    Div checkboxContainer = new Div();
+    checkboxContainer.addClassName("checkbox-container");
+
+    SuperCheckbox checkbox = new SuperCheckbox().withLabel("Startup Popup").withId("start-popup");
+    checkbox.setValue(settingsService.getSettings().isStartPopup());
+    binder.forField(checkbox).bind(Settings::isStartPopup, Settings::setStartPopup);
+
+    checkboxContainer.add(checkbox);
+
     binder.setBean(settingsService.getSettings());
 
     content.add(urlField, defaultSearchLangField);
+    content.add(checkboxContainer, 2);
 
     setContent(content);
   }

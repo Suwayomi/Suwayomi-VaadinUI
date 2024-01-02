@@ -19,6 +19,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import lombok.extern.slf4j.Slf4j;
+import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
+import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.utils.BrowserUtils;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
@@ -30,6 +32,12 @@ import javax.swing.*;
 @Service
 @Slf4j
 public class TrayHandler {
+
+  private final SettingsService settingsService;
+
+  public TrayHandler(SettingsService settingsService) {
+    this.settingsService = settingsService;
+  }
 
   @EventListener(ApplicationStartedEvent.class)
   public void registerTray() {
@@ -103,6 +111,12 @@ public class TrayHandler {
   }
 
   private void showPopup() {
+    Settings settings = settingsService.getSettings();
+
+    if (!settings.isStartPopup()){
+        return;
+    }
+
     String title = "Tachidesk VaadinUI started";
     String message =
         """

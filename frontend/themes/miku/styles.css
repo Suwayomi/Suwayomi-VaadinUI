@@ -12,6 +12,7 @@
 @import "./components/buttons.css";
 @import "./components/combo-box.css";
 @import "./components/superfields/super-text-field.css";
+@import "./components/superfields/super-checkbox.css";
 
 html {
 
@@ -38,6 +39,9 @@ html {
   --miku-unselected-color-50: rgba(55, 59, 62, 0.5);
 
   --miku-frosted-glass: rgba(255, 255, 255, 0.1);
+  --miku-frosted-glass-20: rgba(255, 255, 255, 0.2);
+  --miku-frosted-glass-30: rgba(255, 255, 255, 0.3);
+  --miku-frosted-glass-50: rgba(255, 255, 255, 0.5);
   --miku-frosted-glass-80: rgba(255, 255, 255, 0.8);
 
   --miku-frosted-glass-blue: rgb(0, 255, 246, 0.2);
