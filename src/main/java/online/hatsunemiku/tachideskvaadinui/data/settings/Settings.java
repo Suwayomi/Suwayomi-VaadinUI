@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
 import lombok.Getter;
 import lombok.Setter;
 import online.hatsunemiku.tachideskvaadinui.data.settings.reader.ReaderSettings;

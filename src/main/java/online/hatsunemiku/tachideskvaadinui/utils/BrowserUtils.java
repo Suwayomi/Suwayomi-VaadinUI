@@ -6,12 +6,11 @@
 
 package online.hatsunemiku.tachideskvaadinui.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BrowserUtils {
 
@@ -40,7 +39,7 @@ public class BrowserUtils {
       } catch (IOException e) {
         log.error("Browser couldn't be opened", e);
       } catch (InterruptedException e) {
-          throw new RuntimeException(e);
+        throw new RuntimeException(e);
       }
     }
   }

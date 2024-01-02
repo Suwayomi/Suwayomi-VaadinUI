@@ -15,7 +15,6 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.router.Route;
 import java.util.ArrayList;
 import java.util.List;
-
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.settings.event.SettingsEventPublisher;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Source;
