@@ -12,7 +12,7 @@
 @import "./components/buttons.css";
 @import "./components/combo-box.css";
 @import "./components/superfields/super-text-field.css";
-@import "./components/superfields/super-checkbox.css";
+@import "components/checkbox.css";
 
 html {
 
