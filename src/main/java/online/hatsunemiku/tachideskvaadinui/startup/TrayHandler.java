@@ -94,11 +94,11 @@ public class TrayHandler {
     MenuItem openInBrowserItem = new MenuItem("Open in browser");
     openInBrowserItem.addActionListener(
         e -> {
-            try {
-                BrowserUtils.openBrowser("http://localhost:8080");
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+          try {
+            BrowserUtils.openBrowser("http://localhost:8080");
+          } catch (IOException ex) {
+            throw new RuntimeException(ex);
+          }
         });
 
     menu.add(openInBrowserItem);
