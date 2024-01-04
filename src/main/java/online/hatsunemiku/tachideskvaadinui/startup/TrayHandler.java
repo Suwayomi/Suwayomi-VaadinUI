@@ -7,7 +7,6 @@
 package online.hatsunemiku.tachideskvaadinui.startup;
 
 import java.awt.AWTException;
-import java.awt.Desktop;
 import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
@@ -17,7 +16,6 @@ import java.awt.TrayIcon;
 import java.awt.TrayIcon.MessageType;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
 import javax.swing.*;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
@@ -96,12 +94,11 @@ public class TrayHandler {
     MenuItem openInBrowserItem = new MenuItem("Open in browser");
     openInBrowserItem.addActionListener(
         e -> {
-          Desktop desktop = Desktop.getDesktop();
-          try {
-            desktop.browse(URI.create("http://localhost:8080"));
-          } catch (Exception ex) {
-            throw new RuntimeException(ex);
-          }
+            try {
+                BrowserUtils.openBrowser("http://localhost:8080");
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
         });
 
     menu.add(openInBrowserItem);
