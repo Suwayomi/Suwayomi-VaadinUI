@@ -42,19 +42,11 @@
         </screenshot>
     </screenshots>
     <releases>
-        <release version="1.0.4" date="2024-01-02">
+        <release version="1.0.5" date="2024-01-08">
             <description>
-                <p>Adds a Popup on startup, as some systems don't have a Task Tray. Also fixes some general issues</p>
+                <p>Fixes an Issue with the Tray Icon when used on Linux</p>
                 <ul>
-                    <li>Refactor browser opening logic and add initialization notification</li>
-                    <li>Update file and server directory definitions</li>
-                    <li>Optimize Imports</li>
-                    <li>Replace FeignException with ResourceAccessException in ServerStartView</li>
-                    <li>Add start popup enable/disable setting</li>
-                    <li>rename super-checkbox.css to checkbox.css</li>
-                    <li>The code has been updated to ensure that the SettingsView does not fail when the server isn't running yet</li>
-                    <li>Add default initialization for Settings#startPopup</li>
-                    <li>Bump version to 1.0.4</li>
+                    <li>Fixed Tray Menu</li>
                 </ul>
             </description>
         </release>
