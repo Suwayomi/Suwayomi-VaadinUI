@@ -4,7 +4,7 @@ directive @specifiedBy(
   url: String!
 ) on SCALAR
 
-type AboutPayload {
+type AboutServerPayload {
   buildTime: LongString!
   buildType: String!
   discord: String!
@@ -14,8 +14,15 @@ type AboutPayload {
   version: String!
 }
 
+type AboutWebUI {
+  channel: String!
+  tag: String!
+}
+
 enum BackupRestoreState {
   IDLE
+  SUCCESS
+  FAILURE
   RESTORING_CATEGORIES
   RESTORING_MANGA
 }
@@ -214,6 +221,20 @@ type CheckForServerUpdatesPayload {
   channel: String!
   tag: String!
   url: String!
+}
+
+input ClearCachedImagesInput {
+  cachedPages: Boolean
+  cachedThumbnails: Boolean
+  clientMutationId: String
+  downloadedThumbnails: Boolean
+}
+
+type ClearCachedImagesPayload {
+  cachedPages: Boolean
+  cachedThumbnails: Boolean
+  clientMutationId: String
+  downloadedThumbnails: Boolean
 }
 
 input ClearDownloaderInput {
@@ -446,6 +467,7 @@ input ExtensionConditionInput {
   lang: String
   name: String
   pkgName: String
+  repo: String
   versionCode: Int
   versionName: String
 }
@@ -468,6 +490,7 @@ input ExtensionFilterInput {
   not: ExtensionFilterInput
   or: [ExtensionFilterInput!]
   pkgName: StringFilterInput
+  repo: StringFilterInput
   versionCode: IntFilterInput
   versionName: StringFilterInput
 }
@@ -495,6 +518,7 @@ type ExtensionType {
   lang: String!
   name: String!
   pkgName: String!
+  repo: String
   versionCode: Int!
   versionName: String!
   source: SourceNodeList!
@@ -678,6 +702,7 @@ scalar LongString
 input MangaConditionInput {
   artist: String
   author: String
+  categoryIds: [Int!]
   chaptersLastFetchedAt: LongString
   description: String
   genre: [String!]
@@ -703,8 +728,10 @@ input MangaFilterInput {
   and: [MangaFilterInput!]
   artist: StringFilterInput
   author: StringFilterInput
+  categoryId: IntFilterInput
   chaptersLastFetchedAt: LongFilterInput
   description: StringFilterInput
+  genre: StringFilterInput
   id: IntFilterInput
   inLibrary: BooleanFilterInput
   inLibraryAt: LongFilterInput
@@ -787,6 +814,7 @@ type MangaType {
   status: MangaStatus!
   thumbnailUrl: String
   title: String!
+  updateStrategy: UpdateStrategy!
   url: String!
   age: LongString
   categories: CategoryNodeList!
@@ -873,6 +901,8 @@ type Mutation {
   installExternalExtension(input: InstallExternalExtensionInput!): InstallExternalExtensionPayload!
   updateExtension(input: UpdateExtensionInput!): UpdateExtensionPayload!
   updateExtensions(input: UpdateExtensionsInput!): UpdateExtensionsPayload!
+  clearCachedImages(input: ClearCachedImagesInput!): ClearCachedImagesPayload!
+  resetWebUIUpdateStatus: WebUIUpdateStatus!
   updateWebUI(input: WebUIUpdateInput!): WebUIUpdatePayload!
   deleteMangaMeta(input: DeleteMangaMetaInput!): DeleteMangaMetaPayload!
   fetchManga(input: FetchMangaInput!): FetchMangaPayload!
@@ -890,7 +920,7 @@ type Mutation {
   updateStop(input: UpdateStopInput!): UpdateStopPayload!
 }
 
-union Node = CategoryMetaType | CategoryType | ChapterMetaType | ChapterType | DownloadType | ExtensionType | GlobalMetaType | MangaMetaType | MangaType | PartialSettingsType | SettingsType | SourceType
+union Node = CategoryMetaType | CategoryType | ChapterMetaType | ChapterType | DownloadType | ExtensionType | GlobalMetaType | MangaMetaType | MangaType | PartialSettingsType | SettingsType | SourceType | TrackRecordType | TrackerType
 
 interface NodeList {
   """
@@ -923,6 +953,7 @@ type PageInfo {
 }
 
 type PartialSettingsType implements Settings {
+  autoDownloadAheadLimit: Int
   autoDownloadNewChapters: Boolean
   backupInterval: Int
   backupPath: String
@@ -936,9 +967,12 @@ type PartialSettingsType implements Settings {
   downloadsPath: String
   electronPath: String
   excludeCompleted: Boolean
+  excludeEntryWithUnreadChapters: Boolean
   excludeNotStarted: Boolean
   excludeUnreadChapters: Boolean
+  extensionRepos: [String!]
   globalUpdateInterval: Float
+  gqlDebugLogsEnabled: Boolean
   initialOpenInBrowserEnabled: Boolean
   ip: String
   localSourcePath: String
@@ -948,6 +982,7 @@ type PartialSettingsType implements Settings {
   socksProxyHost: String
   socksProxyPort: String
   systemTrayEnabled: Boolean
+  updateMangas: Boolean
   webUIChannel: WebUIChannel
   webUIFlavor: WebUIFlavor
   webUIInterface: WebUIInterface
@@ -955,6 +990,7 @@ type PartialSettingsType implements Settings {
 }
 
 input PartialSettingsTypeInput {
+  autoDownloadAheadLimit: Int
   autoDownloadNewChapters: Boolean
   backupInterval: Int
   backupPath: String
@@ -968,9 +1004,12 @@ input PartialSettingsTypeInput {
   downloadsPath: String
   electronPath: String
   excludeCompleted: Boolean
+  excludeEntryWithUnreadChapters: Boolean
   excludeNotStarted: Boolean
   excludeUnreadChapters: Boolean
+  extensionRepos: [String!]
   globalUpdateInterval: Float
+  gqlDebugLogsEnabled: Boolean
   initialOpenInBrowserEnabled: Boolean
   ip: String
   localSourcePath: String
@@ -980,6 +1019,7 @@ input PartialSettingsTypeInput {
   socksProxyHost: String
   socksProxyPort: String
   systemTrayEnabled: Boolean
+  updateMangas: Boolean
   webUIChannel: WebUIChannel
   webUIFlavor: WebUIFlavor
   webUIInterface: WebUIInterface
@@ -989,7 +1029,7 @@ input PartialSettingsTypeInput {
 union Preference = CheckBoxPreference | EditTextPreference | ListPreference | MultiSelectListPreference | SwitchPreference
 
 type Query {
-  restoreStatus: BackupRestoreStatus!
+  restoreStatus(id: String!): BackupRestoreStatus
   validateBackup(input: ValidateBackupInput!): ValidateBackupResult!
   categories(condition: CategoryConditionInput, filter: CategoryFilterInput, orderBy: CategoryOrderBy, orderByType: SortOrder, before: Cursor, after: Cursor, first: Int, last: Int, offset: Int): CategoryNodeList!
   category(id: Int!): CategoryType!
@@ -998,9 +1038,10 @@ type Query {
   downloadStatus: DownloadStatus!
   extension(pkgName: String!): ExtensionType!
   extensions(condition: ExtensionConditionInput, filter: ExtensionFilterInput, orderBy: ExtensionOrderBy, orderByType: SortOrder, before: Cursor, after: Cursor, first: Int, last: Int, offset: Int): ExtensionNodeList!
-  about: AboutPayload!
+  aboutServer: AboutServerPayload!
+  aboutWebUI: AboutWebUI!
   checkForServerUpdates: [CheckForServerUpdatesPayload!]!
-  checkForWebUIUpdate: WebUIUpdateInfo!
+  checkForWebUIUpdate: WebUIUpdateCheck!
   getWebUIUpdateStatus: WebUIUpdateStatus!
   manga(id: Int!): MangaType!
   mangas(condition: MangaConditionInput, filter: MangaFilterInput, orderBy: MangaOrderBy, orderByType: SortOrder, before: Cursor, after: Cursor, first: Int, last: Int, offset: Int): MangaNodeList!
@@ -1040,7 +1081,8 @@ input RestoreBackupInput {
 
 type RestoreBackupPayload {
   clientMutationId: String
-  status: BackupRestoreStatus!
+  id: String!
+  status: BackupRestoreStatus
 }
 
 type SelectFilter {
@@ -1104,6 +1146,7 @@ type SetSettingsPayload {
 }
 
 interface Settings {
+  autoDownloadAheadLimit: Int
   autoDownloadNewChapters: Boolean
   backupInterval: Int
   backupPath: String
@@ -1117,9 +1160,12 @@ interface Settings {
   downloadsPath: String
   electronPath: String
   excludeCompleted: Boolean
+  excludeEntryWithUnreadChapters: Boolean
   excludeNotStarted: Boolean
   excludeUnreadChapters: Boolean
+  extensionRepos: [String!]
   globalUpdateInterval: Float
+  gqlDebugLogsEnabled: Boolean
   initialOpenInBrowserEnabled: Boolean
   ip: String
   localSourcePath: String
@@ -1129,6 +1175,7 @@ interface Settings {
   socksProxyHost: String
   socksProxyPort: String
   systemTrayEnabled: Boolean
+  updateMangas: Boolean
   webUIChannel: WebUIChannel
   webUIFlavor: WebUIFlavor
   webUIInterface: WebUIInterface
@@ -1136,6 +1183,7 @@ interface Settings {
 }
 
 type SettingsType implements Settings {
+  autoDownloadAheadLimit: Int!
   autoDownloadNewChapters: Boolean!
   backupInterval: Int!
   backupPath: String!
@@ -1149,9 +1197,12 @@ type SettingsType implements Settings {
   downloadsPath: String!
   electronPath: String!
   excludeCompleted: Boolean!
+  excludeEntryWithUnreadChapters: Boolean!
   excludeNotStarted: Boolean!
   excludeUnreadChapters: Boolean!
+  extensionRepos: [String!]!
   globalUpdateInterval: Float!
+  gqlDebugLogsEnabled: Boolean!
   initialOpenInBrowserEnabled: Boolean!
   ip: String!
   localSourcePath: String!
@@ -1161,6 +1212,7 @@ type SettingsType implements Settings {
   socksProxyHost: String!
   socksProxyPort: String!
   systemTrayEnabled: Boolean!
+  updateMangas: Boolean!
   webUIChannel: WebUIChannel!
   webUIFlavor: WebUIFlavor!
   webUIInterface: WebUIInterface!
@@ -1327,6 +1379,58 @@ type TextFilter {
   name: String!
 }
 
+type TrackerEdge implements Edge {
+  cursor: Cursor!
+  node: TrackerType!
+}
+
+type TrackerNodeList implements NodeList {
+  edges: [TrackerEdge!]!
+  nodes: [TrackerType!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type TrackerType {
+  authUrl: String
+  icon: String!
+  id: Int!
+  isLoggedIn: Boolean!
+  name: String!
+  trackRecords: TrackRecordNodeList!
+}
+
+type TrackRecordEdge implements Edge {
+  cursor: Cursor!
+  node: TrackRecordType!
+}
+
+type TrackRecordNodeList implements NodeList {
+  edges: [TrackRecordEdge!]!
+  nodes: [TrackRecordType!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type TrackRecordType {
+  finishDate: LongString!
+  id: Int!
+  lastChapterRead: Float!
+  libraryId: LongString
+  mangaId: Int!
+  remoteId: LongString!
+  remoteUrl: String!
+  score: Float!
+  startDate: LongString!
+  status: Int!
+  syncId: Int!
+  title: String!
+  totalChapters: Int!
+  displayScore: String!
+  manga: MangaType!
+  tracker: TrackerType!
+}
+
 enum TriState {
   IGNORE
   INCLUDE
@@ -1429,7 +1533,7 @@ input UpdateExtensionPatchInput {
 
 type UpdateExtensionPayload {
   clientMutationId: String
-  extension: ExtensionType!
+  extension: ExtensionType
 }
 
 input UpdateExtensionsInput {
@@ -1515,10 +1619,11 @@ input UpdateSourcePreferenceInput {
 type UpdateSourcePreferencePayload {
   clientMutationId: String
   preferences: [Preference!]!
+  source: SourceType!
 }
 
 enum UpdateState {
-  STOPPED
+  IDLE
   DOWNLOADING
   FINISHED
   ERROR
@@ -1549,6 +1654,11 @@ input UpdateStopInput {
 
 type UpdateStopPayload {
   clientMutationId: String
+}
+
+enum UpdateStrategy {
+  ALWAYS_UPDATE
+  ONLY_FETCH_ONCE
 }
 
 """A file part in a multipart request"""
@@ -1583,10 +1693,15 @@ enum WebUIInterface {
   ELECTRON
 }
 
-type WebUIUpdateInfo {
+type WebUIUpdateCheck {
   channel: String!
   tag: String!
   updateAvailable: Boolean!
+}
+
+type WebUIUpdateInfo {
+  channel: String!
+  tag: String!
 }
 
 input WebUIUpdateInput {
