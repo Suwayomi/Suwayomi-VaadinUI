@@ -7,17 +7,17 @@
 package online.hatsunemiku.tachideskvaadinui.startup;
 
 import jakarta.annotation.PreDestroy;
-import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import javax.swing.*;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.Meta;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.settings.event.UrlChangeEvent;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
+import online.hatsunemiku.tachideskvaadinui.utils.BrowserUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,16 +65,12 @@ public class TachideskStarter {
     }
 
     if (!isJavaInstalled) {
-      Desktop desktop = Desktop.getDesktop();
       String url =
           "https://github.com/aless2003/Tachidesk-VaadinUI/blob/master/Install%20Process.md#when-starting-its-stuck-on-waiting-for-server-to-start";
       try {
-        desktop.browse(URI.create(url));
-        Thread.sleep(6000);
+        BrowserUtils.openBrowser(url);
       } catch (IOException e) {
         log.error("Failed to open browser", e);
-      } catch (InterruptedException e) {
-        log.error("Failed to sleep", e);
       }
       System.exit(-1);
       return;
@@ -82,7 +78,10 @@ public class TachideskStarter {
 
     log.info("Starting jar with data dir: {}", dataDirFile.getAbsolutePath());
     ProcessBuilder processBuilder = new ProcessBuilder("java", dataDirArg, "-jar", jarLocation);
-    processBuilder.redirectOutput(new File("server.log"));
+
+    File logFile = new File(projectDir, "server.log");
+
+    processBuilder.redirectOutput(logFile);
 
     try {
       serverProcess = processBuilder.start();

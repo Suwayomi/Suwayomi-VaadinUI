@@ -61,6 +61,9 @@ types.d.ts
 ### target folder ###
 target/
 
+### Flatpak ###
+.flatpak-builder
+
 meta.json
 settings.json
 secrets.json

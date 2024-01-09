@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+    <id>online.hatsune_miku.tachidesk-vaadinui</id>
+    <name>Tachidesk-VaadinUI</name>
+    <project_license>MPL-2.0</project_license>
+    <developer_name>aless2003</developer_name>
+    <summary>Desktop client for Tachidesk</summary>
+    <description>
+        <p>
+            Tachidesk-VaadinUI is a UI for the Tachidesk Server. It is written in Java and uses Vaadin as UI framework.
+        </p>
+    </description>
+    <launchable type="desktop-id">online.hatsune_miku.tachidesk-vaadinui.desktop</launchable>
+    <content_rating type="oars-1.1"/>
+    <metadata_license>CC0-1.0</metadata_license>
+    <url type="bugtracker">https://github.com/Suwayomi/Tachidesk-VaadinUI/issues</url>
+    <url type="homepage">https://github.com/Suwayomi/Tachidesk-VaadinUI</url>
+    <screenshots>
+        <screenshot type="default">
+            <caption>Homepage</caption>
+            <image type="source" width="1600" height="900">
+                https://raw.githubusercontent.com/Suwayomi/Tachidesk-VaadinUI/ab0b546503e17e43f311aaa774c091b38e9177df/screenshots/HomeView.jpg
+            </image>
+        </screenshot>
+        <screenshot>
+            <caption>Extensions View</caption>
+            <image type="source" width="1600" height="900">
+                https://raw.githubusercontent.com/Suwayomi/Tachidesk-VaadinUI/ab0b546503e17e43f311aaa774c091b38e9177df/screenshots/ExtensionView.jpeg
+            </image>
+        </screenshot>
+        <screenshot>
+            <caption>Search View</caption>
+            <image type="source" width="1600" height="900">
+                https://raw.githubusercontent.com/Suwayomi/Tachidesk-VaadinUI/ab0b546503e17e43f311aaa774c091b38e9177df/screenshots/SearchView.jpg
+            </image>
+        </screenshot>
+        <screenshot>
+            <caption>Sources View</caption>
+            <image type="source" width="1600" height="900">
+                https://raw.githubusercontent.com/Suwayomi/Tachidesk-VaadinUI/ab0b546503e17e43f311aaa774c091b38e9177df/screenshots/SourcesView.jpeg
+            </image>
+        </screenshot>
+    </screenshots>
+    <releases>
+        <release version="1.0.5" date="2024-01-08">
+            <description>
+                <p>Fixes an Issue with the Tray Icon when used on Linux</p>
+                <ul>
+                    <li>Fixed Tray Menu</li>
+                </ul>
+            </description>
+        </release>
+    </releases>
+</component>
