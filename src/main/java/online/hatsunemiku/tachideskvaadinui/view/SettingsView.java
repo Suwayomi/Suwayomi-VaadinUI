@@ -6,23 +6,50 @@
 
 package online.hatsunemiku.tachideskvaadinui.view;
 
+import com.vaadin.flow.component.HasText;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.HeaderRow;
+import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Section;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.provider.Query;
+import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
+
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Predicate;
+
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.settings.event.SettingsEventPublisher;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.ExtensionRepo;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Source;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.SourceService;
+import online.hatsunemiku.tachideskvaadinui.services.SuwayomiSettingsService;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.graphql.client.GraphQlTransportException;
 import org.springframework.web.client.ResourceAccessException;
 import org.vaadin.miki.superfields.checkbox.SuperCheckbox;
 import org.vaadin.miki.superfields.text.SuperTextField;
@@ -31,20 +58,49 @@ import org.vaadin.miki.superfields.text.SuperTextField;
 @CssImport("./css/views/settings-view.css")
 public class SettingsView extends StandardLayout {
 
+  private static final Logger log = LoggerFactory.getLogger(SettingsView.class);
   private static final UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
   private final SettingsEventPublisher settingsEventPublisher;
+  private final SuwayomiSettingsService suwayomiSettingsService;
 
   public SettingsView(
       SettingsService settingsService,
       SettingsEventPublisher eventPublisher,
-      SourceService sourceService) {
+      SourceService sourceService,
+      SuwayomiSettingsService suwayomiSettingsService) {
     super("Settings");
     setClassName("settings-view");
 
     this.settingsEventPublisher = eventPublisher;
+    this.suwayomiSettingsService = suwayomiSettingsService;
 
-    FormLayout content = new FormLayout();
+    VerticalLayout content = new VerticalLayout();
     content.setClassName("settings-content");
+
+    FormLayout generalSettings = getGeneralSettingsArea(settingsService, sourceService);
+    Section extensionSettings;
+    try {
+      extensionSettings = getExtensionSettingsSection();
+    } catch (GraphQlTransportException e) {
+      UI ui = getUI().orElseGet(UI::getCurrent);
+
+      if (ui == null) {
+        throw new RuntimeException("UI is null");
+      }
+
+      ui.access(() -> ui.navigate(ServerStartView.class));
+      return;
+    }
+
+    content.add(generalSettings, extensionSettings);
+
+    setContent(content);
+  }
+
+  @NotNull
+  private FormLayout getGeneralSettingsArea(
+      SettingsService settingsService, SourceService sourceService) {
+    FormLayout generalSettings = new FormLayout();
 
     Binder<Settings> binder = new Binder<>(Settings.class);
     SuperTextField urlField = createUrlFieldWithValidation(binder);
@@ -61,10 +117,235 @@ public class SettingsView extends StandardLayout {
 
     binder.setBean(settingsService.getSettings());
 
-    content.add(urlField, defaultSearchLangField);
-    content.add(checkboxContainer, 2);
+    generalSettings.add(urlField, defaultSearchLangField);
+    generalSettings.add(checkboxContainer, 2);
+    return generalSettings;
+  }
 
-    setContent(content);
+  private Section getExtensionSettingsSection() {
+    Section extensionSettings = new Section();
+    Div extensionSettingsContent = new Div();
+    extensionSettingsContent.setId("extension-settings");
+
+    var header = new H2("Extensions");
+
+    String descriptionText =
+        """
+    So, because there's people who abuse DMCA to take down repos I can't include any extension repos by default.
+    However, you can add them yourself here. Just paste the URL of the repo where the extensions are stored in the box below.
+    Now the obligatory disclaimer: I'm not responsible for any malicious code that might be in the extensions you install.
+    I also do not condone piracy, etc. etc. etc. blah blah blah. You know the drill.
+    If you don't know where to find extension repos, you can find some on github.
+    Some that were brought up during a discussion are https://github.com/keiyoushi/extensions and https://github.com/ThePBone/tachiyomi-extensions-revived.
+    I do not endorse them, I'm merely mentioning them as examples ;)
+    """;
+
+    Span description = new Span(descriptionText);
+    description.setId("extension-settings-description");
+
+    var extensionReposList = createExtensionReposList();
+
+    extensionSettingsContent.add(header, description, extensionReposList);
+
+    extensionSettings.add(extensionSettingsContent);
+
+    return extensionSettings;
+  }
+
+  private Grid<ExtensionRepo> createExtensionReposList() {
+    Grid<ExtensionRepo> repoGrid = new Grid<>();
+    Binder<ExtensionRepo> binder = new Binder<>(ExtensionRepo.class);
+    var editor = repoGrid.getEditor();
+    editor.setBinder(binder);
+    editor.setBuffered(true);
+
+    TextField extensionRepoUrlField = new TextField("Extension Repo URL");
+    extensionRepoUrlField.getStyle().set("width", "90%");
+
+    var url = repoGrid.addColumn(ExtensionRepo::getUrl).setHeader("Extension Repos");
+    url.setEditorComponent(extensionRepoUrlField);
+
+    var headRow = repoGrid.getHeaderRows().get(0);
+    var addRepoButton = new Button("Add", VaadinIcon.PLUS.create());
+
+    repoGrid.setAllRowsVisible(true);
+    var buttonColumn =
+        repoGrid.addComponentColumn(
+            extensionRepo -> {
+              var editButton = new Button(VaadinIcon.EDIT.create());
+              editButton.addClickListener(
+                  buttonClickEvent -> {
+                    if (editor.isOpen()) {
+                      editor.cancel();
+                    }
+
+                    log.info("Opening Editor");
+                    editor.editItem(extensionRepo);
+                    extensionRepoUrlField.focus();
+                  });
+
+              var deleteButton = new Button(VaadinIcon.TRASH.create());
+              deleteButton.addClickListener(
+                  event -> {
+                    suwayomiSettingsService.removeExtensionRepo(extensionRepo.getUrl());
+                    reloadGrid(repoGrid);
+                  });
+
+              var buttonContainer = new Div();
+              buttonContainer.addClassName("right-align");
+              buttonContainer.addClassName("button-container");
+              buttonContainer.add(editButton, deleteButton);
+
+              return buttonContainer;
+            });
+
+    Div editingMenu = getEditingMenu(editor, repoGrid);
+    buttonColumn.setEditorComponent(editingMenu);
+
+    editor.addSaveListener(
+        event -> {
+          var newRepo = event.getItem();
+          suwayomiSettingsService.addExtensionRepo(newRepo.getUrl());
+        });
+
+    binder
+        .forField(extensionRepoUrlField)
+        .withValidator(
+            (input, context) -> {
+              if (input == null || input.isEmpty()) {
+                return ValidationResult.error("URL cannot be empty");
+              }
+
+              if (!input.startsWith("http") && !input.startsWith("https")) {
+                return ValidationResult.error("URL must start with http:// or https://");
+              }
+
+              UrlValidator urlValidator = new UrlValidator();
+
+              if (!urlValidator.isValid(input)) {
+                return ValidationResult.error("URL is not valid");
+              }
+
+              return ValidationResult.ok();
+            })
+        .bind(ExtensionRepo::getUrl, ExtensionRepo::setUrl);
+
+    var extensionRepos = suwayomiSettingsService.getExtensionRepos();
+
+    HeaderRow.HeaderCell buttonCell = headRow.getCell(buttonColumn);
+    Div buttonContainer = new Div(addRepoButton);
+    buttonContainer.addClassName("right-align");
+    buttonCell.setComponent(buttonContainer);
+
+    Dialog dialog = new Dialog();
+    SuperTextField addRepoUrlField = new SuperTextField("Extension Repo URL");
+    dialog.add(addRepoUrlField);
+    Div dialogButtons = getDialogButtons(dialog, addRepoUrlField, repoGrid);
+    dialog.add(dialogButtons);
+
+    addRepoButton.addClickListener(
+        event -> {
+          dialog.open();
+          addRepoUrlField.focus();
+        });
+
+    repoGrid.setItems(extensionRepos);
+    repoGrid.setId("extension-repos-grid");
+
+    return repoGrid;
+  }
+
+  @NotNull
+  private Div getEditingMenu(Editor<ExtensionRepo> editor, Grid<ExtensionRepo> repoGrid) {
+    Button saveButton = getEditingSaveBtn(editor, repoGrid);
+
+    Button cancelButton = getEditingCancelBtn(editor);
+
+    Div editingMenu = new Div();
+    editingMenu.addClassNames("right-align", "button-container");
+    editingMenu.add(saveButton, cancelButton);
+    return editingMenu;
+  }
+
+  @NotNull
+  private static Button getEditingCancelBtn(Editor<ExtensionRepo> editor) {
+    Button cancelButton = new Button("Cancel");
+    cancelButton.addClickListener(
+        event -> {
+          if (!editor.isOpen()) {
+            return;
+          }
+
+          editor.cancel();
+        });
+    return cancelButton;
+  }
+
+  @NotNull
+  private Button getEditingSaveBtn(Editor<ExtensionRepo> editor, Grid<ExtensionRepo> repoGrid) {
+    Button saveButton = new Button("Save");
+    saveButton.addClickListener(
+        buttonClickEvent -> {
+          if (!editor.isOpen()) {
+            return;
+          }
+          log.info("Saving");
+          var oldUrl = editor.getItem().getUrl();
+          boolean success = editor.save();
+          if (success) {
+            log.debug("Couldn't save extension repo");
+            suwayomiSettingsService.removeExtensionRepo(oldUrl);
+          } else {
+            log.debug("Saved extension repo");
+          }
+
+          reloadGrid(repoGrid);
+        });
+    return saveButton;
+  }
+
+  @NotNull
+  private Div getDialogButtons(
+      Dialog dialog, SuperTextField addRepoUrlField, Grid<ExtensionRepo> repoGrid) {
+
+    Div dialogButtons = new Div();
+    dialogButtons.setId("dialog-buttons");
+
+    Button cancelButton = new Button("Cancel");
+    cancelButton.addClickListener(event -> dialog.close());
+
+    Button addButton = new Button("Add");
+    addButton.addClickListener(
+        event -> {
+          String newRepoUrl = addRepoUrlField.getValue();
+          if (newRepoUrl == null || newRepoUrl.isEmpty()) {
+            return;
+          }
+
+          if (!newRepoUrl.startsWith("http") && !newRepoUrl.startsWith("https")) {
+            return;
+          }
+
+          UrlValidator urlValidator = new UrlValidator();
+
+          if (!urlValidator.isValid(newRepoUrl)) {
+            return;
+          }
+
+          suwayomiSettingsService.addExtensionRepo(newRepoUrl);
+          dialog.close();
+          reloadGrid(repoGrid);
+        });
+
+    addRepoUrlField.addKeyPressListener(Key.ENTER, event -> addButton.click());
+
+    dialogButtons.add(addButton, cancelButton);
+    return dialogButtons;
+  }
+
+  private void reloadGrid(Grid<ExtensionRepo> grid) {
+    var extensionRepos = suwayomiSettingsService.getExtensionRepos();
+    grid.setItems(extensionRepos);
   }
 
   private ComboBox<String> createSearchLangField(

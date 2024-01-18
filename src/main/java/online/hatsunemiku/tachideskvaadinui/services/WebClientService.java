@@ -6,24 +6,34 @@
 
 package online.hatsunemiku.tachideskvaadinui.services;
 
+import io.netty.handler.logging.LogLevel;
 import jakarta.annotation.PreDestroy;
 import java.net.URI;
 import java.time.Duration;
 import lombok.Getter;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.settings.event.UrlChangeEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.graphql.client.HttpGraphQlClient;
 import org.springframework.graphql.client.WebSocketGraphQlClient;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyExtractors;
+import org.springframework.web.reactive.function.client.ClientRequest;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.socket.client.StandardWebSocketClient;
 import org.springframework.web.reactive.socket.client.WebSocketClient;
+import reactor.netty.http.client.HttpClient;
+import reactor.netty.transport.logging.AdvancedByteBufFormat;
 
 @Getter
 @Service
 public class WebClientService {
 
+  private static final Logger log = LoggerFactory.getLogger(WebClientService.class);
   private WebClient webClient;
   private HttpGraphQlClient graphQlClient;
   private WebSocketGraphQlClient webSocketGraphQlClient;
@@ -55,10 +65,16 @@ public class WebClientService {
     url = url + "/api/graphql";
     url = url.replace("//api", "/api");
 
+    // Uncomment this and the clientConnector in the WebClient.builder() to enable logs for graphQL
+    // in debug.log
+    /*  HttpClient nettyClient =
+            HttpClient.create().wiretap("reactor.netty.http.client.HttpClient", LogLevel.DEBUG, AdvancedByteBufFormat.TEXTUAL);
+    */
     // 4MB memory limit
     WebClient graphClient =
         WebClient.builder()
             .baseUrl(url)
+            //          .clientConnector(new ReactorClientHttpConnector(nettyClient))
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(4 * 1024 * 1024))
             .build();
 

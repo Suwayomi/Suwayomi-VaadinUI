@@ -9,18 +9,24 @@ package online.hatsunemiku.tachideskvaadinui.startup;
 import jakarta.annotation.PreDestroy;
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.concurrent.*;
 import javax.swing.*;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.Meta;
+import online.hatsunemiku.tachideskvaadinui.data.server.event.ServerEventPublisher;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
+import online.hatsunemiku.tachideskvaadinui.data.settings.event.SettingsEventPublisher;
 import online.hatsunemiku.tachideskvaadinui.data.settings.event.UrlChangeEvent;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.utils.BrowserUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
+import org.apache.catalina.Server;
+import org.jetbrains.annotations.Async;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
@@ -31,10 +37,13 @@ public class TachideskStarter {
   private static final Logger logger = LoggerFactory.getLogger(TachideskStarter.class);
   private Process serverProcess;
   private ScheduledExecutorService serverChecker;
+  private ScheduledExecutorService startChecker;
   private final SettingsService settingsService;
+  private final ServerEventPublisher serverEventPublisher;
 
-  public TachideskStarter(SettingsService settingsService) {
+  public TachideskStarter(SettingsService settingsService, ServerEventPublisher serverEventPublisher) {
     this.settingsService = settingsService;
+      this.serverEventPublisher = serverEventPublisher;
   }
 
   public void startJar(File projectDir) {
@@ -91,10 +100,14 @@ public class TachideskStarter {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+
   }
 
   private void startServerCheck() {
     serverChecker = Executors.newSingleThreadScheduledExecutor();
+    startChecker = Executors.newSingleThreadScheduledExecutor();
+
+    startChecker.scheduleAtFixedRate(this::checkIfServerIsRunning, 0, 5, TimeUnit.SECONDS);
   }
 
   @PreDestroy
@@ -126,6 +139,34 @@ public class TachideskStarter {
 
     if (!newUrl.equals(defaults.getUrl())) {
       stopJar();
+    }
+  }
+
+  private void checkIfServerIsRunning() {
+    if (!checkServerConnection()) {
+      return;
+    }
+
+    logger.info("Server is running");
+    serverEventPublisher.publishServerStartedEvent();
+    startChecker.shutdownNow();
+  }
+
+  private boolean checkServerConnection() {
+    if (serverProcess == null) {
+      throw new RuntimeException("Server process is null");
+    }
+
+    try {
+      HttpURLConnection connection =
+          (HttpURLConnection) new URL("http://localhost:4567/api/graphql").openConnection();
+      connection.setRequestMethod("GET");
+      connection.setConnectTimeout(500);
+      connection.connect();
+      int code = connection.getResponseCode();
+      return code == 200;
+    } catch (IOException e) {
+      return false;
     }
   }
 }

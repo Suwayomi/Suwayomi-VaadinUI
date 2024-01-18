@@ -28,3 +28,24 @@
     width: 99% !important;
     margin-right: 10vw !important;
 }
+
+.settings-view .button-container vaadin-button {
+    margin-left: 0.125rem;
+    margin-right: 0.125rem;
+}
+
+#extension-settings-description {
+    color: var(--miku-main-color);
+    font-weight: 500;
+    padding-bottom: 1rem;
+}
+
+#dialog-buttons vaadin-button {
+    display: flex;
+    align-items: center;
+}
+
+#extension-repos-grid {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
