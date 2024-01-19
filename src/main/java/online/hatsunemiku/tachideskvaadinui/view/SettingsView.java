@@ -7,6 +7,7 @@
 package online.hatsunemiku.tachideskvaadinui.view;
 
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -69,21 +70,10 @@ public class SettingsView extends StandardLayout {
     content.setClassName("settings-content");
 
     FormLayout generalSettings = getGeneralSettingsArea(settingsService, sourceService);
-    Section extensionSettings;
-    try {
-      extensionSettings = getExtensionSettingsSection();
-    } catch (GraphQlTransportException e) {
-      UI ui = getUI().orElseGet(UI::getCurrent);
+    Div separator = getSeparator();
+    Section extensionSettings = getExtensionSettingsSection();
 
-      if (ui == null) {
-        throw new RuntimeException("UI is null");
-      }
-
-      ui.access(() -> ui.navigate(ServerStartView.class));
-      return;
-    }
-
-    content.add(generalSettings, extensionSettings);
+    content.add(generalSettings, separator, extensionSettings);
 
     setContent(content);
   }
@@ -115,10 +105,12 @@ public class SettingsView extends StandardLayout {
 
   private Section getExtensionSettingsSection() {
     Section extensionSettings = new Section();
+    extensionSettings.setId("extension-settings-section");
     Div extensionSettingsContent = new Div();
     extensionSettingsContent.setId("extension-settings");
 
     var header = new H2("Extensions");
+    header.setId("settings-extension-header");
 
     String descriptionText =
         """
@@ -134,13 +126,36 @@ public class SettingsView extends StandardLayout {
     Span description = new Span(descriptionText);
     description.setId("extension-settings-description");
 
-    var extensionReposList = createExtensionReposList();
+    Grid<ExtensionRepo> extensionReposList;
+    try {
+      extensionReposList = createExtensionReposList();
+    } catch (Exception e) {
+      Div noServerWarning = new Div();
+      noServerWarning.setId("no-server-warning");
+
+      String serverNotRunningMessage =
+          "Server is not running, please wait until it's running to add extension repos";
+
+      Text noServerWarningText = new Text(serverNotRunningMessage);
+      noServerWarning.add(noServerWarningText);
+
+      extensionSettingsContent.add(header, description, noServerWarning);
+      extensionSettings.add(extensionSettingsContent);
+
+      return extensionSettings;
+    }
 
     extensionSettingsContent.add(header, description, extensionReposList);
 
     extensionSettings.add(extensionSettingsContent);
 
     return extensionSettings;
+  }
+
+  private Div getSeparator() {
+    Div separator = new Div();
+    separator.addClassName("separator");
+    return separator;
   }
 
   private Grid<ExtensionRepo> createExtensionReposList() {

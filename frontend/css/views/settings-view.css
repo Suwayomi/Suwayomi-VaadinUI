@@ -49,3 +49,23 @@
     margin-top: 1rem;
     margin-bottom: 1rem;
 }
+
+#settings-extension-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+#no-server-warning {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--miku-main-color);
+    font-weight: 500;
+    border: 1px solid var(--miku-main-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}

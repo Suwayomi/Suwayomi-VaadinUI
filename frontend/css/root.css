@@ -54,3 +54,10 @@
     flex-direction: row;
     justify-content: flex-end;
 }
+
+.separator {
+    border-bottom: 1px solid var(--miku-main-color-50);
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    width: 100%;
+}
