@@ -8,7 +8,6 @@ package online.hatsunemiku.tachideskvaadinui.view;
 
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -41,7 +40,6 @@ import org.apache.commons.validator.routines.UrlValidator;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.graphql.client.GraphQlTransportException;
 import org.springframework.web.client.ResourceAccessException;
 import org.vaadin.miki.superfields.checkbox.SuperCheckbox;
 import org.vaadin.miki.superfields.text.SuperTextField;
@@ -69,7 +67,7 @@ public class SettingsView extends StandardLayout {
     VerticalLayout content = new VerticalLayout();
     content.setClassName("settings-content");
 
-    FormLayout generalSettings = getGeneralSettingsArea(settingsService, sourceService);
+    Section generalSettings = getGeneralSettingsSection(settingsService, sourceService);
     Div separator = getSeparator();
     Section extensionSettings = getExtensionSettingsSection();
 
@@ -79,9 +77,16 @@ public class SettingsView extends StandardLayout {
   }
 
   @NotNull
-  private FormLayout getGeneralSettingsArea(
+  private Section getGeneralSettingsSection(
       SettingsService settingsService, SourceService sourceService) {
-    FormLayout generalSettings = new FormLayout();
+    Section generalSettingsSection = new Section();
+    generalSettingsSection.setId("general-settings-section");
+
+
+    var header = new H2("General");
+    header.addClassName("settings-header");
+
+    FormLayout generalSettingsContent = new FormLayout();
 
     Binder<Settings> binder = new Binder<>(Settings.class);
     SuperTextField urlField = createUrlFieldWithValidation(binder);
@@ -98,19 +103,22 @@ public class SettingsView extends StandardLayout {
 
     binder.setBean(settingsService.getSettings());
 
-    generalSettings.add(urlField, defaultSearchLangField);
-    generalSettings.add(checkboxContainer, 2);
-    return generalSettings;
+    generalSettingsContent.add(urlField, defaultSearchLangField);
+    generalSettingsContent.add(checkboxContainer, 2);
+
+    generalSettingsSection.add(header, generalSettingsContent);
+    return generalSettingsSection;
   }
 
   private Section getExtensionSettingsSection() {
     Section extensionSettings = new Section();
     extensionSettings.setId("extension-settings-section");
+
     Div extensionSettingsContent = new Div();
     extensionSettingsContent.setId("extension-settings");
 
     var header = new H2("Extensions");
-    header.setId("settings-extension-header");
+    header.addClassName("settings-header");
 
     String descriptionText =
         """

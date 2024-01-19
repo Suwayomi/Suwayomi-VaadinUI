@@ -50,7 +50,7 @@
     margin-bottom: 1rem;
 }
 
-#settings-extension-header {
+.settings-header {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -68,4 +68,10 @@
     padding: 1rem;
     margin-top: 2rem;
     margin-bottom: 2rem;
+}
+
+#general-settings-section {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
