@@ -143,6 +143,10 @@ public class TachideskStarter {
   }
 
   private void checkIfServerIsRunning() {
+    if (Thread.interrupted()) {
+        return;
+    }
+
     if (!checkServerConnection()) {
       return;
     }
