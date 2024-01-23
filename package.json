@@ -71,8 +71,7 @@
     "date-fns": "2.29.3",
     "lit": "3.1.0",
     "lumo-css-framework": "3.0.11",
-    "swiper": "^10.0.3",
-    "vanilla-lazyload": "17.8.3"
+    "swiper": "^10.0.3"
   },
   "devDependencies": {
     "@rollup/plugin-replace": "5.0.4",
@@ -162,8 +161,7 @@
       "date-fns": "2.29.3",
       "lit": "3.1.0",
       "lumo-css-framework": "3.0.11",
-      "swiper": "^10.0.3",
-      "vanilla-lazyload": "17.8.3"
+      "swiper": "^10.0.3"
     },
     "devDependencies": {
       "@rollup/plugin-replace": "5.0.4",
@@ -183,7 +181,7 @@
       "workbox-core": "7.0.0",
       "workbox-precaching": "7.0.0"
     },
-    "hash": "16637ca3e2f416c6ac5067c0a95623137a518ed8add111ee468da303788b7ac7"
+    "hash": "23d9bf0f0d179321526777906e2738f61bdb5168b87e79ac7d85cc75fdefebc4"
   },
   "overrides": {
     "@vaadin/bundles": "$@vaadin/bundles",
@@ -254,7 +252,6 @@
     "swiper": "$swiper",
     "@vaadin/vaadin-themable-mixin": "$@vaadin/vaadin-themable-mixin",
     "date-fns": "$date-fns",
-    "lumo-css-framework": "$lumo-css-framework",
-    "vanilla-lazyload": "$vanilla-lazyload"
+    "lumo-css-framework": "$lumo-css-framework"
   }
 }

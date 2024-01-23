@@ -17,12 +17,10 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@Push
-@Theme("miku")
 @EnableAsync
 @EnableCaching
 @EnableScheduling
-public class TachideskVaadinUiApplication implements AppShellConfigurator {
+public class TachideskVaadinUiApplication {
 
   public static void main(String[] args) {
     SpringApplication app =

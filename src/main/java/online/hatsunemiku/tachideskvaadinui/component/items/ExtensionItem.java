@@ -19,8 +19,6 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Extension;
 import online.hatsunemiku.tachideskvaadinui.services.ExtensionService;
 import org.jetbrains.annotations.NotNull;
 
-@NpmPackage(value = "vanilla-lazyload", version = "17.8.3")
-@JavaScript("./js/lazyload.js")
 @CssImport("./css/components/extension-item.css")
 public class ExtensionItem extends BlurryItem {
 

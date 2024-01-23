@@ -149,6 +149,7 @@ public class TachideskStarter {
     logger.info("Server is running");
     serverEventPublisher.publishServerStartedEvent();
     startChecker.shutdownNow();
+    startChecker = null;
   }
 
   private boolean checkServerConnection() {
@@ -167,5 +168,6 @@ public class TachideskStarter {
     } catch (IOException e) {
       return false;
     }
+
   }
 }

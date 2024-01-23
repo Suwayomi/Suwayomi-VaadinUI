@@ -82,7 +82,6 @@ public class SettingsView extends StandardLayout {
     Section generalSettingsSection = new Section();
     generalSettingsSection.setId("general-settings-section");
 
-
     var header = new H2("General");
     header.addClassName("settings-header");
 
