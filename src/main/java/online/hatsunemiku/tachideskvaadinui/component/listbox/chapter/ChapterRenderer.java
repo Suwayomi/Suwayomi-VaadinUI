@@ -42,7 +42,13 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
     container.add(background);
 
     Div title = new Div();
-    title.setText("Chapter " + chapter.getChapterNumber());
+
+    if (chapter.getChapterNumber() == (int) chapter.getChapterNumber()) {
+      title.setText("Chapter " + (int) chapter.getChapterNumber());
+    } else {
+      title.setText("Chapter " + chapter.getChapterNumber());
+    }
+
     title.setClassName("chapter-list-box-item-title");
 
     long dateLong = chapter.getUploadDate();
