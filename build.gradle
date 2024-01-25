@@ -154,7 +154,7 @@ class InstallTask extends JPackageTask {
         appVersion = "${project.version}"
         icon = "package/icons/icon.ico"
         licenseFile = "LICENSE"
-        mainClass = "org.springframework.boot.loader.JarLauncher"
+        mainClass = "org.springframework.boot.loader.launch.JarLauncher"
         mainJar = "Tachidesk-VaadinUI-${project.version}.jar"
         vendor = "Aless2003"
         verbose = false
@@ -169,7 +169,7 @@ class WindowsInstallTask extends InstallTask {
     WindowsInstallTask() {
         super()
 
-        //winConsole = true //enable only for debugging
+        winConsole = true //enable only for debugging
         winDirChooser = true
         winHelpUrl = "https://github.com/aless2003/Tachidesk-VaadinUI"
         winMenu = true
