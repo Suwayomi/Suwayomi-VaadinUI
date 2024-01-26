@@ -8,6 +8,7 @@ on:
   push:
     tags:
       - 'v*.*.*'
+      - 'v*.*.*-pre'
 
 permissions:
   contents: write
@@ -67,10 +68,37 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  BuildReleaseJar:
+    name: Build release Jar
+
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'liberica'
+          cache: gradle
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Build Release Jar
+        run: ./gradlew buildReleaseJar
+      - name: List files
+        run: ls -R ${{ github.workspace }}/build/libs
+      - name: Upload Jar
+        uses: actions/upload-artifact@v3
+        with:
+          name: Jar
+          path: ${{ github.workspace }}/build/libs/*
+          if-no-files-found: error
+          retention-days: 14
+
   PublishRelease:
     name: Publish Release
 
-    needs: [ BuildRelease ]
+    needs: [ BuildRelease, BuildReleaseJar ]
 
     runs-on: ubuntu-latest
 
