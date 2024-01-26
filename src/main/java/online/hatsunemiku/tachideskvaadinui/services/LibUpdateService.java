@@ -42,7 +42,19 @@ public class LibUpdateService {
       return false;
     }
 
-    boolean fetchUpdate = client.fetchUpdate();
+    if (mangaService.getLibraryManga().isEmpty()) {
+      lock.unlock();
+      throw new IllegalStateException("No Manga in Library");
+    }
+
+    boolean fetchUpdate;
+    try {
+      fetchUpdate = client.fetchUpdate();
+    } catch (Exception e) {
+      log.error("Could not fetch update", e);
+      lock.unlock();
+      return false;
+    }
 
     if (!fetchUpdate) {
       lock.unlock();
@@ -55,7 +67,7 @@ public class LibUpdateService {
       try {
         mangaService.fetchChapterList(m.getId());
       } catch (InvalidResponseException e) {
-        if (ui == null){
+        if (ui == null) {
           log.warn(e.getMessage());
           continue;
         }
@@ -76,7 +88,13 @@ public class LibUpdateService {
 
   @Scheduled(initialDelay = 1, fixedRate = 30, timeUnit = TimeUnit.MINUTES)
   protected void scheduledUpdate() {
-    boolean success = fetchUpdate(null);
+    boolean success;
+    try {
+      success = fetchUpdate(null);
+    } catch (Exception e) {
+      log.info("Won't update, no Manga in Library", e);
+      return;
+    }
 
     if (success) {
       log.info("Library update started");

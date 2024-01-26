@@ -188,7 +188,21 @@ public class RootView extends StandardLayout implements BeforeEnterObserver {
               () -> {
                 ui.access(() -> e.getSource().setEnabled(false));
 
-                boolean success = this.libUpdateService.fetchUpdate(ui);
+                boolean success;
+                try {
+                  success = this.libUpdateService.fetchUpdate(ui);
+                } catch (IllegalStateException ex) {
+
+                  ui.access(() -> e.getSource().setEnabled(true));
+
+                  var notification =
+                      new Notification(
+                          "No Manga in Library", 5000, Notification.Position.BOTTOM_START);
+                  notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                  ui.access(notification::open);
+
+                  return;
+                }
                 Notification notification;
                 if (!success) {
                   notification = new Notification("Failed to fetch update", 3000);
