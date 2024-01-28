@@ -488,7 +488,7 @@ public class MangaReader extends Div {
       }
 
       int chapterIndex = this.chapterIndex + 1;
-      Chapter nextChapter = chapters.get(chapterIndex + 1);
+      Chapter nextChapter = chapters.get(chapterIndex);
 
       int nextChapterId = nextChapter.getId();
       var event =
@@ -503,7 +503,7 @@ public class MangaReader extends Div {
         return;
       }
 
-      if (this.chapterIndex <= 1) {
+      if (this.chapterIndex <= 0) {
         return;
       }
 
