@@ -23,6 +23,8 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoIcon;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -186,11 +188,27 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
             return;
           }
 
-          Chapter nextChapter;
+          Chapter nextChapter = null;
 
           var lastChapter = manga.getLastChapterRead();
           if (lastChapter == null) {
-            nextChapter = chapters.get(chapters.size() - 1);
+
+            var reversed = new ArrayList<>(chapters);
+            Collections.reverse(reversed);
+
+            for (Chapter chapter : reversed) {
+              if (chapter.isRead()) {
+                continue;
+              }
+
+              nextChapter = chapter;
+              break;
+            }
+
+            if (nextChapter == null) {
+              nextChapter = chapters.get(0);
+            }
+
           } else {
             int id = lastChapter.getId();
 
