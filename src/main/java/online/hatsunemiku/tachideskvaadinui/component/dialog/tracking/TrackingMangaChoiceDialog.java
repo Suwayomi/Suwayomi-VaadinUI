@@ -16,6 +16,8 @@ import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListMedia;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDate;
@@ -38,11 +40,20 @@ public class TrackingMangaChoiceDialog extends Dialog {
     var apiResponse = aniListAPI.searchManga(mangaName);
     var mangaList = apiResponse.data().page().media();
 
+    AtomicReference<AniListMedia> selectedManga = new AtomicReference<>();
+
+    Div noResults = new Div("No results found");
+    noResults.setId("no-search-results-text");
+
     ListBox<AniListMedia> searchResults = new ListBox<>();
     searchResults.addClassName("manga-search-results");
     searchResults.setRenderer(getRenderer());
     searchResults.setItems(mangaList);
-    AtomicReference<AniListMedia> selectedManga = new AtomicReference<>();
+    searchResults
+        .getDataProvider()
+        .addDataProviderListener(
+            e -> changeSearchResultsVisibility(mangaList, searchResults, noResults));
+
     searchResults.addValueChangeListener(
         e -> {
           AniListMedia selected = e.getValue();
@@ -60,7 +71,26 @@ public class TrackingMangaChoiceDialog extends Dialog {
           selectedManga.set(selected);
         });
 
-    add(searchField, searchResults);
+    searchField.addValueChangeListener(
+        e -> {
+          String value = e.getValue();
+
+          if (value.isBlank()) {
+            searchField.setValue(e.getOldValue());
+            return;
+          }
+
+          var response = aniListAPI.searchManga(value);
+          mangaList.clear();
+
+          mangaList.addAll(response.data().page().media());
+
+          searchResults.getDataProvider().refreshAll();
+        });
+
+    changeSearchResultsVisibility(mangaList, searchResults, noResults);
+
+    add(searchField, searchResults, noResults);
 
     Button closeBtn = new Button("Close");
     closeBtn.addClickListener(e -> close());
@@ -82,6 +112,17 @@ public class TrackingMangaChoiceDialog extends Dialog {
         });
 
     getFooter().add(closeBtn, saveBtn);
+  }
+
+  private static void changeSearchResultsVisibility(
+      List<AniListMedia> mangaList, ListBox<AniListMedia> searchResults, Div noResults) {
+    if (mangaList.isEmpty()) {
+      searchResults.setVisible(false);
+      noResults.setVisible(true);
+    } else {
+      searchResults.setVisible(true);
+      noResults.setVisible(false);
+    }
   }
 
   @NotNull
