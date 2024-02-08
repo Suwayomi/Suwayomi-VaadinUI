@@ -9,6 +9,7 @@ package online.hatsunemiku.tachideskvaadinui.component.dialog.tracking;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
@@ -34,6 +35,9 @@ public class TrackingMangaChoiceDialog extends Dialog {
       long mangaId,
       AniListAPIService aniListAPI,
       TrackingDataService dataService) {
+
+    this.setClassName("tracking-manga-choice-dialog");
+
     TextField searchField = new TextField("Search Manga");
     searchField.setValue(mangaName);
 
@@ -62,12 +66,6 @@ public class TrackingMangaChoiceDialog extends Dialog {
             return;
           }
 
-          int id = selected.id();
-
-          if (!aniListAPI.isMangaInList(id)) {
-            aniListAPI.addMangaToList(id);
-          }
-
           selectedManga.set(selected);
         });
 
@@ -92,6 +90,10 @@ public class TrackingMangaChoiceDialog extends Dialog {
 
     add(searchField, searchResults, noResults);
 
+    Checkbox privateCheckbox = new Checkbox("Private");
+
+    var buttons = new Div();
+
     Button closeBtn = new Button("Close");
     closeBtn.addClickListener(e -> close());
 
@@ -106,12 +108,23 @@ public class TrackingMangaChoiceDialog extends Dialog {
           }
           int aniListId = manga.id();
 
+          boolean isPrivate = privateCheckbox.getValue();
+
+          if (!aniListAPI.isMangaInList(aniListId)) {
+            aniListAPI.addMangaToList(aniListId, isPrivate);
+          }
+
           dataService.getTracker(mangaId).setAniListId(aniListId);
+          dataService.getTracker(mangaId).setPrivate(privateCheckbox.getValue());
 
           close();
         });
 
-    getFooter().add(closeBtn, saveBtn);
+    buttons.add(closeBtn, saveBtn);
+
+    var footer = getFooter();
+
+    footer.add(privateCheckbox, buttons);
   }
 
   private static void changeSearchResultsVisibility(

@@ -83,3 +83,9 @@
     text-align: center;
     color: var(--miku-main-color);
 }
+
+.tracking-manga-choice-dialog::part(footer) {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem;
+}
