@@ -89,3 +89,11 @@
     justify-content: space-between;
     padding: 1rem;
 }
+
+.tracking-dialog-remove-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+}

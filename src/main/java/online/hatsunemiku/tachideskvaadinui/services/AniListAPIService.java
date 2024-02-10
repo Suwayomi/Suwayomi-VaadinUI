@@ -827,12 +827,14 @@ public class AniListAPIService {
             }
             """;
 
-    String variables = """
+    String variables =
+        """
             {
               "mangaId": %s,
               "private": %s
             }
-            """.formatted(aniListId, isPrivate);
+            """
+            .formatted(aniListId, isPrivate);
 
     var json = Json.parse(sendAuthGraphQLRequest(query, variables));
     String data = json.getObject("data").getObject("SaveMediaListEntry").toJson();
@@ -842,9 +844,71 @@ public class AniListAPIService {
       if (response == null) {
         throw new RuntimeException("Response is null");
       }
-      log.info("Updated manga with ID {} to privacy status {}", response.id(), response.isPrivate());
+      log.info(
+          "Updated manga with ID {} to privacy status {}", response.id(), response.isPrivate());
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  private int getMangaListEntryId(int mangaId) {
+    // language=graphql
+    String query =
+        """
+            query ($mangaId: Int, $userId: Int) {
+              MediaList(mediaId: $mangaId, userId: $userId) {
+                id
+              }
+            }
+            """;
+
+    int userId = getCurrentUserId();
+
+    String variables =
+        """
+            {
+              "mangaId": %s,
+              "userId": %s
+            }
+            """
+            .formatted(mangaId, userId);
+
+    var json = Json.parse(sendAuthGraphQLRequest(query, variables));
+    return (int) json.getObject("data").getObject("MediaList").getNumber("id");
+  }
+
+  public void removeMangaFromList(int aniListId) {
+    // language=graphql
+    String query =
+        """
+    mutation ($entryId: Int) {
+      DeleteMediaListEntry(id: $entryId) {
+        deleted
+      }
+    }
+    """;
+
+    int entryId = getMangaListEntryId(aniListId);
+
+    var variables = """
+    {
+      "entryId": %s
+    }
+    """.formatted(entryId);
+
+    var json = Json.parse(sendAuthGraphQLRequest(query, variables));
+
+    if (json == null) {
+      throw new RuntimeException("Response is null");
+    }
+
+    boolean deleted =
+        json.getObject("data").getObject("DeleteMediaListEntry").getBoolean("deleted");
+
+    if (deleted) {
+      log.info("Deleted manga with ID {}", aniListId);
+    } else {
+      throw new RuntimeException("Manga could not be deleted");
     }
   }
 }

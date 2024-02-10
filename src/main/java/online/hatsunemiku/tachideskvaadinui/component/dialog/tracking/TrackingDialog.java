@@ -12,6 +12,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -129,8 +130,7 @@ public class TrackingDialog extends Dialog {
       throw new RuntimeException("Manga not found on AniList");
     }
 
-    Div statistics = new Div();
-    statistics.addClassName("tracking-dialog-statistics");
+    Div content = new Div();
 
     ComboBox<AniListStatus> status = getTrackingStatusField(tracker, mangaStats);
 
@@ -147,8 +147,34 @@ public class TrackingDialog extends Dialog {
 
     configureTrackingEndDateField(tracker, endDate, mangaStats, startDate);
 
+    Div statistics = new Div();
+    statistics.addClassName("tracking-dialog-statistics");
+
     statistics.add(status, chapter, score, startDate, endDate, privateCheckbox);
-    return statistics;
+
+
+    Button trackingDeleteBtn = new Button("Remove AniList Tracking", VaadinIcon.TRASH.create());
+    trackingDeleteBtn.addClickListener(
+        e -> {
+          tracker.removeAniListId();
+          close();
+        });
+
+    var nukeBtn = new Button("Remove from AniList and stop Tracking", VaadinIcon.BOMB.create());
+    nukeBtn.addClickListener(
+        e -> {
+          aniListAPI.removeMangaFromList(tracker.getAniListId());
+          tracker.removeAniListId();
+          close();
+        });
+
+    var buttons = new Div();
+    buttons.add(trackingDeleteBtn, nukeBtn);
+    buttons.addClassName("tracking-dialog-remove-buttons");
+
+    content.add(statistics, buttons);
+
+    return content;
   }
 
   @NotNull
