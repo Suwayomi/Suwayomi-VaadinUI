@@ -272,7 +272,8 @@ public class TachideskMaintainer {
   }
 
   private boolean checkServer(Meta existing) {
-    File serverDir = new File("server");
+
+    var serverDir = new File(projectDir, "server");
     File serverFile = new File(serverDir, existing.getJarName());
 
     if (!serverFile.exists()) {

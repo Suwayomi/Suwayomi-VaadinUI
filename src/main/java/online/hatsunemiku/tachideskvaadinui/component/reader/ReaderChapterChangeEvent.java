@@ -1,12 +1,21 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package online.hatsunemiku.tachideskvaadinui.component.reader;
 
 import com.vaadin.flow.component.ComponentEvent;
+import java.util.List;
 import lombok.Getter;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 
 @Getter
 public class ReaderChapterChangeEvent extends ComponentEvent<MangaReader> {
-  private final long mangaId;
-  private final int chapterIndex;
+  private final int mangaId;
+  private final int chapterId;
+  private final List<Chapter> chapters;
 
   /**
    * Creates a new event using the given source and indicator whether the event originated from the
@@ -17,12 +26,14 @@ public class ReaderChapterChangeEvent extends ComponentEvent<MangaReader> {
    *     </code> otherwise
    * @param mangaId The ID of the {@link online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga
    *     Manga} to which the next chapter belongs
-   * @param chapterIndex The index of the next chapter
+   * @param chapterId The ID of the next {@link
+   *     online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter Chapter}
    */
   public ReaderChapterChangeEvent(
-      MangaReader source, boolean fromClient, long mangaId, int chapterIndex) {
+      MangaReader source, boolean fromClient, int mangaId, int chapterId, List<Chapter> chapters) {
     super(source, fromClient);
     this.mangaId = mangaId;
-    this.chapterIndex = chapterIndex;
+    this.chapterId = chapterId;
+    this.chapters = List.copyOf(chapters);
   }
 }

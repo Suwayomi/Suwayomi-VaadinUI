@@ -13,5 +13,5 @@ public record AniListMangaListResponse(@JsonProperty("data") Data data) {
 
   public record Data(@JsonProperty("Page") Page page) {}
 
-  public record Page(List<AniListMedia> media) {}
+  public record Page(@JsonProperty("media") List<AniListMedia> media) {}
 }

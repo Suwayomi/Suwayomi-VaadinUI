@@ -20,6 +20,8 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import online.hatsunemiku.tachideskvaadinui.component.card.DraggableMangaCard;
 import online.hatsunemiku.tachideskvaadinui.component.card.MangaCard;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.category.CategoryDialog;
@@ -43,6 +45,7 @@ public class RootView extends StandardLayout implements BeforeEnterObserver {
   private final MangaService mangaService;
   private final CategoryService categoryService;
   private final SettingsService settingsService;
+  private final ExecutorService updateExecutor;
 
   public RootView(
       SettingsService settingsService,
@@ -55,6 +58,7 @@ public class RootView extends StandardLayout implements BeforeEnterObserver {
     this.categoryService = categoryService;
     this.mangaService = mangaService;
     this.settingsService = settingsService;
+    this.updateExecutor = Executors.newSingleThreadExecutor();
   }
 
   private void addCategoryTabs(List<Category> categories, Settings settings) {
@@ -178,16 +182,39 @@ public class RootView extends StandardLayout implements BeforeEnterObserver {
     Button refreshButton = new Button(VaadinIcon.REFRESH.create());
     refreshButton.addClickListener(
         e -> {
-          boolean success = this.libUpdateService.fetchUpdate();
-          Notification notification;
-          if (!success) {
-            notification = new Notification("Failed to fetch update", 3000);
-            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-          } else {
-            notification = new Notification("Updating library", 3000);
-            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-          }
-          notification.open();
+          UI ui = UI.getCurrent();
+
+          updateExecutor.submit(
+              () -> {
+                ui.access(() -> e.getSource().setEnabled(false));
+
+                boolean success;
+                try {
+                  success = this.libUpdateService.fetchUpdate(ui);
+                } catch (IllegalStateException ex) {
+
+                  ui.access(() -> e.getSource().setEnabled(true));
+
+                  var notification =
+                      new Notification(
+                          "No Manga in Library", 5000, Notification.Position.BOTTOM_START);
+                  notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                  ui.access(notification::open);
+
+                  return;
+                }
+                Notification notification;
+                if (!success) {
+                  notification = new Notification("Failed to fetch update", 3000);
+                  notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                } else {
+                  notification = new Notification("Updated library", 3000);
+                  notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                }
+
+                ui.access(notification::open);
+                ui.access(() -> e.getSource().setEnabled(true));
+              });
         });
 
     buttons.add(refreshButton, createButton);

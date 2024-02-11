@@ -5,17 +5,18 @@ import org.springframework.boot.gradle.tasks.run.BootRun
 
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.1.2'
+    id 'idea'
+    id 'org.springframework.boot' version '3.2.1'
     id 'io.spring.dependency-management' version '1.1.0'
     //id 'org.graalvm.buildtools.native' version '0.9.20'
-    id 'com.vaadin' version '24.1.9'
+    id 'com.vaadin' version '24.3.2'
 
     //Jpackage for building native installers
     id("org.panteleyev.jpackageplugin") version "1.5.2"
 }
 
 group = 'online.hatsunemiku'
-version = '1.0.5'
+version = '1.2.0'
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
@@ -34,23 +35,31 @@ repositories {
 }
 
 ext {
-    set('vaadinVersion', "24.1.9")
+    set('vaadinVersion', "24.3.2")
+}
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
 }
 
 dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-graphql'
     implementation('com.vaadin:vaadin-spring-boot-starter') {
         if (vaadin.productionMode) {
             exclude group: "com.vaadin", module: "vaadin-dev-server"
         }
     }
+
     implementation 'org.jetbrains:annotations:24.0.0'
-    implementation 'org.springframework.boot:spring-boot-starter-cache'
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'com.github.ben-manes.caffeine:caffeine:3.1.5'
 
     //Feign Client
-    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.0.4'
     implementation 'io.github.openfeign:feign-jackson:12.2'
     implementation 'io.github.openfeign.form:feign-form:3.8.0'
     implementation 'io.github.openfeign.form:feign-form-spring:3.8.0'
@@ -63,8 +72,10 @@ dependencies {
 
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    developmentOnly 'io.projectreactor:reactor-tools'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
 
     //vaadin directory plugins
     implementation 'in.virit:viritin:2.0.1'
@@ -143,7 +154,7 @@ class InstallTask extends JPackageTask {
         appVersion = "${project.version}"
         icon = "package/icons/icon.ico"
         licenseFile = "LICENSE"
-        mainClass = "org.springframework.boot.loader.JarLauncher"
+        mainClass = "org.springframework.boot.loader.launch.JarLauncher"
         mainJar = "Tachidesk-VaadinUI-${project.version}.jar"
         vendor = "Aless2003"
         verbose = false
@@ -158,7 +169,7 @@ class WindowsInstallTask extends InstallTask {
     WindowsInstallTask() {
         super()
 
-        //winConsole = true //enable only for debugging
+        winConsole = true //enable only for debugging
         winDirChooser = true
         winHelpUrl = "https://github.com/aless2003/Tachidesk-VaadinUI"
         winMenu = true

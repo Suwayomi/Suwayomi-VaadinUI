@@ -1,0 +1,29 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+vaadin-grid {
+    background-color: transparent;
+}
+
+vaadin-grid::part(even-row) {
+    --vaadin-grid-cell-background: var(--miku-unselected-color);
+    color: var(--miku-main-color);
+}
+
+vaadin-grid::part(odd-row) {
+    --vaadin-grid-cell-background: var(--miku-unselected-color);
+    color: var(--miku-main-color);
+}
+
+vaadin-grid::part(even-row) {
+    --vaadin-grid-cell-background: var(--miku-unselected-color-80);
+    color: var(--miku-main-color);
+}
+
+vaadin-grid::part(header-cell) {
+    --vaadin-grid-cell-background: var(--miku-unselected-color);
+    color: var(--miku-main-color);
+}

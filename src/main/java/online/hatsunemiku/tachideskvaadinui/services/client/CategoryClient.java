@@ -6,59 +6,178 @@
 
 package online.hatsunemiku.tachideskvaadinui.services.client;
 
-import feign.Headers;
-import java.net.URI;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Category;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
+import org.springframework.graphql.client.FieldAccessException;
+import org.springframework.stereotype.Component;
 
-/** Represents a client for interacting with the Category API Endpoint. */
-@FeignClient(name = "category-service", url = "http://localhost:8080")
-public interface CategoryClient {
+@Component
+public class CategoryClient {
 
-  /**
-   * Creates a new category.
-   *
-   * @param baseUrl the base URL of the API
-   * @param formParams the form parameters for creating the category
-   */
-  @PostMapping(value = "/api/v1/category", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  @Headers("Content-Type: application/x-www-form-urlencoded")
-  void createCategory(URI baseUrl, @RequestBody Map<String, ?> formParams);
+  private final WebClientService clientService;
+
+  public CategoryClient(WebClientService clientService) {
+    this.clientService = clientService;
+  }
 
   /**
-   * Deletes a category.
+   * Creates a new category with the specified name.
    *
-   * @param baseUrl the base URL of the API
-   * @param categoryId the ID of the category to delete
+   * @param name the name of the category
+   * @return true if the category was successfully created, false otherwise
+   * @throws RuntimeException if there was an error while creating the category
    */
-  @DeleteMapping("/api/v1/category/{categoryId}")
-  void deleteCategory(URI baseUrl, @PathVariable int categoryId);
+  public boolean createCategory(String name) {
+    String query =
+        """
+        mutation CreateCategory($name: String!) {
+          createCategory(input: {name: $name}) {
+            category {
+              id
+            }
+          }
+        }
+        """;
+
+    var graphClient = clientService.getGraphQlClient();
+
+    Integer id;
+    try {
+      id =
+          graphClient
+              .document(query)
+              .variable("name", name)
+              .retrieve("createCategory.category.id")
+              .toEntity(Integer.class)
+              .block();
+    } catch (FieldAccessException e) {
+      return false;
+    }
+
+    if (id == null) {
+      throw new RuntimeException("Error while creating category");
+    }
+
+    return true;
+  }
 
   /**
-   * Retrieves all categories from the API.
+   * Deletes the category with the specified category ID.
    *
-   * @param baseUrl the base URL of the API
-   * @return a list of {@link Category} objects representing the categories retrieved from the API
+   * @param categoryId the ID of the category to be deleted
+   * @return true if the category was successfully deleted, false otherwise
+   * @throws RuntimeException if there was an error while deleting the category
    */
-  @GetMapping("/api/v1/category")
-  List<Category> getCategories(URI baseUrl);
+  public boolean deleteCategory(int categoryId) {
+    String query =
+        """
+        mutation DeleteCategory($categoryId: Int!) {
+          deleteCategory(input: {categoryId: $categoryId}) {
+            category {
+              id
+            }
+          }
+        }
+        """;
+
+    var graphClient = clientService.getGraphQlClient();
+
+    Integer id =
+        graphClient
+            .document(query)
+            .variable("categoryId", categoryId)
+            .retrieve("deleteCategory.category.id")
+            .toEntity(Integer.class)
+            .block();
+
+    // deleteCategory returns null if the category doesn't exist, meaning there was nothing to
+    // delete
+    return id != null;
+  }
 
   /**
-   * Retrieves manga from a specific category from the API.
+   * Retrieves a list of categories.
    *
-   * @param baseUrl the base URL of the API
-   * @param categoryId the ID of the category to retrieve manga from
-   * @return a list of {@link Manga} objects representing the manga retrieved from the API
+   * @return a list of Category objects representing the categories
+   * @throws RuntimeException if there was an error while retrieving the categories
    */
-  @GetMapping("/api/v1/category/{categoryId}")
-  List<Manga> getMangaFromCategory(URI baseUrl, @PathVariable int categoryId);
+  public List<Category> getCategories() {
+    String query =
+        """
+        query GetCategories {
+          categories {
+            nodes {
+              default
+              id
+              name
+              order
+            }
+          }
+        }
+        """;
+
+    var graphClient = clientService.getGraphQlClient();
+
+    var categories =
+        graphClient
+            .document(query)
+            .retrieve("categories.nodes")
+            .toEntityList(Category.class)
+            .block();
+
+    if (categories == null) {
+      throw new RuntimeException("Error while getting categories");
+    }
+
+    categories.sort(Comparator.comparingInt(Category::getOrder));
+
+    return categories;
+  }
+
+  /**
+   * Retrieves a list of manga belonging to a specific category.
+   *
+   * @param categoryId the ID of the category
+   * @return a {@link List list} of {@link Manga} objects representing the manga in the category
+   * @throws RuntimeException if there was an error while retrieving the category manga
+   */
+  public List<Manga> getCategoryManga(int categoryId) {
+    String query =
+        """
+        query GetCategoryManga($categoryId: Int = 10) {
+          category(id: $categoryId) {
+            mangas {
+              nodes {
+                thumbnailUrl
+                title
+                inLibrary
+                id
+                lastReadChapter {
+                  id
+                }
+              }
+            }
+          }
+        }
+        """;
+
+    var graphClient = clientService.getGraphQlClient();
+
+    var categoryManga =
+        graphClient
+            .document(query)
+            .variable("categoryId", categoryId)
+            .retrieve("category.mangas.nodes")
+            .toEntityList(Manga.class)
+            .block();
+
+    if (categoryManga == null) {
+      throw new RuntimeException("Error while getting category manga");
+    }
+
+    return categoryManga;
+  }
 }

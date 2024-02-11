@@ -48,9 +48,10 @@ public class SourceExploreView extends StandardLayout
       return;
     }
 
-    long sourceId;
+    String sourceId;
     try {
-      sourceId = Long.parseLong(id.get());
+      Long.parseLong(id.get());
+      sourceId = id.get();
     } catch (Exception e) {
       event.rerouteToError(NotFoundException.class, "Source not found");
       return;
@@ -64,7 +65,7 @@ public class SourceExploreView extends StandardLayout
     setContent(content(sourceId));
   }
 
-  private Div content(long sourceId) {
+  private Div content(String sourceId) {
     Div content = new Div();
     content.addClassName("source-explore-container");
 
@@ -118,7 +119,7 @@ public class SourceExploreView extends StandardLayout
     button.setEnabled(true);
   }
 
-  private void switchOutScroller(Div content, ExploreType type, long sourceId) {
+  private void switchOutScroller(Div content, ExploreType type, String sourceId) {
     content.remove(content.getComponentAt(1));
     scroller = new SourceExploreScroller(sourceService, type, sourceId, settingsService);
     content.add(scroller);

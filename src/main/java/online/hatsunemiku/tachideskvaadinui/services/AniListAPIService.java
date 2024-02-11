@@ -29,6 +29,7 @@ import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.GraphQLRequest
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.MangaList;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDate;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.responses.AniListAddMangaResponse;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.responses.AniListChangePrivacyStatusResponse;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.responses.AniListChangeStatusResponse;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.responses.AniListMangaStatistics;
 import org.jetbrains.annotations.Nullable;
@@ -36,6 +37,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -279,13 +281,15 @@ public class AniListAPIService {
    * @param mangaId The ID of the manga to be added
    * @throws RuntimeException If an error occurs while adding the manga to the list
    */
-  public void addMangaToList(int mangaId) {
+  public void addMangaToList(int mangaId, boolean isPrivate) {
+    // language=graphql
     String query =
         """
-            mutation($mangaId: Int, $status: MediaListStatus){
-              SaveMediaListEntry(mediaId: $mangaId, status: $status) {
+            mutation($mangaId: Int, $status: MediaListStatus, $private: Boolean){
+              SaveMediaListEntry(mediaId: $mangaId, status: $status, private: $private) {
                 id
                 status
+                private
               }
             }
             """;
@@ -294,10 +298,11 @@ public class AniListAPIService {
         """
             {
               "mangaId": %s,
-              "status": "%s"
+              "status": "%s",
+              "private": %s
             }
             """
-            .formatted(mangaId, CURRENT.name());
+            .formatted(mangaId, CURRENT.name(), isPrivate);
 
     GraphQLRequest request = new GraphQLRequest(query, variables);
 
@@ -327,6 +332,15 @@ public class AniListAPIService {
     throw new RuntimeException("Unexpected response code: " + response.getStatusCode());
   }
 
+  /**
+   * Retrieves Manga statistics from AniList given a manga ID.
+   *
+   * @param mangaId The ID of the manga.
+   * @return The AniListMangaStatistics object containing the manga statistics.
+   * @throws WebClientResponseException.NotFound If the manga with the specified ID is not found.
+   * @throws RuntimeException If the response is null, or if there is an error parsing the JSON
+   *     response.
+   */
   public AniListMangaStatistics getMangaFromList(int mangaId) {
     String query =
         """
@@ -360,15 +374,21 @@ public class AniListAPIService {
 
     GraphQLRequest request = new GraphQLRequest(query, variables);
 
-    var response =
-        webClient
-            .post()
-            .contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getAniListTokenHeader())
-            .bodyValue(request)
-            .retrieve()
-            .bodyToMono(String.class)
-            .block();
+    String response;
+    try {
+      response =
+          webClient
+              .post()
+              .contentType(MediaType.APPLICATION_JSON)
+              .header("Authorization", getAniListTokenHeader())
+              .bodyValue(request)
+              .retrieve()
+              .bodyToMono(String.class)
+              .block();
+    } catch (WebClientResponseException.NotFound e) {
+      log.warn("Manga with ID {} not found", mangaId);
+      throw e;
+    }
 
     if (response == null) {
       throw new RuntimeException("Response is null");
@@ -469,7 +489,7 @@ public class AniListAPIService {
         .block();
   }
 
-  public void updateMangaProgress(int mangaId, int mangaProgress) {
+  public void updateMangaProgress(int mangaId, float mangaProgress) {
     String query =
         """
             mutation ($mangaId: Int, $progress: Int) {
@@ -793,5 +813,102 @@ public class AniListAPIService {
     var data = json.getObject("data");
     var collection = data.getObject("MediaListCollection");
     return collection.getArray("lists");
+  }
+
+  public void updateMangaPrivacyStatus(int aniListId, boolean isPrivate) {
+    // language=graphql
+    String query =
+        """
+            mutation ($mangaId: Int, $private: Boolean) {
+              SaveMediaListEntry(mediaId: $mangaId, private: $private) {
+                id
+                private
+              }
+            }
+            """;
+
+    String variables =
+        """
+            {
+              "mangaId": %s,
+              "private": %s
+            }
+            """
+            .formatted(aniListId, isPrivate);
+
+    var json = Json.parse(sendAuthGraphQLRequest(query, variables));
+    String data = json.getObject("data").getObject("SaveMediaListEntry").toJson();
+
+    try {
+      var response = mapper.readValue(data, AniListChangePrivacyStatusResponse.class);
+      if (response == null) {
+        throw new RuntimeException("Response is null");
+      }
+      log.info(
+          "Updated manga with ID {} to privacy status {}", response.id(), response.isPrivate());
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private int getMangaListEntryId(int mangaId) {
+    // language=graphql
+    String query =
+        """
+            query ($mangaId: Int, $userId: Int) {
+              MediaList(mediaId: $mangaId, userId: $userId) {
+                id
+              }
+            }
+            """;
+
+    int userId = getCurrentUserId();
+
+    String variables =
+        """
+            {
+              "mangaId": %s,
+              "userId": %s
+            }
+            """
+            .formatted(mangaId, userId);
+
+    var json = Json.parse(sendAuthGraphQLRequest(query, variables));
+    return (int) json.getObject("data").getObject("MediaList").getNumber("id");
+  }
+
+  public void removeMangaFromList(int aniListId) {
+    // language=graphql
+    String query =
+        """
+    mutation ($entryId: Int) {
+      DeleteMediaListEntry(id: $entryId) {
+        deleted
+      }
+    }
+    """;
+
+    int entryId = getMangaListEntryId(aniListId);
+
+    var variables = """
+    {
+      "entryId": %s
+    }
+    """.formatted(entryId);
+
+    var json = Json.parse(sendAuthGraphQLRequest(query, variables));
+
+    if (json == null) {
+      throw new RuntimeException("Response is null");
+    }
+
+    boolean deleted =
+        json.getObject("data").getObject("DeleteMediaListEntry").getBoolean("deleted");
+
+    if (deleted) {
+      log.info("Deleted manga with ID {}", aniListId);
+    } else {
+      throw new RuntimeException("Manga could not be deleted");
+    }
   }
 }

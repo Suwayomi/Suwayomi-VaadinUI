@@ -20,17 +20,17 @@ public class RouteUtils {
    *
    * @param ui The UI object to navigate with.
    * @param mangaId The ID of the manga.
-   * @param chapterIndex The index of the chapter.
+   * @param chapterId The Id of the chapter.
    */
-  public void routeToReadingView(UI ui, long mangaId, long chapterIndex) {
+  public void routeToReadingView(UI ui, long mangaId, long chapterId) {
 
     String mangaIdString = String.valueOf(mangaId);
-    String chapterIndexString = String.valueOf(chapterIndex);
+    String chapterIdString = String.valueOf(chapterId);
 
     RouteParam mangaIdParam = new RouteParam("mangaId", mangaIdString);
-    RouteParam chapterIndexParam = new RouteParam("chapterIndex", chapterIndexString);
+    RouteParam chapterIdParam = new RouteParam("chapterId", chapterIdString);
 
-    RouteParameters params = new RouteParameters(mangaIdParam, chapterIndexParam);
+    RouteParameters params = new RouteParameters(mangaIdParam, chapterIdParam);
 
     ui.navigate(ReadingView.class, params);
   }

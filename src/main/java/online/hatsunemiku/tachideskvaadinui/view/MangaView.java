@@ -23,6 +23,7 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoIcon;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -72,11 +73,11 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
 
     String id = idParam.get();
 
-    long mangaId = Long.parseLong(id);
+    int mangaId = Integer.parseInt(id);
 
     Manga manga;
     try {
-      manga = mangaService.getMangaFull(mangaId);
+      manga = mangaService.getManga(mangaId);
     } catch (Exception e) {
       event.rerouteTo(ServerStartView.class);
       return;
@@ -98,6 +99,12 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     imageContainer.add(image);
 
     List<Chapter> chapters = mangaService.getChapterList(mangaId);
+
+    if (chapters.isEmpty()) {
+      chapters = mangaService.fetchChapterList(mangaId);
+    }
+
+    Collections.reverse(chapters);
 
     ListBox<Chapter> chapterListBox = new ChapterListBox(chapters, mangaService);
 
@@ -180,16 +187,41 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
             return;
           }
 
-          Chapter nextChapter;
+          Chapter nextChapter = null;
 
           var lastChapter = manga.getLastChapterRead();
           if (lastChapter == null) {
-            nextChapter = chapters.get(chapters.size() - 1);
-          } else {
-            // 1 based index
-            int index = lastChapter.getIndex();
 
-            if (index == chapters.size()) {
+            var reversed = new ArrayList<>(chapters);
+            Collections.reverse(reversed);
+
+            for (Chapter chapter : reversed) {
+              if (chapter.isRead()) {
+                continue;
+              }
+
+              nextChapter = chapter;
+              break;
+            }
+
+            if (nextChapter == null) {
+              nextChapter = chapters.get(0);
+            }
+
+          } else {
+            int id = lastChapter.getId();
+
+            int index = 0;
+
+            for (Chapter chapter : chapters) {
+              if (chapter.getId() == id) {
+                break;
+              }
+
+              index++;
+            }
+
+            if (index == chapters.size() - 1) {
               Notification notification = new Notification("No more chapters available", 3000);
               notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
               notification.setPosition(Notification.Position.MIDDLE);
@@ -204,7 +236,7 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
 
           UI ui = UI.getCurrent();
 
-          RouteUtils.routeToReadingView(ui, manga.getId(), nextChapter.getIndex());
+          RouteUtils.routeToReadingView(ui, manga.getId(), nextChapter.getId());
         });
     return resumeBtn;
   }
@@ -215,11 +247,30 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     libraryBtn.addClickListener(
         e -> {
           if (manga.isInLibrary()) {
-            mangaService.removeMangaFromLibrary(manga.getId());
+            boolean success = mangaService.removeMangaFromLibrary(manga.getId());
+
+            if (!success) {
+              Notification notification =
+                  new Notification("Failed to remove manga from library", 3000);
+              notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+              notification.setPosition(Notification.Position.MIDDLE);
+              notification.open();
+              return;
+            }
+
             libraryBtn.setText("Add to library");
             manga.setInLibrary(false);
           } else {
-            mangaService.addMangaToLibrary(manga.getId());
+            boolean success = mangaService.addMangaToLibrary(manga.getId());
+
+            if (!success) {
+              Notification notification = new Notification("Failed to add manga to library", 3000);
+              notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+              notification.setPosition(Notification.Position.MIDDLE);
+              notification.open();
+              return;
+            }
+
             libraryBtn.setText("Remove from library");
             manga.setInLibrary(true);
           }

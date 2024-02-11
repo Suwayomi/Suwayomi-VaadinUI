@@ -5,46 +5,59 @@
  */
 
 .library-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  grid-gap: var(--miku-grid-gap);
-  padding: 1rem;
-  max-width: 100%;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-gap: var(--miku-grid-gap);
+    padding: 1rem;
+    max-width: 100%;
 }
 
 @media (max-width: 720px) {
-  .library-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
+    .library-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
 }
 
 @media (max-width: 600px) {
-  .library-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
+    .library-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
 
 @media (max-width: 500px) {
-  .library-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+    .library-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 .delete-category-button {
-  color: var(--miku-unselected-color);
-  background-color: transparent;
-  border: transparent;
-  padding: 0;
-  margin-left: 5px;
+    color: var(--miku-unselected-color);
+    background-color: transparent;
+    border: transparent;
+    padding: 0;
+    margin-left: 5px;
 }
 
 .delete-category-button:hover {
-  border: transparent;
+    border: transparent;
 }
 
 .library-buttons {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.5rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.right-align {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+.separator {
+    border-bottom: 1px solid var(--miku-main-color-50);
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    width: 100%;
 }

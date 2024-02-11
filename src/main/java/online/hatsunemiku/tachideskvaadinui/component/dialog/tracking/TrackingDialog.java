@@ -7,10 +7,12 @@
 package online.hatsunemiku.tachideskvaadinui.component.dialog.tracking;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -28,6 +30,8 @@ import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.responses.AniL
 import online.hatsunemiku.tachideskvaadinui.services.AniListAPIService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.vaadin.miki.superfields.dates.SuperDatePicker;
 import org.vaadin.miki.superfields.numbers.SuperIntegerField;
 
@@ -44,43 +48,89 @@ public class TrackingDialog extends Dialog {
     this.dataService = dataService;
     this.aniListAPI = aniListAPIService;
 
-    VerticalLayout buttons = new VerticalLayout();
-
     Tracker tracker = dataService.getTracker(manga.getId());
 
     if (!tracker.hasAniListId() || !aniListAPI.hasAniListToken()) {
-      Button aniListBtn = new Button("Anilist");
-      aniListBtn.addClickListener(
-          e -> {
-            if (!aniListAPIService.hasAniListToken()) {
-              String url = aniListAPIService.getAniListAuthUrl();
-              getUI().ifPresent(ui -> ui.getPage().open(url));
-              return;
-            }
-
-            displaySearch(manga.getTitle(), manga.getId());
-            updateButtons(aniListBtn, tracker);
-          });
-
-      updateButtons(aniListBtn, tracker);
-
-      buttons.add(aniListBtn);
-
-      add(buttons);
+      addTrackingButtons(manga, aniListAPIService, tracker);
     } else {
 
-      Div statistics = getTrackingStatistics(tracker);
-
-      add(statistics);
+      Div statistics;
+      try {
+        statistics = getTrackingStatistics(tracker);
+        add(statistics);
+      } catch (RuntimeException e) {
+        addTrackingButtons(manga, aniListAPIService, tracker);
+      } catch (Exception e) {
+        log.error("Error retrieving tracking statistics from Tracker", e);
+        Notification notification = new Notification();
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.setText("Error retrieving tracking statistics");
+        notification.open();
+      }
     }
   }
 
-  @NotNull
-  private Div getTrackingStatistics(Tracker tracker) {
-    var mangaStats = aniListAPI.getMangaFromList(tracker.getAniListId());
+  private void addTrackingButtons(
+      Manga manga, AniListAPIService aniListAPIService, Tracker tracker) {
+    VerticalLayout buttons = new VerticalLayout();
+    Button aniListBtn = new Button("Anilist");
+    aniListBtn.addClickListener(
+        e -> {
+          if (!aniListAPIService.hasAniListToken()) {
+            String url = aniListAPIService.getAniListAuthUrl();
+            getUI().ifPresent(ui -> ui.getPage().open(url));
+            return;
+          }
 
-    Div statistics = new Div();
-    statistics.addClassName("tracking-dialog-statistics");
+          try {
+            displaySearch(manga.getTitle(), manga.getId());
+          } catch (WebClientResponseException.InternalServerError
+              | WebClientRequestException error) {
+            log.error("Invalid response from AniList", error);
+            Notification notification = new Notification();
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.setText("Couldn't correctly connect to AniList\nPlease try again");
+            notification.open();
+          }
+          updateButtons(aniListBtn, tracker);
+        });
+
+    updateButtons(aniListBtn, tracker);
+
+    buttons.add(aniListBtn);
+
+    add(buttons);
+  }
+
+  /**
+   * Retrieves the tracking statistics for a given Tracker.
+   *
+   * @param tracker the Tracker used to retrieve the tracking statistics.
+   * @return a Div element containing the tracking statistics.
+   * @throws RuntimeException if the manga is not found on AniList.
+   */
+  @NotNull
+  private Div getTrackingStatistics(Tracker tracker) throws RuntimeException {
+    AniListMangaStatistics mangaStats;
+    try {
+      mangaStats = aniListAPI.getMangaFromList(tracker.getAniListId());
+    } catch (WebClientResponseException.NotFound e) {
+      log.debug("Manga not found on AniList", e);
+      Notification notification = new Notification();
+      notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+      notification.setText(
+          """
+          The manga wasn't found on AniList.
+          Removing AniList tracking for this Manga.
+          You can add it again if you want to track it with AniList.
+          """);
+      notification.setDuration(5000);
+      notification.open();
+      tracker.removeAniListId();
+      throw new RuntimeException("Manga not found on AniList");
+    }
+
+    Div content = new Div();
 
     ComboBox<AniListStatus> status = getTrackingStatusField(tracker, mangaStats);
 
@@ -93,10 +143,49 @@ public class TrackingDialog extends Dialog {
     SuperDatePicker endDate = new SuperDatePicker();
     SuperDatePicker startDate = getTrackingStartDateField(tracker, mangaStats, endDate);
 
+    Checkbox privateCheckbox = getPrivateCheckboxField(tracker);
+
     configureTrackingEndDateField(tracker, endDate, mangaStats, startDate);
 
-    statistics.add(status, chapter, score, startDate, endDate);
-    return statistics;
+    Div statistics = new Div();
+    statistics.addClassName("tracking-dialog-statistics");
+
+    statistics.add(status, chapter, score, startDate, endDate, privateCheckbox);
+
+    Button trackingDeleteBtn = new Button("Remove AniList Tracking", VaadinIcon.TRASH.create());
+    trackingDeleteBtn.addClickListener(
+        e -> {
+          tracker.removeAniListId();
+          close();
+        });
+
+    var nukeBtn = new Button("Remove from AniList and stop Tracking", VaadinIcon.BOMB.create());
+    nukeBtn.addClickListener(
+        e -> {
+          aniListAPI.removeMangaFromList(tracker.getAniListId());
+          tracker.removeAniListId();
+          close();
+        });
+
+    var buttons = new Div();
+    buttons.add(trackingDeleteBtn, nukeBtn);
+    buttons.addClassName("tracking-dialog-remove-buttons");
+
+    content.add(statistics, buttons);
+
+    return content;
+  }
+
+  @NotNull
+  private Checkbox getPrivateCheckboxField(Tracker tracker) {
+    Checkbox privateCheckbox = new Checkbox("Private");
+    privateCheckbox.setValue(tracker.isPrivate());
+    privateCheckbox.addValueChangeListener(
+        e -> {
+          tracker.setPrivate(e.getValue());
+          aniListAPI.updateMangaPrivacyStatus(tracker.getAniListId(), e.getValue());
+        });
+    return privateCheckbox;
   }
 
   private void configureTrackingEndDateField(

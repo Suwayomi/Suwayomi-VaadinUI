@@ -6,4 +6,10 @@
 
 package online.hatsunemiku.tachideskvaadinui.data.tracking.anilist;
 
-public record GraphQLRequest(String query, String variables) {}
+public record GraphQLRequest(String query, String variables) {
+
+  public GraphQLRequest(String query, String variables) {
+    this.query = query.replaceAll("\\n", "");
+    this.variables = variables.replaceAll("\\n", "");
+  }
+}
