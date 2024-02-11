@@ -102,7 +102,7 @@ public class TachideskStarter {
     serverChecker = Executors.newSingleThreadScheduledExecutor();
     startChecker = Executors.newSingleThreadScheduledExecutor();
 
-    //skipqc: JAVA-W1087
+    // skipqc: JAVA-W1087
     startChecker.scheduleAtFixedRate(this::checkIfServerIsRunning, 0, 5, TimeUnit.SECONDS);
   }
 
