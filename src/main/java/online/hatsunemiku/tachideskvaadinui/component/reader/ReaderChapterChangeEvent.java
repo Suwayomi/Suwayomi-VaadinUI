@@ -34,6 +34,6 @@ public class ReaderChapterChangeEvent extends ComponentEvent<MangaReader> {
     super(source, fromClient);
     this.mangaId = mangaId;
     this.chapterId = chapterId;
-    this.chapters = chapters;
+    this.chapters = List.copyOf(chapters);
   }
 }
