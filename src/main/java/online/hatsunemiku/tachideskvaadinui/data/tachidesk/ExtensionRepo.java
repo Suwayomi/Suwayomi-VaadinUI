@@ -6,28 +6,27 @@
 
 package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
 
-import lombok.*;
-
 import java.util.Objects;
+import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
 public class ExtensionRepo {
-    private String url;
+  private String url;
 
-    @Override
-    public String toString() {
-        return url;
-    }
+  @Override
+  public String toString() {
+    return url;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
 
-        ExtensionRepo that = (ExtensionRepo) o;
+    ExtensionRepo that = (ExtensionRepo) o;
 
-        return Objects.equals(url, that.url);
-    }
+    return Objects.equals(url, that.url);
+  }
 }

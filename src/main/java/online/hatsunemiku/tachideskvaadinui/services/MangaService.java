@@ -192,26 +192,30 @@ public class MangaService {
 
   /**
    * Adds a listener to the download change event tracker.
+   *
    * @param chapterId The id of the chapter to listen for
    * @param callback The callback to run when the chapter is downloaded
    */
   public void addDownloadTrackListener(int chapterId, Runnable callback) {
     Disposable.Composite cancellation = Disposables.composite();
 
-    var subscription = downloadChangeEventTracker.subscribe(events -> {
-      events.forEach(event -> {
-        if (event.chapter().id() != chapterId){
-          return;
-        }
+    var subscription =
+        downloadChangeEventTracker.subscribe(
+            events -> {
+              events.forEach(
+                  event -> {
+                    if (event.chapter().id() != chapterId) {
+                      return;
+                    }
 
-        if (event.progress() != 1) {
-          return;
-        }
+                    if (event.progress() != 1) {
+                      return;
+                    }
 
-        callback.run();
-        cancellation.dispose();
-      });
-    });
+                    callback.run();
+                    cancellation.dispose();
+                  });
+            });
 
     cancellation.add(subscription);
   }

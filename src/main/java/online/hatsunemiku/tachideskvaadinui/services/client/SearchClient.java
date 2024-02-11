@@ -21,8 +21,9 @@ public class SearchClient {
   }
 
   public SourceSearchResult search(String searchQuery, int page, String sourceId) {
-    //language=GraphQL
-    String query = """
+    // language=GraphQL
+    String query =
+        """
         mutation searchSource($sourceId: LongString!, $page: Int!, $query: String!) {
           fetchSourceManga(
             input: {page: $page, source: $sourceId, type: SEARCH, query: $query}
@@ -39,13 +40,15 @@ public class SearchClient {
 
     var graphClient = webClientService.getGraphQlClient();
 
-    var result = graphClient.document(query)
-        .variable("sourceId", sourceId)
-        .variable("page", page)
-        .variable("query", searchQuery)
-        .retrieve("fetchSourceManga")
-        .toEntity(SearchResponse.class)
-        .block();
+    var result =
+        graphClient
+            .document(query)
+            .variable("sourceId", sourceId)
+            .variable("page", page)
+            .variable("query", searchQuery)
+            .retrieve("fetchSourceManga")
+            .toEntity(SearchResponse.class)
+            .block();
 
     if (result == null) {
       throw new RuntimeException("Error while searching");
@@ -53,7 +56,4 @@ public class SearchClient {
 
     return new SourceSearchResult(result.mangas(), result.hasNextPage(), page);
   }
-
-
-
 }

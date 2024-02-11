@@ -14,7 +14,6 @@ import com.vaadin.flow.router.Route;
 import online.hatsunemiku.tachideskvaadinui.component.scroller.ExtensionScroller;
 import online.hatsunemiku.tachideskvaadinui.services.ExtensionService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
-import online.hatsunemiku.tachideskvaadinui.utils.NavigationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -7,10 +7,9 @@
 package online.hatsunemiku.tachideskvaadinui.component.reader;
 
 import com.vaadin.flow.component.ComponentEvent;
+import java.util.List;
 import lombok.Getter;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
-
-import java.util.List;
 
 @Getter
 public class ReaderChapterChangeEvent extends ComponentEvent<MangaReader> {

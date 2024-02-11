@@ -31,7 +31,8 @@ public class CategoryClient {
    * @throws RuntimeException if there was an error while creating the category
    */
   public boolean createCategory(String name) {
-    String query = """
+    String query =
+        """
         mutation CreateCategory($name: String!) {
           createCategory(input: {name: $name}) {
             category {
@@ -45,11 +46,13 @@ public class CategoryClient {
 
     Integer id;
     try {
-      id = graphClient.document(query)
-          .variable("name", name)
-          .retrieve("createCategory.category.id")
-          .toEntity(Integer.class)
-          .block();
+      id =
+          graphClient
+              .document(query)
+              .variable("name", name)
+              .retrieve("createCategory.category.id")
+              .toEntity(Integer.class)
+              .block();
     } catch (FieldAccessException e) {
       return false;
     }
@@ -69,7 +72,8 @@ public class CategoryClient {
    * @throws RuntimeException if there was an error while deleting the category
    */
   public boolean deleteCategory(int categoryId) {
-    String query = """
+    String query =
+        """
         mutation DeleteCategory($categoryId: Int!) {
           deleteCategory(input: {categoryId: $categoryId}) {
             category {
@@ -81,16 +85,18 @@ public class CategoryClient {
 
     var graphClient = clientService.getGraphQlClient();
 
-    Integer id = graphClient.document(query)
-        .variable("categoryId", categoryId)
-        .retrieve("deleteCategory.category.id")
-        .toEntity(Integer.class)
-        .block();
+    Integer id =
+        graphClient
+            .document(query)
+            .variable("categoryId", categoryId)
+            .retrieve("deleteCategory.category.id")
+            .toEntity(Integer.class)
+            .block();
 
-    //deleteCategory returns null if the category doesn't exist, meaning there was nothing to delete
+    // deleteCategory returns null if the category doesn't exist, meaning there was nothing to
+    // delete
     return id != null;
   }
-
 
   /**
    * Retrieves a list of categories.
@@ -99,7 +105,8 @@ public class CategoryClient {
    * @throws RuntimeException if there was an error while retrieving the categories
    */
   public List<Category> getCategories() {
-    String query = """
+    String query =
+        """
         query GetCategories {
           categories {
             nodes {
@@ -114,10 +121,12 @@ public class CategoryClient {
 
     var graphClient = clientService.getGraphQlClient();
 
-    var categories = graphClient.document(query)
-        .retrieve("categories.nodes")
-        .toEntityList(Category.class)
-        .block();
+    var categories =
+        graphClient
+            .document(query)
+            .retrieve("categories.nodes")
+            .toEntityList(Category.class)
+            .block();
 
     if (categories == null) {
       throw new RuntimeException("Error while getting categories");
@@ -136,7 +145,8 @@ public class CategoryClient {
    * @throws RuntimeException if there was an error while retrieving the category manga
    */
   public List<Manga> getCategoryManga(int categoryId) {
-    String query = """
+    String query =
+        """
         query GetCategoryManga($categoryId: Int = 10) {
           category(id: $categoryId) {
             mangas {
@@ -156,11 +166,13 @@ public class CategoryClient {
 
     var graphClient = clientService.getGraphQlClient();
 
-    var categoryManga = graphClient.document(query)
-        .variable("categoryId", categoryId)
-        .retrieve("category.mangas.nodes")
-        .toEntityList(Manga.class)
-        .block();
+    var categoryManga =
+        graphClient
+            .document(query)
+            .variable("categoryId", categoryId)
+            .retrieve("category.mangas.nodes")
+            .toEntityList(Manga.class)
+            .block();
 
     if (categoryManga == null) {
       throw new RuntimeException("Error while getting category manga");

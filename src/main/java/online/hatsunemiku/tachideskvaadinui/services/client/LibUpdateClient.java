@@ -48,7 +48,8 @@ public class LibUpdateClient {
 
     if (!isRunning) {
       // language=GraphQL
-      String hasSkippedQuery = """
+      String hasSkippedQuery =
+          """
               query hasSkipped {
                 updateStatus {
                   skippedJobs {
@@ -62,11 +63,12 @@ public class LibUpdateClient {
               }
               """;
 
-      var skippedManga = graphClient
-          .document(hasSkippedQuery)
-          .retrieve("updateStatus.skippedJobs.mangas.nodes")
-          .toEntityList(SkippedManga.class)
-          .block();
+      var skippedManga =
+          graphClient
+              .document(hasSkippedQuery)
+              .retrieve("updateStatus.skippedJobs.mangas.nodes")
+              .toEntityList(SkippedManga.class)
+              .block();
 
       if (skippedManga == null) {
         throw new RuntimeException("Error while updating library");
@@ -77,7 +79,6 @@ public class LibUpdateClient {
 
     return isRunning;
   }
-
 
   private static class SkippedManga {
     @JsonProperty("id")

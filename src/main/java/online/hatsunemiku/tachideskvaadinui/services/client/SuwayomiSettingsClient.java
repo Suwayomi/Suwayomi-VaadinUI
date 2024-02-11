@@ -6,12 +6,9 @@
 
 package online.hatsunemiku.tachideskvaadinui.services.client;
 
-import online.hatsunemiku.tachideskvaadinui.data.tachidesk.ExtensionRepo;
+import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Map;
 
 @Component
 public class SuwayomiSettingsClient {

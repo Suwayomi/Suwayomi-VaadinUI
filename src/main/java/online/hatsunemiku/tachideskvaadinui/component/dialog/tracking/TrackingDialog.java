@@ -152,7 +152,6 @@ public class TrackingDialog extends Dialog {
 
     statistics.add(status, chapter, score, startDate, endDate, privateCheckbox);
 
-
     Button trackingDeleteBtn = new Button("Remove AniList Tracking", VaadinIcon.TRASH.create());
     trackingDeleteBtn.addClickListener(
         e -> {

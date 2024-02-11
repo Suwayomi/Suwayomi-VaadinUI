@@ -36,9 +36,10 @@ public class TachideskStarter {
   private final SettingsService settingsService;
   private final ServerEventPublisher serverEventPublisher;
 
-  public TachideskStarter(SettingsService settingsService, ServerEventPublisher serverEventPublisher) {
+  public TachideskStarter(
+      SettingsService settingsService, ServerEventPublisher serverEventPublisher) {
     this.settingsService = settingsService;
-      this.serverEventPublisher = serverEventPublisher;
+    this.serverEventPublisher = serverEventPublisher;
   }
 
   public void startJar(File projectDir) {
@@ -95,7 +96,6 @@ public class TachideskStarter {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-
   }
 
   private void startServerCheck() {
@@ -139,7 +139,7 @@ public class TachideskStarter {
 
   private void checkIfServerIsRunning() {
     if (Thread.interrupted()) {
-        return;
+      return;
     }
 
     if (!checkServerConnection()) {
@@ -168,6 +168,5 @@ public class TachideskStarter {
     } catch (IOException e) {
       return false;
     }
-
   }
 }

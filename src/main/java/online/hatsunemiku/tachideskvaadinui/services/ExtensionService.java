@@ -25,25 +25,25 @@ public class ExtensionService {
   public List<Extension> getExtensions() {
     var extensions = extensionClient.getExtensions();
 
-
-    extensions.sort((o1, o2) -> {
-      //installed extensions first
-      //extensions with updates first
-      //alphabetical order
-      if (o1.isInstalled() && !o2.isInstalled()) {
-        return -1;
-      } else if (!o1.isInstalled() && o2.isInstalled()) {
-        return 1;
-      } else {
-        if (o1.isHasUpdate() && !o2.isHasUpdate()) {
-          return -1;
-        } else if (!o1.isHasUpdate() && o2.isHasUpdate()) {
-          return 1;
-        } else {
-          return o1.getName().compareTo(o2.getName());
-        }
-      }
-    });
+    extensions.sort(
+        (o1, o2) -> {
+          // installed extensions first
+          // extensions with updates first
+          // alphabetical order
+          if (o1.isInstalled() && !o2.isInstalled()) {
+            return -1;
+          } else if (!o1.isInstalled() && o2.isInstalled()) {
+            return 1;
+          } else {
+            if (o1.isHasUpdate() && !o2.isHasUpdate()) {
+              return -1;
+            } else if (!o1.isHasUpdate() && o2.isHasUpdate()) {
+              return 1;
+            } else {
+              return o1.getName().compareTo(o2.getName());
+            }
+          }
+        });
 
     return extensions;
   }

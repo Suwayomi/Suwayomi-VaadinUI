@@ -23,9 +23,9 @@ public class SearchService {
   /**
    * Performs a search using the provided query, sourceId, and pageNum.
    *
-   * @param query    The search query.
+   * @param query The search query.
    * @param sourceId The sourceId to search within.
-   * @param pageNum  The page number for pagination.
+   * @param pageNum The page number for pagination.
    * @return The search response containing the results.
    * @throws FeignException if an error occurs during the search.
    */

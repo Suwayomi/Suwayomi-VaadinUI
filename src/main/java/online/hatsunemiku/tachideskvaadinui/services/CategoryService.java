@@ -14,9 +14,7 @@ import online.hatsunemiku.tachideskvaadinui.services.client.CategoryClient;
 import org.jetbrains.annotations.Contract;
 import org.springframework.stereotype.Service;
 
-/**
- * This class provides methods for interacting with the Tachidesk Category API.
- */
+/** This class provides methods for interacting with the Tachidesk Category API. */
 @Slf4j
 @Service
 public class CategoryService {
@@ -56,7 +54,7 @@ public class CategoryService {
    * Retrieves a list of categories from the server.
    *
    * @return a {@link List} of {@link Category} objects representing the categories retrieved from
-   * the server
+   *     the server
    * @throws RuntimeException if an error occurs while retrieving the categories
    */
   public List<Category> getCategories() {
@@ -68,7 +66,7 @@ public class CategoryService {
    *
    * @param categoryId the ID of the category to retrieve manga from
    * @return a {@link List} of {@link Manga} objects representing the manga retrieved from the
-   * specified category
+   *     specified category
    */
   public List<Manga> getMangaFromCategory(int categoryId) {
     return categoryClient.getCategoryManga(categoryId);

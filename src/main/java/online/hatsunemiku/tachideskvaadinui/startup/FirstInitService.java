@@ -7,6 +7,9 @@
 package online.hatsunemiku.tachideskvaadinui.startup;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import online.hatsunemiku.tachideskvaadinui.data.InitData;
 import online.hatsunemiku.tachideskvaadinui.data.server.event.ServerStartedEvent;
 import online.hatsunemiku.tachideskvaadinui.services.SuwayomiSettingsService;
@@ -17,10 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 @Service
 public class FirstInitService {

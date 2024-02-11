@@ -132,7 +132,8 @@ public class DownloadClient {
 
     var graphClient = clientService.getWebSocketGraphQlClient();
 
-    return graphClient.document(query)
+    return graphClient
+        .document(query)
         .retrieveSubscription("downloadChanged.queue")
         .toEntityList(DownloadChangeEvent.class);
   }

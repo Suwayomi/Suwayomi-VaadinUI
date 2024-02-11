@@ -11,14 +11,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ServerEventPublisher {
-    private final ApplicationEventPublisher publisher;
+  private final ApplicationEventPublisher publisher;
 
-    public ServerEventPublisher(ApplicationEventPublisher publisher) {
-        this.publisher = publisher;
-    }
+  public ServerEventPublisher(ApplicationEventPublisher publisher) {
+    this.publisher = publisher;
+  }
 
-    public void publishServerStartedEvent() {
-        var event = new ServerStartedEvent();
-        publisher.publishEvent(event);
-    }
+  public void publishServerStartedEvent() {
+    var event = new ServerStartedEvent();
+    publisher.publishEvent(event);
+  }
 }

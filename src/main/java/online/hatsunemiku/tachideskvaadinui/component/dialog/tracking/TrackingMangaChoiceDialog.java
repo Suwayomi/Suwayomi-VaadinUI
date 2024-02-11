@@ -17,7 +17,6 @@ import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListMedia;

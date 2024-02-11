@@ -14,5 +14,4 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @Push
 @Theme("miku")
-public class VaadinConfig implements AppShellConfigurator {
-}
+public class VaadinConfig implements AppShellConfigurator {}

@@ -6,12 +6,11 @@
 
 package online.hatsunemiku.tachideskvaadinui.services;
 
+import java.util.ArrayList;
+import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.ExtensionRepo;
 import online.hatsunemiku.tachideskvaadinui.services.client.SuwayomiSettingsClient;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class SuwayomiSettingsService {

@@ -28,8 +28,9 @@ public class SourceClient {
   }
 
   private SourceMangaList getMangaFromSource(String sourceId, int page, SourceType type) {
-    //language=GraphQL
-    String query = """
+    // language=GraphQL
+    String query =
+        """
         mutation getPopularSourceManga($sourceId: LongString!, $page: Int!, $type: FetchSourceMangaType!) {
           fetchSourceManga(input: {page: $page, source: $sourceId, type: $type}) {
             hasNextPage
@@ -44,13 +45,15 @@ public class SourceClient {
 
     var graphClient = webClientService.getGraphQlClient();
 
-    var result = graphClient.document(query)
-        .variable("sourceId", sourceId)
-        .variable("page", page)
-        .variable("type", type.name())
-        .retrieve("fetchSourceManga")
-        .toEntity(SourceMangaList.class)
-        .block();
+    var result =
+        graphClient
+            .document(query)
+            .variable("sourceId", sourceId)
+            .variable("page", page)
+            .variable("type", type.name())
+            .retrieve("fetchSourceManga")
+            .toEntity(SourceMangaList.class)
+            .block();
 
     if (result == null) {
       throw new RuntimeException("Error while fetching popular manga");
@@ -59,11 +62,8 @@ public class SourceClient {
     return result;
   }
 
-
-
   private enum SourceType {
     POPULAR,
     LATEST
   }
-
 }

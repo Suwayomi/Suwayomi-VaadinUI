@@ -33,7 +33,8 @@ public class MangaClientGraph {
   }
 
   public List<Chapter> getChapterList(int mangaId) {
-    String query = """
+    String query =
+        """
         query GetMangaList($id: Int!) {
           manga(id: $id) {
             chapters {
@@ -52,7 +53,8 @@ public class MangaClientGraph {
         }
         """;
 
-    String variables = """
+    String variables =
+        """
           {
             "id": %d
           }
@@ -61,8 +63,7 @@ public class MangaClientGraph {
     var webClient = clientService.getWebClient();
     String json = GraphQLUtils.sendGraphQLRequest(query, variables, webClient);
 
-    TypeReference<List<Chapter>> typeReference = new TypeReference<>() {
-    };
+    TypeReference<List<Chapter>> typeReference = new TypeReference<>() {};
 
     try {
       JsonObject jsonObject = Json.parse(json);
@@ -122,9 +123,9 @@ public class MangaClientGraph {
     return !updateChapterReadStatus(chapterId, false);
   }
 
-
   public Manga getManga(long mangaId) {
-    String query = """
+    String query =
+        """
         mutation FetchManga($id: Int!) {
           fetchManga(input: {id: $id}) {
             manga {
@@ -165,13 +166,14 @@ public class MangaClientGraph {
    * Update the read status of a specific chapter.
    *
    * @param chapterId the ID of the chapter to update
-   * @param read      the new read status of the chapter
-   * @return the new read status of the chapter after the update, either {@code true} or
-   * {@code false}
+   * @param read the new read status of the chapter
+   * @return the new read status of the chapter after the update, either {@code true} or {@code
+   *     false}
    * @throws RuntimeException if there is an error while parsing the JSON response
    */
   private boolean updateChapterReadStatus(int chapterId, boolean read) {
-    String query = """
+    String query =
+        """
         mutation SetChapterReadStatus($id: Int!, $isRead: Boolean!) {
           updateChapter(input: {patch: {isRead: $isRead}, id: $id}) {
             chapter {
@@ -180,11 +182,13 @@ public class MangaClientGraph {
           }
         }""";
 
-    String variables = """
+    String variables =
+        """
         {
         "id": %d,
         "isRead": %s
-        }""".formatted(chapterId, read);
+        }"""
+            .formatted(chapterId, read);
 
     var webClient = clientService.getWebClient();
 
@@ -206,12 +210,13 @@ public class MangaClientGraph {
    * Updates the library status of a manga.
    *
    * @param mangaId the ID of the manga to update
-   * @param add     true to add the manga to the library, false to remove it from the library
+   * @param add true to add the manga to the library, false to remove it from the library
    * @return true if the manga is in the library after the update, false otherwise
    * @throws RuntimeException if there is an error while parsing the JSON response
    */
   private boolean updateMangaLibraryStatus(int mangaId, boolean add) {
-    String query = """
+    String query =
+        """
         mutation UpdateMangaLibraryStatus($id: Int!, $add: Boolean!) {
           updateManga(input: {id: $id, patch: {inLibrary: $add}}) {
             manga {
@@ -221,12 +226,14 @@ public class MangaClientGraph {
         }
         """;
 
-    String variables = """
+    String variables =
+        """
         {
           "id": %d,
           "add": %s
         }
-        """.formatted(mangaId, add);
+        """
+            .formatted(mangaId, add);
 
     var webClient = clientService.getWebClient();
 
@@ -243,5 +250,4 @@ public class MangaClientGraph {
       throw new RuntimeException(e);
     }
   }
-
 }

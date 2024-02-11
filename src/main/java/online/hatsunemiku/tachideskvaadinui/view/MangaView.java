@@ -23,7 +23,6 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoIcon;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

@@ -128,8 +128,7 @@ public class SourceExploreView extends StandardLayout
   @Override
   public void beforeLeave(BeforeLeaveEvent event) {
     UI.getCurrent()
-        .access(() -> UI.getCurrent()
-            .getPage()
-            .executeJs("document.body.style.overflow = 'auto';"));
+        .access(
+            () -> UI.getCurrent().getPage().executeJs("document.body.style.overflow = 'auto';"));
   }
 }

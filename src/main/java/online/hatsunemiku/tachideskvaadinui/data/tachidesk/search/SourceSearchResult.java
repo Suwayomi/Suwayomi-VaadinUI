@@ -11,7 +11,5 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 
 public record SourceSearchResult(List<Manga> manga, boolean hasNextPage, int page) {
 
-
   public record SearchResponse(List<Manga> mangas, boolean hasNextPage) {}
 }
-
