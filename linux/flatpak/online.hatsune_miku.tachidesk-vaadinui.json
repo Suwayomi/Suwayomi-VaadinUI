@@ -35,7 +35,7 @@
       "sources": [
         {
           "type": "file",
-          "url": "https://github.com/Suwayomi/Tachidesk-VaadinUI/releases/download/v1.0.3/Tachidesk-VaadinUI-1.0.3.jar",
+          "url": "https://github.com/Suwayomi/Tachidesk-VaadinUI/releases/download/v1.2.1/Tachidesk-VaadinUI-1.2.1.jar",
           "dest-filename": "Tachidesk-VaadinUI.jar",
           "sha256": "f4ed7c0537be341f22443c49a0dd0c3afad001f1eb8adb08538963875e1b323d"
         },
