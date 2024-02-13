@@ -42,7 +42,7 @@
         </screenshot>
     </screenshots>
     <releases>
-        <release version="1.2.1" date="2024-02-2024">
+        <release version="1.2.1" date="2024-02-13">
             <description>
                 <p>Removes a debug option that wasn't removed in the 1.2.0 release</p>
                 <ul>
