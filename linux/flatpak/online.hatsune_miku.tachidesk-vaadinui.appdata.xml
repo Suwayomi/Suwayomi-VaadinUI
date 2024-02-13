@@ -42,11 +42,11 @@
         </screenshot>
     </screenshots>
     <releases>
-        <release version="1.0.5" date="2024-01-08">
+        <release version="1.2.1" date="2024-02-2024">
             <description>
                 <p>Fixes an Issue with the Tray Icon when used on Linux</p>
                 <ul>
-                    <li>Fixed Tray Menu</li>
+                    <li>Remove debug</li>
                 </ul>
             </description>
         </release>
