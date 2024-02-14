@@ -26,13 +26,21 @@ Here's a list of features that are currently implemented:
 
 # How do I get this Application
 
-As of right now there's only a Windows build available. You can build installers for your OS via
-Gradle though. Just run 'gradlew buildLinuxDeb' for Debian based Linux distributions, 'gradlew
-buildLinuxRpm' for
-RPM based Linux distributions or 'gradlew buildMacDmg' for MacOS.
+## Releases
 
-I'll eventually get around to making builds for other OSes as well, but I'll have to explore how I
-can do so via GitHub actions.
+Just download your applicable installer from the releases tab and install it on your device.
+
+## Flathub/Flatpak
+
+You can also install this Application on Linux by using Flatpak with the Flathub repo, all you have to do is paste the following command into your terminal (with the flathub repo already added).
+```bash
+flatpak install online.hatsune_miku.tachidesk-vaadinui
+```
+
+You can then run the Application by using this
+```bash
+flatpak run online.hatsune_miku.tachidesk-vaadinui
+```
 
 # Troubleshooting
 
