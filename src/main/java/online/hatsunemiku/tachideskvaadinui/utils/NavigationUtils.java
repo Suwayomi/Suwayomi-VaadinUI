@@ -11,7 +11,6 @@ import com.vaadin.flow.router.RouteParam;
 import com.vaadin.flow.router.RouteParameters;
 import lombok.experimental.UtilityClass;
 import online.hatsunemiku.tachideskvaadinui.view.MangaView;
-import online.hatsunemiku.tachideskvaadinui.view.ReadingView;
 
 @UtilityClass
 public class NavigationUtils {
