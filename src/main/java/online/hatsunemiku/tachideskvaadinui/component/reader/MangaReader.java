@@ -36,6 +36,7 @@ import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingCommunicationService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
+import online.hatsunemiku.tachideskvaadinui.utils.NavigationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.RootView;
 import org.jetbrains.annotations.NotNull;
 import org.vaadin.addons.online.hatsunemiku.diamond.swiper.Swiper;
@@ -84,7 +85,7 @@ public class MangaReader extends Div {
     public Sidebar(MangaService mangaService, Chapter chapter, Swiper swiper) {
       addClassName("sidebar");
 
-      Button home = getHomeButton();
+      Div navigationButtons = getNavigationButtons(chapter);
 
       List<Chapter> chapters = mangaService.getChapterList(chapter.getMangaId());
 
@@ -113,7 +114,35 @@ public class MangaReader extends Div {
             dialog.open();
           });
 
-      add(home, chapterSelect, settingsBtn);
+      add(navigationButtons, chapterSelect, settingsBtn);
+    }
+
+    @NotNull
+    private Div getNavigationButtons(Chapter chapter) {
+      Div navigationButtons = new Div();
+      navigationButtons.addClassName("navigation-buttons");
+
+      Button home = getHomeButton();
+      Button backToManga = getBackToMangaButton(chapter);
+
+      navigationButtons.add(home, backToManga);
+      return navigationButtons;
+    }
+
+    @NotNull
+    private Button getBackToMangaButton(Chapter chapter) {
+      Button backToManga = new Button(VaadinIcon.BOOK.create());
+
+      int mangaId = chapter.getMangaId();
+      var ui = getUI().orElseGet(UI::getCurrent);
+
+      if (ui == null) {
+        log.error("UI could not be accessed.");
+        throw new IllegalStateException("UI could not be accessed.");
+      }
+
+      backToManga.addClickListener(e -> NavigationUtils.navigateToManga(mangaId, ui));
+      return backToManga;
     }
 
     @NotNull

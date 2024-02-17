@@ -10,20 +10,16 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.RouteParam;
 import com.vaadin.flow.router.RouteParameters;
 import lombok.experimental.UtilityClass;
+import online.hatsunemiku.tachideskvaadinui.view.MangaView;
 import online.hatsunemiku.tachideskvaadinui.view.ReadingView;
 
 @UtilityClass
 public class NavigationUtils {
 
-  public void navigateToReader(int mangaId, int chapterId, UI ui) {
+  public static void navigateToManga(int mangaId, UI ui) {
     String mangaIdStr = Integer.toString(mangaId);
-    String chapterIdString = Integer.toString(chapterId);
-
-    RouteParam mangaIdParam = new RouteParam("mangaId", mangaIdStr);
-    RouteParam chapterIdParam = new RouteParam("chapterId", chapterIdString);
-
-    RouteParameters params = new RouteParameters(mangaIdParam, chapterIdParam);
-
-    ui.navigate(ReadingView.class, params);
+    RouteParam mangaIdParam = new RouteParam("id", mangaIdStr);
+    RouteParameters params = new RouteParameters(mangaIdParam);
+    ui.navigate(MangaView.class, params);
   }
 }
