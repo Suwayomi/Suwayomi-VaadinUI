@@ -312,26 +312,33 @@ public class MangaReader extends Div {
           .getElement()
           .executeJs(
               """
-                  addEventListener('wheel', function (e) {
+                      var zoomListener = function (e) {
+                       if ($0.swiper.zoom === undefined) {
+                        console.info("Removing zoom listener.");
+                        removeEventListener('wheel', zoomListener);
+                        return;
+                       }
 
-                    var zoom = $0.swiper.zoom.scale;
-                    if (e.deltaY < 0) {
-                      zoom += 0.5;
-                    } else {
-                      zoom -= 0.5;
-                    }
+                        var zoom = $0.swiper.zoom.scale;
+                        if (e.deltaY < 0) {
+                          zoom += 0.5;
+                        } else {
+                          zoom -= 0.5;
+                        }
 
-                    if (zoom < 1) {
-                      zoom = 1;
-                    }
+                        if (zoom < 1) {
+                          zoom = 1;
+                        }
 
-                    if (zoom > 3) {
-                      zoom = 3;
-                    }
+                        if (zoom > 3) {
+                          zoom = 3;
+                        }
 
-                    $0.swiper.zoom.in(zoom);
-                  });
-                  """,
+                        $0.swiper.zoom.in(zoom);
+                        };
+
+                      addEventListener('wheel', zoomListener);
+                      """,
               swiper.getElement());
 
       loadChapter();
