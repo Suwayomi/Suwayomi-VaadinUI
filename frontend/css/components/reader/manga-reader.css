@@ -71,10 +71,12 @@
   max-width: 100% !important;
 }
 
-#homeBtn {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
+.manga-reader .navigation-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
 }
 
 .chapter-select {
