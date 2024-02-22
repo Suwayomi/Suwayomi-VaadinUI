@@ -42,11 +42,12 @@
         </screenshot>
     </screenshots>
     <releases>
-        <release version="1.2.1" date="2024-02-13">
+        <release version="1.3.0" date="2024-02-22">
             <description>
-                <p>Removes a debug option that wasn't removed in the 1.2.0 release</p>
+                <p>Adds a "Back to Manga" Button to the Reader to return to the Manga Page of the Manga you're currently reading.</p>
                 <ul>
-                    <li>Remove debug</li>
+                    <li>Adds "Back to Manga" Button</li>
+                    <li>Fixes bug with zoom functionality</li>
                 </ul>
             </description>
         </release>
