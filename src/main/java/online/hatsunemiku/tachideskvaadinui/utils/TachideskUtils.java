@@ -21,11 +21,11 @@ public class TachideskUtils {
   private static final Logger logger = LoggerFactory.getLogger(TachideskUtils.class);
   private static final Pattern JAR_PATTERN =
       Pattern.compile(
-          "https://github\\.com/Suwayomi/Suwayomi-Server-preview/releases/download/v\\d+\\.\\d+\\.\\d+-r\\d+/(Suwayomi-Server-v(\\d+\\.\\d+\\.\\d+)-r(\\d+)\\.jar)");
+          "https://github\\.com/Suwayomi/Suwayomi-Server/releases/download/(v\\d+\\.\\d+\\.\\d+(-r\\d+)?)/(Suwayomi-Server-v\\d+\\.\\d+\\.\\d+-r(\\d+)\\.jar)");
 
   public static String getNewestJarUrl(RestTemplate client) {
     String githubApi =
-        "https://api.github.com/repos/Suwayomi/Suwayomi-Server-preview/releases/latest";
+        "https://api.github.com/repos/Suwayomi/Suwayomi-Server/releases/latest";
     String json = client.getForObject(githubApi, String.class);
 
     if (json == null) {
@@ -54,9 +54,9 @@ public class TachideskUtils {
 
     Meta meta = new Meta();
 
-    meta.setJarVersion(matcher.group(2));
-    meta.setJarRevision(matcher.group(3));
-    meta.setJarName(matcher.group(1));
+    meta.setJarVersion(matcher.group(1));
+    meta.setJarRevision(matcher.group(4));
+    meta.setJarName(matcher.group(3));
 
     return Optional.of(meta);
   }

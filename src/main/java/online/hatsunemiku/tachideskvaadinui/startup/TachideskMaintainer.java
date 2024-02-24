@@ -205,7 +205,7 @@ public class TachideskMaintainer {
 
   private static void deleteOldServerFile(Meta oldServer) {
 
-    if (!oldServer.getJarLocation().isEmpty()) {
+    if (oldServer.getJarLocation().isEmpty()) {
       return;
     }
 
