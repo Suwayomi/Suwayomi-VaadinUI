@@ -42,12 +42,12 @@
         </screenshot>
     </screenshots>
     <releases>
-        <release version="1.3.0" date="2024-02-22">
+        <release version="1.4.0" date="2024-02-24">
             <description>
-                <p>Adds a "Back to Manga" Button to the Reader to return to the Manga Page of the Manga you're currently reading.</p>
+                <p>Updated the Server download/updating process to use the Stable branch. Also includes a fix for a bug where the old server File wouldn't be deleted after an update.</p>
                 <ul>
-                    <li>Adds "Back to Manga" Button</li>
-                    <li>Fixes bug with zoom functionality</li>
+                    <li>Uses the stable branch of Tachidesk/Suwayomi again</li>
+                    <li>Fixes a bug where the old Server file wasn't deleted after an update</li>
                 </ul>
             </description>
         </release>
