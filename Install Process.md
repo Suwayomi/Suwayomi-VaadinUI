@@ -44,7 +44,7 @@ For updated versions of these commands please see [**this**](https://bell-sw.com
 #### Winget
 
 ``` powershell
-winget BellSoft.LibericaJDK17
+winget install BellSoft.LibericaJDK.17
 ```
 
 #### Scoop
