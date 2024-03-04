@@ -61,8 +61,8 @@ public class PagedReader extends Reader {
           switch (direction) {
             case RTL -> swiper.changeLanguageDirection(LanguageDirection.RIGHT_TO_LEFT);
             case LTR -> swiper.changeLanguageDirection(LanguageDirection.LEFT_TO_RIGHT);
-            case VERTICAL ->
-                log.info("Can't change to vertical direction inside PagedReader - Ignored");
+            case VERTICAL -> log.info(
+                "Can't change to vertical direction inside PagedReader - Ignored");
             default -> throw new IllegalStateException("Unexpected value: " + direction);
           }
         });
