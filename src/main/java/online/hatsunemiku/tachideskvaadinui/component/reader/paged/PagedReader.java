@@ -31,24 +31,16 @@ import org.vaadin.addons.online.hatsunemiku.diamond.swiper.constants.LanguageDir
 
 @Slf4j
 public class PagedReader extends Reader {
-  private static final Logger log1 = LoggerFactory.getLogger(PagedReader.class);
-  private final Chapter chapter;
   private final Swiper swiper;
-  private final MangaService mangaService;
-  private final SettingsService settingsService;
-  private final ExecutorService trackerExecutor;
-
-  public PagedReader(
-      Chapter chapter,
-      TrackingDataService dataService,
-      TrackingCommunicationService trackingCommunicationService,
-      MangaService mangaService,
-      SettingsService settingsService) {
-    super(chapter, dataService, trackingCommunicationService, mangaService, settingsService);
-    addClassName("paged-reader");
-    this.chapter = chapter;
-    this.mangaService = mangaService;
-    this.settingsService = settingsService;
+    private final ExecutorService trackerExecutor;
+    public PagedReader(
+            Chapter chapter,
+            TrackingDataService dataService,
+            TrackingCommunicationService trackingCommunicationService,
+            MangaService mangaService,
+            SettingsService settingsService) {
+        super(chapter, dataService, trackingCommunicationService, mangaService, settingsService);
+        addClassName("paged-reader");
     this.trackerExecutor = Executors.newSingleThreadExecutor();
 
     var config = SwiperConfig.builder().zoom(true).centeredSlides(true).build();
@@ -65,13 +57,14 @@ public class PagedReader extends Reader {
           switch (direction) {
             case RTL -> swiper.changeLanguageDirection(LanguageDirection.RIGHT_TO_LEFT);
             case LTR -> swiper.changeLanguageDirection(LanguageDirection.LEFT_TO_RIGHT);
-            case VERTICAL -> log1.info(
+            case VERTICAL -> log.info(
                 "Can't change to vertical direction inside PagedReader - Ignored");
             default -> throw new IllegalStateException("Unexpected value: " + direction);
           }
         });
 
-    ReaderSettings settings = settingsService.getSettings().getReaderSettings(chapter.getMangaId());
+        ReaderSettings settings = settingsService.getSettings()
+                .getReaderSettings(chapter.getMangaId());
 
     switch (settings.getDirection()) {
       case RTL -> swiper.changeLanguageDirection(LanguageDirection.RIGHT_TO_LEFT);
