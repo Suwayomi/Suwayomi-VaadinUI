@@ -30,15 +30,16 @@ import org.vaadin.addons.online.hatsunemiku.diamond.swiper.constants.LanguageDir
 @Slf4j
 public class PagedReader extends Reader {
   private final Swiper swiper;
-    private final ExecutorService trackerExecutor;
-    public PagedReader(
-            Chapter chapter,
-            TrackingDataService dataService,
-            TrackingCommunicationService trackingCommunicationService,
-            MangaService mangaService,
-            SettingsService settingsService) {
-        super(chapter, dataService, trackingCommunicationService, mangaService, settingsService);
-        addClassName("paged-reader");
+  private final ExecutorService trackerExecutor;
+
+  public PagedReader(
+      Chapter chapter,
+      TrackingDataService dataService,
+      TrackingCommunicationService trackingCommunicationService,
+      MangaService mangaService,
+      SettingsService settingsService) {
+    super(chapter, dataService, trackingCommunicationService, mangaService, settingsService);
+    addClassName("paged-reader");
     this.trackerExecutor = Executors.newSingleThreadExecutor();
 
     var config = SwiperConfig.builder().zoom(true).centeredSlides(true).build();
@@ -61,8 +62,7 @@ public class PagedReader extends Reader {
           }
         });
 
-        ReaderSettings settings = settingsService.getSettings()
-                .getReaderSettings(chapter.getMangaId());
+    ReaderSettings settings = settingsService.getSettings().getReaderSettings(chapter.getMangaId());
 
     switch (settings.getDirection()) {
       case RTL -> swiper.changeLanguageDirection(LanguageDirection.RIGHT_TO_LEFT);
