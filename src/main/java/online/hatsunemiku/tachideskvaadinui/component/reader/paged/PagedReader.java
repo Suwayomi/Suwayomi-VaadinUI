@@ -23,8 +23,6 @@ import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingCommunicationService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.vaadin.addons.online.hatsunemiku.diamond.swiper.Swiper;
 import org.vaadin.addons.online.hatsunemiku.diamond.swiper.SwiperConfig;
 import org.vaadin.addons.online.hatsunemiku.diamond.swiper.constants.LanguageDirection;
@@ -136,10 +134,7 @@ public class PagedReader extends Reader {
           }
         });
 
-    swiper.addActiveIndexChangeEventListener(
-        e -> {
-          sendPageChangeEvent(e.getActiveIndex());
-        });
+    swiper.addActiveIndexChangeEventListener(e -> sendPageChangeEvent(e.getActiveIndex()));
 
     add(swiper);
   }
