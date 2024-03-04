@@ -12,6 +12,8 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.shared.Registration;
+import java.util.ArrayList;
+import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.component.reader.Reader;
 import online.hatsunemiku.tachideskvaadinui.component.reader.ReaderPageIndexChangeEvent;
 import online.hatsunemiku.tachideskvaadinui.data.settings.reader.ReaderDirection;
@@ -22,9 +24,6 @@ import online.hatsunemiku.tachideskvaadinui.services.TrackingCommunicationServic
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class StripReader extends Reader {
 
@@ -157,10 +156,7 @@ public class StripReader extends Reader {
     options.setBehavior(ScrollOptions.Behavior.SMOOTH);
     options.setBlock(ScrollOptions.Alignment.START);
 
-        pages
-            .get(index)
-            .getElement()
-            .scrollIntoView(options);
+    pages.get(index).getElement().scrollIntoView(options);
   }
 
   @Override

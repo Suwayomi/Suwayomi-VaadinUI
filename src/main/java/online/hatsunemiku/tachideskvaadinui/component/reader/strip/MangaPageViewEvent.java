@@ -15,17 +15,19 @@ import lombok.Getter;
 @DomEvent("manga-page-view")
 @Getter
 public class MangaPageViewEvent extends ComponentEvent<Component> {
-    private int pageIndex;
-    /**
-     * Creates a new event using the given source and indicator whether the
-     * event originated from the client side or the server side.
-     *
-     * @param source     the source component
-     * @param fromClient <code>true</code> if the event originated from the client
-     *                   side, <code>false</code> otherwise
-     */
-    public MangaPageViewEvent(Component source, boolean fromClient, @EventData("event.detail.pageIndex") int pageIndex) {
-        super(source, fromClient);
-        this.pageIndex = pageIndex;
-    }
+  private int pageIndex;
+
+  /**
+   * Creates a new event using the given source and indicator whether the event originated from the
+   * client side or the server side.
+   *
+   * @param source the source component
+   * @param fromClient <code>true</code> if the event originated from the client side, <code>false
+   *     </code> otherwise
+   */
+  public MangaPageViewEvent(
+      Component source, boolean fromClient, @EventData("event.detail.pageIndex") int pageIndex) {
+    super(source, fromClient);
+    this.pageIndex = pageIndex;
+  }
 }

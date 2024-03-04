@@ -20,7 +20,6 @@ import com.vaadin.flow.shared.Registration;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
-
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.component.reader.paged.PagedReader;
 import online.hatsunemiku.tachideskvaadinui.component.reader.strip.StripReader;
@@ -128,11 +127,11 @@ public class MangaReader extends Div {
   }
 
   /**
-   * Replaces the existing reader with a new one based on the specified direction and chapter.
-   * If no reader exists, it will just add the new reader instead.
+   * Replaces the existing reader with a new one based on the specified direction and chapter. If no
+   * reader exists, it will just add the new reader instead.
    *
    * @param direction the {@link ReaderDirection direction} of the new reader
-   * @param chapter   the {@link Chapter chapter} that should be displayed
+   * @param chapter the {@link Chapter chapter} that should be displayed
    */
   private void replaceReader(ReaderDirection direction, Chapter chapter) {
     removeAll();

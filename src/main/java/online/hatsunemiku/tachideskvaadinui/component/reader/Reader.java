@@ -77,8 +77,8 @@ public abstract class Reader extends Div {
    * from page 10 to page 11 or from page 11 to page 10. This method creates a new instance of
    * {@link ReaderPageIndexChangeEvent} and fires the event.
    *
-   * @param index The index of the page that was moved to. This is a 0-based index, where the first page
-   *     has an index of 0.
+   * @param index The index of the page that was moved to. This is a 0-based index, where the first
+   *     page has an index of 0.
    * @see ReaderPageIndexChangeEvent
    */
   protected void sendPageChangeEvent(int index) {
