@@ -22,7 +22,7 @@ public abstract class Reader extends Div {
   protected final MangaService mangaService;
   protected final SettingsService settingsService;
 
-  public Reader(
+  protected Reader(
       Chapter chapter,
       TrackingDataService dataService,
       TrackingCommunicationService trackingCommunicationService,
