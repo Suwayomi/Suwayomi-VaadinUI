@@ -1,4 +1,4 @@
-[![DeepSource](https://app.deepsource.com/gh/Suwayomi/Tachidesk-VaadinUI.svg/?label=active+issues&show_trend=false&token=tKg4kpGGJ0EAGMnueg1OgOpQ)](https://app.deepsource.com/gh/Suwayomi/Tachidesk-VaadinUI/)
+[![DeepSource](https://app.deepsource.com/gh/Suwayomi/Suwayomi-VaadinUI.svg/?label=active+issues&show_trend=false&token=tKg4kpGGJ0EAGMnueg1OgOpQ)](https://app.deepsource.com/gh/Suwayomi/Suwayomi-VaadinUI/)
 
 # Tachidesk-VaadinUI
 
