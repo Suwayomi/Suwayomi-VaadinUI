@@ -15,7 +15,7 @@ import lombok.Getter;
 @DomEvent("manga-page-view")
 @Getter
 public class MangaPageViewEvent extends ComponentEvent<Component> {
-  private int pageIndex;
+  private final int pageIndex;
 
   /**
    * Creates a new event using the given source and indicator whether the event originated from the
