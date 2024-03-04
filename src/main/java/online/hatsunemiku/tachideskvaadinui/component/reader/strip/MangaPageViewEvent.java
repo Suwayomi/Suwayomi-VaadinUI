@@ -12,6 +12,9 @@ import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import lombok.Getter;
 
+/**
+ * Represents an event that is fired when a new manga page is viewed.
+ */
 @DomEvent("manga-page-view")
 @Getter
 public class MangaPageViewEvent extends ComponentEvent<Component> {

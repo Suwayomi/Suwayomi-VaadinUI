@@ -16,6 +16,10 @@ import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingCommunicationService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 
+/**
+ * A base class for different manga reader implementations that provides common functionality and
+ * events.
+ */
 public abstract class Reader extends Div {
 
   protected final Chapter chapter;

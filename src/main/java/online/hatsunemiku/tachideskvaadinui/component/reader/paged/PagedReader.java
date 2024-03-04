@@ -27,6 +27,11 @@ import org.vaadin.addons.online.hatsunemiku.diamond.swiper.Swiper;
 import org.vaadin.addons.online.hatsunemiku.diamond.swiper.SwiperConfig;
 import org.vaadin.addons.online.hatsunemiku.diamond.swiper.constants.LanguageDirection;
 
+/**
+ * The PagedReader class is responsible for displaying and controlling the reading of manga chapters
+ * in a paged format. It extends the {@link Reader} class and provides additional functionality
+ * specific to paged reading.
+ */
 @Slf4j
 public class PagedReader extends Reader {
   private final Swiper swiper;
@@ -56,8 +61,8 @@ public class PagedReader extends Reader {
           switch (direction) {
             case RTL -> swiper.changeLanguageDirection(LanguageDirection.RIGHT_TO_LEFT);
             case LTR -> swiper.changeLanguageDirection(LanguageDirection.LEFT_TO_RIGHT);
-            case VERTICAL -> log.info(
-                "Can't change to vertical direction inside PagedReader - Ignored");
+            case VERTICAL ->
+                log.info("Can't change to vertical direction inside PagedReader - Ignored");
             default -> throw new IllegalStateException("Unexpected value: " + direction);
           }
         });

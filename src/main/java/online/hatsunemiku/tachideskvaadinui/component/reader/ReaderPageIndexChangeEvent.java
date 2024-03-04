@@ -9,6 +9,10 @@ package online.hatsunemiku.tachideskvaadinui.component.reader;
 import com.vaadin.flow.component.ComponentEvent;
 import lombok.Getter;
 
+/**
+ * Represents an event indicating a change in the page index of a Reader component. e.g. The user
+ * has moved from one page to another.
+ */
 @Getter
 public class ReaderPageIndexChangeEvent extends ComponentEvent<Reader> {
   private final int pageIndex;

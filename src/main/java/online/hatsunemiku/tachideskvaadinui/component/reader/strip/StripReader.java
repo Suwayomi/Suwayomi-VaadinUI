@@ -25,6 +25,10 @@ import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * StripReader is a class that extends the {@link Reader} class and provides functionality for displaying
+ * manga pages in a strip/vertical format.
+ */
 public class StripReader extends Reader {
 
   private static final Logger log = LoggerFactory.getLogger(StripReader.class);

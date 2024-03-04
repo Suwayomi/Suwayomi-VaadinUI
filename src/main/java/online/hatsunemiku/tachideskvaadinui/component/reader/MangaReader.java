@@ -35,6 +35,11 @@ import online.hatsunemiku.tachideskvaadinui.utils.NavigationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.RootView;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * MangaReader is a class that represents the main component for reading manga. It uses a {@link
+ * Reader} to display the manga pages and provides controls for navigating between pages and
+ * chapters with the help of a {@link Sidebar} and {@link Controls}.
+ */
 @CssImport("./css/components/reader/manga-reader.css")
 @Slf4j
 public class MangaReader extends Div {
@@ -332,6 +337,10 @@ public class MangaReader extends Div {
     }
   }
 
+  /**
+   * Controls class represents the controls used in a manga reader. It provides buttons and text
+   * fields for navigating between pages and chapters of a manga.
+   */
   private class Controls extends Div {
 
     private final int pageCount;
