@@ -6,6 +6,7 @@
 
 package online.hatsunemiku.tachideskvaadinui.view;
 
+import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.page.History;
@@ -20,6 +21,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.component.reader.MangaReader;
 import online.hatsunemiku.tachideskvaadinui.component.reader.ReaderChapterChangeEvent;
+import online.hatsunemiku.tachideskvaadinui.data.settings.event.ReaderSettingsChangeEvent;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
