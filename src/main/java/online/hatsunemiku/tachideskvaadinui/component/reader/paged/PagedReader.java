@@ -144,6 +144,7 @@ public class PagedReader extends Reader {
     add(swiper);
   }
 
+  @Override
   protected void loadChapter() {
 
     var urls = mangaService.getChapterPages(chapter.getId());

@@ -417,6 +417,12 @@ public class MangaReader extends Div {
       add(left, pageTrack, right);
     }
 
+    /**
+     * Retrieves a button for navigating to the next page in the reader.
+     *
+     * @param reader The {@link Reader} component on which the button will perform actions.
+     * @return The {@link Button} object.
+     */
     @NotNull
     private Button getNextButton(Reader reader) {
       Icon arrowRight = VaadinIcon.ARROW_RIGHT.create();
@@ -442,6 +448,12 @@ public class MangaReader extends Div {
       return right;
     }
 
+    /**
+     * Retrieves a button for navigating to the previous page in the reader.
+     *
+     * @param reader The {@link Reader} component on which the button will perform actions.
+     * @return The {@link Button} object.
+     */
     @NotNull
     private Button getPrevButton(Reader reader) {
       Icon arrowLeft = VaadinIcon.ARROW_LEFT.create();

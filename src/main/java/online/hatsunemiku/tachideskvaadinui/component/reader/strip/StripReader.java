@@ -26,8 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * StripReader is a class that extends the {@link Reader} class and provides functionality for displaying
- * manga pages in a strip/vertical format.
+ * StripReader is a class that extends the {@link Reader} class and provides functionality for
+ * displaying manga pages in a strip/vertical format.
  */
 public class StripReader extends Reader {
 
@@ -175,6 +175,12 @@ public class StripReader extends Reader {
     moveToPage(nextPage);
   }
 
+  /**
+   * Adds a listener for the {@link MangaPageViewEvent}
+   *
+   * @param listener the listener to be added
+   * @return a registration object that can be used to remove the listener
+   */
   public Registration addMangaPageViewListener(
       ComponentEventListener<MangaPageViewEvent> listener) {
     return addListener(MangaPageViewEvent.class, listener);
