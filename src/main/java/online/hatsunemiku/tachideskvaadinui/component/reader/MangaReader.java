@@ -51,6 +51,17 @@ public class MangaReader extends Div {
   private final int chapterIndex;
   private final List<Chapter> chapters;
 
+  /**
+   * Constructs a {@link MangaReader} object.
+   *
+   * @param chapter The Chapter object representing the chapter being read.
+   * @param settingsService The SettingsService object used for managing reader settings.
+   * @param tds The TrackingDataService object used for tracking chapter progress.
+   * @param tcs The TrackingCommunicationService object used for communication with tracking
+   *     service.
+   * @param mangaService The MangaService object used for manga-related operations.
+   * @param chapters The list of chapters in the manga
+   */
   public MangaReader(
       Chapter chapter,
       SettingsService settingsService,
@@ -347,6 +358,14 @@ public class MangaReader extends Div {
     private final int mangaId;
     private final int chapterIndex;
 
+    /**
+     * Represents a {@link Controls} object that provides navigation controls for a {@link
+     * MangaReader}.
+     *
+     * @param reader The {@link Reader} component on which the controls will work on.
+     * @param chapter The {@link Chapter} object representing the chapter being read.
+     * @param chapterIndex The index of the chapter being read.
+     */
     public Controls(Reader reader, Chapter chapter, int chapterIndex) {
       addClassName("controls");
 

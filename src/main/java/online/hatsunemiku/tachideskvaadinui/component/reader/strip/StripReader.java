@@ -35,6 +35,16 @@ public class StripReader extends Reader {
   private int currentPageIndex = -1;
   private List<Image> pages = new ArrayList<>();
 
+  /**
+   * Constructs a {@link StripReader} object.
+   *
+   * @param chapter The Chapter object representing the chapter being read.
+   * @param dataService The TrackingDataService object used for tracking chapter progress.
+   * @param trackingCommunicationService The TrackingCommunicationService object used for
+   *     communication with tracking service.
+   * @param mangaService The MangaService object used for manga-related operations.
+   * @param settingsService The SettingsService object used for managing reader settings.
+   */
   public StripReader(
       Chapter chapter,
       TrackingDataService dataService,

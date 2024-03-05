@@ -26,6 +26,16 @@ public abstract class Reader extends Div {
   protected final MangaService mangaService;
   protected final SettingsService settingsService;
 
+  /**
+   * Represents a Reader object that is used to load chapter pages and display them in the reader.
+   *
+   * @param chapter The Chapter object representing the chapter being read.
+   * @param dataService The TrackingDataService object used for tracking chapter progress.
+   * @param trackingCommunicationService The TrackingCommunicationService object used for
+   *     communication with tracking service.
+   * @param mangaService The MangaService object used for manga-related operations.
+   * @param settingsService The SettingsService object used for managing reader settings.
+   */
   protected Reader(
       Chapter chapter,
       TrackingDataService dataService,

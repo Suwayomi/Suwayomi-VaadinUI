@@ -37,6 +37,16 @@ public class PagedReader extends Reader {
   private final Swiper swiper;
   private final ExecutorService trackerExecutor;
 
+  /**
+   * Constructs a {@link PagedReader} object.
+   *
+   * @param chapter The Chapter object representing the chapter being read.
+   * @param dataService The TrackingDataService object used for tracking chapter progress.
+   * @param trackingCommunicationService The TrackingCommunicationService object used for
+   *     communication with tracking service.
+   * @param mangaService The MangaService object used for manga-related operations.
+   * @param settingsService The SettingsService object used for managing reader settings.
+   */
   public PagedReader(
       Chapter chapter,
       TrackingDataService dataService,
@@ -61,8 +71,8 @@ public class PagedReader extends Reader {
           switch (direction) {
             case RTL -> swiper.changeLanguageDirection(LanguageDirection.RIGHT_TO_LEFT);
             case LTR -> swiper.changeLanguageDirection(LanguageDirection.LEFT_TO_RIGHT);
-            case VERTICAL -> log.info(
-                "Can't change to vertical direction inside PagedReader - Ignored");
+            case VERTICAL ->
+                log.info("Can't change to vertical direction inside PagedReader - Ignored");
             default -> throw new IllegalStateException("Unexpected value: " + direction);
           }
         });
