@@ -43,10 +43,10 @@ img {
   bottom: 0;
   background-image: linear-gradient(
       to bottom,
-      rgba(0, 0, 0, 0.5),
-      rgba(0, 0, 0, 0.7)
+      rgba(0, 0, 0, 0.6),
+      rgba(0, 0, 0, 0.8)
   );
-  color: #fff;
+  color: var(--miku-main-color);
   height: 10%;
   max-width: 100%;
   min-width: 100%;
