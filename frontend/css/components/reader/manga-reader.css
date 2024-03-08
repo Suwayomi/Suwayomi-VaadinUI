@@ -30,10 +30,9 @@
 }
 
 .strip-reader {
-    display: grid;
+    display: flex;
     grid-column: 2 / 3;
     grid-row: 1 / 2;
-    object-fit: contain;
     background-color: var(--miku-background-color);
     border: 1px solid var(--miku-main-color);
 
@@ -42,11 +41,11 @@
 }
 
 .strip-reader .page-container {
-    display: flow;
+    display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    overflow-y: auto;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    width: 95vw;
 }
 
 .controls {

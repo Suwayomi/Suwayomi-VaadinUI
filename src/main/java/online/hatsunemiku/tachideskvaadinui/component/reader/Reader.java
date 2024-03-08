@@ -101,6 +101,17 @@ public abstract class Reader extends Div {
   }
 
   /**
+   * Sends a reach end event indicating that the reader has reached the end of the chapter. This
+   * method creates a new instance of {@link ReaderReachEndEvent} and fires the event.
+   *
+   * @see ReaderReachEndEvent
+   */
+  protected void sendReachEndEvent() {
+    var event = new ReaderReachEndEvent(this, false);
+    fireEvent(event);
+  }
+
+  /**
    * Adds a listener to the Reader component that listens for a {@link ReaderPageIndexChangeEvent}
    *
    * @param listener The listener to be added.
@@ -112,5 +123,10 @@ public abstract class Reader extends Div {
   public Registration addReaderPageIndexChangeListener(
       ComponentEventListener<ReaderPageIndexChangeEvent> listener) {
     return addListener(ReaderPageIndexChangeEvent.class, listener);
+  }
+
+  public Registration addReaderReachEndListener(
+      ComponentEventListener<ReaderReachEndEvent> listener) {
+    return addListener(ReaderReachEndEvent.class, listener);
   }
 }

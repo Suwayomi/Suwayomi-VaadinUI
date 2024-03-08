@@ -19,6 +19,8 @@ import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.shared.Registration;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.component.reader.paged.PagedReader;
@@ -50,6 +52,7 @@ public class MangaReader extends Div {
   private final TrackingCommunicationService tcs;
   private final int chapterIndex;
   private final List<Chapter> chapters;
+  private final ExecutorService trackerExecutor = Executors.newSingleThreadExecutor();
 
   /**
    * Constructs a {@link MangaReader} object.
@@ -88,31 +91,34 @@ public class MangaReader extends Div {
 
     UI ui = getUI().orElseGet(UI::getCurrent);
 
-    ComponentUtil.addListener(
-        ui,
-        ReaderSettingsChangeEvent.class,
-        e -> {
-          var newSettings = e.getNewSettings();
-          var newDir = newSettings.getDirection();
+    var settingsChangeListener =
+        ComponentUtil.addListener(
+            ui,
+            ReaderSettingsChangeEvent.class,
+            e -> {
+              var newSettings = e.getNewSettings();
+              var newDir = newSettings.getDirection();
 
-          if (newDir == dir.get()) {
-            return;
-          }
+              if (newDir == dir.get()) {
+                return;
+              }
 
-          // if the new or old direction is vertical then the reader implementation must change
-          // as both LTR and RTL use PagedReader, while only Vertical uses StripReader
-          if (newDir == ReaderDirection.VERTICAL || dir.get() == ReaderDirection.VERTICAL) {
-            var oldReader = (Reader) getComponentAt(1);
-            int currentPageIndex = oldReader.getPageIndex();
+              // if the new or old direction is vertical then the reader implementation must change
+              // as both LTR and RTL use PagedReader, while only Vertical uses StripReader
+              if (newDir == ReaderDirection.VERTICAL || dir.get() == ReaderDirection.VERTICAL) {
+                var oldReader = (Reader) getComponentAt(1);
+                int currentPageIndex = oldReader.getPageIndex();
 
-            replaceReader(newDir, chapter);
+                replaceReader(newDir, chapter);
 
-            var newReader = (Reader) getComponentAt(1);
-            newReader.moveToPage(currentPageIndex);
+                var newReader = (Reader) getComponentAt(1);
+                newReader.moveToPage(currentPageIndex);
 
-            dir.set(newDir);
-          }
-        });
+                dir.set(newDir);
+              }
+            });
+
+    addDetachListener(e -> settingsChangeListener.remove());
   }
 
   /**
@@ -156,6 +162,31 @@ public class MangaReader extends Div {
 
     Sidebar sidebar = new Sidebar(mangaService, chapter, reader);
     Controls controls = new Controls(reader, chapter, chapterIndex);
+
+    reader.addReaderReachEndListener(
+        e -> {
+          if (mangaService.setChapterRead(chapter.getId())) {
+            log.info("Set chapter {} to read", chapter.getName());
+          } else {
+            log.warn("Couldn't set chapter {} to read", chapter.getName());
+          }
+
+          e.unregisterListener();
+        });
+
+    int mangaId = chapter.getMangaId();
+
+    var tracker = tds.getTracker(mangaId);
+
+    if (tracker.hasAniListId()) {
+      reader.addReaderReachEndListener(
+          e -> {
+            log.debug("Setting chapter {} to read on AniList", chapter.getName());
+            trackerExecutor.submit(
+                () -> tcs.setChapterProgress(mangaId, chapter.getChapterNumber(), true));
+            e.unregisterListener();
+          });
+    }
 
     add(sidebar, reader, controls);
   }

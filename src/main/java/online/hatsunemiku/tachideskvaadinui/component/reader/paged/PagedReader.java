@@ -18,7 +18,6 @@ import online.hatsunemiku.tachideskvaadinui.data.settings.event.ReaderSettingsCh
 import online.hatsunemiku.tachideskvaadinui.data.settings.reader.ReaderDirection;
 import online.hatsunemiku.tachideskvaadinui.data.settings.reader.ReaderSettings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
-import online.hatsunemiku.tachideskvaadinui.data.tracking.Tracker;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingCommunicationService;
@@ -62,20 +61,23 @@ public class PagedReader extends Reader {
     swiper = new Swiper(config);
 
     UI ui = UI.getCurrent();
-    ComponentUtil.addListener(
-        ui,
-        ReaderSettingsChangeEvent.class,
-        e -> {
-          var direction = e.getNewSettings().getDirection();
+    var settingsChangeListener =
+        ComponentUtil.addListener(
+            ui,
+            ReaderSettingsChangeEvent.class,
+            e -> {
+              var direction = e.getNewSettings().getDirection();
 
-          switch (direction) {
-            case RTL -> swiper.changeLanguageDirection(LanguageDirection.RIGHT_TO_LEFT);
-            case LTR -> swiper.changeLanguageDirection(LanguageDirection.LEFT_TO_RIGHT);
-            case VERTICAL -> log.info(
-                "Can't change to vertical direction inside PagedReader - Ignored");
-            default -> throw new IllegalStateException("Unexpected value: " + direction);
-          }
-        });
+              switch (direction) {
+                case RTL -> swiper.changeLanguageDirection(LanguageDirection.RIGHT_TO_LEFT);
+                case LTR -> swiper.changeLanguageDirection(LanguageDirection.LEFT_TO_RIGHT);
+                case VERTICAL ->
+                    log.info("Can't change to vertical direction inside PagedReader - Ignored");
+                default -> throw new IllegalStateException("Unexpected value: " + direction);
+              }
+            });
+
+    addDetachListener(e -> settingsChangeListener.remove());
 
     ReaderSettings settings = settingsService.getSettings().getReaderSettings(chapter.getMangaId());
 
@@ -124,30 +126,7 @@ public class PagedReader extends Reader {
 
     loadChapter();
 
-    Tracker tracker = dataService.getTracker(chapter.getMangaId());
-
-    if (tracker.hasAniListId()) {
-      swiper.addActiveIndexChangeEventListener(
-          e -> {
-            if (e.getActiveIndex() == chapter.getPageCount() - 1) {
-              log.info("Last page of chapter {}", chapter.getChapterNumber());
-              trackerExecutor.submit(
-                  () ->
-                      trackingCommunicationService.setChapterProgress(
-                          chapter.getMangaId(), chapter.getChapterNumber(), true));
-              e.unregisterListener();
-            }
-          });
-    }
-
-    swiper.addReachEndEventListener(
-        e -> {
-          if (mangaService.setChapterRead(chapter.getId())) {
-            log.info("Set chapter {} to read", chapter.getName());
-          } else {
-            log.warn("Couldn't set chapter {} to read", chapter.getName());
-          }
-        });
+    swiper.addReachEndEventListener(e -> sendReachEndEvent());
 
     swiper.addActiveIndexChangeEventListener(e -> sendPageChangeEvent(e.getActiveIndex()));
 

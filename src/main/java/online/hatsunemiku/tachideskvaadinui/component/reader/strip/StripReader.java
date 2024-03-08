@@ -111,6 +111,10 @@ public class StripReader extends Reader {
 
           var event = new ReaderPageIndexChangeEvent(this, fromClient, currentPageIndex);
           fireEvent(event);
+
+          if (currentPageIndex == pages.size() - 1) {
+            sendReachEndEvent();
+          }
         });
   }
 
@@ -133,7 +137,9 @@ public class StripReader extends Reader {
       String altText = "Page %d".formatted(i);
 
       Image image = new Image(completeUrl, altText);
+
       image.getElement().setAttribute("data-page-index", String.valueOf(i));
+
       image.addClassName("manga-page");
 
       pages.add(image);
