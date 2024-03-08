@@ -9,15 +9,15 @@ package online.hatsunemiku.tachideskvaadinui.component.reader;
 import com.vaadin.flow.component.ComponentEvent;
 
 public class ReaderReachEndEvent extends ComponentEvent<Reader> {
-    /**
-     * Creates a new event using the given source and indicator whether the
-     * event originated from the client side or the server side.
-     *
-     * @param source     the source component
-     * @param fromClient <code>true</code> if the event originated from the client
-     *                   side, <code>false</code> otherwise
-     */
-    public ReaderReachEndEvent(Reader source, boolean fromClient) {
-        super(source, fromClient);
-    }
+  /**
+   * Creates a new event using the given source and indicator whether the event originated from the
+   * client side or the server side.
+   *
+   * @param source the source component
+   * @param fromClient <code>true</code> if the event originated from the client side, <code>false
+   *     </code> otherwise
+   */
+  public ReaderReachEndEvent(Reader source, boolean fromClient) {
+    super(source, fromClient);
+  }
 }
