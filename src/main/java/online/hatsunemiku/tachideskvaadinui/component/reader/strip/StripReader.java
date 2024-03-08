@@ -20,8 +20,6 @@ import online.hatsunemiku.tachideskvaadinui.data.settings.reader.ReaderDirection
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
-import online.hatsunemiku.tachideskvaadinui.services.TrackingCommunicationService;
-import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,19 +37,14 @@ public class StripReader extends Reader {
    * Constructs a {@link StripReader} object.
    *
    * @param chapter The Chapter object representing the chapter being read.
-   * @param dataService The TrackingDataService object used for tracking chapter progress.
-   * @param trackingCommunicationService The TrackingCommunicationService object used for
-   *     communication with tracking service.
    * @param mangaService The MangaService object used for manga-related operations.
    * @param settingsService The SettingsService object used for managing reader settings.
    */
   public StripReader(
       Chapter chapter,
-      TrackingDataService dataService,
-      TrackingCommunicationService trackingCommunicationService,
       MangaService mangaService,
       SettingsService settingsService) {
-    super(chapter, dataService, trackingCommunicationService, mangaService, settingsService);
+    super(chapter, mangaService, settingsService);
     addClassName("strip-reader");
 
     // language=JavaScript

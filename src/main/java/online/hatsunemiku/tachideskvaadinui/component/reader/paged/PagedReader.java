@@ -9,8 +9,6 @@ package online.hatsunemiku.tachideskvaadinui.component.reader.paged;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Image;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.component.reader.Reader;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
@@ -20,8 +18,6 @@ import online.hatsunemiku.tachideskvaadinui.data.settings.reader.ReaderSettings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
-import online.hatsunemiku.tachideskvaadinui.services.TrackingCommunicationService;
-import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import org.vaadin.addons.online.hatsunemiku.diamond.swiper.Swiper;
 import org.vaadin.addons.online.hatsunemiku.diamond.swiper.SwiperConfig;
 import org.vaadin.addons.online.hatsunemiku.diamond.swiper.constants.LanguageDirection;
@@ -34,27 +30,20 @@ import org.vaadin.addons.online.hatsunemiku.diamond.swiper.constants.LanguageDir
 @Slf4j
 public class PagedReader extends Reader {
   private final Swiper swiper;
-  private final ExecutorService trackerExecutor;
 
   /**
    * Constructs a {@link PagedReader} object.
    *
    * @param chapter The Chapter object representing the chapter being read.
-   * @param dataService The TrackingDataService object used for tracking chapter progress.
-   * @param trackingCommunicationService The TrackingCommunicationService object used for
-   *     communication with tracking service.
    * @param mangaService The MangaService object used for manga-related operations.
    * @param settingsService The SettingsService object used for managing reader settings.
    */
   public PagedReader(
       Chapter chapter,
-      TrackingDataService dataService,
-      TrackingCommunicationService trackingCommunicationService,
       MangaService mangaService,
       SettingsService settingsService) {
-    super(chapter, dataService, trackingCommunicationService, mangaService, settingsService);
+    super(chapter, mangaService, settingsService);
     addClassName("paged-reader");
-    this.trackerExecutor = Executors.newSingleThreadExecutor();
 
     var config = SwiperConfig.builder().zoom(true).centeredSlides(true).build();
 
