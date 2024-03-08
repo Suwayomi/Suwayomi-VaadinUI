@@ -1,0 +1,14 @@
+  on:
+    release:
+      types: [published]
+  jobs:
+    publish:
+      runs-on: windows-latest
+      steps:
+        - name: Winget Releaser
+          uses: vedantmgoyal2009/winget-releaser@v2
+          with:
+            identifier: Suwayomi.Tachidesk-VaadinUI
+            installers-regex: '\.msi$'
+            token: ${{ secrets.WINGET_TOKEN }}
+            fork-user: aless2003
