@@ -6,16 +6,11 @@
 
 package online.hatsunemiku.tachideskvaadinui.component.reader;
 
-import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.ComponentUtil;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.textfield.TextField;
@@ -26,12 +21,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
+import online.hatsunemiku.tachideskvaadinui.component.reader.paged.PagedReader;
+import online.hatsunemiku.tachideskvaadinui.component.reader.strip.StripReader;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.settings.event.ReaderSettingsChangeEvent;
-import online.hatsunemiku.tachideskvaadinui.data.settings.reader.ReaderSettings;
+import online.hatsunemiku.tachideskvaadinui.data.settings.reader.ReaderDirection;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
-import online.hatsunemiku.tachideskvaadinui.data.tracking.Tracker;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingCommunicationService;
@@ -39,38 +36,150 @@ import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import online.hatsunemiku.tachideskvaadinui.utils.NavigationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.RootView;
 import org.jetbrains.annotations.NotNull;
-import org.vaadin.addons.online.hatsunemiku.diamond.swiper.Swiper;
-import org.vaadin.addons.online.hatsunemiku.diamond.swiper.SwiperConfig;
-import org.vaadin.addons.online.hatsunemiku.diamond.swiper.constants.LanguageDirection;
 
+/**
+ * MangaReader is a class that represents the main component for reading manga. It uses a {@link
+ * Reader} to display the manga pages and provides controls for navigating between pages and
+ * chapters with the help of a {@link Sidebar} and {@link Controls}.
+ */
 @CssImport("./css/components/reader/manga-reader.css")
 @Slf4j
 public class MangaReader extends Div {
 
   private final SettingsService settingsService;
   private final MangaService mangaService;
-  private final ExecutorService trackerExecutor;
+  private final TrackingDataService tds;
+  private final TrackingCommunicationService tcs;
   private final int chapterIndex;
   private final List<Chapter> chapters;
+  private final ExecutorService trackerExecutor = Executors.newSingleThreadExecutor();
 
+  /**
+   * Constructs a {@link MangaReader} object.
+   *
+   * @param chapter The Chapter object representing the chapter being read.
+   * @param settingsService The SettingsService object used for managing reader settings.
+   * @param tds The TrackingDataService object used for tracking chapter progress.
+   * @param tcs The TrackingCommunicationService object used for communication with tracking
+   *     service.
+   * @param mangaService The MangaService object used for manga-related operations.
+   * @param chapters The list of chapters in the manga
+   */
   public MangaReader(
       Chapter chapter,
       SettingsService settingsService,
-      TrackingDataService dataService,
+      TrackingDataService tds,
       MangaService mangaService,
-      TrackingCommunicationService trackingCommunicationService,
+      TrackingCommunicationService tcs,
       List<Chapter> chapters) {
     addClassName("manga-reader");
 
     this.settingsService = settingsService;
     this.mangaService = mangaService;
-    this.trackerExecutor = Executors.newSingleThreadExecutor();
     this.chapterIndex = chapters.stream().map(Chapter::getId).toList().indexOf(chapter.getId());
     this.chapters = List.copyOf(chapters);
+    this.tds = tds;
+    this.tcs = tcs;
 
-    Reader reader = new Reader(chapter, dataService, trackingCommunicationService, mangaService);
-    Sidebar sidebar = new Sidebar(mangaService, chapter, reader.swiper);
+    Settings settings = settingsService.getSettings();
+    var readerSettings = settings.getReaderSettings(chapter.getMangaId());
+
+    // So I can update the direction to the new direction once the reader has been replaced
+    AtomicReference<ReaderDirection> dir = new AtomicReference<>(readerSettings.getDirection());
+
+    replaceReader(dir.get(), chapter);
+
+    UI ui = getUI().orElseGet(UI::getCurrent);
+
+    var settingsChangeListener =
+        ComponentUtil.addListener(
+            ui,
+            ReaderSettingsChangeEvent.class,
+            e -> {
+              var newSettings = e.getNewSettings();
+              var newDir = newSettings.getDirection();
+
+              if (newDir == dir.get()) {
+                return;
+              }
+
+              // if the new or old direction is vertical then the reader implementation must change
+              // as both LTR and RTL use PagedReader, while only Vertical uses StripReader
+              if (newDir == ReaderDirection.VERTICAL || dir.get() == ReaderDirection.VERTICAL) {
+                var oldReader = (Reader) getComponentAt(1);
+                int currentPageIndex = oldReader.getPageIndex();
+
+                replaceReader(newDir, chapter);
+
+                var newReader = (Reader) getComponentAt(1);
+                newReader.moveToPage(currentPageIndex);
+
+                dir.set(newDir);
+              }
+            });
+
+    addDetachListener(e -> settingsChangeListener.remove());
+  }
+
+  /**
+   * Creates a reader with the correct Implementation based on the given parameters.
+   *
+   * @param direction the {@link ReaderDirection direction} of the reader
+   * @param chapter the {@link Chapter chapter} to be read
+   * @return a Reader object of either {@link PagedReader} or {@link StripReader}
+   */
+  private Reader createReader(ReaderDirection direction, Chapter chapter) {
+    Reader reader;
+
+    if (direction == ReaderDirection.VERTICAL) {
+      reader = new StripReader(chapter, mangaService, settingsService);
+    } else {
+      reader = new PagedReader(chapter, mangaService, settingsService);
+    }
+
+    return reader;
+  }
+
+  /**
+   * Replaces the existing reader with a new one based on the specified direction and chapter. If no
+   * reader exists, it will just add the new reader instead.
+   *
+   * @param direction the {@link ReaderDirection direction} of the new reader
+   * @param chapter the {@link Chapter chapter} that should be displayed
+   */
+  private void replaceReader(ReaderDirection direction, Chapter chapter) {
+    removeAll();
+
+    var reader = createReader(direction, chapter);
+
+    Sidebar sidebar = new Sidebar(mangaService, chapter, reader);
     Controls controls = new Controls(reader, chapter, chapterIndex);
+
+    reader.addReaderReachEndListener(
+        e -> {
+          if (mangaService.setChapterRead(chapter.getId())) {
+            log.info("Set chapter {} to read", chapter.getName());
+          } else {
+            log.warn("Couldn't set chapter {} to read", chapter.getName());
+          }
+
+          e.unregisterListener();
+        });
+
+    int mangaId = chapter.getMangaId();
+
+    var tracker = tds.getTracker(mangaId);
+
+    if (tracker.hasAniListId()) {
+      reader.addReaderReachEndListener(
+          e -> {
+            log.debug("Setting chapter {} to read on AniList", chapter.getName());
+            trackerExecutor.submit(
+                () -> tcs.setChapterProgress(mangaId, chapter.getChapterNumber(), true));
+            e.unregisterListener();
+          });
+    }
+
     add(sidebar, reader, controls);
   }
 
@@ -82,7 +191,7 @@ public class MangaReader extends Div {
   // skipcq: JAVA-W1019
   private class Sidebar extends Div {
 
-    public Sidebar(MangaService mangaService, Chapter chapter, Swiper swiper) {
+    public Sidebar(MangaService mangaService, Chapter chapter, Reader reader) {
       addClassName("sidebar");
 
       Div navigationButtons = getNavigationButtons(chapter);
@@ -97,11 +206,11 @@ public class MangaReader extends Div {
       chapterSelect.setClassName("chapter-select");
       chapterSelect.getStyle().set("--vaadin-combo-box-overlay-width", "20vw");
 
-      Button leftBtn = getChapterLeftBtn(swiper, chapter);
+      Button leftBtn = getChapterLeftBtn(reader, chapter);
 
       ComboBox<Chapter> chapterComboBox = getChapterComboBox(chapter, chapters);
 
-      Button rightBtn = getChapterRightBtn(swiper, chapter);
+      Button rightBtn = getChapterRightBtn(reader, chapter);
 
       chapterSelect.add(leftBtn, chapterComboBox, rightBtn);
 
@@ -146,14 +255,14 @@ public class MangaReader extends Div {
     }
 
     @NotNull
-    private Button getChapterRightBtn(Swiper swiper, Chapter chapter) {
+    private Button getChapterRightBtn(Reader reader, Chapter chapter) {
       Button rightBtn = new Button(VaadinIcon.ANGLE_RIGHT.create());
       rightBtn.setId("rightBtn");
       rightBtn.addClickListener(
           e -> {
             int newChapterId;
 
-            if (swiper.getLanguageDirection() == LanguageDirection.RIGHT_TO_LEFT) {
+            if (reader.getReaderDirection() == ReaderDirection.RTL) {
 
               if (chapterIndex == 0) {
                 return;
@@ -213,7 +322,7 @@ public class MangaReader extends Div {
     }
 
     @NotNull
-    private Button getChapterLeftBtn(Swiper swiper, Chapter chapter) {
+    private Button getChapterLeftBtn(Reader reader, Chapter chapter) {
       Button leftBtn = new Button(VaadinIcon.ANGLE_LEFT.create());
       leftBtn.setId("leftBtn");
       leftBtn.addClickListener(
@@ -221,7 +330,7 @@ public class MangaReader extends Div {
             int newChapterId;
 
             int mangaId = chapter.getMangaId();
-            if (swiper.getLanguageDirection() == LanguageDirection.RIGHT_TO_LEFT) {
+            if (reader.getReaderDirection() == ReaderDirection.RTL) {
 
               if (chapterIndex >= chapters.size() - 1) {
                 return;
@@ -262,144 +371,24 @@ public class MangaReader extends Div {
     }
   }
 
-  private class Reader extends Div {
-
-    private final Chapter chapter;
-    private final Swiper swiper;
-    private final MangaService mangaService;
-
-    public Reader(
-        Chapter chapter,
-        TrackingDataService dataService,
-        TrackingCommunicationService trackingCommunicationService,
-        MangaService mangaService) {
-      addClassName("reader");
-      this.chapter = chapter;
-      this.mangaService = mangaService;
-
-      var config = SwiperConfig.builder().zoom(true).centeredSlides(true).build();
-
-      swiper = new Swiper(config);
-
-      UI ui = UI.getCurrent();
-      ComponentUtil.addListener(
-          ui,
-          ReaderSettingsChangeEvent.class,
-          e -> {
-            var direction = e.getNewSettings().getDirection();
-
-            switch (direction) {
-              case RTL -> swiper.changeLanguageDirection(LanguageDirection.RIGHT_TO_LEFT);
-              case LTR -> swiper.changeLanguageDirection(LanguageDirection.LEFT_TO_RIGHT);
-              default -> throw new IllegalStateException("Unexpected value: " + direction);
-            }
-          });
-
-      ReaderSettings settings =
-          settingsService.getSettings().getReaderSettings(chapter.getMangaId());
-
-      switch (settings.getDirection()) {
-        case RTL -> swiper.changeLanguageDirection(LanguageDirection.RIGHT_TO_LEFT);
-        case LTR -> swiper.changeLanguageDirection(LanguageDirection.LEFT_TO_RIGHT);
-        default -> throw new IllegalStateException("Unexpected value: " + settings.getDirection());
-      }
-
-      /*This is a JavaScript function as it feels more sluggish when it has
-       * to send data back to the server. Therefore, the server is responsible
-       * for the mouse wheel's zoom function.
-       */
-      swiper
-          .getElement()
-          .executeJs(
-              """
-                      var zoomListener = function (e) {
-                       if ($0.swiper.zoom === undefined) {
-                        console.info("Removing zoom listener.");
-                        removeEventListener('wheel', zoomListener);
-                        return;
-                       }
-
-                        var zoom = $0.swiper.zoom.scale;
-                        if (e.deltaY < 0) {
-                          zoom += 0.5;
-                        } else {
-                          zoom -= 0.5;
-                        }
-
-                        if (zoom < 1) {
-                          zoom = 1;
-                        }
-
-                        if (zoom > 3) {
-                          zoom = 3;
-                        }
-
-                        $0.swiper.zoom.in(zoom);
-                        };
-
-                      addEventListener('wheel', zoomListener);
-                      """,
-              swiper.getElement());
-
-      loadChapter();
-
-      Tracker tracker = dataService.getTracker(chapter.getMangaId());
-
-      if (tracker.hasAniListId()) {
-        swiper.addActiveIndexChangeEventListener(
-            e -> {
-              if (e.getActiveIndex() == chapter.getPageCount() - 1) {
-                log.info("Last page of chapter {}", chapter.getChapterNumber());
-                trackerExecutor.submit(
-                    () ->
-                        trackingCommunicationService.setChapterProgress(
-                            chapter.getMangaId(), chapter.getChapterNumber(), true));
-                e.unregisterListener();
-              }
-            });
-      }
-
-      swiper.addReachEndEventListener(
-          e -> {
-            if (mangaService.setChapterRead(chapter.getId())) {
-              log.info("Set chapter {} to read", chapter.getName());
-            } else {
-              log.warn("Couldn't set chapter {} to read", chapter.getName());
-            }
-          });
-
-      add(swiper);
-    }
-
-    private void loadChapter() {
-
-      var urls = mangaService.getChapterPages(chapter.getId());
-
-      Settings settings = settingsService.getSettings();
-      String baseUrl = settings.getUrl();
-
-      for (int i = 0; i < urls.size(); i++) {
-        String url = baseUrl + urls.get(i);
-
-        Image image = new Image(url, "Page %d".formatted(i + 1));
-
-        if (i > 1) {
-          image.getElement().setAttribute("loading", "lazy");
-        }
-
-        image.addClassName("manga-page");
-
-        swiper.addZoomable(true, image);
-      }
-    }
-  }
-
+  /**
+   * Controls class represents the controls used in a manga reader. It provides buttons and text
+   * fields for navigating between pages and chapters of a manga.
+   */
   private class Controls extends Div {
 
     private final int pageCount;
     private final int mangaId;
     private final int chapterIndex;
 
+    /**
+     * Represents a {@link Controls} object that provides navigation controls for a {@link
+     * MangaReader}.
+     *
+     * @param reader The {@link Reader} component on which the controls will work on.
+     * @param chapter The {@link Chapter} object representing the chapter being read.
+     * @param chapterIndex The index of the chapter being read.
+     */
     public Controls(Reader reader, Chapter chapter, int chapterIndex) {
       addClassName("controls");
 
@@ -421,6 +410,10 @@ public class MangaReader extends Div {
       input.setAllowedCharPattern("\\d");
       input.addValueChangeListener(
           e -> {
+            if (!e.isFromClient()) {
+              return;
+            }
+
             if (e.getValue().isEmpty()) {
               log.debug("Value is empty");
               input.setValue(e.getOldValue());
@@ -435,7 +428,7 @@ public class MangaReader extends Div {
 
             int value = Integer.parseInt(e.getValue());
 
-            if (value == reader.swiper.getActiveIndex()) {
+            if (value == reader.getPageIndex()) {
               log.debug("Value is the same as active index");
               input.setValue(e.getOldValue());
               return;
@@ -447,15 +440,15 @@ public class MangaReader extends Div {
               return;
             }
 
-            reader.swiper.slideTo(value - 1);
+            reader.moveToPage(value - 1);
             log.debug("Value changed to {}", value);
           });
 
       Text totalChapters = new Text("/ " + pageCount);
 
-      reader.swiper.addActiveIndexChangeEventListener(
+      reader.addReaderPageIndexChangeListener(
           e -> {
-            int activeIndex = e.getActiveIndex() + 1;
+            int activeIndex = e.getPageIndex() + 1;
             input.setValue(String.valueOf(activeIndex));
           });
 
@@ -466,21 +459,28 @@ public class MangaReader extends Div {
       add(left, pageTrack, right);
     }
 
+    /**
+     * Retrieves a button for navigating to the next page in the reader.
+     *
+     * @param reader The {@link Reader} component on which the button will perform actions.
+     * @return The {@link Button} object.
+     */
     @NotNull
     private Button getNextButton(Reader reader) {
       Icon arrowRight = VaadinIcon.ARROW_RIGHT.create();
       Button right = new Button(arrowRight);
       right.addClickListener(
           e -> {
-            Swiper swiper = reader.swiper;
-            if (swiper.getLanguageDirection() == LanguageDirection.RIGHT_TO_LEFT) {
-              prevPage(swiper);
+            var direction = reader.getReaderDirection();
+
+            if (direction == ReaderDirection.RTL) {
+              prevPage(reader);
             } else {
-              nextPage(swiper);
+              nextPage(reader);
             }
           });
 
-      if (reader.swiper.getLanguageDirection() == LanguageDirection.RIGHT_TO_LEFT) {
+      if (reader.getReaderDirection() == ReaderDirection.RTL) {
         right.addClickShortcut(Key.ARROW_RIGHT);
       } else {
         right.addClickShortcut(Key.ARROW_LEFT);
@@ -490,21 +490,26 @@ public class MangaReader extends Div {
       return right;
     }
 
+    /**
+     * Retrieves a button for navigating to the previous page in the reader.
+     *
+     * @param reader The {@link Reader} component on which the button will perform actions.
+     * @return The {@link Button} object.
+     */
     @NotNull
     private Button getPrevButton(Reader reader) {
       Icon arrowLeft = VaadinIcon.ARROW_LEFT.create();
       Button left = new Button(arrowLeft);
       left.addClickListener(
           e -> {
-            Swiper swiper = reader.swiper;
-            if (swiper.getLanguageDirection() == LanguageDirection.RIGHT_TO_LEFT) {
-              nextPage(swiper);
+            if (reader.getReaderDirection() == ReaderDirection.RTL) {
+              nextPage(reader);
             } else {
-              prevPage(swiper);
+              prevPage(reader);
             }
           });
 
-      if (reader.swiper.getLanguageDirection() == LanguageDirection.RIGHT_TO_LEFT) {
+      if (reader.getReaderDirection() == ReaderDirection.RTL) {
         left.addClickShortcut(Key.ARROW_LEFT);
       } else {
         left.addClickShortcut(Key.ARROW_RIGHT);
@@ -512,10 +517,10 @@ public class MangaReader extends Div {
       return left;
     }
 
-    private void nextPage(Swiper swiper) {
+    private void nextPage(Reader reader) {
 
-      if (swiper.getActiveIndex() != pageCount - 1) {
-        swiper.slideNext();
+      if (reader.getPageIndex() != pageCount - 1) {
+        reader.moveToNextPage();
         return;
       }
 
@@ -532,10 +537,10 @@ public class MangaReader extends Div {
       MangaReader.this.fireEvent(event);
     }
 
-    private void prevPage(Swiper swiper) {
+    private void prevPage(Reader reader) {
 
-      if (swiper.getActiveIndex() != 0) {
-        swiper.slidePrev();
+      if (reader.getPageIndex() != 0) {
+        reader.moveToPreviousPage();
         return;
       }
 

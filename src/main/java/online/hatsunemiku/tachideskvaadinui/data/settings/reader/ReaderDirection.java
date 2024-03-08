@@ -14,5 +14,7 @@ public enum ReaderDirection {
   /** Left-to-right reading direction. */
   LTR,
   /** Right-to-left reading direction. */
-  RTL
+  RTL,
+  /** Vertical reading direction. */
+  VERTICAL
 }
