@@ -38,10 +38,7 @@ public class PagedReader extends Reader {
    * @param mangaService The MangaService object used for manga-related operations.
    * @param settingsService The SettingsService object used for managing reader settings.
    */
-  public PagedReader(
-      Chapter chapter,
-      MangaService mangaService,
-      SettingsService settingsService) {
+  public PagedReader(Chapter chapter, MangaService mangaService, SettingsService settingsService) {
     super(chapter, mangaService, settingsService);
     addClassName("paged-reader");
 

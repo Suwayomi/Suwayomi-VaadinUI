@@ -13,8 +13,6 @@ import online.hatsunemiku.tachideskvaadinui.data.settings.reader.ReaderDirection
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
-import online.hatsunemiku.tachideskvaadinui.services.TrackingCommunicationService;
-import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 
 /**
  * A base class for different manga reader implementations that provides common functionality and
@@ -29,15 +27,12 @@ public abstract class Reader extends Div {
   /**
    * Represents a Reader object that is used to load chapter pages and display them in the reader.
    *
-   * @param chapter The Chapter object representing the chapter being read.
-   *     communication with tracking service.
+   * @param chapter The Chapter object representing the chapter being read. communication with
+   *     tracking service.
    * @param mangaService The MangaService object used for manga-related operations.
    * @param settingsService The SettingsService object used for managing reader settings.
    */
-  protected Reader(
-      Chapter chapter,
-      MangaService mangaService,
-      SettingsService settingsService) {
+  protected Reader(Chapter chapter, MangaService mangaService, SettingsService settingsService) {
     this.chapter = chapter;
     this.mangaService = mangaService;
     this.settingsService = settingsService;

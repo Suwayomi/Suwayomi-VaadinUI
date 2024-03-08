@@ -91,31 +91,32 @@ public class MangaReader extends Div {
 
     UI ui = getUI().orElseGet(UI::getCurrent);
 
-    var settingsChangeListener = ComponentUtil.addListener(
-        ui,
-        ReaderSettingsChangeEvent.class,
-        e -> {
-          var newSettings = e.getNewSettings();
-          var newDir = newSettings.getDirection();
+    var settingsChangeListener =
+        ComponentUtil.addListener(
+            ui,
+            ReaderSettingsChangeEvent.class,
+            e -> {
+              var newSettings = e.getNewSettings();
+              var newDir = newSettings.getDirection();
 
-          if (newDir == dir.get()) {
-            return;
-          }
+              if (newDir == dir.get()) {
+                return;
+              }
 
-          // if the new or old direction is vertical then the reader implementation must change
-          // as both LTR and RTL use PagedReader, while only Vertical uses StripReader
-          if (newDir == ReaderDirection.VERTICAL || dir.get() == ReaderDirection.VERTICAL) {
-            var oldReader = (Reader) getComponentAt(1);
-            int currentPageIndex = oldReader.getPageIndex();
+              // if the new or old direction is vertical then the reader implementation must change
+              // as both LTR and RTL use PagedReader, while only Vertical uses StripReader
+              if (newDir == ReaderDirection.VERTICAL || dir.get() == ReaderDirection.VERTICAL) {
+                var oldReader = (Reader) getComponentAt(1);
+                int currentPageIndex = oldReader.getPageIndex();
 
-            replaceReader(newDir, chapter);
+                replaceReader(newDir, chapter);
 
-            var newReader = (Reader) getComponentAt(1);
-            newReader.moveToPage(currentPageIndex);
+                var newReader = (Reader) getComponentAt(1);
+                newReader.moveToPage(currentPageIndex);
 
-            dir.set(newDir);
-          }
-        });
+                dir.set(newDir);
+              }
+            });
 
     addDetachListener(e -> settingsChangeListener.remove());
   }
@@ -127,9 +128,7 @@ public class MangaReader extends Div {
    * @param chapter the {@link Chapter chapter} to be read
    * @return a Reader object of either {@link PagedReader} or {@link StripReader}
    */
-  private Reader createReader(
-      ReaderDirection direction,
-      Chapter chapter) {
+  private Reader createReader(ReaderDirection direction, Chapter chapter) {
     Reader reader;
 
     if (direction == ReaderDirection.VERTICAL) {

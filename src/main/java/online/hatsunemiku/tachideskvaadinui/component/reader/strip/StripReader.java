@@ -40,10 +40,7 @@ public class StripReader extends Reader {
    * @param mangaService The MangaService object used for manga-related operations.
    * @param settingsService The SettingsService object used for managing reader settings.
    */
-  public StripReader(
-      Chapter chapter,
-      MangaService mangaService,
-      SettingsService settingsService) {
+  public StripReader(Chapter chapter, MangaService mangaService, SettingsService settingsService) {
     super(chapter, mangaService, settingsService);
     addClassName("strip-reader");
 
