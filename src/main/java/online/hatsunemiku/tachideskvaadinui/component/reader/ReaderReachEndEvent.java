@@ -8,6 +8,9 @@ package online.hatsunemiku.tachideskvaadinui.component.reader;
 
 import com.vaadin.flow.component.ComponentEvent;
 
+/**
+ * Represents an event indicating that the reader has reached the end of the chapter.
+ */
 public class ReaderReachEndEvent extends ComponentEvent<Reader> {
   /**
    * Creates a new event using the given source and indicator whether the event originated from the

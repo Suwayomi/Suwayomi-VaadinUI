@@ -125,6 +125,15 @@ public abstract class Reader extends Div {
     return addListener(ReaderPageIndexChangeEvent.class, listener);
   }
 
+  /**
+   * Adds a listener to the Reader component that listens for a {@link ReaderReachEndEvent}.
+   *
+   * @param listener The listener to be added.
+   * @return A {@link Registration} object that represents the registration of the listener. This
+   *     registration can be used to remove the listener at a later time by calling the {@link
+   *     Registration#remove()} method.
+   * @see ReaderReachEndEvent
+   */
   public Registration addReaderReachEndListener(
       ComponentEventListener<ReaderReachEndEvent> listener) {
     return addListener(ReaderReachEndEvent.class, listener);
