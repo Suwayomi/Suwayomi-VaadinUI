@@ -42,12 +42,12 @@
         </screenshot>
     </screenshots>
     <releases>
-        <release version="1.4.0" date="2024-02-24">
+        <release version="1.5.0" date="2024-03-09">
             <description>
-                <p>Updated the Server download/updating process to use the Stable branch. Also includes a fix for a bug where the old server File wouldn't be deleted after an update.</p>
+                <p>Added a vertical Strip Reader. I do however still recommend the paged reader. I will not make it support Manhwa, don't even ask.</p>
                 <ul>
-                    <li>Uses the stable branch of Tachidesk/Suwayomi again</li>
-                    <li>Fixes a bug where the old Server file wasn't deleted after an update</li>
+                    <li>Added a Strip Reader Implementation for vertical reading</li>
+                    <li>Enhanced design for cards</li>
                 </ul>
             </description>
         </release>
