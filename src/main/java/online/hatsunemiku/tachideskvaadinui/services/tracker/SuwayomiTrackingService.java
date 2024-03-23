@@ -6,15 +6,13 @@
 
 package online.hatsunemiku.tachideskvaadinui.services.tracker;
 
-import javax.sound.midi.Track;
+import java.util.Arrays;
+import java.util.List;
 import lombok.Getter;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchResult;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.client.suwayomi.SuwayomiTrackingClient;
 import org.springframework.stereotype.Service;
-
-import java.util.Arrays;
-import java.util.List;
 
 @Service
 public class SuwayomiTrackingService {

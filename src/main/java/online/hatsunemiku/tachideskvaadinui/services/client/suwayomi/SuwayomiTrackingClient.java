@@ -8,16 +8,14 @@ package online.hatsunemiku.tachideskvaadinui.services.client.suwayomi;
 
 import com.jayway.jsonpath.TypeRef;
 import java.time.Duration;
-import java.util.logging.Level;
+import java.util.List;
+import java.util.Map;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchResult;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
 import org.intellij.lang.annotations.Language;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Map;
 
 @Component
 public class SuwayomiTrackingClient {
