@@ -15,7 +15,7 @@ import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.component.card.AniListMediaCard;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListMedia;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.MangaList;
-import online.hatsunemiku.tachideskvaadinui.services.AniListAPIService;
+import online.hatsunemiku.tachideskvaadinui.services.tracker.AniListAPIService;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 
 @Route("anilist")

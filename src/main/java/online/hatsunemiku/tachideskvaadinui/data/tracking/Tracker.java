@@ -14,10 +14,15 @@ public class Tracker {
 
   @Setter private long mangaId;
   private int aniListId;
+  private int malId;
   private boolean isPrivate;
 
   public boolean hasAniListId() {
     return aniListId != 0;
+  }
+
+  public boolean hasMalId() {
+    return malId != 0;
   }
 
   public void removeAniListId() {

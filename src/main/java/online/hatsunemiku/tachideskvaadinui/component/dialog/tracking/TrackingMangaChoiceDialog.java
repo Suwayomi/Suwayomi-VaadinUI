@@ -19,9 +19,12 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import javax.sound.midi.Track;
+import online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider.TrackerProvider;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListMedia;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDate;
-import online.hatsunemiku.tachideskvaadinui.services.AniListAPIService;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchResult;
+import online.hatsunemiku.tachideskvaadinui.services.tracker.AniListAPIService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import org.jetbrains.annotations.NotNull;
 import org.vaadin.miki.shared.labels.LabelPosition;
@@ -32,7 +35,7 @@ public class TrackingMangaChoiceDialog extends Dialog {
   public TrackingMangaChoiceDialog(
       String mangaName,
       long mangaId,
-      AniListAPIService aniListAPI,
+      TrackerProvider trackerProvider,
       TrackingDataService dataService) {
 
     this.setClassName("tracking-manga-choice-dialog");
@@ -40,15 +43,14 @@ public class TrackingMangaChoiceDialog extends Dialog {
     TextField searchField = new TextField("Search Manga");
     searchField.setValue(mangaName);
 
-    var apiResponse = aniListAPI.searchManga(mangaName);
-    var mangaList = apiResponse.data().page().media();
+    var mangaList = trackerProvider.search(mangaName);
 
-    AtomicReference<AniListMedia> selectedManga = new AtomicReference<>();
+    AtomicReference<TrackerSearchResult> selectedManga = new AtomicReference<>();
 
     Div noResults = new Div("No results found");
     noResults.setId("no-search-results-text");
 
-    ListBox<AniListMedia> searchResults = new ListBox<>();
+    ListBox<TrackerSearchResult> searchResults = new ListBox<>();
     searchResults.addClassName("manga-search-results");
     searchResults.setRenderer(getRenderer());
     searchResults.setItems(mangaList);
@@ -59,7 +61,7 @@ public class TrackingMangaChoiceDialog extends Dialog {
 
     searchResults.addValueChangeListener(
         e -> {
-          AniListMedia selected = e.getValue();
+          TrackerSearchResult selected = e.getValue();
 
           if (selected == null) {
             return;
@@ -77,10 +79,10 @@ public class TrackingMangaChoiceDialog extends Dialog {
             return;
           }
 
-          var response = aniListAPI.searchManga(value);
+          var results = trackerProvider.search(value);
           mangaList.clear();
 
-          mangaList.addAll(response.data().page().media());
+          mangaList.addAll(results);
 
           searchResults.getDataProvider().refreshAll();
         });
@@ -90,6 +92,12 @@ public class TrackingMangaChoiceDialog extends Dialog {
     add(searchField, searchResults, noResults);
 
     Checkbox privateCheckbox = new Checkbox("Private");
+
+    if (!trackerProvider.canSetPrivate()) {
+      privateCheckbox.setEnabled(false);
+      privateCheckbox.addClickListener(e -> privateCheckbox.getTooltip().setOpened(true));
+      privateCheckbox.setTooltipText("This tracker does not support private entries");
+    }
 
     var buttons = new Div();
 
@@ -105,13 +113,11 @@ public class TrackingMangaChoiceDialog extends Dialog {
             Notification.show("Please select a manga to save");
             return;
           }
-          int aniListId = manga.id();
+          int aniListId = manga.getRemoteId();
 
-          boolean isPrivate = privateCheckbox.getValue();
+          boolean isPrivate = trackerProvider.canSetPrivate() && privateCheckbox.getValue();
 
-          if (!aniListAPI.isMangaInList(aniListId)) {
-            aniListAPI.addMangaToList(aniListId, isPrivate);
-          }
+          trackerProvider.submitToTracker(isPrivate, manga.getId(), manga.getRemoteId());
 
           dataService.getTracker(mangaId).setAniListId(aniListId);
           dataService.getTracker(mangaId).setPrivate(privateCheckbox.getValue());
@@ -127,7 +133,7 @@ public class TrackingMangaChoiceDialog extends Dialog {
   }
 
   private static void changeSearchResultsVisibility(
-      List<AniListMedia> mangaList, ListBox<AniListMedia> searchResults, Div noResults) {
+      List<TrackerSearchResult> mangaList, ListBox<TrackerSearchResult> searchResults, Div noResults) {
     if (mangaList.isEmpty()) {
       searchResults.setVisible(false);
       noResults.setVisible(true);
@@ -138,18 +144,16 @@ public class TrackingMangaChoiceDialog extends Dialog {
   }
 
   @NotNull
-  private static ComponentRenderer<Component, AniListMedia> getRenderer() {
+  private static ComponentRenderer<Component, TrackerSearchResult> getRenderer() {
     return new ComponentRenderer<>(
         media -> {
           Div content = new Div();
           content.setClassName("manga-search-result");
 
-          MediaDate mangaDate = media.date();
-
           Div upperHalf = new Div();
           upperHalf.setClassName("manga-search-result-upper-half");
 
-          Image image = new Image(media.coverImage().large(), "Cover Image");
+          Image image = new Image(media.getCoverUrl(), "Cover Image");
 
           Div data = new Div();
 
@@ -157,7 +161,7 @@ public class TrackingMangaChoiceDialog extends Dialog {
               new LabelField<String>()
                   .withLabelPosition(LabelPosition.BEFORE_MIDDLE)
                   .withLabel("Title")
-                  .withValue(media.title().userPreferred());
+                  .withValue(media.getTitle());
 
           title.setClassName("manga-search-result-attribute");
 
@@ -165,16 +169,15 @@ public class TrackingMangaChoiceDialog extends Dialog {
               new LabelField<String>()
                   .withLabelPosition(LabelPosition.BEFORE_MIDDLE)
                   .withLabel("Type")
-                  .withValue(media.format());
+                  .withValue(media.getTypeFormatted());
 
           type.addClassName("manga-search-result-attribute");
 
-          String date = "%s-%s-%s".formatted(mangaDate.year(), mangaDate.month(), mangaDate.day());
           LabelField<String> started =
               new LabelField<String>()
                   .withLabelPosition(LabelPosition.BEFORE_MIDDLE)
                   .withLabel("Started")
-                  .withValue(date);
+                  .withValue(media.getStartDate());
 
           started.addClassName("manga-search-result-attribute");
 
@@ -182,7 +185,7 @@ public class TrackingMangaChoiceDialog extends Dialog {
               new LabelField<String>()
                   .withLabelPosition(LabelPosition.BEFORE_MIDDLE)
                   .withLabel("Status")
-                  .withValue(media.status());
+                  .withValue(media.getStatusFormatted());
 
           status.addClassName("manga-search-result-attribute");
 
@@ -191,7 +194,7 @@ public class TrackingMangaChoiceDialog extends Dialog {
 
           upperHalf.add(image, data);
 
-          Text description = new Text(media.description());
+          Text description = new Text(media.getSummary());
 
           content.add(upperHalf, description);
 

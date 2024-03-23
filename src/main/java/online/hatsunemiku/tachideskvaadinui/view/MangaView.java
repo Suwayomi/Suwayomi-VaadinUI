@@ -32,10 +32,11 @@ import online.hatsunemiku.tachideskvaadinui.component.listbox.chapter.ChapterLis
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
-import online.hatsunemiku.tachideskvaadinui.services.AniListAPIService;
+import online.hatsunemiku.tachideskvaadinui.services.tracker.AniListAPIService;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
+import online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService;
 import online.hatsunemiku.tachideskvaadinui.utils.RouteUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import org.jetbrains.annotations.NotNull;
@@ -48,17 +49,20 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
   private final SettingsService settingsService;
   private final AniListAPIService aniListAPIService;
   private final TrackingDataService dataService;
+  private final SuwayomiTrackingService suwayomiTrackingService;
 
   public MangaView(
       MangaService mangaService,
       SettingsService settingsService,
       AniListAPIService aniListAPIService,
-      TrackingDataService dataService) {
+      TrackingDataService dataService,
+      SuwayomiTrackingService suwayomiTrackingService) {
     super("Manga");
     this.mangaService = mangaService;
     this.settingsService = settingsService;
     this.aniListAPIService = aniListAPIService;
     this.dataService = dataService;
+    this.suwayomiTrackingService = suwayomiTrackingService;
   }
 
   @Override
@@ -132,7 +136,8 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
 
     trackBtn.addClickListener(
         e -> {
-          TrackingDialog dialog = new TrackingDialog(dataService, manga, aniListAPIService);
+          var dialog =
+              new TrackingDialog(dataService, manga, aniListAPIService, suwayomiTrackingService);
           dialog.open();
         });
 

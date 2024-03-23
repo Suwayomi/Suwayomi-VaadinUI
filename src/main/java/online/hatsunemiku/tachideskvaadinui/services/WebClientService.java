@@ -6,6 +6,8 @@
 
 package online.hatsunemiku.tachideskvaadinui.services;
 
+import com.netflix.graphql.dgs.client.MonoGraphQLClient;
+import com.netflix.graphql.dgs.client.WebClientGraphQLClient;
 import jakarta.annotation.PreDestroy;
 import java.net.URI;
 import java.time.Duration;
@@ -30,6 +32,7 @@ public class WebClientService {
   private WebClient webClient;
   private HttpGraphQlClient graphQlClient;
   private WebSocketGraphQlClient webSocketGraphQlClient;
+  private WebClientGraphQLClient dgsGraphQlClient;
 
   public WebClientService(SettingsService settingsService) {
     Settings settings = settingsService.getSettings();
@@ -37,6 +40,7 @@ public class WebClientService {
     this.webClient = WebClient.create(settings.getUrl());
     initGraphQlClient(settings.getUrl());
     initWebSocketGraphQlClient(settings.getUrl());
+    initDgsGraphQlClient(settings.getUrl());
   }
 
   @EventListener(UrlChangeEvent.class)
@@ -45,6 +49,7 @@ public class WebClientService {
 
     initGraphQlClient(event.getUrl());
     initWebSocketGraphQlClient(event.getUrl());
+    initDgsGraphQlClient(event.getUrl());
   }
 
   @PreDestroy
@@ -85,5 +90,14 @@ public class WebClientService {
     URI uri = URI.create(url);
 
     this.webSocketGraphQlClient = WebSocketGraphQlClient.create(uri, webSocketClient);
+  }
+
+  private void initDgsGraphQlClient(String url) {
+    url = url + "/api/graphql";
+    url = url.replace("//api", "/api");
+
+    WebClient internal = WebClient.create(url);
+
+    this.dgsGraphQlClient = MonoGraphQLClient.createWithWebClient(internal);
   }
 }

@@ -6,17 +6,21 @@
 
 package online.hatsunemiku.tachideskvaadinui.api;
 
+import elemental.json.Json;
+import elemental.json.JsonObject;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.OAuthResponse;
+import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
+import online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService;
 import org.intellij.lang.annotations.Language;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("validate")
@@ -24,9 +28,11 @@ import org.springframework.web.servlet.view.RedirectView;
 public class AuthAPI {
 
   private final TrackingDataService dataService;
+  private final SuwayomiTrackingService suwayomiTrackingService;
 
-  public AuthAPI(TrackingDataService dataService) {
+  public AuthAPI(TrackingDataService dataService, SuwayomiTrackingService suwayomiTrackingService) {
     this.dataService = dataService;
+    this.suwayomiTrackingService = suwayomiTrackingService;
   }
 
   /**
@@ -93,6 +99,20 @@ public class AuthAPI {
 
     return html;
   }
+
+  @GetMapping("suwayomi")
+  public RedirectView authenticateSuwayomi(HttpServletRequest request, @RequestParam("state") String json) {
+    String url = request.getRequestURL() + "?" + request.getQueryString();
+
+    JsonObject state = Json.parse(json);
+
+    int trackerId = (int) state.getNumber("trackerId");
+
+    suwayomiTrackingService.loginSuwayomi(url, trackerId);
+
+    return new RedirectView("/");
+  }
+
 
   /**
    * Validates the AniList token received in the request body. If the token is valid, it is saved in

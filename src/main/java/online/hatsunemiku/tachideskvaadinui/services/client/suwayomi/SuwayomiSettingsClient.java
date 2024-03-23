@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package online.hatsunemiku.tachideskvaadinui.services.client;
+package online.hatsunemiku.tachideskvaadinui.services.client.suwayomi;
 
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;

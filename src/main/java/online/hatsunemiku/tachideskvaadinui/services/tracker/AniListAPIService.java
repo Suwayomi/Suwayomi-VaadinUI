@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package online.hatsunemiku.tachideskvaadinui.services;
+package online.hatsunemiku.tachideskvaadinui.services.tracker;
 
 import static online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListStatus.CURRENT;
 
@@ -32,6 +32,7 @@ import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.responses.AniL
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.responses.AniListChangePrivacyStatusResponse;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.responses.AniListChangeStatusResponse;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.responses.AniListMangaStatistics;
+import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
