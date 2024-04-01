@@ -8,10 +8,13 @@ package online.hatsunemiku.tachideskvaadinui.data.tracking;
 
 import java.time.Instant;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 public class TrackerTokens {
   private OAuthData aniListToken;
+  @Setter
+  private OAuthData malToken;
 
   public TrackerTokens() {
     aniListToken = null;
@@ -27,6 +30,21 @@ public class TrackerTokens {
     }
 
     return !aniListToken.getExpiresAsInstant().isBefore(Instant.now());
+  }
+
+  public boolean hasMalToken() {
+    if (malToken == null) {
+      return false;
+    }
+
+    if (malToken.getAccessToken().isEmpty()) {
+      return false;
+    }
+
+    boolean expired = malToken.getExpiresAsInstant()
+        .isBefore(Instant.now());
+
+    return malToken.getRefreshToken() != null || !expired;
   }
 
   public void setAniListAuth(OAuthResponse response) {

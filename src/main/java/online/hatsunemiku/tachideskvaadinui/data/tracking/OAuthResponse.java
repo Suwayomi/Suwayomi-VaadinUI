@@ -7,9 +7,12 @@
 package online.hatsunemiku.tachideskvaadinui.data.tracking;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.Instant;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class OAuthResponse {
 
   @JsonProperty("access_token")
@@ -22,5 +25,11 @@ public class OAuthResponse {
   private String tokenType;
 
   @JsonProperty("expires_in")
-  private int expiresIn;
+  private long expiresIn;
+
+  public OAuthResponse(String accessToken, Instant expiresIn, String tokenType) {
+    this.accessToken = accessToken;
+    this.expiresIn = expiresIn.getEpochSecond();
+    this.tokenType = tokenType;
+  }
 }

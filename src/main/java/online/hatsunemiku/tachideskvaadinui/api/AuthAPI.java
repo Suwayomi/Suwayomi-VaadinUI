@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.OAuthResponse;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
+import online.hatsunemiku.tachideskvaadinui.services.tracker.MyAnimeListAPIService;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService;
 import org.intellij.lang.annotations.Language;
 import org.springframework.http.MediaType;
@@ -30,10 +31,12 @@ public class AuthAPI {
 
   private final TrackingDataService dataService;
   private final SuwayomiTrackingService suwayomiTrackingService;
+  private final MyAnimeListAPIService malAPI;
 
-  public AuthAPI(TrackingDataService dataService, SuwayomiTrackingService suwayomiTrackingService) {
+  public AuthAPI(TrackingDataService dataService, SuwayomiTrackingService suwayomiTrackingService, MyAnimeListAPIService malAPI) {
     this.dataService = dataService;
     this.suwayomiTrackingService = suwayomiTrackingService;
+    this.malAPI = malAPI;
   }
 
   /**
@@ -140,4 +143,22 @@ public class AuthAPI {
     dataService.getTokens().setAniListAuth(response);
     return new RedirectView("/");
   }
+
+  //mal = http://localhost:8080/validate/mal?code={code}
+  @GetMapping("mal")
+  public RedirectView validateMALToken(@RequestParam("code") String code, @RequestParam("state") MALTokenState state) {
+    log.info("Validating MAL token");
+
+    log.info("Code: {}", code);
+    log.info("state: {}", state);
+
+    malAPI.exchangeCodeForTokens(code, state.pkceId());
+
+    return new RedirectView("/");
+  }
+
+  public record MALTokenState(String pkceId) {
+
+  }
+
 }
