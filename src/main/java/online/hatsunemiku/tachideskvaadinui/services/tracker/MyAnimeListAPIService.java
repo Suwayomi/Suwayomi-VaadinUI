@@ -43,15 +43,12 @@ public class MyAnimeListAPIService {
   private final TrackingDataService tds;
   private final WebClient webClient;
   private final Cache<UUID, String> pkceCache;
-  @Nullable
-  private MyAnimeList mal;
+  @Nullable private MyAnimeList mal;
 
   public MyAnimeListAPIService(TrackingDataService tds, WebClient webClient) {
     this.tds = tds;
     this.webClient = webClient;
-    this.pkceCache = Caffeine.newBuilder()
-        .expireAfterWrite(10, TimeUnit.MINUTES)
-        .build();
+    this.pkceCache = Caffeine.newBuilder().expireAfterWrite(10, TimeUnit.MINUTES).build();
 
     if (!tds.getTokens().hasMalToken()) {
       return;
@@ -73,7 +70,6 @@ public class MyAnimeListAPIService {
     this.mal = MyAnimeList.withToken(data.getAccessToken());
   }
 
-
   @NotNull
   public String getAuthUrl() {
     String baseUrl = "https://myanimelist.net/v1/oauth2/authorize";
@@ -88,12 +84,11 @@ public class MyAnimeListAPIService {
     stateParam = URLEncoder.encode(stateParam.formatted(pkceId), StandardCharsets.UTF_8);
 
     String params = "response_type=%s&client_id=%s&code_challenge=%s&state=%s";
-    params = params.formatted(responseType, CLIENT_ID, codeChallenge, pkceId.toString(),
-        stateParam);
+    params =
+        params.formatted(responseType, CLIENT_ID, codeChallenge, pkceId.toString(), stateParam);
 
     return "%s?%s".formatted(baseUrl, params);
   }
-
 
   public boolean hasMalToken() {
     return tds.getTokens().hasMalToken();
@@ -124,7 +119,8 @@ public class MyAnimeListAPIService {
     body.add("grant_type", "refresh_token");
     body.add("refresh_token", refreshToken);
 
-    return webClient.post()
+    return webClient
+        .post()
         .uri("https://myanimelist.net/v1/oauth2/token")
         .headers(headers -> headers.setBasicAuth(CLIENT_ID, ""))
         .bodyValue(body)
@@ -138,11 +134,12 @@ public class MyAnimeListAPIService {
       throw new IllegalStateException("Not authenticated with MAL");
     }
 
-    PaginatedIterator<MangaListStatus> iter = mal.getUserMangaListing()
-        .withStatus(status)
-        .sortBy(MangaSort.Title)
-        .includeNSFW()
-        .searchAll();
+    PaginatedIterator<MangaListStatus> iter =
+        mal.getUserMangaListing()
+            .withStatus(status)
+            .sortBy(MangaSort.Title)
+            .includeNSFW()
+            .searchAll();
 
     var list = new ArrayList<MangaListStatus>();
 
@@ -154,5 +151,4 @@ public class MyAnimeListAPIService {
 
     return list.stream().map(MangaListStatus::getManga).toList();
   }
-
 }

@@ -100,15 +100,16 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   private Button getMalImportBtn() {
     Button malImportBtn = new Button("Import from MAL", VaadinIcon.DOWNLOAD.create());
 
-    malImportBtn.addClickListener(e -> {
-      UI ui = getUI().orElse(UI.getCurrent());
+    malImportBtn.addClickListener(
+        e -> {
+          UI ui = getUI().orElse(UI.getCurrent());
 
-      if (ui == null) {
-        return;
-      }
+          if (ui == null) {
+            return;
+          }
 
-      ui.navigate(MALView.class);
-    });
+          ui.navigate(MALView.class);
+        });
     return malImportBtn;
   }
 

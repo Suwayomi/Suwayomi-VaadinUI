@@ -33,7 +33,10 @@ public class AuthAPI {
   private final SuwayomiTrackingService suwayomiTrackingService;
   private final MyAnimeListAPIService malAPI;
 
-  public AuthAPI(TrackingDataService dataService, SuwayomiTrackingService suwayomiTrackingService, MyAnimeListAPIService malAPI) {
+  public AuthAPI(
+      TrackingDataService dataService,
+      SuwayomiTrackingService suwayomiTrackingService,
+      MyAnimeListAPIService malAPI) {
     this.dataService = dataService;
     this.suwayomiTrackingService = suwayomiTrackingService;
     this.malAPI = malAPI;
@@ -105,7 +108,8 @@ public class AuthAPI {
   }
 
   @GetMapping("suwayomi")
-  public RedirectView authenticateSuwayomi(HttpServletRequest request, @RequestParam("state") String json) {
+  public RedirectView authenticateSuwayomi(
+      HttpServletRequest request, @RequestParam("state") String json) {
     String url = request.getRequestURL() + "?" + request.getQueryString();
 
     JsonObject state = Json.parse(json);
@@ -144,9 +148,10 @@ public class AuthAPI {
     return new RedirectView("/");
   }
 
-  //mal = http://localhost:8080/validate/mal?code={code}
+  // mal = http://localhost:8080/validate/mal?code={code}
   @GetMapping("mal")
-  public RedirectView validateMALToken(@RequestParam("code") String code, @RequestParam("state") MALTokenState state) {
+  public RedirectView validateMALToken(
+      @RequestParam("code") String code, @RequestParam("state") MALTokenState state) {
     log.info("Validating MAL token");
 
     log.info("Code: {}", code);

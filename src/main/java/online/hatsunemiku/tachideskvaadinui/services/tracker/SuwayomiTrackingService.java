@@ -46,10 +46,10 @@ public class SuwayomiTrackingService {
     return client.searchTracker(query, id);
   }
 
-    public List<TrackerSearchResult> searchMAL(String query) {
-        int id = TrackerType.MAL.id;
-        return client.searchTracker(query, id);
-    }
+  public List<TrackerSearchResult> searchMAL(String query) {
+    int id = TrackerType.MAL.id;
+    return client.searchTracker(query, id);
+  }
 
   public void trackOnAniList(int mangaId, int externalId) {
     int id = TrackerType.ANILIST.id;
@@ -61,21 +61,21 @@ public class SuwayomiTrackingService {
     client.trackMangaOnTracker(mangaId, externalId, id);
   }
 
-
   public void loginSuwayomi(String url, int trackerId) {
     client.loginTracker(url, trackerId);
   }
 
   private String getStateAuthParam(int id) {
 
-      String jsonTemplate =
+    String jsonTemplate =
         """
     {\
     "redirectUrl":"http://localhost:8080/validate/suwayomi",\
     "trackerId":%d,\
     "anyOtherInfo":"%s"\
     }\
-    """.strip();
+    """
+            .strip();
 
     String template = "&state=%s";
 
@@ -101,12 +101,12 @@ public class SuwayomiTrackingService {
     }
 
     public static TrackerType fromId(int id) {
-      var match = Arrays.stream(TrackerType.values())
+      var match =
+          Arrays.stream(TrackerType.values())
               .filter(trackerType -> trackerType.id == id)
               .findFirst();
 
-        return match.orElse(null);
-
+      return match.orElse(null);
     }
   }
 }
