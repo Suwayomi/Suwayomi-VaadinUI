@@ -7,69 +7,50 @@
 package online.hatsunemiku.tachideskvaadinui.data.tracking.search;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-
 import java.util.Objects;
+import lombok.Getter;
 
 @Getter
 public final class TrackerSearchResult {
-  /**
-   * The url of the cover image for the manga.
-   */
+  /** The url of the cover image for the manga. */
   @JsonProperty("coverUrl")
   private final String coverUrl;
 
-  /**
-   * The id of the manga on Suwayomi.
-   */
+  /** The id of the manga on Suwayomi. */
   @JsonProperty("id")
   private final int id;
 
-  /**
-   * The id of the manga on the tracker site.
-   */
+  /** The id of the manga on the tracker site. */
   @JsonProperty("remoteId")
   private final int remoteId;
 
-  /**
-   * The publishing status of the manga.
-   */
+  /** The publishing status of the manga. */
   @JsonProperty("publishingStatus")
   private final String status;
 
-  /**
-   * The type of media - e.g. manga, light novel, web novel, etc.
-   */
+  /** The type of media - e.g. manga, light novel, web novel, etc. */
   @JsonProperty("publishingType")
   private final String type;
 
-  /**
-   * The date on which the manga started publishing.
-   */
+  /** The date on which the manga started publishing. */
   @JsonProperty("startDate")
   private final String startDate;
 
-  /**
-   * A summary of the manga.
-   */
+  /** A summary of the manga. */
   @JsonProperty("summary")
   private final String summary;
 
-  /**
-   * The title of the manga.
-   */
+  /** The title of the manga. */
   @JsonProperty("title")
   private final String title;
 
-  /**
-   * The total number of chapters in the manga.
-   */
+  /** The total number of chapters in the manga. */
   @JsonProperty("totalChapters")
   private final int totalChapters;
 
   /**
-   * The url of the manga on the tracker site.
-   * For AniList for example: <a href="https://anilist.co/manga/112981">https://anilist.co/manga/112981</a>
+   * The url of the manga on the tracker site. For AniList for example: <a
+   * href="https://anilist.co/manga/112981">https://anilist.co/manga/112981</a>
    */
   @JsonProperty("trackingUrl")
   private final String trackingUrl;

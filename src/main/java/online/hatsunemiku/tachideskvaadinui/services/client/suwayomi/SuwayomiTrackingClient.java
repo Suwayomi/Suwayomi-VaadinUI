@@ -78,7 +78,8 @@ public class SuwayomiTrackingClient {
 
   public void loginTracker(String url, int id) {
     @Language("graphql")
-    String query = """
+    String query =
+        """
         mutation LoginTracker($url: String!, $trackerId: Int!) {
           loginTrackerOAuth(input: {callbackUrl: $url, trackerId: $trackerId}) {
             isLoggedIn
@@ -103,7 +104,8 @@ public class SuwayomiTrackingClient {
 
   public List<TrackerSearchResult> searchTracker(String query, int id) {
     @Language("graphql")
-    String graphQuery = """
+    String graphQuery =
+        """
         query searchTracker($query: String!, $id: Int!) {
           searchTracker(input: {query: $query, trackerId: $id}) {
             trackSearches {
@@ -138,15 +140,15 @@ public class SuwayomiTrackingClient {
       throw new RuntimeException(errorText);
     }
 
-    TypeRef<List<TrackerSearchResult>> typeRef = new TypeRef<>() {
-    };
+    TypeRef<List<TrackerSearchResult>> typeRef = new TypeRef<>() {};
 
     return response.extractValueAsObject("searchTracker.trackSearches", typeRef);
   }
 
   public void trackMangaOnTracker(int mangaId, int externalId, int trackerId) {
     @Language("graphql")
-    var query = """
+    var query =
+        """
         mutation TrackManga($mangaId: Int!, $remoteId: Int!, $trackerId: Int!) {
           bindTrack(input: {mangaId: $mangaId, remoteId: $remoteId, trackerId: $trackerId}) {
             trackRecord {

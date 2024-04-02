@@ -15,7 +15,4 @@ public class MalMediaCard extends Card {
 
     setHref("/search/" + manga.getTitle());
   }
-
-
-
 }

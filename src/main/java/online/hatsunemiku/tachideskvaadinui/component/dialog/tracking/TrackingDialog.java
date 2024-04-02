@@ -106,13 +106,13 @@ public class TrackingDialog extends Dialog {
             return;
           }
 
-          TrackerProvider provider = new AniListProvider(aniListAPIService,
-              suwayomiTrackingService);
+          TrackerProvider provider =
+              new AniListProvider(aniListAPIService, suwayomiTrackingService);
 
           try {
             displaySearch(manga.getTitle(), manga.getId(), provider);
           } catch (WebClientResponseException.InternalServerError
-                   | WebClientRequestException error) {
+              | WebClientRequestException error) {
             log.error("Invalid response from AniList", error);
             Notification notification = new Notification();
             notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -122,35 +122,35 @@ public class TrackingDialog extends Dialog {
           updateButtons(aniListBtn, malBtn, tracker);
         });
 
-    malBtn.addClickListener(e -> {
+    malBtn.addClickListener(
+        e -> {
+          if (!suwayomiTrackingService.isMALAuthenticated()) {
+            String url = suwayomiTrackingService.getMALAuthUrl();
+            getUI().ifPresent(ui -> ui.getPage().open(url));
+            return;
+          }
 
-      if (!suwayomiTrackingService.isMALAuthenticated()) {
-        String url = suwayomiTrackingService.getMALAuthUrl();
-        getUI().ifPresent(ui -> ui.getPage().open(url));
-        return;
-      }
+          TrackerProvider provider = new SuwayomiProvider(suwayomiTrackingService);
 
-      TrackerProvider provider = new SuwayomiProvider(suwayomiTrackingService);
+          try {
+            displaySearch(manga.getTitle(), manga.getId(), provider);
+          } catch (WebClientResponseException.InternalServerError
+              | WebClientRequestException error) {
+            log.error("Invalid response from MyAnimeList", error);
+            Notification notification = new Notification();
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.setText("Couldn't correctly connect to MyAnimeList\nPlease try again");
+            notification.open();
+          } catch (RuntimeException ex) {
+            log.error("Error displaying search", ex);
+            Notification notification = new Notification();
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.setText("Error displaying search: " + ex.getMessage());
+            notification.open();
+          }
 
-      try {
-        displaySearch(manga.getTitle(), manga.getId(), provider);
-      } catch (WebClientResponseException.InternalServerError
-               | WebClientRequestException error) {
-        log.error("Invalid response from MyAnimeList", error);
-        Notification notification = new Notification();
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        notification.setText("Couldn't correctly connect to MyAnimeList\nPlease try again");
-        notification.open();
-      } catch (RuntimeException ex) {
-        log.error("Error displaying search", ex);
-        Notification notification = new Notification();
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        notification.setText("Error displaying search: " + ex.getMessage());
-        notification.open();
-      }
-
-      updateButtons(aniListBtn, malBtn, tracker);
-    });
+          updateButtons(aniListBtn, malBtn, tracker);
+        });
 
     updateButtons(aniListBtn, malBtn, tracker);
 
@@ -452,6 +452,5 @@ public class TrackingDialog extends Dialog {
     } else {
       malBtn.setIcon(LumoIcon.CROSS.create());
     }
-
   }
 }

@@ -96,9 +96,6 @@ public class MALView extends TrackingLayout {
   }
 
   private List<MalMediaCard> getCards(List<Manga> media) {
-    return media.stream()
-        .map(MalMediaCard::new)
-        .toList();
+    return media.stream().map(MalMediaCard::new).toList();
   }
-
 }

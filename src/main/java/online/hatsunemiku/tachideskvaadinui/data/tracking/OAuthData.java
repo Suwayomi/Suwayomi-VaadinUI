@@ -63,7 +63,8 @@ public class OAuthData {
   }
 
   @JsonCreator
-  private OAuthData(String accessToken,
+  private OAuthData(
+      String accessToken,
       String tokenType,
       @JsonAlias("expires_in") @JsonProperty("expires") String expires,
       @Nullable String refreshToken) {
@@ -79,7 +80,7 @@ public class OAuthData {
       expiry = Instant.parse(expires);
     }
 
-    //formats to ISO 8601 -> YYYY-MM-DDTHH:MM:SSZ Example: 2024-02-27T19:17:51Z
+    // formats to ISO 8601 -> YYYY-MM-DDTHH:MM:SSZ Example: 2024-02-27T19:17:51Z
     expires = expiry.toString();
 
     this.expires = expires;

@@ -35,7 +35,6 @@ public class AniListView extends TrackingLayout {
     init();
   }
 
-
   @Override
   public boolean hasToken() {
     return aniListAPI.hasAniListToken();
@@ -90,10 +89,6 @@ public class AniListView extends TrackingLayout {
   }
 
   private List<AniListMediaCard> getCards(List<AniListMedia> media) {
-    return media.stream()
-        .map(AniListMediaCard::new)
-        .toList();
+    return media.stream().map(AniListMediaCard::new).toList();
   }
-
-
 }

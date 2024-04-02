@@ -6,34 +6,33 @@
 
 package online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchResult;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.AniListAPIService;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService;
 
-import java.util.List;
-
 @AllArgsConstructor
 public class AniListProvider implements TrackerProvider {
-    private AniListAPIService aniListAPI;
-    private SuwayomiTrackingService suwayomiAPI;
+  private AniListAPIService aniListAPI;
+  private SuwayomiTrackingService suwayomiAPI;
 
-    @Override
-    public boolean canSetPrivate() {
-        return true;
+  @Override
+  public boolean canSetPrivate() {
+    return true;
+  }
+
+  @Override
+  public List<TrackerSearchResult> search(String query) {
+    return suwayomiAPI.searchAniList(query);
+  }
+
+  @Override
+  public void submitToTracker(boolean isPrivate, int mangaId, int externalId) {
+    if (isPrivate && !aniListAPI.isMangaInList(externalId)) {
+      aniListAPI.addMangaToList(mangaId, true);
     }
 
-    @Override
-    public List<TrackerSearchResult> search(String query) {
-        return suwayomiAPI.searchAniList(query);
-    }
-
-    @Override
-    public void submitToTracker(boolean isPrivate, int mangaId, int externalId) {
-        if (isPrivate && !aniListAPI.isMangaInList(externalId)) {
-            aniListAPI.addMangaToList(mangaId, true);
-        }
-
-        suwayomiAPI.trackOnAniList(mangaId, externalId);
-    }
+    suwayomiAPI.trackOnAniList(mangaId, externalId);
+  }
 }

@@ -129,7 +129,9 @@ public class TrackingMangaChoiceDialog extends Dialog {
   }
 
   private static void changeSearchResultsVisibility(
-      List<TrackerSearchResult> mangaList, ListBox<TrackerSearchResult> searchResults, Div noResults) {
+      List<TrackerSearchResult> mangaList,
+      ListBox<TrackerSearchResult> searchResults,
+      Div noResults) {
     if (mangaList.isEmpty()) {
       searchResults.setVisible(false);
       noResults.setVisible(true);

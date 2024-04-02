@@ -13,8 +13,7 @@ import lombok.Setter;
 @Getter
 public class TrackerTokens {
   private OAuthData aniListToken;
-  @Setter
-  private OAuthData malToken;
+  @Setter private OAuthData malToken;
 
   public TrackerTokens() {
     aniListToken = null;
@@ -41,8 +40,7 @@ public class TrackerTokens {
       return false;
     }
 
-    boolean expired = malToken.getExpiresAsInstant()
-        .isBefore(Instant.now());
+    boolean expired = malToken.getExpiresAsInstant().isBefore(Instant.now());
 
     return malToken.getRefreshToken() != null || !expired;
   }

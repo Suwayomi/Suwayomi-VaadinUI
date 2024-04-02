@@ -61,6 +61,7 @@ public abstract class TrackingLayout extends StandardLayout {
   public abstract Div getOnHoldSection();
 
   public abstract Div getDroppedSection();
+
   public Div getContentSection(String title, List<? extends Card> content) {
     Div section = new Div();
     section.addClassName("import-content");
@@ -78,5 +79,4 @@ public abstract class TrackingLayout extends StandardLayout {
 
     return section;
   }
-
 }
