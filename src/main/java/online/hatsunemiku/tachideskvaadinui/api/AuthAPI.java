@@ -157,6 +157,10 @@ public class AuthAPI {
     return new RedirectView("/");
   }
 
+  /**
+   * Represents the state parameter of a MAL token response.
+   * Contains the PKCE (Proof Key for Code Exchange) ID to be used in the token exchange.
+   */
   public record MALTokenState(String pkceId) {
 
   }

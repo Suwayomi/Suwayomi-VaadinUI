@@ -10,18 +10,15 @@ import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchResult;
-import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.client.suwayomi.SuwayomiTrackingClient;
 import org.springframework.stereotype.Service;
 
 @Service
 public class SuwayomiTrackingService {
   private final SuwayomiTrackingClient client;
-  private final SettingsService settingsService;
 
-  public SuwayomiTrackingService(SuwayomiTrackingClient client, SettingsService settingsService) {
+  public SuwayomiTrackingService(SuwayomiTrackingClient client) {
     this.client = client;
-    this.settingsService = settingsService;
   }
 
   public boolean isAniListAuthenticated() {
@@ -89,6 +86,9 @@ public class SuwayomiTrackingService {
     return template.formatted(json);
   }
 
+  /**
+   * An enumeration representing different types of trackers.
+   */
   @Getter
   private enum TrackerType {
     MAL(1),
