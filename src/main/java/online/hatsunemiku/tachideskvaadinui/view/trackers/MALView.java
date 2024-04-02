@@ -54,54 +54,51 @@ public class MALView extends TrackingLayout {
   public Div getReadingSection() {
     var list = malAPI.getMangaWithStatus(MangaStatus.Reading);
 
-    return getContentSection("Reading", list);
+    var cards = getCards(list);
+
+    return getContentSection("Reading", cards);
   }
 
   @Override
   public Div getPlanToReadSection() {
     var list = malAPI.getMangaWithStatus(MangaStatus.PlanToRead);
 
-    return getContentSection("Plan to Read", list);
+    var cards = getCards(list);
+
+    return getContentSection("Plan to Read", cards);
   }
 
   @Override
   public Div getCompletedSection() {
     var list = malAPI.getMangaWithStatus(MangaStatus.Completed);
 
-    return getContentSection("Completed", list);
+    var cards = getCards(list);
+
+    return getContentSection("Completed", cards);
   }
 
   @Override
   public Div getOnHoldSection() {
     var list = malAPI.getMangaWithStatus(MangaStatus.OnHold);
 
-    return getContentSection("On Hold", list);
+    var cards = getCards(list);
+
+    return getContentSection("On Hold", cards);
   }
 
   @Override
   public Div getDroppedSection() {
     var list = malAPI.getMangaWithStatus(MangaStatus.Dropped);
 
-    return getContentSection("Dropped", list);
+    var cards = getCards(list);
+
+    return getContentSection("Dropped", cards);
   }
 
-
-  private Div getContentSection(String title, List<Manga> media) {
-    Div section = new Div();
-    section.addClassName("import-content");
-
-    Div titleSection = new Div();
-    titleSection.addClassName("import-title-section");
-    titleSection.setText(title);
-
-    Div contentGrid = new Div();
-    contentGrid.addClassName("import-content-grid");
-
-    for (Manga manga : media) {
-      contentGrid.add(new MalMediaCard(manga));
-    }
-
-    section.add(titleSection, contentGrid);
-    return section;
+  private List<MalMediaCard> getCards(List<Manga> media) {
+    return media.stream()
+        .map(MalMediaCard::new)
+        .toList();
   }
+
 }

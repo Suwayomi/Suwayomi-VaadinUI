@@ -10,6 +10,9 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import java.util.List;
+import online.hatsunemiku.tachideskvaadinui.component.card.Card;
+
 @CssImport("./css/views/imports/importCommons.css")
 public abstract class TrackingLayout extends StandardLayout {
 
@@ -58,5 +61,22 @@ public abstract class TrackingLayout extends StandardLayout {
   public abstract Div getOnHoldSection();
 
   public abstract Div getDroppedSection();
+  public Div getContentSection(String title, List<? extends Card> content) {
+    Div section = new Div();
+    section.addClassName("import-content");
+
+    Div titleSection = new Div();
+    titleSection.addClassName("import-title-section");
+    titleSection.setText(title);
+
+    Div contentGrid = new Div();
+    contentGrid.addClassName("import-content-grid");
+
+    content.forEach(contentGrid::add);
+
+    section.add(titleSection, contentGrid);
+
+    return section;
+  }
 
 }

@@ -35,25 +35,6 @@ public class AniListView extends TrackingLayout {
     init();
   }
 
-  private Div getContentSection(String title, List<AniListMedia> media) {
-    Div section = new Div();
-    section.addClassName("import-content");
-
-    Div titleSection = new Div();
-    titleSection.addClassName("import-title-section");
-    titleSection.setText(title);
-
-    Div contentGrid = new Div();
-    contentGrid.addClassName("import-content-grid");
-
-    for (AniListMedia manga : media) {
-      contentGrid.add(new AniListMediaCard(manga));
-    }
-
-    section.add(titleSection, contentGrid);
-    return section;
-  }
-
 
   @Override
   public boolean hasToken() {
@@ -75,27 +56,43 @@ public class AniListView extends TrackingLayout {
 
   @Override
   public Div getReadingSection() {
-    return getContentSection("Reading", list.reading());
+    var cards = getCards(list.reading());
+
+    return getContentSection("Reading", cards);
   }
 
   @Override
   public Div getPlanToReadSection() {
-    return getContentSection("Plan to read", list.planToRead());
+    var cards = getCards(list.planToRead());
+
+    return getContentSection("Plan to read", cards);
   }
 
   @Override
   public Div getCompletedSection() {
-    return getContentSection("Completed", list.completed());
+    var cards = getCards(list.completed());
+
+    return getContentSection("Completed", cards);
   }
 
   @Override
   public Div getOnHoldSection() {
-    return getContentSection("On hold", list.onHold());
+    var cards = getCards(list.onHold());
+
+    return getContentSection("On hold", cards);
   }
 
   @Override
   public Div getDroppedSection() {
-    return getContentSection("Dropped", list.dropped());
+    var cards = getCards(list.dropped());
+
+    return getContentSection("Dropped", cards);
+  }
+
+  private List<AniListMediaCard> getCards(List<AniListMedia> media) {
+    return media.stream()
+        .map(AniListMediaCard::new)
+        .toList();
   }
 
 
