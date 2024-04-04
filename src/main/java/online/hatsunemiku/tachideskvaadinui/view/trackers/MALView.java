@@ -18,9 +18,7 @@ import online.hatsunemiku.tachideskvaadinui.view.layout.TrackingLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * MALView is a view for displaying MyAnimeList entries to import.
- */
+/** MALView is a view for displaying MyAnimeList entries to import. */
 @Route("mal")
 public class MALView extends TrackingLayout {
 

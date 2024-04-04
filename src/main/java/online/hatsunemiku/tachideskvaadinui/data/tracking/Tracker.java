@@ -16,19 +16,15 @@ import lombok.Setter;
 @Data
 public class Tracker {
 
-  /**
-   * Represents the ID of a manga on the Suwayomi Server.
-   */
-  @Setter
-  private long mangaId;
-  /**
-   * Represents the ID of a manga on AniList.
-   */
+  /** Represents the ID of a manga on the Suwayomi Server. */
+  @Setter private long mangaId;
+
+  /** Represents the ID of a manga on AniList. */
   private int aniListId;
-  /**
-   * Represents the ID of a manga on MyAnimeList.
-   */
+
+  /** Represents the ID of a manga on MyAnimeList. */
   private int malId;
+
   /**
    * Represents whether the tracker should be treated as private. If true, the tracked manga should
    * if possible be marked as private on external trackers.

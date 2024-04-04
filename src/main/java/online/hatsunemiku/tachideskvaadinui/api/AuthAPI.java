@@ -24,9 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 
-/**
- * Handles authentication and token validation for various services.
- */
+/** Handles authentication and token validation for various services. */
 @RestController
 @RequestMapping("validate")
 @Slf4j
@@ -40,7 +38,8 @@ public class AuthAPI {
    * Creates a new instance of the {@link AuthAPI} class.
    *
    * @param dataService the {@link TrackingDataService} instance used to store the authentication.
-   * @param suwayomiTrackingService the {@link SuwayomiTrackingService} instance used to authenticate with Suwayomi.
+   * @param suwayomiTrackingService the {@link SuwayomiTrackingService} instance used to
+   *     authenticate with Suwayomi.
    * @param malAPI the {@link MyAnimeListAPIService} instance used to authenticate with MyAnimeList.
    */
   public AuthAPI(

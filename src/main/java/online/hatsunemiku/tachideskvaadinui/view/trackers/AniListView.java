@@ -17,9 +17,7 @@ import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.MangaList;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.AniListAPIService;
 import online.hatsunemiku.tachideskvaadinui.view.layout.TrackingLayout;
 
-/**
- * AniListView is a view for displaying AniList entries to import.
- */
+/** AniListView is a view for displaying AniList entries to import. */
 @Route("anilist")
 @CssImport("./css/views/anilist.css")
 public class AniListView extends TrackingLayout {

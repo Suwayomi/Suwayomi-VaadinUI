@@ -37,8 +37,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * The MyAnimeListAPIService class is responsible for interacting with the MyAnimeList API.
- * <p>
- * This class provides methods for authentication with MyAnimeList and retrieving manga/user
+ *
+ * <p>This class provides methods for authentication with MyAnimeList and retrieving manga/user
  * information from the API.
  */
 @Service
@@ -49,13 +49,12 @@ public class MyAnimeListAPIService {
   private final TrackingDataService tds;
   private final WebClient webClient;
   private final Cache<UUID, String> pkceCache;
-  @Nullable
-  private MyAnimeList mal;
+  @Nullable private MyAnimeList mal;
 
   /**
    * Initializes an instance of the MyAnimeListAPIService class.
    *
-   * @param tds       The {@link TrackingDataService} used for storing tokens.
+   * @param tds The {@link TrackingDataService} used for storing tokens.
    * @param webClient The {@link WebClient} used for making requests to the MAL API.
    */
   public MyAnimeListAPIService(TrackingDataService tds, WebClient webClient) {

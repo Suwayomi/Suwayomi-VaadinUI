@@ -11,17 +11,15 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * This class represents the tokens used for authentication with different tracker APIs.
- * It stores {@link OAuthData} for each API.
+ * This class represents the tokens used for authentication with different tracker APIs. It stores
+ * {@link OAuthData} for each API.
  */
 @Getter
 public class TrackerTokens {
   private OAuthData aniListToken;
   @Setter private OAuthData malToken;
 
-  /**
-   * Creates a new instance of the {@link TrackerTokens} class.
-   */
+  /** Creates a new instance of the {@link TrackerTokens} class. */
   public TrackerTokens() {
     aniListToken = null;
   }

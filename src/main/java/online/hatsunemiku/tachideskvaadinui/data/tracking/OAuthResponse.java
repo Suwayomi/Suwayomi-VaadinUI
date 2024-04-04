@@ -11,9 +11,7 @@ import java.time.Instant;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/**
- * Represents the response of an OAuth request from AniList.
- */
+/** Represents the response of an OAuth request from AniList. */
 @Getter
 @NoArgsConstructor
 public class OAuthResponse {
@@ -34,9 +32,9 @@ public class OAuthResponse {
    * Creates a new instance of the {@link OAuthResponse} class.
    *
    * @param accessToken the access token returned by the OAuth server.
-   * @param expiresIn   the {@link Instant} instance that represents the point in time at which the
-   *                    access token expires.
-   * @param tokenType   the type of token returned by the OAuth Server. e.g. "Bearer".
+   * @param expiresIn the {@link Instant} instance that represents the point in time at which the
+   *     access token expires.
+   * @param tokenType the type of token returned by the OAuth Server. e.g. "Bearer".
    */
   @SuppressWarnings("unused") // Used by Spring when deserializing a request in AuthAPI
   public OAuthResponse(String accessToken, Instant expiresIn, String tokenType) {

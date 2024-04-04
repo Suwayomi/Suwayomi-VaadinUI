@@ -18,9 +18,9 @@ import lombok.Getter;
 
 /**
  * Represents a data object that contains the necessary information for OAuth authentication.
- * <p>
- * This class serves as the translated form of various OAuth responses from different OAuth servers
- * and should be used to store the necessary data for authentication.
+ *
+ * <p>This class serves as the translated form of various OAuth responses from different OAuth
+ * servers and should be used to store the necessary data for authentication.
  */
 public class OAuthData {
 
@@ -43,7 +43,7 @@ public class OAuthData {
    * Constructs an {@link OAuthData} object from an OAuthResponse.
    *
    * @param response the {@link OAuthResponse} object to deconstruct into an {@link OAuthData}
-   *                 object.
+   *     object.
    */
   OAuthData(OAuthResponse response) {
     String access_token = response.getAccessToken();
@@ -65,7 +65,7 @@ public class OAuthData {
    * Constructs an {@link OAuthData} object from an {@link AccessToken} object.
    *
    * @param token the {@link AccessToken} object used to construct the OAuthData. It contains the
-   *              necessary data, such as the access token, refresh token, and expiry information.
+   *     necessary data, such as the access token, refresh token, and expiry information.
    */
   public OAuthData(AccessToken token) {
     String access_token = token.getToken();
@@ -84,11 +84,10 @@ public class OAuthData {
   /**
    * Constructs an {@link OAuthData} object. Only used for deserialization purposes.
    *
-   * @param accessToken  the access token for OAuth authentication.
-   * @param tokenType    the type of token returned by the OAuth server. e.g. "Bearer".
-   * @param expires      the expiry time of the access token as a {@link String}. This can be either
-   *                     a number of seconds or an ISO 8601 formatted date. see
-   *                     {@link DateTimeFormatter#ISO_INSTANT}
+   * @param accessToken the access token for OAuth authentication.
+   * @param tokenType the type of token returned by the OAuth server. e.g. "Bearer".
+   * @param expires the expiry time of the access token as a {@link String}. This can be either a
+   *     number of seconds or an ISO 8601 formatted date. see {@link DateTimeFormatter#ISO_INSTANT}
    * @param refreshToken the refresh token for OAuth authentication. May be null.
    */
   @JsonCreator

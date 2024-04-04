@@ -13,9 +13,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.component.card.Card;
 
-/**
- * TrackingLayout is a layout/base for displaying tracking information to import.
- */
+/** TrackingLayout is a layout/base for displaying tracking information to import. */
 @CssImport("./css/views/imports/importCommons.css")
 public abstract class TrackingLayout extends StandardLayout {
 

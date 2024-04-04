@@ -13,8 +13,9 @@ import online.hatsunemiku.tachideskvaadinui.services.tracker.AniListAPIService;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService;
 
 /**
- * The AniListProvider class is an implementation of the {@link TrackerProvider} interface.
- * It provides methods for searching for manga on the AniList tracker and submitting manga to the tracker.
+ * The AniListProvider class is an implementation of the {@link TrackerProvider} interface. It
+ * provides methods for searching for manga on the AniList tracker and submitting manga to the
+ * tracker.
  */
 @AllArgsConstructor
 public class AniListProvider implements TrackerProvider {

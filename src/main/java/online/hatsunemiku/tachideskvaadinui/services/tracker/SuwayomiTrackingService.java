@@ -27,7 +27,7 @@ public class SuwayomiTrackingService {
    * Represents a Suwayomi Tracking Service.
    *
    * @param client the {@link SuwayomiTrackingClient} used for handling tracking requests to the
-   *               Suwayomi Server.
+   *     Suwayomi Server.
    */
   public SuwayomiTrackingService(SuwayomiTrackingClient client) {
     this.client = client;
