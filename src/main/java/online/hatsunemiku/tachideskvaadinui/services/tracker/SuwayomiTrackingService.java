@@ -98,9 +98,7 @@ public class SuwayomiTrackingService {
     return template.formatted(json);
   }
 
-  /**
-   * An enumeration representing different types of trackers.
-   */
+  /** An enumeration representing different types of trackers. */
   @Getter
   private enum TrackerType {
     MAL(1),

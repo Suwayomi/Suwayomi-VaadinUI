@@ -131,7 +131,6 @@ public class AuthAPI {
     return new RedirectView("/");
   }
 
-
   /**
    * Validates the AniList token received in the request body. If the token is valid, it is saved in
    * the application settings. Otherwise, redirects the user to the homepage.
@@ -173,11 +172,8 @@ public class AuthAPI {
   }
 
   /**
-   * Represents the state parameter of a MAL token response.
-   * Contains the PKCE (Proof Key for Code Exchange) ID to be used in the token exchange.
+   * Represents the state parameter of a MAL token response. Contains the PKCE (Proof Key for Code
+   * Exchange) ID to be used in the token exchange.
    */
-  public record MALTokenState(String pkceId) {
-
-  }
-
+  public record MALTokenState(String pkceId) {}
 }

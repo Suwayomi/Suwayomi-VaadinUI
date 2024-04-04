@@ -24,7 +24,7 @@ public abstract class TrackingLayout extends StandardLayout {
    *
    * @param title the title of the view to display
    */
-  public TrackingLayout(String title) {
+  protected TrackingLayout(String title) {
     super(title);
 
     addClassName("tracking-layout");
