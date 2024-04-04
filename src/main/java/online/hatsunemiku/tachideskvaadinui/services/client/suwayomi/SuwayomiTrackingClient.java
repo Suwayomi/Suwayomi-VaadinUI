@@ -17,6 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+/**
+ * The SuwayomiTrackingClient class provides methods to interact with a Suwayomi tracker through GraphQL API requests.
+ */
 @Component
 public class SuwayomiTrackingClient {
 

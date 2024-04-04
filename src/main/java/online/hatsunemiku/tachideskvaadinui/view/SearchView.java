@@ -50,6 +50,10 @@ import org.springframework.core.io.Resource;
 import org.vaadin.miki.shared.text.TextInputMode;
 import org.vaadin.miki.superfields.text.SuperTextField;
 
+/**
+ * SearchView is a view used for searching sources for manga. It allows the user to search for manga
+ * across all sources with a language filter to narrow down the search results.
+ */
 @CssImport("./css/views/search-view.css")
 @Slf4j
 @Route("search")
@@ -252,7 +256,7 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   /**
    * Adds a search result to the user interface.
    *
-   * @param source the source of the search result
+   * @param source    the source of the search result
    * @param mangaList the list of manga from the search result
    * @return true if the search result was successfully added, otherwise false
    */

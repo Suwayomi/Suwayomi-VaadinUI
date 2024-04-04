@@ -11,6 +11,9 @@ import java.time.Instant;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Represents the response of an OAuth request from AniList.
+ */
 @Getter
 @NoArgsConstructor
 public class OAuthResponse {

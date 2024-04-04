@@ -26,6 +26,9 @@ import org.jetbrains.annotations.NotNull;
 import org.vaadin.miki.shared.labels.LabelPosition;
 import org.vaadin.miki.superfields.text.LabelField;
 
+/**
+ * Represents a dialog for choosing and tracking a manga.
+ */
 public class TrackingMangaChoiceDialog extends Dialog {
 
   /**

@@ -11,6 +11,13 @@ import java.util.Objects;
 import lombok.Getter;
 import org.jetbrains.annotations.Contract;
 
+/**
+ * Represents the search result for a manga on a tracker on the Suwayomi Server.
+ * <p>
+ * This class is used for deserializing the JSON response from the Suwayomi Server and contains
+ * useful information about the manga, as well as metadata that can be used to retrieve more
+ * information.
+ */
 @Getter
 public final class TrackerSearchResult {
 

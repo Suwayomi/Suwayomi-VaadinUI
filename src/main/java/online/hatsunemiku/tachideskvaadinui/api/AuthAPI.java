@@ -24,6 +24,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 
+/**
+ * Handles authentication and token validation for various services.
+ */
 @RestController
 @RequestMapping("validate")
 @Slf4j

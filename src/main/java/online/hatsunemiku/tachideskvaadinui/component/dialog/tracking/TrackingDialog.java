@@ -38,6 +38,10 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.vaadin.miki.superfields.dates.SuperDatePicker;
 import org.vaadin.miki.superfields.numbers.SuperIntegerField;
 
+/**
+ * TrackingDialog is a custom dialog component used for tracking manga progress with Tracking services.
+ * It also allows the user to authenticate with a tracking service.
+ */
 @CssImport("./css/components/dialog/tracking/tracking-dialog.css")
 @Slf4j
 public class TrackingDialog extends Dialog {

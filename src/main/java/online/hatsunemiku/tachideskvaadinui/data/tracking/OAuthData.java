@@ -16,6 +16,12 @@ import java.time.format.DateTimeFormatter;
 import javax.annotation.Nullable;
 import lombok.Getter;
 
+/**
+ * Represents a data object that contains the necessary information for OAuth authentication.
+ * <p>
+ * This class serves as the translated form of various OAuth responses from different OAuth servers
+ * and should be used to store the necessary data for authentication.
+ */
 public class OAuthData {
 
   @Getter
@@ -80,7 +86,9 @@ public class OAuthData {
    *
    * @param accessToken  the access token for OAuth authentication.
    * @param tokenType    the type of token returned by the OAuth server. e.g. "Bearer".
-   * @param expires      the expiry time of the access token as a {@link String}. This can be either a number of seconds or an ISO 8601 formatted date. see {@link DateTimeFormatter#ISO_INSTANT}
+   * @param expires      the expiry time of the access token as a {@link String}. This can be either
+   *                     a number of seconds or an ISO 8601 formatted date. see
+   *                     {@link DateTimeFormatter#ISO_INSTANT}
    * @param refreshToken the refresh token for OAuth authentication. May be null.
    */
   @JsonCreator

@@ -10,6 +10,10 @@ import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
 import org.springframework.stereotype.Component;
 
+/**
+ * The SuwayomiSettingsClient class is responsible for making API requests to the Suwayomi Server
+ * for updating and retrieving server settings.
+ */
 @Component
 public class SuwayomiSettingsClient {
   private final WebClientService clientService;

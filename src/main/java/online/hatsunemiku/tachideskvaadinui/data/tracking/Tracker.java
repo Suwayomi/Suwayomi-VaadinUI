@@ -9,12 +9,30 @@ package online.hatsunemiku.tachideskvaadinui.data.tracking;
 import lombok.Data;
 import lombok.Setter;
 
+/**
+ * Represents a tracked manga. It contains fields for a manga ID, an AniList ID, a MyAnimeList ID,
+ * and a flag indicating if the tracker is private.
+ */
 @Data
 public class Tracker {
 
-  @Setter private long mangaId;
+  /**
+   * Represents the ID of a manga on the Suwayomi Server.
+   */
+  @Setter
+  private long mangaId;
+  /**
+   * Represents the ID of a manga on AniList.
+   */
   private int aniListId;
+  /**
+   * Represents the ID of a manga on MyAnimeList.
+   */
   private int malId;
+  /**
+   * Represents whether the tracker should be treated as private. If true, the tracked manga should
+   * if possible be marked as private on external trackers.
+   */
   private boolean isPrivate;
 
   public boolean hasAniListId() {

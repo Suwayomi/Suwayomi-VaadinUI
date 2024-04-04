@@ -8,6 +8,9 @@ package online.hatsunemiku.tachideskvaadinui.component.card;
 
 import dev.katsute.mal4j.manga.Manga;
 
+/**
+ * Represents a {@link Card} component for displaying Manga information from MyAnimeList.
+ */
 public class MalMediaCard extends Card {
 
   /**

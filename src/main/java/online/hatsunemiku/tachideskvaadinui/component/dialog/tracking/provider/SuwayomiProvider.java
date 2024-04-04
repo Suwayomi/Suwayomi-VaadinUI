@@ -11,6 +11,11 @@ import lombok.AllArgsConstructor;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchResult;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService;
 
+/**
+ * Represents a provider for the Suwayomi tracking service. This class provides methods for
+ * interacting with the Suwayomi API and handling tracking requests to Suwayomi tracking services.
+ * It implements the {@link TrackerProvider} interface.
+ */
 @AllArgsConstructor
 public class SuwayomiProvider implements TrackerProvider {
 

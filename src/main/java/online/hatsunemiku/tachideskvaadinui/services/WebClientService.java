@@ -24,6 +24,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.socket.client.StandardWebSocketClient;
 import org.springframework.web.reactive.socket.client.WebSocketClient;
 
+/**
+ * The WebClientService class is responsible for creating and managing clients used by other
+ * services to communicate with APIs.
+ */
 @Getter
 @Service
 public class WebClientService {

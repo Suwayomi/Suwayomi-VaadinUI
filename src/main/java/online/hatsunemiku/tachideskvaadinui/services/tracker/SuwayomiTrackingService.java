@@ -13,6 +13,11 @@ import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchRe
 import online.hatsunemiku.tachideskvaadinui.services.client.suwayomi.SuwayomiTrackingClient;
 import org.springframework.stereotype.Service;
 
+/**
+ * Represents a Service for handling tracking requests to the Suwayomi Server. This service is a
+ * wrapper around the {@link SuwayomiTrackingClient} class and provides methods to abstract the
+ * inner workings of the client. Also provides convenience methods for handling tracking requests.
+ */
 @Service
 public class SuwayomiTrackingService {
 

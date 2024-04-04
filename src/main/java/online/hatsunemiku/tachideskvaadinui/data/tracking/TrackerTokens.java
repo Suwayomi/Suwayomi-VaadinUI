@@ -10,6 +10,10 @@ import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * This class represents the tokens used for authentication with different tracker APIs.
+ * It stores {@link OAuthData} for each API.
+ */
 @Getter
 public class TrackerTokens {
   private OAuthData aniListToken;

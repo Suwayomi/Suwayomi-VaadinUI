@@ -12,6 +12,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
+/**
+ * Is used to configure the HTTP related beans.
+ */
 @Configuration
 public class HttpConfig {
 
