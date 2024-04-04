@@ -45,6 +45,12 @@ public class MyAnimeListAPIService {
   private final Cache<UUID, String> pkceCache;
   @Nullable private MyAnimeList mal;
 
+  /**
+   * Initializes an instance of the MyAnimeListAPIService class.
+   *
+   * @param tds        The {@link TrackingDataService} used for storing tokens.
+   * @param webClient  The {@link WebClient} used for making requests to the MAL API.
+   */
   public MyAnimeListAPIService(TrackingDataService tds, WebClient webClient) {
     this.tds = tds;
     this.webClient = webClient;

@@ -10,6 +10,11 @@ import dev.katsute.mal4j.manga.Manga;
 
 public class MalMediaCard extends Card {
 
+  /**
+   * Creates a new instance of the {@link MalMediaCard} class.
+   *
+   * @param manga the {@link Manga} object to create a card component for.
+   */
   public MalMediaCard(Manga manga) {
     super(manga.getTitle(), manga.getMainPicture().getLargeURL());
 

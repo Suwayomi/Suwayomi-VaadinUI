@@ -15,8 +15,15 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class SuwayomiTrackingService {
+
   private final SuwayomiTrackingClient client;
 
+  /**
+   * Represents a Suwayomi Tracking Service.
+   *
+   * @param client the {@link SuwayomiTrackingClient} used for handling tracking requests to the
+   *               Suwayomi Server.
+   */
   public SuwayomiTrackingService(SuwayomiTrackingClient client) {
     this.client = client;
   }
@@ -69,12 +76,12 @@ public class SuwayomiTrackingService {
 
     String jsonTemplate =
         """
-    {\
-    "redirectUrl":"http://localhost:8080/validate/suwayomi",\
-    "trackerId":%d,\
-    "anyOtherInfo":"%s"\
-    }\
-    """
+            {\
+            "redirectUrl":"http://localhost:8080/validate/suwayomi",\
+            "trackerId":%d,\
+            "anyOtherInfo":"%s"\
+            }\
+            """
             .strip();
 
     String template = "&state=%s";
@@ -96,6 +103,11 @@ public class SuwayomiTrackingService {
 
     private final int id;
 
+    /**
+     * Instantiates a TrackerType object with the specified id.
+     *
+     * @param id the id of the Tracker on the Suwayomi Server
+     */
     TrackerType(int id) {
       this.id = id;
     }

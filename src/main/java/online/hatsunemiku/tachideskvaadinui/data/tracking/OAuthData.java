@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.katsute.mal4j.AccessToken;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import javax.annotation.Nullable;
 import lombok.Getter;
 
@@ -32,6 +33,12 @@ public class OAuthData {
   @JsonProperty("refresh_token")
   private final String refreshToken;
 
+  /**
+   * Constructs an {@link OAuthData} object from an OAuthResponse.
+   *
+   * @param response the {@link OAuthResponse} object to deconstruct into an {@link OAuthData}
+   *                 object.
+   */
   OAuthData(OAuthResponse response) {
     String access_token = response.getAccessToken();
     String token_type = response.getTokenType();
@@ -48,6 +55,12 @@ public class OAuthData {
     this.refreshToken = refresh_token;
   }
 
+  /**
+   * Constructs an {@link OAuthData} object from an {@link AccessToken} object.
+   *
+   * @param token the {@link AccessToken} object used to construct the OAuthData. It contains the
+   *              necessary data, such as the access token, refresh token, and expiry information.
+   */
   public OAuthData(AccessToken token) {
     String access_token = token.getToken();
     String token_type = "Bearer";
@@ -62,6 +75,14 @@ public class OAuthData {
     this.refreshToken = refresh_token;
   }
 
+  /**
+   * Constructs an {@link OAuthData} object. Only used for deserialization purposes.
+   *
+   * @param accessToken  the access token for OAuth authentication.
+   * @param tokenType    the type of token returned by the OAuth server. e.g. "Bearer".
+   * @param expires      the expiry time of the access token as a {@link String}. This can be either a number of seconds or an ISO 8601 formatted date. see {@link DateTimeFormatter#ISO_INSTANT}
+   * @param refreshToken the refresh token for OAuth authentication. May be null.
+   */
   @JsonCreator
   private OAuthData(
       String accessToken,

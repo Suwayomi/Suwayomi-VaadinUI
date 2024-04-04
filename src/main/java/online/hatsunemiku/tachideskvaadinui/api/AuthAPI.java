@@ -33,6 +33,13 @@ public class AuthAPI {
   private final SuwayomiTrackingService suwayomiTrackingService;
   private final MyAnimeListAPIService malAPI;
 
+  /**
+   * Creates a new instance of the {@link AuthAPI} class.
+   *
+   * @param dataService the {@link TrackingDataService} instance used to store the authentication.
+   * @param suwayomiTrackingService the {@link SuwayomiTrackingService} instance used to authenticate with Suwayomi.
+   * @param malAPI the {@link MyAnimeListAPIService} instance used to authenticate with MyAnimeList.
+   */
   public AuthAPI(
       TrackingDataService dataService,
       SuwayomiTrackingService suwayomiTrackingService,

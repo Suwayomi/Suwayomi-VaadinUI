@@ -28,6 +28,14 @@ import org.vaadin.miki.superfields.text.LabelField;
 
 public class TrackingMangaChoiceDialog extends Dialog {
 
+  /**
+   * Constructs a {@link TrackingMangaChoiceDialog}.
+   *
+   * @param mangaName the name of the manga to search
+   * @param mangaId the ID of the manga on Suwayomi
+   * @param trackerProvider the {@link TrackerProvider} to use for tracking activities.
+   * @param dataService the {@link TrackingDataService} to use for saving tracking data.
+   */
   public TrackingMangaChoiceDialog(
       String mangaName,
       long mangaId,

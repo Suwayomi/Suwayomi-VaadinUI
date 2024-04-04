@@ -24,6 +24,11 @@ public class AniListView extends TrackingLayout {
   private final AniListAPIService aniListAPI;
   private final MangaList list;
 
+  /**
+   * AniListView is a view for displaying AniList entries to import.
+   *
+   * @param apiService the {@link AniListAPIService} instance to use for fetching data from AniList
+   */
   public AniListView(AniListAPIService apiService) {
     super("AniList");
 

@@ -34,6 +34,11 @@ public class WebClientService {
   private WebSocketGraphQlClient webSocketGraphQlClient;
   private WebClientGraphQLClient dgsGraphQlClient;
 
+  /**
+   * Creates a new instance of the {@link WebClientService} class.
+   *
+   * @param settingsService the {@link SettingsService} used for getting the current settings.
+   */
   public WebClientService(SettingsService settingsService) {
     Settings settings = settingsService.getSettings();
 

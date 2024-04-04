@@ -23,6 +23,11 @@ public class SuwayomiTrackingClient {
   private static final Logger log = LoggerFactory.getLogger(SuwayomiTrackingClient.class);
   private final WebClientService clientService;
 
+  /**
+   * Creates a new instance of the {@link SuwayomiTrackingClient} class.
+   *
+   * @param clientService the {@link WebClientService} used for making API requests
+   */
   public SuwayomiTrackingClient(WebClientService clientService) {
     this.clientService = clientService;
   }

@@ -16,6 +16,11 @@ import online.hatsunemiku.tachideskvaadinui.component.card.Card;
 @CssImport("./css/views/imports/importCommons.css")
 public abstract class TrackingLayout extends StandardLayout {
 
+  /**
+   * Creates the base Structure for the layout.
+   *
+   * @param title the title of the view to display
+   */
   public TrackingLayout(String title) {
     super(title);
 

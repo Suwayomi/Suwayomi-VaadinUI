@@ -51,6 +51,15 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
   private final TrackingDataService dataService;
   private final SuwayomiTrackingService suwayomiTrackingService;
 
+  /**
+   * Creates a MangaView object.
+   *
+   * @param mangaService The {@link MangaService} for accessing the manga data from the server.
+   * @param settingsService The {@link SettingsService} for accessing and managing application settings.
+   * @param aniListAPIService The {@link AniListAPIService} for connecting to the AniList API.
+   * @param dataService The {@link TrackingDataService} for tracking manga reading data.
+   * @param suwayomiTrackingService The {@link SuwayomiTrackingService} for Suwayomi tracking.
+   */
   public MangaView(
       MangaService mangaService,
       SettingsService settingsService,

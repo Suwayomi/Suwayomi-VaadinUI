@@ -24,6 +24,11 @@ public class MALView extends TrackingLayout {
   private static final Logger log = LoggerFactory.getLogger(MALView.class);
   private final MyAnimeListAPIService malAPI;
 
+  /**
+   * MALView is a view for displaying MyAnimeList entries to import.
+   *
+   * @param malAPI An instance of the {@link MyAnimeListAPIService} class
+   */
   public MALView(MyAnimeListAPIService malAPI) {
     super("MyAnimeList");
 

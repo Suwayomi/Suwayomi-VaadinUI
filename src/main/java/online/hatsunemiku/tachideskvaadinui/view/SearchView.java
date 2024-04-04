@@ -62,6 +62,13 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   private final SearchService searchService;
   private final SettingsService settingsService;
 
+  /**
+   * Constructs a SearchView object.
+   *
+   * @param sourceService   the {@link SourceService} used for retrieving manga sources
+   * @param searchService   the {@link SearchService} used for performing search operations
+   * @param settingsService the {@link SettingsService} used for accessing search settings
+   */
   public SearchView(
       SourceService sourceService, SearchService searchService, SettingsService settingsService) {
     super("Search");

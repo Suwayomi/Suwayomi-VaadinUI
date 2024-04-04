@@ -46,6 +46,14 @@ public class TrackingDialog extends Dialog {
   private final SuwayomiTrackingService suwayomiTrackingService;
   private final TrackingDataService dataService;
 
+  /**
+   * Constructs a {@link TrackingDialog} with the given parameters.
+   *
+   * @param dataService             The {@link TrackingDataService} used for storing tracking data.
+   * @param manga                   the {@link Manga} to track with the dialog.
+   * @param aniListAPIService       the {@link AniListAPIService} used for making requests to the AniList API.
+   * @param suwayomiTrackingService the {@link SuwayomiTrackingService} used for making requests to the Suwayomi API.
+   */
   public TrackingDialog(
       TrackingDataService dataService,
       Manga manga,
