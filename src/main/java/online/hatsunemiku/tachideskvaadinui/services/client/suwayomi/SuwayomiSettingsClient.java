@@ -23,7 +23,7 @@ public class SuwayomiSettingsClient {
    * Creates a new instance of the {@link SuwayomiSettingsClient} class.
    *
    * @param clientService the {@link WebClientService} used for making API requests to the Suwayomi
-   *                      Server.
+   *     Server.
    */
   public SuwayomiSettingsClient(WebClientService clientService) {
     this.clientService = clientService;

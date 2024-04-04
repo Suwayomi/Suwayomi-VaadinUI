@@ -13,9 +13,9 @@ import online.hatsunemiku.tachideskvaadinui.services.client.suwayomi.SuwayomiSet
 import org.springframework.stereotype.Service;
 
 /**
- * Responsible for managing Suwayomi server settings. This class is an abstraction over the
- * {@link SuwayomiSettingsClient} class and provides methods for updating and retrieving Suwayomi
- * server settings.
+ * Responsible for managing Suwayomi server settings. This class is an abstraction over the {@link
+ * SuwayomiSettingsClient} class and provides methods for updating and retrieving Suwayomi server
+ * settings.
  */
 @Service
 public class SuwayomiSettingsService {
@@ -26,7 +26,7 @@ public class SuwayomiSettingsService {
    * Creates a new instance of the {@link SuwayomiSettingsService} class.
    *
    * @param client the {@link SuwayomiSettingsClient} used for making API requests to the Suwayomi
-   *               Server.
+   *     Server.
    */
   public SuwayomiSettingsService(SuwayomiSettingsClient client) {
     this.client = client;
