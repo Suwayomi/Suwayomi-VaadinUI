@@ -16,8 +16,15 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class SuwayomiSettingsClient {
+
   private final WebClientService clientService;
 
+  /**
+   * Creates a new instance of the {@link SuwayomiSettingsClient} class.
+   *
+   * @param clientService the {@link WebClientService} used for making API requests to the Suwayomi
+   *                      Server.
+   */
   public SuwayomiSettingsClient(WebClientService clientService) {
     this.clientService = clientService;
   }
