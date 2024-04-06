@@ -13,9 +13,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.component.card.Card;
 
-/**
- * TrackingLayout is a layout/base for displaying tracking information to import.
- */
+/** TrackingLayout is a layout/base for displaying tracking information to import. */
 @CssImport("./css/views/imports/importCommons.css")
 public abstract class TrackingLayout extends StandardLayout {
 
@@ -31,9 +29,9 @@ public abstract class TrackingLayout extends StandardLayout {
   }
 
   /**
-   * Initializes the tracking layout based on the availability of a token.
-   * If a token is available, it creates and adds the necessary sections to the layout.
-   * If a token is not available, it adds an authentication button to the layout.
+   * Initializes the tracking layout based on the availability of a token. If a token is available,
+   * it creates and adds the necessary sections to the layout. If a token is not available, it adds
+   * an authentication button to the layout.
    */
   protected void init() {
     if (!hasToken()) {
@@ -48,7 +46,7 @@ public abstract class TrackingLayout extends StandardLayout {
       return;
     }
 
-    //TODO style auth button
+    // TODO style auth button
 
     var reading = getReadingSection();
     var planToRead = getPlanToReadSection();
@@ -83,7 +81,6 @@ public abstract class TrackingLayout extends StandardLayout {
    *
    * @return the `Reading` section as a Div element
    */
-
   public abstract Div getReadingSection();
 
   /**
@@ -92,7 +89,6 @@ public abstract class TrackingLayout extends StandardLayout {
    *
    * @return the `Plan to Read` section as a Div element
    */
-
   public abstract Div getPlanToReadSection();
 
   /**
@@ -122,7 +118,7 @@ public abstract class TrackingLayout extends StandardLayout {
   /**
    * Generates a content section containing a title and a list of cards.
    *
-   * @param title   the title of the content section
+   * @param title the title of the content section
    * @param content the list of cards to be added to the content section
    * @return a Div element representing the content section
    */

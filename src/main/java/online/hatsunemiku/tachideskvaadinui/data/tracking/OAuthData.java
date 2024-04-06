@@ -117,6 +117,7 @@ public class OAuthData {
 
   /**
    * Retrieves the expiry time of the access token as an {@link Instant}.
+   *
    * @return an {@link Instant} object representing the expiry time of the access token.
    */
   @JsonIgnore

@@ -28,7 +28,7 @@ public class SuwayomiTrackingService {
    * Represents a Suwayomi Tracking Service.
    *
    * @param client the {@link SuwayomiTrackingClient} used for handling tracking requests to the
-   *               Suwayomi Server.
+   *     Suwayomi Server.
    */
   public SuwayomiTrackingService(SuwayomiTrackingClient client) {
     this.client = client;
@@ -101,7 +101,7 @@ public class SuwayomiTrackingService {
   /**
    * Tracks a manga on AniList using the provided manga ID and external ID.
    *
-   * @param mangaId    the ID of the manga to be tracked
+   * @param mangaId the ID of the manga to be tracked
    * @param externalId the external ID of the manga on AniList
    */
   public void trackOnAniList(int mangaId, int externalId) {
@@ -112,7 +112,7 @@ public class SuwayomiTrackingService {
   /**
    * Tracks a manga on MyAnimeList (MAL) using the provided manga ID and external ID.
    *
-   * @param mangaId    the ID of the manga to be tracked
+   * @param mangaId the ID of the manga to be tracked
    * @param externalId the external ID of the manga on MAL
    */
   public void trackOnMAL(int mangaId, int externalId) {
@@ -123,7 +123,7 @@ public class SuwayomiTrackingService {
   /**
    * Logs in to the Suwayomi tracker with the specified URL and tracker ID.
    *
-   * @param url       the URL used for the login callback
+   * @param url the URL used for the login callback
    * @param trackerId the ID of the tracker to log in to
    */
   public void loginSuwayomi(String url, int trackerId) {
@@ -163,9 +163,7 @@ public class SuwayomiTrackingService {
     return template.formatted(json);
   }
 
-  /**
-   * An enumeration representing different types of trackers.
-   */
+  /** An enumeration representing different types of trackers. */
   @Getter
   private enum TrackerType {
     MAL(1),

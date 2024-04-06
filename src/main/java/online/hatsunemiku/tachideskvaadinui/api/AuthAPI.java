@@ -24,9 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 
-/**
- * Handles authentication and token validation for various services.
- */
+/** Handles authentication and token validation for various services. */
 @RestController
 @RequestMapping("validate")
 @Slf4j
@@ -39,12 +37,10 @@ public class AuthAPI {
   /**
    * Creates a new instance of the {@link AuthAPI} class.
    *
-   * @param dataService             the {@link TrackingDataService} instance used to store the
-   *                                authentication.
+   * @param dataService the {@link TrackingDataService} instance used to store the authentication.
    * @param suwayomiTrackingService the {@link SuwayomiTrackingService} instance used to
-   *                                authenticate with Suwayomi.
-   * @param malAPI                  the {@link MyAnimeListAPIService} instance used to authenticate
-   *                                with MyAnimeList.
+   *     authenticate with Suwayomi.
+   * @param malAPI the {@link MyAnimeListAPIService} instance used to authenticate with MyAnimeList.
    */
   public AuthAPI(
       TrackingDataService dataService,
@@ -61,7 +57,7 @@ public class AuthAPI {
    * URL.
    *
    * @return the HTML content with the JavaScript code to execute the data extraction and redirect
-   * to the response URL
+   *     to the response URL
    */
   @GetMapping(value = "anilist", produces = MediaType.TEXT_HTML_VALUE)
   public String validateAniListToken() {
@@ -125,9 +121,9 @@ public class AuthAPI {
    * services.
    *
    * @param request the {@link HttpServletRequest} used to retrieve the requested URL
-   * @param json    the JSON string containing the state information
+   * @param json the JSON string containing the state information
    * @return the {@link RedirectView} object to redirect the user to the appropriate page after
-   * authentication is done
+   *     authentication is done
    */
   @GetMapping("suwayomi")
   public RedirectView authenticateSuwayomi(
@@ -187,7 +183,5 @@ public class AuthAPI {
    * Represents the state parameter of a MAL token response. Contains the PKCE (Proof Key for Code
    * Exchange) ID to be used in the token exchange.
    */
-  public record MALTokenState(String pkceId) {
-
-  }
+  public record MALTokenState(String pkceId) {}
 }

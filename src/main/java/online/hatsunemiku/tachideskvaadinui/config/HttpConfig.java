@@ -18,6 +18,7 @@ public class HttpConfig {
 
   /**
    * Creates a new and configured instance of the {@link RestTemplate} class.
+   *
    * @param builder the {@link RestTemplateBuilder} used to build the {@link RestTemplate} instance.
    * @return a new instance of the {@link RestTemplate} class.
    */
@@ -28,6 +29,7 @@ public class HttpConfig {
 
   /**
    * Creates a new and configured instance of the {@link WebClient} class.
+   *
    * @return a new instance of the {@link WebClient} class.
    */
   @Bean

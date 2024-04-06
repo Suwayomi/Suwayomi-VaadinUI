@@ -102,7 +102,8 @@ public class MALView extends TrackingLayout {
   }
 
   /**
-   * Retrieves a list of {@link MalMediaCard} objects based on the given list of {@link Manga} objects.
+   * Retrieves a list of {@link MalMediaCard} objects based on the given list of {@link Manga}
+   * objects.
    *
    * @param media the list of {@link Manga} objects from which to create the cards.
    * @return a list of {@link MalMediaCard} objects.

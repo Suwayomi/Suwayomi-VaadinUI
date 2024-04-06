@@ -49,13 +49,12 @@ public class MyAnimeListAPIService {
   private final TrackingDataService tds;
   private final WebClient webClient;
   private final Cache<UUID, String> pkceCache;
-  @Nullable
-  private MyAnimeList mal;
+  @Nullable private MyAnimeList mal;
 
   /**
    * Initializes an instance of the MyAnimeListAPIService class.
    *
-   * @param tds       The {@link TrackingDataService} used for storing tokens.
+   * @param tds The {@link TrackingDataService} used for storing tokens.
    * @param webClient The {@link WebClient} used for making requests to the MAL API.
    */
   public MyAnimeListAPIService(TrackingDataService tds, WebClient webClient) {
@@ -80,8 +79,8 @@ public class MyAnimeListAPIService {
   }
 
   /**
-   * Authenticates the MAL API with the provided {@link OAuthData} object containing the access token.
-   * The resulting {@link MyAnimeList} object is stored in {@link #mal}
+   * Authenticates the MAL API with the provided {@link OAuthData} object containing the access
+   * token. The resulting {@link MyAnimeList} object is stored in {@link #mal}
    *
    * @param data The {@link OAuthData} object containing the access token.
    */
@@ -128,7 +127,7 @@ public class MyAnimeListAPIService {
    * Exchanges the authorization code for an access and refresh token. Verifies the PKCE ID before
    * exchanging the code for tokens.
    *
-   * @param code   The authorization code to exchange for tokens.
+   * @param code The authorization code to exchange for tokens.
    * @param pkceId The PKCE ID used for generating the code challenge.
    */
   public void exchangeCodeForTokens(String code, String pkceId) {

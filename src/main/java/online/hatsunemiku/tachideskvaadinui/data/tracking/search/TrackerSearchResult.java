@@ -131,6 +131,7 @@ public final class TrackerSearchResult {
 
   /**
    * Returns the type of the manga formatted with the first letter capitalized.
+   *
    * @return The formatted type of the manga.
    */
   public String getTypeFormatted() {
@@ -139,6 +140,7 @@ public final class TrackerSearchResult {
 
   /**
    * Returns the status of the manga formatted with the first letter capitalized.
+   *
    * @return The formatted status of the manga.
    */
   public String getStatusFormatted() {

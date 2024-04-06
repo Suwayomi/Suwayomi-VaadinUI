@@ -95,7 +95,8 @@ public class AniListView extends TrackingLayout {
   }
 
   /**
-   * Returns a list of {@link AniListMediaCard} objects based on the provided list of {@link AniListMedia} objects.
+   * Returns a list of {@link AniListMediaCard} objects based on the provided list of {@link
+   * AniListMedia} objects.
    *
    * @param media the list of {@link AniListMedia} objects to convert to cards
    * @return a list of {@link AniListMediaCard} objects

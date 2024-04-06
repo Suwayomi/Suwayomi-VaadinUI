@@ -64,9 +64,8 @@ public class AniListAPIService {
    * dependencies.
    *
    * @param dataService the TrackingDataService object to be used for retrieving and updating the
-   *                    AniList token and manga trackers
-   * @param mapper      the ObjectMapper object to be used for serializing and deserializing JSON
-   *                    data.
+   *     AniList token and manga trackers
+   * @param mapper the ObjectMapper object to be used for serializing and deserializing JSON data.
    */
   public AniListAPIService(TrackingDataService dataService, ObjectMapper mapper) {
     this.dataService = dataService;
@@ -84,7 +83,7 @@ public class AniListAPIService {
    * Retrieves the AniList token from the settings.
    *
    * @return an Optional containing the AniList token if it is present, otherwise returns an empty
-   * Optional
+   *     Optional
    */
   private Optional<OAuthData> getAniListToken() {
     TrackerTokens trackerTokens = dataService.getTokens();
@@ -110,7 +109,7 @@ public class AniListAPIService {
    *
    * @return the AniList token header as a string
    * @throws IllegalStateException if there is no AniList token available or if the token is not
-   *                               valid.
+   *     valid.
    */
   private String getAniListTokenHeader() {
     if (!hasAniListToken()) {
@@ -197,7 +196,7 @@ public class AniListAPIService {
    *
    * @return The current user's ID
    * @throws RuntimeException If no AniList token is available or if there is an error retrieving
-   *                          the user ID
+   *     the user ID
    */
   private int getCurrentUserId() {
     if (!hasAniListToken()) {
@@ -344,8 +343,8 @@ public class AniListAPIService {
    * @param mangaId The ID of the manga.
    * @return The AniListMangaStatistics object containing the manga statistics.
    * @throws WebClientResponseException.NotFound If the manga with the specified ID is not found.
-   * @throws RuntimeException                    If the response is null, or if there is an error
-   *                                             parsing the JSON response.
+   * @throws RuntimeException If the response is null, or if there is an error parsing the JSON
+   *     response.
    */
   public AniListMangaStatistics getMangaFromList(int mangaId) {
     String query =
@@ -417,6 +416,7 @@ public class AniListAPIService {
 
   /**
    * Retrieves the user's score format from AniList.
+   *
    * @return The user's score format as an {@link AniListScoreFormat} enum value.
    */
   public AniListScoreFormat getScoreFormat() {
@@ -454,8 +454,8 @@ public class AniListAPIService {
    * Retrieves the chapter count of the manga with the given AniList ID.
    *
    * @param mangaId The AniList ID of the manga to retrieve the chapter count for
-   * @return The chapter count of the manga as an {@link Optional} Integer. If the chapter count is not
-   * available, an empty {@link Optional} is returned.
+   * @return The chapter count of the manga as an {@link Optional} Integer. If the chapter count is
+   *     not available, an empty {@link Optional} is returned.
    */
   public Optional<Integer> getChapterCount(int mangaId) {
     String query =
@@ -496,7 +496,7 @@ public class AniListAPIService {
    * Sends a GraphQL request to the AniList API with the given query and variables. Additionally,
    * the request is authenticated with the user's AniList token, so the user must be logged in.
    *
-   * @param query     The GraphQL query to send
+   * @param query The GraphQL query to send
    * @param variables The variables to send with the query
    * @return The response from the AniList API as a String, usually in JSON format
    */
@@ -517,7 +517,7 @@ public class AniListAPIService {
   /**
    * Updates the progress of the manga with the given AniList ID.
    *
-   * @param mangaId       The AniList ID of the manga to update
+   * @param mangaId The AniList ID of the manga to update
    * @param mangaProgress The new progress of the manga
    */
   public void updateMangaProgress(int mangaId, float mangaProgress) {
@@ -559,7 +559,7 @@ public class AniListAPIService {
    * Updates the status of the manga with the given AniList ID.
    *
    * @param aniListId The AniList ID of the manga to update
-   * @param value     The new status of the manga as an {@link AniListStatus} enum value
+   * @param value The new status of the manga as an {@link AniListStatus} enum value
    */
   public void updateMangaStatus(int aniListId, AniListStatus value) {
     String query =
@@ -600,7 +600,7 @@ public class AniListAPIService {
    * Updates the score of the manga with the given AniList ID.
    *
    * @param aniListId The AniList ID of the manga to update
-   * @param value     The new score of the manga. Range depends on the user's score format.
+   * @param value The new score of the manga. Range depends on the user's score format.
    */
   public void updateMangaScore(int aniListId, int value) {
 
@@ -642,7 +642,7 @@ public class AniListAPIService {
    * Updates the start date of the manga with the given AniList ID.
    *
    * @param aniListId The AniList ID of the manga to update
-   * @param date      The new start date of the manga as a {@link MediaDate} object
+   * @param date The new start date of the manga as a {@link MediaDate} object
    */
   public void updateMangaStartDate(int aniListId, MediaDate date) {
     String query =
@@ -691,7 +691,7 @@ public class AniListAPIService {
    * Updates the end date of the manga with the given AniList ID.
    *
    * @param aniListId The AniList ID of the manga to update
-   * @param date      The new end date of the manga as a {@link MediaDate} object
+   * @param date The new end date of the manga as a {@link MediaDate} object
    */
   public void updateMangaEndDate(int aniListId, MediaDate date) {
     String query =
@@ -740,7 +740,7 @@ public class AniListAPIService {
    * Retrieves the user's manga list.
    *
    * @return The manga list containing the user's reading, plan to read, completed, on hold, and
-   * dropped manga
+   *     dropped manga
    * @throws RuntimeException If an error occurs while retrieving the manga list
    */
   public MangaList getMangaList() {
@@ -809,8 +809,7 @@ public class AniListAPIService {
     for (int i = 0; i < listSize; i++) {
       var list = lists.getObject(i).getArray("entries");
 
-      var typeRef = new TypeReference<List<AniListMedia>>() {
-      };
+      var typeRef = new TypeReference<List<AniListMedia>>() {};
       try {
         for (int j = 0; j < list.length(); j++) {
           replaceMediaWithImageAndTitle(list, j);
@@ -845,7 +844,7 @@ public class AniListAPIService {
    * Replaces the "media" object in a JsonArray with "coverImage" and "title" objects.
    *
    * @param list The JsonArray containing the media object to be replaced
-   * @param j    The index of the media object within the JsonArray
+   * @param j The index of the media object within the JsonArray
    */
   private void replaceMediaWithImageAndTitle(JsonArray list, int j) {
     var media = list.getObject(j).getObject("media");
@@ -876,8 +875,8 @@ public class AniListAPIService {
    * Updates the privacy status of the manga with the given AniList ID.
    *
    * @param aniListId The AniList ID of the manga to update
-   * @param isPrivate The new privacy status of the manga. {@code true} if the manga is private, {@code false}
-   *                  otherwise
+   * @param isPrivate The new privacy status of the manga. {@code true} if the manga is private,
+   *     {@code false} otherwise
    */
   public void updateMangaPrivacyStatus(int aniListId, boolean isPrivate) {
     // language=graphql

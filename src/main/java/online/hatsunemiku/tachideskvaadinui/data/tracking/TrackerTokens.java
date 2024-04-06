@@ -26,6 +26,7 @@ public class TrackerTokens {
 
   /**
    * Checks if the AniList token is present and not expired.
+   *
    * @return {@code true} if the AniList token is present and not expired, {@code false} otherwise.
    */
   public boolean hasAniListToken() {
@@ -42,6 +43,7 @@ public class TrackerTokens {
 
   /**
    * Checks if the MAL token is present and not expired.
+   *
    * @return {@code true} if the MAL token is present and not expired, {@code false} otherwise.
    */
   public boolean hasMalToken() {
@@ -60,6 +62,7 @@ public class TrackerTokens {
 
   /**
    * Sets the AniList authentication data.
+   *
    * @param response the {@link OAuthResponse} containing the AniList authentication data.
    */
   public void setAniListAuth(OAuthResponse response) {

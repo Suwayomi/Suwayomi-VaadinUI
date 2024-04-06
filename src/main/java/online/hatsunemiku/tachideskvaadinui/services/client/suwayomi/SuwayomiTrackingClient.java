@@ -38,9 +38,9 @@ public class SuwayomiTrackingClient {
 
   /**
    * Checks if a tracker with the provided ID is logged in.
+   *
    * @param id the ID of the tracker to check if it is logged in
    * @return {@code true} if the tracker is logged in, {@code false} otherwise
-   *
    * @see online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService.TrackerType
    */
   @SuppressWarnings("JavadocReference")
@@ -71,9 +71,9 @@ public class SuwayomiTrackingClient {
 
   /**
    * Gets the authentication URL for a tracker with the provided ID.
+   *
    * @param id the ID of the tracker to get the authentication URL for
    * @return the authentication URL for the tracker
-   *
    * @see online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService.TrackerType
    */
   @SuppressWarnings("JavadocReference")
@@ -103,6 +103,7 @@ public class SuwayomiTrackingClient {
 
   /**
    * Logs in to a tracker using the provided redirect URL and tracker ID.
+   *
    * @param url the redirect URL to log in to the tracker
    * @param id the ID of the tracker to log in to
    */
@@ -134,10 +135,10 @@ public class SuwayomiTrackingClient {
 
   /**
    * Searches for a manga on a tracker using the provided query and tracker ID.
+   *
    * @param query the search query for the manga
    * @param id the ID of the tracker to search on
    * @return a list of {@link TrackerSearchResult} objects representing the search results
-   *
    * @see online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService.TrackerType
    */
   @SuppressWarnings("JavadocReference")
@@ -179,8 +180,7 @@ public class SuwayomiTrackingClient {
       throw new RuntimeException(errorText);
     }
 
-    TypeRef<List<TrackerSearchResult>> typeRef = new TypeRef<>() {
-    };
+    TypeRef<List<TrackerSearchResult>> typeRef = new TypeRef<>() {};
 
     return response.extractValueAsObject("searchTracker.trackSearches", typeRef);
   }
@@ -188,11 +188,10 @@ public class SuwayomiTrackingClient {
   /**
    * Tracks a manga on a tracker using the provided manga ID, external ID, and tracker ID.
    *
-   * @param mangaId    the Suwayomi ID of the manga to be tracked
+   * @param mangaId the Suwayomi ID of the manga to be tracked
    * @param externalId the external ID of the manga on the tracker. This is the ID of the manga on
-   *                   the tracker's website.
+   *     the tracker's website.
    * @param trackerId the ID of the tracker to track the manga on.
-   *
    * @see online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService.TrackerType
    */
   @SuppressWarnings("JavadocReference")
