@@ -69,8 +69,8 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   /**
    * Constructs a SearchView object.
    *
-   * @param sourceService the {@link SourceService} used for retrieving manga sources
-   * @param searchService the {@link SearchService} used for performing search operations
+   * @param sourceService   the {@link SourceService} used for retrieving manga sources
+   * @param searchService   the {@link SearchService} used for performing search operations
    * @param settingsService the {@link SettingsService} used for accessing search settings
    */
   public SearchView(
@@ -107,6 +107,12 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     setContent(content);
   }
 
+  /**
+   * Retrieves the "Import from MAL" button. This button is used to navigate to the
+   * {@link MALView}.
+   *
+   * @return the button that navigates to the {@link MALView}
+   */
   @NotNull
   private Button getMalImportBtn() {
     Button malImportBtn = new Button("Import from MAL", VaadinIcon.DOWNLOAD.create());
@@ -124,6 +130,12 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     return malImportBtn;
   }
 
+  /**
+   * Retrieves the "Import from AniList" button. This button is used to navigate to the
+   * {@link AniListView}.
+   *
+   * @return The button that navigates to the {@link AniListView}
+   */
   @NotNull
   private Button getALImportBtn() {
     Button importBtn = new Button("Import from AniList", VaadinIcon.DOWNLOAD.create());
@@ -256,7 +268,7 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   /**
    * Adds a search result to the user interface.
    *
-   * @param source the source of the search result
+   * @param source    the source of the search result
    * @param mangaList the list of manga from the search result
    * @return true if the search result was successfully added, otherwise false
    */

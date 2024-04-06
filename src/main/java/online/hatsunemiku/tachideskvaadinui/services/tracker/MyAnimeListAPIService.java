@@ -49,12 +49,13 @@ public class MyAnimeListAPIService {
   private final TrackingDataService tds;
   private final WebClient webClient;
   private final Cache<UUID, String> pkceCache;
-  @Nullable private MyAnimeList mal;
+  @Nullable
+  private MyAnimeList mal;
 
   /**
    * Initializes an instance of the MyAnimeListAPIService class.
    *
-   * @param tds The {@link TrackingDataService} used for storing tokens.
+   * @param tds       The {@link TrackingDataService} used for storing tokens.
    * @param webClient The {@link WebClient} used for making requests to the MAL API.
    */
   public MyAnimeListAPIService(TrackingDataService tds, WebClient webClient) {
@@ -78,10 +79,22 @@ public class MyAnimeListAPIService {
     authenticateMALWithToken(data);
   }
 
+  /**
+   * Authenticates the MAL API with the provided {@link OAuthData} object containing the access token.
+   * The resulting {@link MyAnimeList} object is stored in {@link #mal}
+   *
+   * @param data The {@link OAuthData} object containing the access token.
+   */
   private void authenticateMALWithToken(OAuthData data) {
     this.mal = MyAnimeList.withToken(data.getAccessToken());
   }
 
+  /**
+   * Generates the authorization URL for MyAnimeList. This URL is used to authenticate the user with
+   * the MAL API.
+   *
+   * @return The authorization URL for MyAnimeList.
+   */
   @NotNull
   public String getAuthUrl() {
     String baseUrl = "https://myanimelist.net/v1/oauth2/authorize";
@@ -102,12 +115,23 @@ public class MyAnimeListAPIService {
     return "%s?%s".formatted(baseUrl, params);
   }
 
+  /**
+   * Checks if the user has a valid MAL token.
+   *
+   * @return {@code true} if the user has a valid MAL token, {@code false} otherwise.
+   */
   public boolean hasMalToken() {
     return tds.getTokens().hasMalToken();
   }
 
+  /**
+   * Exchanges the authorization code for an access and refresh token. Verifies the PKCE ID before
+   * exchanging the code for tokens.
+   *
+   * @param code   The authorization code to exchange for tokens.
+   * @param pkceId The PKCE ID used for generating the code challenge.
+   */
   public void exchangeCodeForTokens(String code, String pkceId) {
-
     String pkce = pkceCache.getIfPresent(UUID.fromString(pkceId));
 
     if (pkce == null) {
@@ -126,6 +150,12 @@ public class MyAnimeListAPIService {
     authenticateMALWithToken(data);
   }
 
+  /**
+   * Refreshes the access token using the refresh token.
+   *
+   * @param refreshToken The refresh token to use for refreshing the access token.
+   * @return An {@link OAuthData} object containing the new access token and refresh token.
+   */
   private OAuthData refreshToken(String refreshToken) {
     MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
     body.add("grant_type", "refresh_token");
@@ -141,6 +171,13 @@ public class MyAnimeListAPIService {
         .block();
   }
 
+  /**
+   * Retrieves a list of {@link Manga} objects with the specified status.
+   *
+   * @param status The {@link MangaStatus} enum value representing the status of the manga.
+   * @return A List of {@link Manga} objects with the specified status.
+   * @throws IllegalStateException If not authenticated with MyAnimeList (MAL).
+   */
   public List<Manga> getMangaWithStatus(MangaStatus status) {
     if (mal == null) {
       throw new IllegalStateException("Not authenticated with MAL");

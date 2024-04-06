@@ -29,6 +29,11 @@ public class SuwayomiSettingsClient {
     this.clientService = clientService;
   }
 
+  /**
+   * Updates the user's extension repositories on the Suwayomi Server.
+   * @param extensionRepoUrls a list of extension repository URLs as strings.
+   * @return {@code true} if the extension repositories were updated successfully, {@code false}
+   */
   public boolean updateExtensionRepos(List<String> extensionRepoUrls) {
     // language=GraphQL
     String query =
@@ -60,6 +65,10 @@ public class SuwayomiSettingsClient {
     return extensionRepos.equals(extensionRepoUrls);
   }
 
+  /**
+   * Retrieves the user's extension repositories from the Suwayomi Server.
+   * @return a list of extension repository URLs as strings.
+   */
   public List<String> getExtensionRepos() {
     // language=GraphQL
     String query =

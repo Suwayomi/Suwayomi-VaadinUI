@@ -115,6 +115,10 @@ public class OAuthData {
     this.refreshToken = refreshToken;
   }
 
+  /**
+   * Retrieves the expiry time of the access token as an {@link Instant}.
+   * @return an {@link Instant} object representing the expiry time of the access token.
+   */
   @JsonIgnore
   public Instant getExpiresAsInstant() {
     return Instant.parse(expires);

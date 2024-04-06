@@ -24,6 +24,10 @@ public class TrackerTokens {
     aniListToken = null;
   }
 
+  /**
+   * Checks if the AniList token is present and not expired.
+   * @return {@code true} if the AniList token is present and not expired, {@code false} otherwise.
+   */
   public boolean hasAniListToken() {
     if (aniListToken == null) {
       return false;
@@ -36,6 +40,10 @@ public class TrackerTokens {
     return !aniListToken.getExpiresAsInstant().isBefore(Instant.now());
   }
 
+  /**
+   * Checks if the MAL token is present and not expired.
+   * @return {@code true} if the MAL token is present and not expired, {@code false} otherwise.
+   */
   public boolean hasMalToken() {
     if (malToken == null) {
       return false;
@@ -50,6 +58,10 @@ public class TrackerTokens {
     return malToken.getRefreshToken() != null || !expired;
   }
 
+  /**
+   * Sets the AniList authentication data.
+   * @param response the {@link OAuthResponse} containing the AniList authentication data.
+   */
   public void setAniListAuth(OAuthResponse response) {
     aniListToken = new OAuthData(response);
   }

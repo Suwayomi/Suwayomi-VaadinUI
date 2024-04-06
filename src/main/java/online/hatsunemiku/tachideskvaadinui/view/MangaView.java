@@ -135,6 +135,13 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     setContent(container);
   }
 
+  /**
+   * Retrieves and constructs the buttons needed for functionality for a manga.
+   *
+   * @param manga The {@link Manga} object for which to retrieve the buttons.
+   * @param chapters The list of {@link Chapter} objects available for the manga.
+   * @return The constructed {@link Div} element containing the buttons.
+   */
   @NotNull
   private Div getButtons(Manga manga, List<Chapter> chapters) {
     Div buttons = new Div();

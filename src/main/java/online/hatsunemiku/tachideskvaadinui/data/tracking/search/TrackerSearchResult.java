@@ -129,10 +129,18 @@ public final class TrackerSearchResult {
         coverUrl, id, status, type, startDate, summary, title, totalChapters, trackingUrl);
   }
 
+  /**
+   * Returns the type of the manga formatted with the first letter capitalized.
+   * @return The formatted type of the manga.
+   */
   public String getTypeFormatted() {
     return type.substring(0, 1).toUpperCase() + type.substring(1).toLowerCase();
   }
 
+  /**
+   * Returns the status of the manga formatted with the first letter capitalized.
+   * @return The formatted status of the manga.
+   */
   public String getStatusFormatted() {
     return status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
   }

@@ -52,6 +52,12 @@ public class WebClientService {
     initDgsGraphQlClient(settings.getUrl());
   }
 
+  /**
+   * Handles an {@link UrlChangeEvent} by updating the clients with the new URL of the server
+   * instance. Should only be called by Spring when an {@link UrlChangeEvent} is published.
+   *
+   * @param event the {@link UrlChangeEvent} to handle.
+   */
   @EventListener(UrlChangeEvent.class)
   protected void onUrlChange(UrlChangeEvent event) {
     this.webClient = WebClient.create(event.getUrl());
@@ -101,6 +107,11 @@ public class WebClientService {
     this.webSocketGraphQlClient = WebSocketGraphQlClient.create(uri, webSocketClient);
   }
 
+  /**
+   * Initializes the DGS GraphQL client.
+   *
+   * @param url the URL of the GraphQL server without the {@code /api/graphql} path.
+   */
   private void initDgsGraphQlClient(String url) {
     url = url + "/api/graphql";
     url = url.replace("//api", "/api");

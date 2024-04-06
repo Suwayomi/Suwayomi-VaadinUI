@@ -24,7 +24,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 
-/** Handles authentication and token validation for various services. */
+/**
+ * Handles authentication and token validation for various services.
+ */
 @RestController
 @RequestMapping("validate")
 @Slf4j
@@ -37,10 +39,12 @@ public class AuthAPI {
   /**
    * Creates a new instance of the {@link AuthAPI} class.
    *
-   * @param dataService the {@link TrackingDataService} instance used to store the authentication.
+   * @param dataService             the {@link TrackingDataService} instance used to store the
+   *                                authentication.
    * @param suwayomiTrackingService the {@link SuwayomiTrackingService} instance used to
-   *     authenticate with Suwayomi.
-   * @param malAPI the {@link MyAnimeListAPIService} instance used to authenticate with MyAnimeList.
+   *                                authenticate with Suwayomi.
+   * @param malAPI                  the {@link MyAnimeListAPIService} instance used to authenticate
+   *                                with MyAnimeList.
    */
   public AuthAPI(
       TrackingDataService dataService,
@@ -57,65 +61,74 @@ public class AuthAPI {
    * URL.
    *
    * @return the HTML content with the JavaScript code to execute the data extraction and redirect
-   *     to the response URL
+   * to the response URL
    */
   @GetMapping(value = "anilist", produces = MediaType.TEXT_HTML_VALUE)
   public String validateAniListToken() {
     @Language("JavaScript")
     String jsToExecute =
         """
-        var hash = window.location.hash.substring(1);
+            var hash = window.location.hash.substring(1);
 
-        // Split the hash by & to get an array of key-value pairs
-        var pairs = hash.split("&");
+            // Split the hash by & to get an array of key-value pairs
+            var pairs = hash.split("&");
 
-        // Create an empty object to store the fragments
-        var fragments = {};
+            // Create an empty object to store the fragments
+            var fragments = {};
 
-        // Loop through the pairs and assign them to the object
-        for (var i = 0; i < pairs.length; i++) {
-          // Split each pair by = to get the key and value
-          var pair = pairs[i].split("=");
-          // Decode the key and value and assign them to the object
-          fragments[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
-        }
+            // Loop through the pairs and assign them to the object
+            for (var i = 0; i < pairs.length; i++) {
+              // Split each pair by = to get the key and value
+              var pair = pairs[i].split("=");
+              // Decode the key and value and assign them to the object
+              fragments[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+            }
 
-        console.log(fragments);
+            console.log(fragments);
 
-        var body = JSON.stringify(fragments);
+            var body = JSON.stringify(fragments);
 
-        console.log(body);
+            console.log(body);
 
-        fetch('/validate/anilist', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: body
-        }).then(response => {
-          console.log(response);
-          window.location.href = response.url;
-        })
-        .catch((error) => {
-          console.error('Error:', error);
-        });
+            fetch('/validate/anilist', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: body
+            }).then(response => {
+              console.log(response);
+              window.location.href = response.url;
+            })
+            .catch((error) => {
+              console.error('Error:', error);
+            });
 
-        """;
+            """;
 
     @Language("HTML")
     String html =
         """
-        <script>
-          document.addEventListener("DOMContentLoaded", function() {
-            %s
-          });
-        </script>
-        """
+            <script>
+              document.addEventListener("DOMContentLoaded", function() {
+                %s
+              });
+            </script>
+            """
             .formatted(jsToExecute);
 
     return html;
   }
 
+  /**
+   * Parses the request information required to authenticate the Suwayomi Server with tracking
+   * services.
+   *
+   * @param request the {@link HttpServletRequest} used to retrieve the requested URL
+   * @param json    the JSON string containing the state information
+   * @return the {@link RedirectView} object to redirect the user to the appropriate page after
+   * authentication is done
+   */
   @GetMapping("suwayomi")
   public RedirectView authenticateSuwayomi(
       HttpServletRequest request, @RequestParam("state") String json) {
@@ -174,5 +187,7 @@ public class AuthAPI {
    * Represents the state parameter of a MAL token response. Contains the PKCE (Proof Key for Code
    * Exchange) ID to be used in the token exchange.
    */
-  public record MALTokenState(String pkceId) {}
+  public record MALTokenState(String pkceId) {
+
+  }
 }

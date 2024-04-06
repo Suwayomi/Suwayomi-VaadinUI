@@ -53,12 +53,12 @@ public class TrackingDialog extends Dialog {
   /**
    * Constructs a {@link TrackingDialog} with the given parameters.
    *
-   * @param dataService The {@link TrackingDataService} used for storing tracking data.
-   * @param manga the {@link Manga} to track with the dialog.
-   * @param aniListAPIService the {@link AniListAPIService} used for making requests to the AniList
-   *     API.
+   * @param dataService             The {@link TrackingDataService} used for storing tracking data.
+   * @param manga                   the {@link Manga} to track with the dialog.
+   * @param aniListAPIService       the {@link AniListAPIService} used for making requests to the
+   *                                AniList API.
    * @param suwayomiTrackingService the {@link SuwayomiTrackingService} used for making requests to
-   *     the Suwayomi API.
+   *                                the Suwayomi API.
    */
   public TrackingDialog(
       TrackingDataService dataService,
@@ -92,6 +92,14 @@ public class TrackingDialog extends Dialog {
     }
   }
 
+  /**
+   * Adds the tracking buttons to the dialog.
+   *
+   * @param manga             the {@link Manga} to track
+   * @param aniListAPIService the {@link AniListAPIService} to communicate with AniList with
+   * @param tracker           the {@link Tracker} instance to update the button states via
+   *                          {@link #updateButtons(Button, Button, Tracker)}
+   */
   private void addTrackingButtons(
       Manga manga, AniListAPIService aniListAPIService, Tracker tracker) {
     VerticalLayout buttons = new VerticalLayout();
@@ -126,7 +134,7 @@ public class TrackingDialog extends Dialog {
           try {
             displaySearch(manga.getTitle(), manga.getId(), provider);
           } catch (WebClientResponseException.InternalServerError
-              | WebClientRequestException error) {
+                   | WebClientRequestException error) {
             log.error("Invalid response from AniList", error);
             Notification notification = new Notification();
             notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -149,7 +157,7 @@ public class TrackingDialog extends Dialog {
           try {
             displaySearch(manga.getTitle(), manga.getId(), provider);
           } catch (WebClientResponseException.InternalServerError
-              | WebClientRequestException error) {
+                   | WebClientRequestException error) {
             log.error("Invalid response from MyAnimeList", error);
             Notification notification = new Notification();
             notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -452,6 +460,13 @@ public class TrackingDialog extends Dialog {
         });
   }
 
+  /**
+   * Updates the tracking buttons with the current tracking status.
+   *
+   * @param aniListBtn the AniList tracking button
+   * @param malBtn     the MyAnimeList tracking button
+   * @param tracker    the tracker to check the status of
+   */
   private void updateButtons(Button aniListBtn, Button malBtn, Tracker tracker) {
     if (tracker.hasAniListId()) {
       aniListBtn.setIcon(LumoIcon.CHECKMARK.create());

@@ -101,6 +101,12 @@ public class MALView extends TrackingLayout {
     return getContentSection("Dropped", cards);
   }
 
+  /**
+   * Retrieves a list of {@link MalMediaCard} objects based on the given list of {@link Manga} objects.
+   *
+   * @param media the list of {@link Manga} objects from which to create the cards.
+   * @return a list of {@link MalMediaCard} objects.
+   */
   private List<MalMediaCard> getCards(List<Manga> media) {
     return media.stream().map(MalMediaCard::new).toList();
   }

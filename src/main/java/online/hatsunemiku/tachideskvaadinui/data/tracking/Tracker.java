@@ -35,6 +35,10 @@ public class Tracker {
     return aniListId != 0;
   }
 
+  /**
+   * Checks if the tracker has a MyAnimeList ID.
+   * @return {@code true} if the tracker has a MyAnimeList ID, {@code false} otherwise
+   */
   public boolean hasMalId() {
     return malId != 0;
   }

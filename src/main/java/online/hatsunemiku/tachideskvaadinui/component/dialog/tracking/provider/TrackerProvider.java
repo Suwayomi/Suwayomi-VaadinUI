@@ -16,21 +16,35 @@ import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchRe
  */
 public interface TrackerProvider {
 
-  public boolean canSetPrivate();
-
-  public List<TrackerSearchResult> search(String query);
+  /**
+   * Checks if the tracker supports setting entries to private.
+   *
+   * @return {@code true} if the tracker supports setting entries to private, {@code false}
+   * otherwise
+   */
+  boolean canSetPrivate();
 
   /**
-   * @param isPrivate whether the entry should be set to private
-   * @param mangaId the id of the manga according to Suwayomi
+   * Searches for manga on the tracker.
+   *
+   * @param query the search query to use when searching for manga
+   * @return a list of {@link TrackerSearchResult} objects representing the search results
+   */
+  List<TrackerSearchResult> search(String query);
+
+  /**
+   * @param isPrivate  whether the entry should be set to private
+   * @param mangaId    the id of the manga according to Suwayomi
    * @param externalId the id of the manga on the tracker
    * @throws IllegalArgumentException if `isPrivate` is set to true and the tracker does not support
-   *     private entries
+   *                                  private entries
    */
-  public void submitToTracker(boolean isPrivate, int mangaId, int externalId);
+  void submitToTracker(boolean isPrivate, int mangaId, int externalId);
 
-  /** Equivalent to calling `submitToTracker(false, mangaId, externalId)` */
-  public default void submitToTracker(int mangaId, int externalId) {
+  /**
+   * Equivalent to calling `submitToTracker(false, mangaId, externalId)`
+   */
+  default void submitToTracker(int mangaId, int externalId) {
     submitToTracker(false, mangaId, externalId);
   }
 }
