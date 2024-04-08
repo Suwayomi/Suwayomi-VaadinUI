@@ -23,3 +23,11 @@
   grid-template-columns: repeat(5, minmax(200px, 1fr));
   grid-gap: 1rem;
 }
+
+.import-button-container {
+  display: flex;
+  /*grow horizontally*/
+  width: 100%;
+  justify-content: center;
+  margin-top: 1rem;
+}

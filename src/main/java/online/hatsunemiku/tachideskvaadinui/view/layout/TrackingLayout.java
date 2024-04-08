@@ -36,7 +36,7 @@ public abstract class TrackingLayout extends StandardLayout {
   protected void init() {
     if (!hasToken()) {
       Div content = new Div();
-      content.addClassName("button-container");
+      content.addClassName("import-button-container");
 
       Button authBtn = new Button("Authenticate");
       authBtn.addClickListener(e -> authenticate());
@@ -45,8 +45,6 @@ public abstract class TrackingLayout extends StandardLayout {
       setContent(content);
       return;
     }
-
-    // TODO style auth button
 
     var reading = getReadingSection();
     var planToRead = getPlanToReadSection();
