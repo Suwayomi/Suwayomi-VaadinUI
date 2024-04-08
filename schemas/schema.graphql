@@ -33,6 +33,18 @@ type BackupRestoreStatus {
   totalManga: Int!
 }
 
+input BindTrackInput {
+  clientMutationId: String
+  mangaId: Int!
+  remoteId: LongString!
+  trackerId: Int!
+}
+
+type BindTrackPayload {
+  clientMutationId: String
+  trackRecord: TrackRecordType!
+}
+
 input BooleanFilterInput {
   distinctFrom: Boolean
   equalTo: Boolean
@@ -98,7 +110,8 @@ enum CategoryOrderBy {
 type CategoryType {
   default: Boolean!
   id: Int!
-  includeInUpdate: IncludeInUpdate!
+  includeInDownload: IncludeOrExclude!
+  includeInUpdate: IncludeOrExclude!
   name: String!
   order: Int!
   mangas: MangaNodeList!
@@ -260,7 +273,8 @@ type CreateBackupPayload {
 input CreateCategoryInput {
   clientMutationId: String
   default: Boolean
-  includeInUpdate: IncludeInUpdate
+  includeInDownload: IncludeOrExclude
+  includeInUpdate: IncludeOrExclude
   name: String!
   order: Int
 }
@@ -350,6 +364,18 @@ type DeleteMangaMetaPayload {
   meta: MangaMetaType
 }
 
+input DeleteSourceMetaInput {
+  clientMutationId: String
+  key: String!
+  sourceId: LongString!
+}
+
+type DeleteSourceMetaPayload {
+  clientMutationId: String
+  meta: SourceMetaType
+  source: SourceType
+}
+
 input DequeueChapterDownloadInput {
   clientMutationId: String
   id: Int!
@@ -370,14 +396,18 @@ type DequeueChapterDownloadsPayload {
   downloadStatus: DownloadStatus!
 }
 
-input DownloadAheadInput {
-  clientMutationId: String
-  latestReadChapterIds: [Int!]
-  mangaIds: [Int!]!
-}
-
-type DownloadAheadPayload {
-  clientMutationId: String
+input DoubleFilterInput {
+  distinctFrom: Float
+  equalTo: Float
+  greaterThan: Float
+  greaterThanOrEqualTo: Float
+  in: [Float!]
+  isNull: Boolean
+  lessThan: Float
+  lessThanOrEqualTo: Float
+  notDistinctFrom: Float
+  notEqualTo: Float
+  notIn: [Float!]
 }
 
 type DownloadEdge implements Edge {
@@ -637,7 +667,7 @@ type HeaderFilter {
   name: String!
 }
 
-enum IncludeInUpdate {
+enum IncludeOrExclude {
   EXCLUDE
   INCLUDE
   UNSET
@@ -680,6 +710,42 @@ type ListPreference {
   summary: String
   title: String
   visible: Boolean!
+}
+
+input LoginTrackerCredentialsInput {
+  clientMutationId: String
+  password: String!
+  trackerId: Int!
+  username: String!
+}
+
+type LoginTrackerCredentialsPayload {
+  clientMutationId: String
+  isLoggedIn: Boolean!
+  tracker: TrackerType!
+}
+
+input LoginTrackerOAuthInput {
+  callbackUrl: String!
+  clientMutationId: String
+  trackerId: Int!
+}
+
+type LoginTrackerOAuthPayload {
+  clientMutationId: String
+  isLoggedIn: Boolean!
+  tracker: TrackerType!
+}
+
+input LogoutTrackerInput {
+  clientMutationId: String
+  trackerId: Int!
+}
+
+type LogoutTrackerPayload {
+  clientMutationId: String
+  isLoggedIn: Boolean!
+  tracker: TrackerType!
 }
 
 input LongFilterInput {
@@ -813,6 +879,7 @@ type MangaType {
   sourceId: LongString!
   status: MangaStatus!
   thumbnailUrl: String
+  thumbnailUrlLastFetched: LongString
   title: String!
   updateStrategy: UpdateStrategy!
   url: String!
@@ -822,8 +889,12 @@ type MangaType {
   chaptersAge: LongString
   downloadCount: Int!
   lastReadChapter: ChapterType
+  latestFetchedChapter: ChapterType
+  latestReadChapter: ChapterType
+  latestUploadedChapter: ChapterType
   meta: [MangaMetaType!]!
   source: SourceType
+  trackRecords: TrackRecordNodeList!
   unreadCount: Int!
 }
 
@@ -891,7 +962,6 @@ type Mutation {
   deleteDownloadedChapters(input: DeleteDownloadedChaptersInput!): DeleteDownloadedChaptersPayload!
   dequeueChapterDownload(input: DequeueChapterDownloadInput!): DequeueChapterDownloadPayload!
   dequeueChapterDownloads(input: DequeueChapterDownloadsInput!): DequeueChapterDownloadsPayload!
-  downloadAhead(input: DownloadAheadInput!): DownloadAheadPayload!
   enqueueChapterDownload(input: EnqueueChapterDownloadInput!): EnqueueChapterDownloadPayload!
   enqueueChapterDownloads(input: EnqueueChapterDownloadsInput!): EnqueueChapterDownloadsPayload!
   reorderChapterDownload(input: ReorderChapterDownloadInput!): ReorderChapterDownloadPayload!
@@ -913,14 +983,21 @@ type Mutation {
   setGlobalMeta(input: SetGlobalMetaInput!): SetGlobalMetaPayload!
   resetSettings(input: ResetSettingsInput!): ResetSettingsPayload!
   setSettings(input: SetSettingsInput!): SetSettingsPayload!
+  deleteSourceMeta(input: DeleteSourceMetaInput!): DeleteSourceMetaPayload!
   fetchSourceManga(input: FetchSourceMangaInput!): FetchSourceMangaPayload!
+  setSourceMeta(input: SetSourceMetaInput!): SetSourceMetaPayload!
   updateSourcePreference(input: UpdateSourcePreferenceInput!): UpdateSourcePreferencePayload!
+  bindTrack(input: BindTrackInput!): BindTrackPayload!
+  loginTrackerCredentials(input: LoginTrackerCredentialsInput!): LoginTrackerCredentialsPayload!
+  loginTrackerOAuth(input: LoginTrackerOAuthInput!): LoginTrackerOAuthPayload!
+  logoutTracker(input: LogoutTrackerInput!): LogoutTrackerPayload!
+  updateTrack(input: UpdateTrackInput!): UpdateTrackPayload!
   updateCategoryManga(input: UpdateCategoryMangaInput!): UpdateCategoryMangaPayload!
   updateLibraryManga(input: UpdateLibraryMangaInput!): UpdateLibraryMangaPayload!
   updateStop(input: UpdateStopInput!): UpdateStopPayload!
 }
 
-union Node = CategoryMetaType | CategoryType | ChapterMetaType | ChapterType | DownloadType | ExtensionType | GlobalMetaType | MangaMetaType | MangaType | PartialSettingsType | SettingsType | SourceType | TrackRecordType | TrackerType
+union Node = CategoryMetaType | CategoryType | ChapterMetaType | ChapterType | DownloadType | ExtensionType | GlobalMetaType | MangaMetaType | MangaType | PartialSettingsType | SettingsType | SourceMetaType | SourceType | TrackRecordType | TrackerType
 
 interface NodeList {
   """
@@ -953,8 +1030,9 @@ type PageInfo {
 }
 
 type PartialSettingsType implements Settings {
-  autoDownloadAheadLimit: Int
+  autoDownloadAheadLimit: Int @deprecated(reason: "Replaced with autoDownloadNewChaptersLimit, replace with autoDownloadNewChaptersLimit")
   autoDownloadNewChapters: Boolean
+  autoDownloadNewChaptersLimit: Int
   backupInterval: Int
   backupPath: String
   backupTTL: Int
@@ -971,6 +1049,11 @@ type PartialSettingsType implements Settings {
   excludeNotStarted: Boolean
   excludeUnreadChapters: Boolean
   extensionRepos: [String!]
+  flareSolverrEnabled: Boolean
+  flareSolverrSessionName: String
+  flareSolverrSessionTtl: Int
+  flareSolverrTimeout: Int
+  flareSolverrUrl: String
   globalUpdateInterval: Float
   gqlDebugLogsEnabled: Boolean
   initialOpenInBrowserEnabled: Boolean
@@ -980,7 +1063,10 @@ type PartialSettingsType implements Settings {
   port: Int
   socksProxyEnabled: Boolean
   socksProxyHost: String
+  socksProxyPassword: String
   socksProxyPort: String
+  socksProxyUsername: String
+  socksProxyVersion: Int
   systemTrayEnabled: Boolean
   updateMangas: Boolean
   webUIChannel: WebUIChannel
@@ -990,8 +1076,8 @@ type PartialSettingsType implements Settings {
 }
 
 input PartialSettingsTypeInput {
-  autoDownloadAheadLimit: Int
   autoDownloadNewChapters: Boolean
+  autoDownloadNewChaptersLimit: Int
   backupInterval: Int
   backupPath: String
   backupTTL: Int
@@ -1008,6 +1094,11 @@ input PartialSettingsTypeInput {
   excludeNotStarted: Boolean
   excludeUnreadChapters: Boolean
   extensionRepos: [String!]
+  flareSolverrEnabled: Boolean
+  flareSolverrSessionName: String
+  flareSolverrSessionTtl: Int
+  flareSolverrTimeout: Int
+  flareSolverrUrl: String
   globalUpdateInterval: Float
   gqlDebugLogsEnabled: Boolean
   initialOpenInBrowserEnabled: Boolean
@@ -1017,7 +1108,10 @@ input PartialSettingsTypeInput {
   port: Int
   socksProxyEnabled: Boolean
   socksProxyHost: String
+  socksProxyPassword: String
   socksProxyPort: String
+  socksProxyUsername: String
+  socksProxyVersion: Int
   systemTrayEnabled: Boolean
   updateMangas: Boolean
   webUIChannel: WebUIChannel
@@ -1050,6 +1144,11 @@ type Query {
   settings: SettingsType!
   source(id: LongString!): SourceType!
   sources(condition: SourceConditionInput, filter: SourceFilterInput, orderBy: SourceOrderBy, orderByType: SortOrder, before: Cursor, after: Cursor, first: Int, last: Int, offset: Int): SourceNodeList!
+  searchTracker(input: SearchTrackerInput!): SearchTrackerPayload!
+  trackRecord(id: Int!): TrackRecordType!
+  trackRecords(condition: TrackRecordConditionInput, filter: TrackRecordFilterInput, orderBy: TrackRecordOrderBy, orderByType: SortOrder, before: Cursor, after: Cursor, first: Int, last: Int, offset: Int): TrackRecordNodeList!
+  tracker(id: Int!): TrackerType!
+  trackers(condition: TrackerConditionInput, orderBy: TrackerOrderBy, orderByType: SortOrder, before: Cursor, after: Cursor, first: Int, last: Int, offset: Int): TrackerNodeList!
   lastUpdateTimestamp: LastUpdateTimestampPayload!
   updateStatus: UpdateStatus!
 }
@@ -1083,6 +1182,15 @@ type RestoreBackupPayload {
   clientMutationId: String
   id: String!
   status: BackupRestoreStatus
+}
+
+input SearchTrackerInput {
+  query: String!
+  trackerId: Int!
+}
+
+type SearchTrackerPayload {
+  trackSearches: [TrackSearchType!]!
 }
 
 type SelectFilter {
@@ -1145,9 +1253,20 @@ type SetSettingsPayload {
   settings: SettingsType!
 }
 
+input SetSourceMetaInput {
+  clientMutationId: String
+  meta: SourceMetaTypeInput!
+}
+
+type SetSourceMetaPayload {
+  clientMutationId: String
+  meta: SourceMetaType!
+}
+
 interface Settings {
-  autoDownloadAheadLimit: Int
+  autoDownloadAheadLimit: Int @deprecated(reason: "Replaced with autoDownloadNewChaptersLimit, replace with autoDownloadNewChaptersLimit")
   autoDownloadNewChapters: Boolean
+  autoDownloadNewChaptersLimit: Int
   backupInterval: Int
   backupPath: String
   backupTTL: Int
@@ -1164,6 +1283,11 @@ interface Settings {
   excludeNotStarted: Boolean
   excludeUnreadChapters: Boolean
   extensionRepos: [String!]
+  flareSolverrEnabled: Boolean
+  flareSolverrSessionName: String
+  flareSolverrSessionTtl: Int
+  flareSolverrTimeout: Int
+  flareSolverrUrl: String
   globalUpdateInterval: Float
   gqlDebugLogsEnabled: Boolean
   initialOpenInBrowserEnabled: Boolean
@@ -1173,7 +1297,10 @@ interface Settings {
   port: Int
   socksProxyEnabled: Boolean
   socksProxyHost: String
+  socksProxyPassword: String
   socksProxyPort: String
+  socksProxyUsername: String
+  socksProxyVersion: Int
   systemTrayEnabled: Boolean
   updateMangas: Boolean
   webUIChannel: WebUIChannel
@@ -1183,8 +1310,9 @@ interface Settings {
 }
 
 type SettingsType implements Settings {
-  autoDownloadAheadLimit: Int!
+  autoDownloadAheadLimit: Int! @deprecated(reason: "Replaced with autoDownloadNewChaptersLimit, replace with autoDownloadNewChaptersLimit")
   autoDownloadNewChapters: Boolean!
+  autoDownloadNewChaptersLimit: Int!
   backupInterval: Int!
   backupPath: String!
   backupTTL: Int!
@@ -1201,6 +1329,11 @@ type SettingsType implements Settings {
   excludeNotStarted: Boolean!
   excludeUnreadChapters: Boolean!
   extensionRepos: [String!]!
+  flareSolverrEnabled: Boolean!
+  flareSolverrSessionName: String!
+  flareSolverrSessionTtl: Int!
+  flareSolverrTimeout: Int!
+  flareSolverrUrl: String!
   globalUpdateInterval: Float!
   gqlDebugLogsEnabled: Boolean!
   initialOpenInBrowserEnabled: Boolean!
@@ -1210,7 +1343,10 @@ type SettingsType implements Settings {
   port: Int!
   socksProxyEnabled: Boolean!
   socksProxyHost: String!
+  socksProxyPassword: String!
   socksProxyPort: String!
+  socksProxyUsername: String!
+  socksProxyVersion: Int!
   systemTrayEnabled: Boolean!
   updateMangas: Boolean!
   webUIChannel: WebUIChannel!
@@ -1266,6 +1402,19 @@ input SourceFilterInput {
   or: [SourceFilterInput!]
 }
 
+type SourceMetaType implements MetaType {
+  key: String!
+  sourceId: LongString!
+  value: String!
+  source: SourceType!
+}
+
+input SourceMetaTypeInput {
+  key: String!
+  sourceId: LongString!
+  value: String!
+}
+
 type SourceNodeList implements NodeList {
   edges: [SourceEdge!]!
   nodes: [SourceType!]!
@@ -1300,6 +1449,7 @@ type SourceType {
   extension: ExtensionType!
   filters: [Filter!]!
   manga: MangaNodeList!
+  meta: [SourceMetaType!]!
   preferences: [Preference!]!
 }
 
@@ -1379,6 +1529,13 @@ type TextFilter {
   name: String!
 }
 
+input TrackerConditionInput {
+  icon: String
+  id: Int
+  isLoggedIn: Boolean
+  name: String
+}
+
 type TrackerEdge implements Edge {
   cursor: Cursor!
   node: TrackerType!
@@ -1391,13 +1548,38 @@ type TrackerNodeList implements NodeList {
   totalCount: Int!
 }
 
+enum TrackerOrderBy {
+  ID
+  NAME
+  IS_LOGGED_IN
+}
+
 type TrackerType {
   authUrl: String
   icon: String!
   id: Int!
   isLoggedIn: Boolean!
   name: String!
+  isTokenExpired: Boolean!
+  scores: [String!]!
+  statuses: [TrackStatusType!]!
   trackRecords: TrackRecordNodeList!
+}
+
+input TrackRecordConditionInput {
+  finishDate: LongString
+  id: Int
+  lastChapterRead: Float
+  libraryId: LongString
+  mangaId: Int
+  remoteId: LongString
+  remoteUrl: String
+  score: Float
+  startDate: LongString
+  status: Int
+  title: String
+  totalChapters: Int
+  trackerId: Int
 }
 
 type TrackRecordEdge implements Edge {
@@ -1405,11 +1587,43 @@ type TrackRecordEdge implements Edge {
   node: TrackRecordType!
 }
 
+input TrackRecordFilterInput {
+  and: [TrackRecordFilterInput!]
+  finishDate: LongFilterInput
+  id: IntFilterInput
+  lastChapterRead: DoubleFilterInput
+  libraryId: LongFilterInput
+  mangaId: IntFilterInput
+  not: TrackRecordFilterInput
+  or: [TrackRecordFilterInput!]
+  remoteId: LongFilterInput
+  remoteUrl: StringFilterInput
+  score: DoubleFilterInput
+  startDate: LongFilterInput
+  status: IntFilterInput
+  title: StringFilterInput
+  totalChapters: IntFilterInput
+  trackerId: IntFilterInput
+}
+
 type TrackRecordNodeList implements NodeList {
   edges: [TrackRecordEdge!]!
   nodes: [TrackRecordType!]!
   pageInfo: PageInfo!
   totalCount: Int!
+}
+
+enum TrackRecordOrderBy {
+  ID
+  MANGA_ID
+  TRACKER_ID
+  REMOTE_ID
+  TITLE
+  LAST_CHAPTER_READ
+  TOTAL_CHAPTERS
+  SCORE
+  START_DATE
+  FINISH_DATE
 }
 
 type TrackRecordType {
@@ -1423,12 +1637,32 @@ type TrackRecordType {
   score: Float!
   startDate: LongString!
   status: Int!
-  syncId: Int!
   title: String!
   totalChapters: Int!
+  trackerId: Int!
   displayScore: String!
   manga: MangaType!
   tracker: TrackerType!
+}
+
+type TrackSearchType {
+  coverUrl: String!
+  id: Int!
+  publishingStatus: String!
+  publishingType: String!
+  remoteId: LongString!
+  startDate: String!
+  summary: String!
+  title: String!
+  totalChapters: Int!
+  trackerId: Int!
+  trackingUrl: String!
+  tracker: TrackerType!
+}
+
+type TrackStatusType {
+  name: String!
+  value: Int!
 }
 
 enum TriState {
@@ -1482,7 +1716,8 @@ type UpdateCategoryOrderPayload {
 
 input UpdateCategoryPatchInput {
   default: Boolean
-  includeInUpdate: IncludeInUpdate
+  includeInDownload: IncludeOrExclude
+  includeInUpdate: IncludeOrExclude
   name: String
 }
 
@@ -1661,6 +1896,22 @@ enum UpdateStrategy {
   ONLY_FETCH_ONCE
 }
 
+input UpdateTrackInput {
+  clientMutationId: String
+  finishDate: LongString
+  lastChapterRead: Float
+  recordId: Int!
+  scoreString: String
+  startDate: LongString
+  status: Int
+  unbind: Boolean
+}
+
+type UpdateTrackPayload {
+  clientMutationId: String
+  trackRecord: TrackRecordType
+}
+
 """A file part in a multipart request"""
 scalar Upload
 
@@ -1685,6 +1936,7 @@ enum WebUIChannel {
 
 enum WebUIFlavor {
   WEBUI
+  VUI
   CUSTOM
 }
 
@@ -1718,4 +1970,3 @@ type WebUIUpdateStatus {
   progress: Int!
   state: UpdateState!
 }
-

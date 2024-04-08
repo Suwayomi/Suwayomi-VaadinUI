@@ -1,0 +1,33 @@
+.import-title-section {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  background-color: var(--miku-unselected-color);
+  color: var(--miku-main-color);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+  padding: 0.2rem;
+  border-radius: 0.5rem;
+}
+
+.import-content {
+  width: 100%;
+  padding: 0.6rem;
+  border: 2px solid var(--miku-main-color);
+  border-radius: 0.5rem;
+}
+
+.import-content-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(200px, 1fr));
+  grid-gap: 1rem;
+}
+
+.import-button-container {
+  display: flex;
+  /*grow horizontally*/
+  width: 100%;
+  justify-content: center;
+  margin-top: 1rem;
+}

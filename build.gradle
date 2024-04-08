@@ -16,7 +16,7 @@ plugins {
 }
 
 group = 'online.hatsunemiku'
-version = '1.5.0'
+version = '1.6.0'
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
@@ -65,6 +65,16 @@ dependencies {
     implementation 'io.github.openfeign.form:feign-form-spring:3.8.0'
     implementation 'io.github.openfeign:feign-okhttp:12.4'
 
+    //MAL API
+    implementation 'dev.katsute:mal4j:3.4.2'
+
+    //GraphQL
+    implementation "com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter"
+
+    //Apache Commons codec -> used for URL encoding
+    implementation 'commons-codec:commons-codec:1.16.1'
+
+
     implementation 'pl.unforgiven:superfields:0.18.3'
     implementation 'com.squareup.okhttp3:okhttp:4.11.0'
     implementation 'commons-validator:commons-validator:1.7'
@@ -85,6 +95,7 @@ dependencies {
 dependencyManagement {
     imports {
         mavenBom "com.vaadin:vaadin-bom:${vaadinVersion}"
+        mavenBom "com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:latest.release"
     }
 }
 

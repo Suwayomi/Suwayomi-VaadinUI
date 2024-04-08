@@ -32,14 +32,19 @@ import online.hatsunemiku.tachideskvaadinui.component.listbox.chapter.ChapterLis
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
-import online.hatsunemiku.tachideskvaadinui.services.AniListAPIService;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
+import online.hatsunemiku.tachideskvaadinui.services.tracker.AniListAPIService;
+import online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService;
 import online.hatsunemiku.tachideskvaadinui.utils.RouteUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * MangaView is a view for displaying manga information such as chapters and cover image. It also
+ * allows the user to download chapters, add the manga to their library and more.
+ */
 @Route("manga/:id(\\d+)")
 @CssImport("./css/manga.css")
 public class MangaView extends StandardLayout implements BeforeEnterObserver {
@@ -48,17 +53,30 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
   private final SettingsService settingsService;
   private final AniListAPIService aniListAPIService;
   private final TrackingDataService dataService;
+  private final SuwayomiTrackingService suwayomiTrackingService;
 
+  /**
+   * Creates a MangaView object.
+   *
+   * @param mangaService The {@link MangaService} for accessing the manga data from the server.
+   * @param settingsService The {@link SettingsService} for accessing and managing application
+   *     settings.
+   * @param aniListAPIService The {@link AniListAPIService} for connecting to the AniList API.
+   * @param dataService The {@link TrackingDataService} for tracking manga reading data.
+   * @param suwayomiTrackingService The {@link SuwayomiTrackingService} for Suwayomi tracking.
+   */
   public MangaView(
       MangaService mangaService,
       SettingsService settingsService,
       AniListAPIService aniListAPIService,
-      TrackingDataService dataService) {
+      TrackingDataService dataService,
+      SuwayomiTrackingService suwayomiTrackingService) {
     super("Manga");
     this.mangaService = mangaService;
     this.settingsService = settingsService;
     this.aniListAPIService = aniListAPIService;
     this.dataService = dataService;
+    this.suwayomiTrackingService = suwayomiTrackingService;
   }
 
   @Override
@@ -117,6 +135,13 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     setContent(container);
   }
 
+  /**
+   * Retrieves and constructs the buttons needed for functionality for a manga.
+   *
+   * @param manga The {@link Manga} object for which to retrieve the buttons.
+   * @param chapters The list of {@link Chapter} objects available for the manga.
+   * @return The constructed {@link Div} element containing the buttons.
+   */
   @NotNull
   private Div getButtons(Manga manga, List<Chapter> chapters) {
     Div buttons = new Div();
@@ -132,7 +157,8 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
 
     trackBtn.addClickListener(
         e -> {
-          TrackingDialog dialog = new TrackingDialog(dataService, manga, aniListAPIService);
+          var dialog =
+              new TrackingDialog(dataService, manga, aniListAPIService, suwayomiTrackingService);
           dialog.open();
         });
 
@@ -292,7 +318,7 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
      *
      * @param source the source component
      * @param fromClient <code>true</code> if the event originated from the client side, <code>false
-     *     </code> otherwise
+     *                   </code> otherwise
      */
     public DownloadAllChapterEvent(MangaView source, boolean fromClient) {
       super(source, fromClient);

@@ -42,12 +42,18 @@ import online.hatsunemiku.tachideskvaadinui.services.SearchService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.SourceService;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
+import online.hatsunemiku.tachideskvaadinui.view.trackers.AniListView;
+import online.hatsunemiku.tachideskvaadinui.view.trackers.MALView;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.vaadin.miki.shared.text.TextInputMode;
 import org.vaadin.miki.superfields.text.SuperTextField;
 
+/**
+ * SearchView is a view used for searching sources for manga. It allows the user to search for manga
+ * across all sources with a language filter to narrow down the search results.
+ */
 @CssImport("./css/views/search-view.css")
 @Slf4j
 @Route("search")
@@ -60,6 +66,13 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   private final SearchService searchService;
   private final SettingsService settingsService;
 
+  /**
+   * Constructs a SearchView object.
+   *
+   * @param sourceService the {@link SourceService} used for retrieving manga sources
+   * @param searchService the {@link SearchService} used for performing search operations
+   * @param settingsService the {@link SettingsService} used for accessing search settings
+   */
   public SearchView(
       SourceService sourceService, SearchService searchService, SettingsService settingsService) {
     super("Search");
@@ -78,6 +91,52 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     Div btnContainer = new Div();
     btnContainer.addClassName("search-btn-container");
 
+    Button aniListImportBtn = getALImportBtn();
+    Button malImportBtn = getMalImportBtn();
+
+    btnContainer.add(aniListImportBtn, malImportBtn);
+
+    Div content = new Div();
+    content.setClassName("search-content");
+
+    content.add(btnContainer);
+    content.add(searchField);
+    content.add(langFilter);
+    content.add(searchResults);
+
+    setContent(content);
+  }
+
+  /**
+   * Retrieves the "Import from MAL" button. This button is used to navigate to the {@link MALView}.
+   *
+   * @return the button that navigates to the {@link MALView}
+   */
+  @NotNull
+  private Button getMalImportBtn() {
+    Button malImportBtn = new Button("Import from MAL", VaadinIcon.DOWNLOAD.create());
+
+    malImportBtn.addClickListener(
+        e -> {
+          UI ui = getUI().orElse(UI.getCurrent());
+
+          if (ui == null) {
+            return;
+          }
+
+          ui.navigate(MALView.class);
+        });
+    return malImportBtn;
+  }
+
+  /**
+   * Retrieves the "Import from AniList" button. This button is used to navigate to the {@link
+   * AniListView}.
+   *
+   * @return The button that navigates to the {@link AniListView}
+   */
+  @NotNull
+  private Button getALImportBtn() {
     Button importBtn = new Button("Import from AniList", VaadinIcon.DOWNLOAD.create());
     importBtn.addClickListener(
         e -> {
@@ -94,18 +153,7 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
 
           ui.navigate(AniListView.class);
         });
-
-    btnContainer.add(importBtn);
-
-    Div content = new Div();
-    content.setClassName("search-content");
-
-    content.add(btnContainer);
-    content.add(searchField);
-    content.add(langFilter);
-    content.add(searchResults);
-
-    setContent(content);
+    return importBtn;
   }
 
   @NotNull

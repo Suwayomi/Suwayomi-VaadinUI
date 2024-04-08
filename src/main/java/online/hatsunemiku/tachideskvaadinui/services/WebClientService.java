@@ -6,6 +6,8 @@
 
 package online.hatsunemiku.tachideskvaadinui.services;
 
+import com.netflix.graphql.dgs.client.MonoGraphQLClient;
+import com.netflix.graphql.dgs.client.WebClientGraphQLClient;
 import jakarta.annotation.PreDestroy;
 import java.net.URI;
 import java.time.Duration;
@@ -22,6 +24,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.socket.client.StandardWebSocketClient;
 import org.springframework.web.reactive.socket.client.WebSocketClient;
 
+/**
+ * The WebClientService class is responsible for creating and managing clients used by other
+ * services to communicate with APIs.
+ */
 @Getter
 @Service
 public class WebClientService {
@@ -30,21 +36,35 @@ public class WebClientService {
   private WebClient webClient;
   private HttpGraphQlClient graphQlClient;
   private WebSocketGraphQlClient webSocketGraphQlClient;
+  private WebClientGraphQLClient dgsGraphQlClient;
 
+  /**
+   * Creates a new instance of the {@link WebClientService} class.
+   *
+   * @param settingsService the {@link SettingsService} used for getting the current settings.
+   */
   public WebClientService(SettingsService settingsService) {
     Settings settings = settingsService.getSettings();
 
     this.webClient = WebClient.create(settings.getUrl());
     initGraphQlClient(settings.getUrl());
     initWebSocketGraphQlClient(settings.getUrl());
+    initDgsGraphQlClient(settings.getUrl());
   }
 
+  /**
+   * Handles an {@link UrlChangeEvent} by updating the clients with the new URL of the server
+   * instance. Should only be called by Spring when an {@link UrlChangeEvent} is published.
+   *
+   * @param event the {@link UrlChangeEvent} to handle.
+   */
   @EventListener(UrlChangeEvent.class)
   protected void onUrlChange(UrlChangeEvent event) {
     this.webClient = WebClient.create(event.getUrl());
 
     initGraphQlClient(event.getUrl());
     initWebSocketGraphQlClient(event.getUrl());
+    initDgsGraphQlClient(event.getUrl());
   }
 
   @PreDestroy
@@ -85,5 +105,19 @@ public class WebClientService {
     URI uri = URI.create(url);
 
     this.webSocketGraphQlClient = WebSocketGraphQlClient.create(uri, webSocketClient);
+  }
+
+  /**
+   * Initializes the DGS GraphQL client.
+   *
+   * @param url the URL of the GraphQL server without the {@code /api/graphql} path.
+   */
+  private void initDgsGraphQlClient(String url) {
+    url = url + "/api/graphql";
+    url = url.replace("//api", "/api");
+
+    WebClient internal = WebClient.create(url);
+
+    this.dgsGraphQlClient = MonoGraphQLClient.createWithWebClient(internal);
   }
 }

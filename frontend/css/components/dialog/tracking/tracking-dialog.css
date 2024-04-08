@@ -97,3 +97,10 @@
     align-items: center;
     padding: 1rem;
 }
+
+#tracking-dialog-tracker-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}

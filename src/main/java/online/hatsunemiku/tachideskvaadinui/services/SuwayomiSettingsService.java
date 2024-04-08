@@ -9,14 +9,25 @@ package online.hatsunemiku.tachideskvaadinui.services;
 import java.util.ArrayList;
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.ExtensionRepo;
-import online.hatsunemiku.tachideskvaadinui.services.client.SuwayomiSettingsClient;
+import online.hatsunemiku.tachideskvaadinui.services.client.suwayomi.SuwayomiSettingsClient;
 import org.springframework.stereotype.Service;
 
+/**
+ * Responsible for managing Suwayomi server settings. This class is an abstraction over the {@link
+ * SuwayomiSettingsClient} class and provides methods for updating and retrieving Suwayomi server
+ * settings.
+ */
 @Service
 public class SuwayomiSettingsService {
 
   private final SuwayomiSettingsClient client;
 
+  /**
+   * Creates a new instance of the {@link SuwayomiSettingsService} class.
+   *
+   * @param client the {@link SuwayomiSettingsClient} used for making API requests to the Suwayomi
+   *     Server.
+   */
   public SuwayomiSettingsService(SuwayomiSettingsClient client) {
     this.client = client;
   }

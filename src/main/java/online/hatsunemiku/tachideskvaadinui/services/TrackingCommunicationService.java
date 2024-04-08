@@ -7,6 +7,7 @@
 package online.hatsunemiku.tachideskvaadinui.services;
 
 import lombok.extern.slf4j.Slf4j;
+import online.hatsunemiku.tachideskvaadinui.services.tracker.AniListAPIService;
 import org.springframework.stereotype.Service;
 
 @Service
