@@ -9,15 +9,16 @@ package online.hatsunemiku.tachideskvaadinui.startup;
 import jakarta.annotation.PreDestroy;
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.Meta;
 import online.hatsunemiku.tachideskvaadinui.data.server.event.ServerEventPublisher;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.settings.event.UrlChangeEvent;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
+import online.hatsunemiku.tachideskvaadinui.services.SuwayomiService;
 import online.hatsunemiku.tachideskvaadinui.utils.BrowserUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import org.slf4j.Logger;
@@ -25,6 +26,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
+/**
+ * Is responsible for starting the Suwayomi (previously Tachidesk) server. Additionally, it checks
+ * if the server is running and publishes an event if it is.
+ */
 @Service
 @Slf4j
 public class TachideskStarter {
@@ -35,11 +40,23 @@ public class TachideskStarter {
   private ScheduledExecutorService startChecker;
   private final SettingsService settingsService;
   private final ServerEventPublisher serverEventPublisher;
+  private final SuwayomiService suwayomiApi;
 
+  /**
+   * Creates a new instance of the {@link TachideskStarter} class.
+   *
+   * @param settingsService The {@link SettingsService} used for retrieving settings.
+   * @param serverEventPublisher The {@link ServerEventPublisher} used for publishing server events
+   *     to the application.
+   * @param suwayomiApi The {@link SuwayomiService} used for checking if the server is running.
+   */
   public TachideskStarter(
-      SettingsService settingsService, ServerEventPublisher serverEventPublisher) {
+      SettingsService settingsService,
+      ServerEventPublisher serverEventPublisher,
+      SuwayomiService suwayomiApi) {
     this.settingsService = settingsService;
     this.serverEventPublisher = serverEventPublisher;
+    this.suwayomiApi = suwayomiApi;
   }
 
   public void startJar(File projectDir) {
@@ -153,20 +170,35 @@ public class TachideskStarter {
     startChecker = null;
   }
 
+  /**
+   * Checks if the server is running. It both checks if the server process exists and if the server
+   * is reachable and gives a valid response.
+   *
+   * @return {@code true} if the server is running, {@code false} otherwise.
+   */
   private boolean checkServerConnection() {
     if (serverProcess == null) {
       throw new RuntimeException("Server process is null");
     }
 
     try {
-      HttpURLConnection connection =
-          (HttpURLConnection) new URL("http://localhost:4567/api/graphql").openConnection();
-      connection.setRequestMethod("GET");
-      connection.setConnectTimeout(500);
-      connection.connect();
-      int code = connection.getResponseCode();
-      return code == 200;
-    } catch (IOException e) {
+      var optional = suwayomiApi.getServerVersion();
+
+      if (optional.isEmpty()) {
+        return false;
+      }
+
+      var version = optional.get();
+
+      logger.info(
+          "Server version: Major={},Minor={},Patch={} with Revision={}",
+          version.getMajorVersion(),
+          version.getMinorVersion(),
+          version.getPatchVersion(),
+          version.getRevisionNumber());
+      return true;
+    } catch (Exception e) {
+      logger.info("Server not running", e);
       return false;
     }
   }
