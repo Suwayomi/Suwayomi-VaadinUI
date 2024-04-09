@@ -26,6 +26,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
+/**
+ * Is responsible for starting the Suwayomi (previously Tachidesk) server. Additionally, it checks
+ * if the server is running and publishes an event if it is.
+ */
 @Service
 @Slf4j
 public class TachideskStarter {

@@ -8,6 +8,9 @@ package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
 
 import lombok.Getter;
 
+/**
+ * Represents the version of the Suwayomi Server.
+ */
 @Getter
 public class ServerVersion {
 

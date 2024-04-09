@@ -11,6 +11,11 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.ServerVersion;
 import online.hatsunemiku.tachideskvaadinui.services.client.suwayomi.SuwayomiMetaClient;
 import org.springframework.stereotype.Service;
 
+/**
+ * Responsible for retrieving data from the Suwayomi Server. This class is an abstraction over the
+ * {@link SuwayomiMetaClient} class and provides methods for retrieving data from the Suwayomi
+ * Server.
+ */
 @Service
 public class SuwayomiService {
 
