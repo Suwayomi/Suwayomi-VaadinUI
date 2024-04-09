@@ -6,6 +6,7 @@
 
 package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 
 /** Represents the version of the Suwayomi Server. */
@@ -18,7 +19,14 @@ public class ServerVersion {
   /** The revision of the server. Format: r1234 */
   private final String revision;
 
-  public ServerVersion(String version, String revision) {
+  /**
+   * Creates a new instance of the {@link ServerVersion} class.
+   * @param version the version of the server
+   * @param revision the revision of the server
+   */
+  //Private constructor so only Spring can create instances of this class
+  @JsonCreator
+  private ServerVersion(String version, String revision) {
     this.version = version;
     this.revision = revision;
   }

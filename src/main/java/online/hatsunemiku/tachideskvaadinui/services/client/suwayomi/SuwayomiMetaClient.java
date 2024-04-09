@@ -19,6 +19,12 @@ public class SuwayomiMetaClient {
 
   private final WebClientService webClientService;
 
+  /**
+   * Creates a new instance of the {@link SuwayomiMetaClient} class.
+   *
+   * @param webClientService the {@link WebClientService} used for making API requests to the
+   *                         Suwayomi Server.
+   */
   public SuwayomiMetaClient(WebClientService webClientService) {
     this.webClientService = webClientService;
   }
