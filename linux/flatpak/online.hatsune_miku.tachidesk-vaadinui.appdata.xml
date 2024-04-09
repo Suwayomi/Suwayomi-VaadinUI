@@ -42,14 +42,9 @@
         </screenshot>
     </screenshots>
     <releases>
-        <release version="1.6.0" date="2024-04-08">
+        <release version="1.6.1" date="2024-04-09">
             <description>
-                <p>VaadinUI now uses Suwayomi's authentication System. Enables MyAnimeList authentication.</p>
-                <p>Note: Don't use MAL Authentication with Suwayomi Server v1.0.0-r1498 as it's bugged</p>
-                <ul>
-                    <li>Added a Strip Reader Implementation for vertical reading</li>
-                    <li>Enhanced design for cards</li>
-                </ul>
+                <p>Fixed a bug with AniList import authentication</p>
             </description>
         </release>
     </releases>
