@@ -23,7 +23,9 @@ public class SuwayomiService {
 
   /**
    * Creates a new instance of the {@link SuwayomiService} class.
-   * @param metaClient the {@link SuwayomiMetaClient} used for retrieving data from the Suwayomi Server.
+   *
+   * @param metaClient the {@link SuwayomiMetaClient} used for retrieving data from the Suwayomi
+   *     Server.
    */
   public SuwayomiService(SuwayomiMetaClient metaClient) {
     this.metaClient = metaClient;
