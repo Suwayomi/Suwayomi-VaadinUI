@@ -23,7 +23,7 @@ import online.hatsunemiku.tachideskvaadinui.view.layout.TrackingLayout;
 public class AniListView extends TrackingLayout {
 
   private final AniListAPIService aniListAPI;
-  private final MangaList list;
+  private MangaList list;
 
   /**
    * AniListView is a view for displaying AniList entries to import.
@@ -36,7 +36,10 @@ public class AniListView extends TrackingLayout {
     addClassName("anilist-view");
 
     this.aniListAPI = apiService;
-    this.list = apiService.getMangaList();
+
+    if (hasToken()) {
+      this.list = apiService.getMangaList();
+    }
 
     init();
   }
@@ -61,6 +64,15 @@ public class AniListView extends TrackingLayout {
 
   @Override
   public Div getReadingSection() {
+    //Only need to check in this method since all other methods get called after this one
+    if (list == null) {
+      if (!hasToken()) {
+        throw new IllegalStateException("getReadingSection called without token");
+      }
+
+      list = aniListAPI.getMangaList();
+    }
+
     var cards = getCards(list.reading());
 
     return getContentSection("Reading", cards);
