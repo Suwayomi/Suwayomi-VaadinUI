@@ -9,15 +9,16 @@ package online.hatsunemiku.tachideskvaadinui.startup;
 import jakarta.annotation.PreDestroy;
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.Meta;
 import online.hatsunemiku.tachideskvaadinui.data.server.event.ServerEventPublisher;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.settings.event.UrlChangeEvent;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
+import online.hatsunemiku.tachideskvaadinui.services.SuwayomiService;
 import online.hatsunemiku.tachideskvaadinui.utils.BrowserUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import org.slf4j.Logger;
@@ -35,11 +36,14 @@ public class TachideskStarter {
   private ScheduledExecutorService startChecker;
   private final SettingsService settingsService;
   private final ServerEventPublisher serverEventPublisher;
+  private final SuwayomiService suwayomiApi;
 
   public TachideskStarter(
-      SettingsService settingsService, ServerEventPublisher serverEventPublisher) {
+      SettingsService settingsService, ServerEventPublisher serverEventPublisher,
+      SuwayomiService suwayomiApi) {
     this.settingsService = settingsService;
     this.serverEventPublisher = serverEventPublisher;
+    this.suwayomiApi = suwayomiApi;
   }
 
   public void startJar(File projectDir) {
@@ -62,7 +66,7 @@ public class TachideskStarter {
     log.info("Checking for java installation...");
     boolean isJavaInstalled;
     try {
-      Process process = Runtime.getRuntime().exec(new String[] {"java", "-version"});
+      Process process = Runtime.getRuntime().exec(new String[]{"java", "-version"});
       isJavaInstalled = process.waitFor() == 0;
     } catch (IOException | InterruptedException e) {
       log.error("Failed to check if java is installed");
@@ -159,14 +163,20 @@ public class TachideskStarter {
     }
 
     try {
-      HttpURLConnection connection =
-          (HttpURLConnection) new URL("http://localhost:4567/api/graphql").openConnection();
-      connection.setRequestMethod("GET");
-      connection.setConnectTimeout(500);
-      connection.connect();
-      int code = connection.getResponseCode();
-      return code == 200;
-    } catch (IOException e) {
+      var optional = suwayomiApi.getServerVersion();
+
+      if (optional.isEmpty()) {
+        return false;
+      }
+
+      var version = optional.get();
+
+      logger.info("Server version: Major={},Minor={},Patch={} with Revision={}",
+          version.getMajorVersion(), version.getMinorVersion(), version.getPatchVersion(),
+          version.getRevisionNumber());
+      return true;
+    } catch (Exception e) {
+      logger.info("Server not running", e);
       return false;
     }
   }
