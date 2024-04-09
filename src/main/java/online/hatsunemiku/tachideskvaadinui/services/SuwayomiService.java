@@ -21,6 +21,10 @@ public class SuwayomiService {
 
   private final SuwayomiMetaClient metaClient;
 
+  /**
+   * Creates a new instance of the {@link SuwayomiService} class.
+   * @param metaClient the {@link SuwayomiMetaClient} used for retrieving data from the Suwayomi Server.
+   */
   public SuwayomiService(SuwayomiMetaClient metaClient) {
     this.metaClient = metaClient;
   }
@@ -30,7 +34,7 @@ public class SuwayomiService {
    * received.
    *
    * @return either the version of the Suwayomi Server if successful or an empty {@link Optional} if
-   * an error occurred.
+   *     an error occurred.
    */
   public Optional<ServerVersion> getServerVersion() {
     try {
