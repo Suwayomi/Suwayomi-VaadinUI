@@ -45,11 +45,10 @@ public class TachideskStarter {
   /**
    * Creates a new instance of the {@link TachideskStarter} class.
    *
-   * @param settingsService      The {@link SettingsService} used for retrieving settings.
+   * @param settingsService The {@link SettingsService} used for retrieving settings.
    * @param serverEventPublisher The {@link ServerEventPublisher} used for publishing server events
-   *                             to the application.
-   * @param suwayomiApi          The {@link SuwayomiService} used for checking if the server is
-   *                             running.
+   *     to the application.
+   * @param suwayomiApi The {@link SuwayomiService} used for checking if the server is running.
    */
   public TachideskStarter(
       SettingsService settingsService,
