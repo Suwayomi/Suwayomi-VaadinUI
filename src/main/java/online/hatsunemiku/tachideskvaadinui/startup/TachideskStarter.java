@@ -71,7 +71,7 @@ public class TachideskStarter {
     log.info("Checking for java installation...");
     boolean isJavaInstalled;
     try {
-      Process process = Runtime.getRuntime().exec(new String[]{"java", "-version"});
+      Process process = Runtime.getRuntime().exec(new String[] {"java", "-version"});
       isJavaInstalled = process.waitFor() == 0;
     } catch (IOException | InterruptedException e) {
       log.error("Failed to check if java is installed");

@@ -30,7 +30,7 @@ public class SuwayomiService {
    * received.
    *
    * @return either the version of the Suwayomi Server if successful or an empty {@link Optional} if
-   * an error occurred.
+   *     an error occurred.
    */
   public Optional<ServerVersion> getServerVersion() {
     try {

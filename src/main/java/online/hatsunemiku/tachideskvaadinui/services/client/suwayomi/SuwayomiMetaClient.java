@@ -11,9 +11,7 @@ import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
 import org.intellij.lang.annotations.Language;
 import org.springframework.stereotype.Component;
 
-/**
- * Retrieves metadata about the Suwayomi Server through its API.
- */
+/** Retrieves metadata about the Suwayomi Server through its API. */
 @Component
 public class SuwayomiMetaClient {
 
