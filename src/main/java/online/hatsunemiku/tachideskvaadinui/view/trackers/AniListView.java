@@ -64,7 +64,7 @@ public class AniListView extends TrackingLayout {
 
   @Override
   public Div getReadingSection() {
-    //Only need to check in this method since all other methods get called after this one
+    // Only need to check in this method since all other methods get called after this one
     if (list == null) {
       if (!hasToken()) {
         throw new IllegalStateException("getReadingSection called without token");
