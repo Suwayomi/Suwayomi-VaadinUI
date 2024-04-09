@@ -71,7 +71,7 @@ public class TachideskStarter {
     log.info("Checking for java installation...");
     boolean isJavaInstalled;
     try {
-      Process process = Runtime.getRuntime().exec(new String[] {"java", "-version"});
+      Process process = Runtime.getRuntime().exec(new String[]{"java", "-version"});
       isJavaInstalled = process.waitFor() == 0;
     } catch (IOException | InterruptedException e) {
       log.error("Failed to check if java is installed");
@@ -162,6 +162,12 @@ public class TachideskStarter {
     startChecker = null;
   }
 
+  /**
+   * Checks if the server is running. It both checks if the server process exists and if the server
+   * is reachable and gives a valid response.
+   *
+   * @return {@code true} if the server is running, {@code false} otherwise.
+   */
   private boolean checkServerConnection() {
     if (serverProcess == null) {
       throw new RuntimeException("Server process is null");

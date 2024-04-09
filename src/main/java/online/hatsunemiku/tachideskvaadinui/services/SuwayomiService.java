@@ -25,6 +25,13 @@ public class SuwayomiService {
     this.metaClient = metaClient;
   }
 
+  /**
+   * Retrieves the version of the Suwayomi Server. This method will block until the response is
+   * received.
+   *
+   * @return either the version of the Suwayomi Server if successful or an empty {@link Optional} if
+   * an error occurred.
+   */
   public Optional<ServerVersion> getServerVersion() {
     try {
       return Optional.of(metaClient.getServerVersion());
