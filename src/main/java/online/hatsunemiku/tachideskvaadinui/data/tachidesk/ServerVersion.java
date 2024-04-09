@@ -11,13 +11,10 @@ import lombok.Getter;
 @Getter
 public class ServerVersion {
 
-  /**
-   * The version of the server. Format: vX.Y.Z
-   */
+  /** The version of the server. Format: vX.Y.Z */
   private final String version;
-  /**
-   * The revision of the server. Format: r1234
-   */
+
+  /** The revision of the server. Format: r1234 */
   private final String revision;
 
   public ServerVersion(String version, String revision) {
@@ -71,5 +68,4 @@ public class ServerVersion {
     String revisionNumber = revision.substring(1);
     return Integer.parseInt(revisionNumber);
   }
-
 }

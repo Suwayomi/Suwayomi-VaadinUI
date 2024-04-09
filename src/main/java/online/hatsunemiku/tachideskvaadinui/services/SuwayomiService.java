@@ -27,5 +27,4 @@ public class SuwayomiService {
       return Optional.empty();
     }
   }
-
 }

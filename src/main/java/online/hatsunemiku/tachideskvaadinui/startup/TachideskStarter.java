@@ -39,7 +39,8 @@ public class TachideskStarter {
   private final SuwayomiService suwayomiApi;
 
   public TachideskStarter(
-      SettingsService settingsService, ServerEventPublisher serverEventPublisher,
+      SettingsService settingsService,
+      ServerEventPublisher serverEventPublisher,
       SuwayomiService suwayomiApi) {
     this.settingsService = settingsService;
     this.serverEventPublisher = serverEventPublisher;
@@ -66,7 +67,7 @@ public class TachideskStarter {
     log.info("Checking for java installation...");
     boolean isJavaInstalled;
     try {
-      Process process = Runtime.getRuntime().exec(new String[]{"java", "-version"});
+      Process process = Runtime.getRuntime().exec(new String[] {"java", "-version"});
       isJavaInstalled = process.waitFor() == 0;
     } catch (IOException | InterruptedException e) {
       log.error("Failed to check if java is installed");
@@ -171,8 +172,11 @@ public class TachideskStarter {
 
       var version = optional.get();
 
-      logger.info("Server version: Major={},Minor={},Patch={} with Revision={}",
-          version.getMajorVersion(), version.getMinorVersion(), version.getPatchVersion(),
+      logger.info(
+          "Server version: Major={},Minor={},Patch={} with Revision={}",
+          version.getMajorVersion(),
+          version.getMinorVersion(),
+          version.getPatchVersion(),
           version.getRevisionNumber());
       return true;
     } catch (Exception e) {

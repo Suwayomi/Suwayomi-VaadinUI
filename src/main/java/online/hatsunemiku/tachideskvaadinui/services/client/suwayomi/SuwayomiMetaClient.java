@@ -11,9 +11,7 @@ import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
 import org.intellij.lang.annotations.Language;
 import org.springframework.stereotype.Component;
 
-/**
- * Retrieves metadata about the Suwayomi Server through its API.
- */
+/** Retrieves metadata about the Suwayomi Server through its API. */
 @Component
 public class SuwayomiMetaClient {
 
@@ -27,7 +25,8 @@ public class SuwayomiMetaClient {
     var client = webClientService.getDgsGraphQlClient();
 
     @Language("graphql")
-    String query = """
+    String query =
+        """
         query {
           aboutServer {
             version
@@ -44,5 +43,4 @@ public class SuwayomiMetaClient {
 
     return response.extractValueAsObject("aboutServer", ServerVersion.class);
   }
-
 }
