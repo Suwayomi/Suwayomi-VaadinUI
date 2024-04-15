@@ -106,7 +106,7 @@ public class SuwayomiTrackingClient {
    * Logs in to a tracker using the provided redirect URL and tracker ID.
    *
    * @param url the redirect URL to log in to the tracker
-   * @param id  the ID of the tracker to log in to
+   * @param id the ID of the tracker to log in to
    */
   public void loginTracker(String url, int id) {
     @Language("graphql")
@@ -138,7 +138,7 @@ public class SuwayomiTrackingClient {
    * Searches for a manga on a tracker using the provided query and tracker ID.
    *
    * @param query the search query for the manga
-   * @param id    the ID of the tracker to search on
+   * @param id the ID of the tracker to search on
    * @return a list of {@link TrackerSearchResult} objects representing the search results
    * @see online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService.TrackerType
    */
@@ -181,8 +181,7 @@ public class SuwayomiTrackingClient {
       throw new RuntimeException(errorText);
     }
 
-    TypeRef<List<TrackerSearchResult>> typeRef = new TypeRef<>() {
-    };
+    TypeRef<List<TrackerSearchResult>> typeRef = new TypeRef<>() {};
 
     return response.extractValueAsObject("searchTracker.trackSearches", typeRef);
   }
@@ -190,10 +189,10 @@ public class SuwayomiTrackingClient {
   /**
    * Tracks a manga on a tracker using the provided manga ID, external ID, and tracker ID.
    *
-   * @param mangaId    the Suwayomi ID of the manga to be tracked
+   * @param mangaId the Suwayomi ID of the manga to be tracked
    * @param externalId the external ID of the manga on the tracker. This is the ID of the manga on
-   *                   the tracker's website.
-   * @param trackerId  the ID of the tracker to track the manga on.
+   *     the tracker's website.
+   * @param trackerId the ID of the tracker to track the manga on.
    * @see online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService.TrackerType
    */
   @SuppressWarnings("JavadocReference")
@@ -261,7 +260,8 @@ public class SuwayomiTrackingClient {
 
   public boolean isMangaTracked(int mangaId, int trackerId) {
     @Language("graphql")
-    var query = """
+    var query =
+        """
         query IsMangaTracked($mangaId: Int!) {
           manga(id: $mangaId) {
             trackRecords {
@@ -283,9 +283,7 @@ public class SuwayomiTrackingClient {
       throw new RuntimeException("Error while checking if manga is tracked");
     }
 
-
-    TypeRef<List<TrackRecord>> typeRef = new TypeRef<>() {
-    };
+    TypeRef<List<TrackRecord>> typeRef = new TypeRef<>() {};
 
     var trackRecords = response.extractValueAsObject("manga.trackRecords.nodes", typeRef);
 

@@ -161,9 +161,9 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
 
     trackBtn.addClickListener(
         e -> {
-
           var dialog =
-              new TrackingDialog(dataService, manga, aniListAPIService, suwayomiTrackingService, malAPI);
+              new TrackingDialog(
+                  dataService, manga, aniListAPIService, suwayomiTrackingService, malAPI);
           dialog.open();
         });
 

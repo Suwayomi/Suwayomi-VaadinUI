@@ -24,7 +24,8 @@ public class TachideskUtils {
           "https://github\\.com/Suwayomi/Suwayomi-Server-preview/releases/download/(v\\d+\\.\\d+\\.\\d+(-r\\d+)?)/(Suwayomi-Server-v\\d+\\.\\d+\\.\\d+-r(\\d+)\\.jar)");
 
   public static String getNewestJarUrl(RestTemplate client) {
-    String githubApi = "https://api.github.com/repos/Suwayomi/Suwayomi-Server-preview/releases/latest";
+    String githubApi =
+        "https://api.github.com/repos/Suwayomi/Suwayomi-Server-preview/releases/latest";
     String json = client.getForObject(githubApi, String.class);
 
     if (json == null) {

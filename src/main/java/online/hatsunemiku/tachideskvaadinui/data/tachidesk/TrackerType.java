@@ -9,9 +9,7 @@ package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
 import java.util.Arrays;
 import javax.annotation.Nullable;
 
-/**
- * An enumeration representing different types of trackers.
- */
+/** An enumeration representing different types of trackers. */
 public enum TrackerType {
   MAL(1),
   ANILIST(2);
@@ -36,9 +34,7 @@ public enum TrackerType {
   @Nullable
   public static TrackerType fromId(int id) {
     var match =
-        Arrays.stream(TrackerType.values())
-            .filter(trackerType -> trackerType.id == id)
-            .findFirst();
+        Arrays.stream(TrackerType.values()).filter(trackerType -> trackerType.id == id).findFirst();
 
     return match.orElse(null);
   }

@@ -18,8 +18,8 @@ public class MALMangaStatistics implements MangaStatistics {
   private final MediaDate startedAt;
   private final MediaDate completedAt;
 
-  public MALMangaStatistics(MangaStatus status, int progress, int score, MediaDate startedAt,
-      MediaDate completedAt) {
+  public MALMangaStatistics(
+      MangaStatus status, int progress, int score, MediaDate startedAt, MediaDate completedAt) {
     this.status = status;
     this.progress = progress;
     this.score = score;
@@ -56,11 +56,11 @@ public class MALMangaStatistics implements MangaStatistics {
       return false;
     }
     var that = (MALMangaStatistics) obj;
-    return Objects.equals(this.status, that.status) &&
-           this.progress == that.progress &&
-           this.score == that.score &&
-           Objects.equals(this.startedAt, that.startedAt) &&
-           Objects.equals(this.completedAt, that.completedAt);
+    return Objects.equals(this.status, that.status)
+        && this.progress == that.progress
+        && this.score == that.score
+        && Objects.equals(this.startedAt, that.startedAt)
+        && Objects.equals(this.completedAt, that.completedAt);
   }
 
   @Override
@@ -70,13 +70,21 @@ public class MALMangaStatistics implements MangaStatistics {
 
   @Override
   public String toString() {
-    return "MALMangaStatistics[" +
-           "status=" + status + ", " +
-           "progress=" + progress + ", " +
-           "score=" + score + ", " +
-           "startedAt=" + startedAt + ", " +
-           "completedAt=" + completedAt + ']';
+    return "MALMangaStatistics["
+        + "status="
+        + status
+        + ", "
+        + "progress="
+        + progress
+        + ", "
+        + "score="
+        + score
+        + ", "
+        + "startedAt="
+        + startedAt
+        + ", "
+        + "completedAt="
+        + completedAt
+        + ']';
   }
-
-
 }

@@ -30,7 +30,9 @@ public class MangaService {
   private final SuwayomiTrackingService suwayomiTrackingService;
 
   @Autowired
-  public MangaService(MangaClient mangaClient, DownloadClient downloadCLient,
+  public MangaService(
+      MangaClient mangaClient,
+      DownloadClient downloadCLient,
       SuwayomiTrackingService suwayomiTrackingService) {
     this.mangaClient = mangaClient;
     this.downloadClient = downloadCLient;
@@ -215,19 +217,20 @@ public class MangaService {
 
     var subscription =
         downloadChangeEventTracker.subscribe(
-            events -> events.forEach(
-                event -> {
-                  if (event.chapter().id() != chapterId) {
-                    return;
-                  }
+            events ->
+                events.forEach(
+                    event -> {
+                      if (event.chapter().id() != chapterId) {
+                        return;
+                      }
 
-                  if (event.progress() != 1) {
-                    return;
-                  }
+                      if (event.progress() != 1) {
+                        return;
+                      }
 
-                  callback.run();
-                  cancellation.dispose();
-                }));
+                      callback.run();
+                      cancellation.dispose();
+                    }));
 
     cancellation.add(subscription);
   }
