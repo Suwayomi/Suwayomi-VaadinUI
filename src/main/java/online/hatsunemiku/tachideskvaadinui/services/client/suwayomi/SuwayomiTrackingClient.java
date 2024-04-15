@@ -10,6 +10,7 @@ import com.jayway.jsonpath.TypeRef;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackRecord;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchResult;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
 import org.intellij.lang.annotations.Language;
@@ -105,7 +106,7 @@ public class SuwayomiTrackingClient {
    * Logs in to a tracker using the provided redirect URL and tracker ID.
    *
    * @param url the redirect URL to log in to the tracker
-   * @param id the ID of the tracker to log in to
+   * @param id  the ID of the tracker to log in to
    */
   public void loginTracker(String url, int id) {
     @Language("graphql")
@@ -137,7 +138,7 @@ public class SuwayomiTrackingClient {
    * Searches for a manga on a tracker using the provided query and tracker ID.
    *
    * @param query the search query for the manga
-   * @param id the ID of the tracker to search on
+   * @param id    the ID of the tracker to search on
    * @return a list of {@link TrackerSearchResult} objects representing the search results
    * @see online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService.TrackerType
    */
@@ -180,7 +181,8 @@ public class SuwayomiTrackingClient {
       throw new RuntimeException(errorText);
     }
 
-    TypeRef<List<TrackerSearchResult>> typeRef = new TypeRef<>() {};
+    TypeRef<List<TrackerSearchResult>> typeRef = new TypeRef<>() {
+    };
 
     return response.extractValueAsObject("searchTracker.trackSearches", typeRef);
   }
@@ -188,27 +190,31 @@ public class SuwayomiTrackingClient {
   /**
    * Tracks a manga on a tracker using the provided manga ID, external ID, and tracker ID.
    *
-   * @param mangaId the Suwayomi ID of the manga to be tracked
+   * @param mangaId    the Suwayomi ID of the manga to be tracked
    * @param externalId the external ID of the manga on the tracker. This is the ID of the manga on
-   *     the tracker's website.
-   * @param trackerId the ID of the tracker to track the manga on.
+   *                   the tracker's website.
+   * @param trackerId  the ID of the tracker to track the manga on.
    * @see online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService.TrackerType
    */
   @SuppressWarnings("JavadocReference")
-  public void trackMangaOnTracker(int mangaId, int externalId, int trackerId) {
+  public void trackMangaOnTracker(int mangaId, long externalId, int trackerId) {
     @Language("graphql")
     var query =
         """
-            mutation TrackManga($mangaId: Int!, $remoteId: Int!, $trackerId: Int!) {
+            mutation TrackManga($mangaId: Int!, $remoteId: LongString!, $trackerId: Int!) {
               bindTrack(input: {mangaId: $mangaId, remoteId: $remoteId, trackerId: $trackerId}) {
                 trackRecord {
                   id
+                  trackerId
+                  mangaId
                 }
               }
             }
             """;
 
-    var variables = Map.of("mangaId", mangaId, "externalId", externalId, "trackerId", trackerId);
+    String remoteId = String.valueOf(externalId);
+
+    var variables = Map.of("mangaId", mangaId, "remoteId", remoteId, "trackerId", trackerId);
 
     var graphClient = clientService.getDgsGraphQlClient();
 
@@ -219,5 +225,70 @@ public class SuwayomiTrackingClient {
       throw new RuntimeException(
           "Didn't receive a response from the server after trying to track the manga");
     }
+
+    if (optional.get().hasErrors()) {
+      throw new RuntimeException("Error while tracking manga: " + optional.get().getErrors());
+    }
+  }
+
+  public void trackProgress(int mangaId) {
+    @Language("graphql")
+    var query =
+        """
+            mutation TrackProgressOnTrackers($mangaId: Int!) {
+              trackProgress(input: {mangaId: $mangaId}) {
+                trackRecords {
+                  id
+                }
+              }
+            }
+            """;
+
+    var graphClient = clientService.getDgsGraphQlClient();
+
+    var variables = Map.of("mangaId", mangaId);
+
+    Duration timeout = Duration.ofSeconds(10);
+    var optional = graphClient.reactiveExecuteQuery(query, variables).blockOptional(timeout);
+
+    if (optional.isEmpty()) {
+      throw new RuntimeException(
+          "Didn't receive a response from the server after trying to track the manga");
+    }
+
+    log.info("Tracked progress on trackers");
+  }
+
+  public boolean isMangaTracked(int mangaId, int trackerId) {
+    @Language("graphql")
+    var query = """
+        query IsMangaTracked($mangaId: Int!) {
+          manga(id: $mangaId) {
+            trackRecords {
+              nodes {
+                trackerId
+              }
+            }
+          }
+        }
+        """;
+
+    var variables = Map.of("mangaId", mangaId, "trackerId", trackerId);
+
+    var graphClient = clientService.getDgsGraphQlClient();
+
+    var response = graphClient.reactiveExecuteQuery(query, variables).block();
+
+    if (response == null) {
+      throw new RuntimeException("Error while checking if manga is tracked");
+    }
+
+
+    TypeRef<List<TrackRecord>> typeRef = new TypeRef<>() {
+    };
+
+    var trackRecords = response.extractValueAsObject("manga.trackRecords.nodes", typeRef);
+
+    return trackRecords.stream().anyMatch(record -> record.getTrackerId() == trackerId);
   }
 }

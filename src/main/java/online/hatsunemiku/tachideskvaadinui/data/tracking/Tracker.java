@@ -47,4 +47,8 @@ public class Tracker {
   public void removeAniListId() {
     aniListId = 0;
   }
+
+  public void removeMalId() {
+    malId = 0;
+  }
 }

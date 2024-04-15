@@ -7,7 +7,11 @@
 package online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider;
 
 import java.util.List;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackerType;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.Tracker;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListScoreFormat;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchResult;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.MangaStatistics;
 
 /**
  * Represents a provider for a tracking service. It contains methods for searching for manga on the
@@ -41,8 +45,11 @@ public interface TrackerProvider {
    */
   void submitToTracker(boolean isPrivate, int mangaId, int externalId);
 
-  /** Equivalent to calling `submitToTracker(false, mangaId, externalId)` */
-  default void submitToTracker(int mangaId, int externalId) {
-    submitToTracker(false, mangaId, externalId);
-  }
+  TrackerType getTrackerType();
+
+  MangaStatistics getStatistics(Tracker tracker);
+
+  Integer getMaxChapter(Tracker tracker);
+
+  AniListScoreFormat getScoreFormat();
 }

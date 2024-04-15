@@ -36,6 +36,7 @@ import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.AniListAPIService;
+import online.hatsunemiku.tachideskvaadinui.services.tracker.MyAnimeListAPIService;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService;
 import online.hatsunemiku.tachideskvaadinui.utils.RouteUtils;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
@@ -54,6 +55,7 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
   private final AniListAPIService aniListAPIService;
   private final TrackingDataService dataService;
   private final SuwayomiTrackingService suwayomiTrackingService;
+  private final MyAnimeListAPIService malAPI;
 
   /**
    * Creates a MangaView object.
@@ -70,13 +72,15 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
       SettingsService settingsService,
       AniListAPIService aniListAPIService,
       TrackingDataService dataService,
-      SuwayomiTrackingService suwayomiTrackingService) {
+      SuwayomiTrackingService suwayomiTrackingService,
+      MyAnimeListAPIService malAPI) {
     super("Manga");
     this.mangaService = mangaService;
     this.settingsService = settingsService;
     this.aniListAPIService = aniListAPIService;
     this.dataService = dataService;
     this.suwayomiTrackingService = suwayomiTrackingService;
+    this.malAPI = malAPI;
   }
 
   @Override
@@ -157,8 +161,9 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
 
     trackBtn.addClickListener(
         e -> {
+
           var dialog =
-              new TrackingDialog(dataService, manga, aniListAPIService, suwayomiTrackingService);
+              new TrackingDialog(dataService, manga, aniListAPIService, suwayomiTrackingService, malAPI);
           dialog.open();
         });
 

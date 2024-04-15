@@ -28,7 +28,6 @@ import org.vaadin.miki.superfields.text.LabelField;
 
 /** Represents a dialog for choosing and tracking a manga. */
 public class TrackingMangaChoiceDialog extends Dialog {
-
   /**
    * Constructs a {@link TrackingMangaChoiceDialog}.
    *
@@ -39,7 +38,7 @@ public class TrackingMangaChoiceDialog extends Dialog {
    */
   public TrackingMangaChoiceDialog(
       String mangaName,
-      long mangaId,
+      int mangaId,
       TrackerProvider trackerProvider,
       TrackingDataService dataService) {
 
@@ -118,14 +117,19 @@ public class TrackingMangaChoiceDialog extends Dialog {
             Notification.show("Please select a manga to save");
             return;
           }
-          int aniListId = manga.getRemoteId();
+          int remoteId = manga.getRemoteId();
 
           boolean isPrivate = trackerProvider.canSetPrivate() && privateCheckbox.getValue();
 
-          trackerProvider.submitToTracker(isPrivate, manga.getId(), manga.getRemoteId());
+          trackerProvider.submitToTracker(isPrivate, mangaId, manga.getRemoteId());
 
-          dataService.getTracker(mangaId).setAniListId(aniListId);
-          dataService.getTracker(mangaId).setPrivate(privateCheckbox.getValue());
+          switch (trackerProvider.getTrackerType()) {
+            case MAL -> dataService.getTracker(mangaId).setMalId(remoteId);
+            case ANILIST -> dataService.getTracker(mangaId).setAniListId(remoteId);
+            default -> throw new IllegalArgumentException("Invalid tracker type");
+          }
+
+          dataService.getTracker(mangaId).setPrivate(isPrivate);
 
           close();
         });

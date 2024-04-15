@@ -207,7 +207,7 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
     Button readButton = new Button(VaadinIcon.EYE.create());
     readButton.addClickListener(
         e -> {
-          if (!mangaService.setChapterRead(chapter.getId())) {
+          if (!mangaService.setChapterRead(chapter.getId(), chapter.getMangaId())) {
             log.error("Failed to set chapter read");
             Notification notification = new Notification("Failed to set chapter read", 5000);
             notification.setPosition(Notification.Position.MIDDLE);

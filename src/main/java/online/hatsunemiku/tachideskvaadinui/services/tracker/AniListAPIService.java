@@ -21,7 +21,6 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.OAuthData;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.TrackerTokens;
-import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListMangaListResponse;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListMedia;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListScoreFormat;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListStatus;
@@ -31,12 +30,11 @@ import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDa
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.responses.AniListAddMangaResponse;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.responses.AniListChangePrivacyStatusResponse;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.responses.AniListChangeStatusResponse;
-import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.responses.AniListMangaStatistics;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.AniListMangaStatistics;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
@@ -135,60 +133,6 @@ public class AniListAPIService {
    */
   public String getAniListAuthUrl() {
     return String.format(OAUTH_CODE_PATTERN, OAUTH_CLIENT_ID);
-  }
-
-  /**
-   * Searches for manga with the given name on AniList. Returns a response object containing a list
-   * of manga, which are possible matches for the given name.
-   *
-   * @param name The name of the manga to search for
-   * @return An {@link AniListMangaListResponse} object representing the manga search results
-   */
-  public AniListMangaListResponse searchManga(String name) {
-    String query =
-        """
-            query Search($search: String) {
-                Page(perPage: 50) {
-                  media(search: $search, type: MANGA, format_not_in: [NOVEL]) {
-                    id
-                    title {
-                      romaji
-                      english
-                      native
-                      userPreferred
-                    }
-                    coverImage {
-                      large
-                    }
-                    format
-                    status
-                    chapters
-                    description
-                    startDate {
-                      year
-                      month
-                      day
-                    }
-                  }
-                }
-              }
-            """;
-
-    String variables = """
-        {
-          "search": "%s"
-        }
-        """.formatted(name);
-
-    GraphQLRequest request = new GraphQLRequest(query, variables);
-
-    return webClient
-        .post()
-        .contentType(MediaType.APPLICATION_JSON)
-        .body(BodyInserters.fromValue(request))
-        .retrieve()
-        .bodyToMono(AniListMangaListResponse.class)
-        .block();
   }
 
   /**

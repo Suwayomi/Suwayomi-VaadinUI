@@ -8,7 +8,11 @@ package online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackerType;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.Tracker;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListScoreFormat;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchResult;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.AniListMangaStatistics;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.AniListAPIService;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService;
 
@@ -39,5 +43,25 @@ public class AniListProvider implements TrackerProvider {
     }
 
     suwayomiAPI.trackOnAniList(mangaId, externalId);
+  }
+
+  @Override
+  public TrackerType getTrackerType() {
+    return TrackerType.ANILIST;
+  }
+
+  @Override
+  public AniListMangaStatistics getStatistics(Tracker tracker) {
+    return aniListAPI.getMangaFromList(tracker.getAniListId());
+  }
+
+  @Override
+  public Integer getMaxChapter(Tracker tracker) {
+    return aniListAPI.getChapterCount(tracker.getAniListId()).orElse(null);
+  }
+
+  @Override
+  public AniListScoreFormat getScoreFormat() {
+    return aniListAPI.getScoreFormat();
   }
 }

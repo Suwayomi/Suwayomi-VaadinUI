@@ -20,12 +20,16 @@ import dev.katsute.mal4j.manga.property.MangaStatus;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.OAuthData;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDate;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -49,12 +53,13 @@ public class MyAnimeListAPIService {
   private final TrackingDataService tds;
   private final WebClient webClient;
   private final Cache<UUID, String> pkceCache;
-  @Nullable private MyAnimeList mal;
+  @Nullable
+  private MyAnimeList mal;
 
   /**
    * Initializes an instance of the MyAnimeListAPIService class.
    *
-   * @param tds The {@link TrackingDataService} used for storing tokens.
+   * @param tds       The {@link TrackingDataService} used for storing tokens.
    * @param webClient The {@link WebClient} used for making requests to the MAL API.
    */
   public MyAnimeListAPIService(TrackingDataService tds, WebClient webClient) {
@@ -127,7 +132,7 @@ public class MyAnimeListAPIService {
    * Exchanges the authorization code for an access and refresh token. Verifies the PKCE ID before
    * exchanging the code for tokens.
    *
-   * @param code The authorization code to exchange for tokens.
+   * @param code   The authorization code to exchange for tokens.
    * @param pkceId The PKCE ID used for generating the code challenge.
    */
   public void exchangeCodeForTokens(String code, String pkceId) {
@@ -198,5 +203,71 @@ public class MyAnimeListAPIService {
     log.debug("Got {} manga with status {}", list.size(), status.name());
 
     return list.stream().map(MangaListStatus::getManga).toList();
+  }
+
+  public Manga getManga(int id) {
+    if (mal == null) {
+      throw new IllegalStateException("Not authenticated with MAL");
+    }
+
+    return mal.getManga(id);
+  }
+
+  public void updateMangaListStatus(int id, MangaStatus status) {
+    if (mal == null) {
+      throw new IllegalStateException("Not authenticated with MAL");
+    }
+
+    mal.updateMangaListing(id).status(status).update();
+  }
+
+  public void updateMangaListScore(int id, int score) {
+    if (mal == null) {
+      throw new IllegalStateException("Not authenticated with MAL");
+    }
+
+    mal.updateMangaListing(id).score(score).update();
+  }
+
+  public void updateMangaListStartDate(int malId, MediaDate date) {
+    if (mal == null) {
+      throw new IllegalStateException("Not authenticated with MAL");
+    }
+
+    Instant instant = LocalDate.of(date.year(), date.month(), date.day()).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
+    Date startDate = Date.from(instant);
+
+    mal.updateMangaListing(malId).startDate(startDate).update();
+  }
+
+  public void updateMangaListEndDate(int malId, MediaDate date) {
+    if (mal == null) {
+      throw new IllegalStateException("Not authenticated with MAL");
+    }
+
+    if (date.year() == null || date.month() == null || date.day() == null) {
+      return;
+    }
+
+    Instant instant = LocalDate.of(date.year(), date.month(), date.day()).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
+    Date endDate = Date.from(instant);
+
+    mal.updateMangaListing(malId).finishDate(endDate).update();
+  }
+
+  public void removeMangaFromList(int malId) {
+    if (mal == null) {
+      throw new IllegalStateException("Not authenticated with MAL");
+    }
+
+    mal.deleteMangaListing(malId);
+  }
+
+  public void updateMangaListProgress(int malId, int value) {
+    if (mal == null) {
+      throw new IllegalStateException("Not authenticated with MAL");
+    }
+
+    mal.updateMangaListing(malId).chaptersRead(value).update();
   }
 }

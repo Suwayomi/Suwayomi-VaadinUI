@@ -4,10 +4,13 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.responses;
+package online.hatsunemiku.tachideskvaadinui.data.tracking.statistics;
 
-import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListStatus;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDate;
 
-public record AniListMangaStatistics(
-    AniListStatus status, int progress, int score, MediaDate startedAt, MediaDate completedAt) {}
+public interface MangaStatistics {
+  int progress();
+  int score();
+  MediaDate startedAt();
+  MediaDate completedAt();
+}
