@@ -34,9 +34,7 @@ public class ReadingView extends StandardLayout
   private final MangaService mangaService;
   private final SettingsService settingsService;
 
-  public ReadingView(
-      MangaService mangaService,
-      SettingsService settingsService) {
+  public ReadingView(MangaService mangaService, SettingsService settingsService) {
     super("Reading");
 
     this.mangaService = mangaService;
@@ -87,9 +85,7 @@ public class ReadingView extends StandardLayout
       return;
     }
 
-    var reader =
-        new MangaReader(
-            chapterObj, settingsService, mangaService, chapters);
+    var reader = new MangaReader(chapterObj, settingsService, mangaService, chapters);
 
     reader.addReaderChapterChangeEventListener(this::processReaderChapterChangeEvent);
 
@@ -103,12 +99,7 @@ public class ReadingView extends StandardLayout
     var nextChapter = mangaService.getChapter(nextChapterId);
     var chapters = event.getChapters();
 
-    var nextReader =
-        new MangaReader(
-            nextChapter,
-            settingsService,
-            mangaService,
-            chapters);
+    var nextReader = new MangaReader(nextChapter, settingsService, mangaService, chapters);
 
     nextReader.addReaderChapterChangeEventListener(this::processReaderChapterChangeEvent);
 

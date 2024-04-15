@@ -56,11 +56,11 @@ public class AniListMangaStatistics implements MangaStatistics {
       return false;
     }
     var that = (AniListMangaStatistics) obj;
-    return Objects.equals(this.status, that.status) &&
-           this.progress == that.progress &&
-           this.score == that.score &&
-           Objects.equals(this.startedAt, that.startedAt) &&
-           Objects.equals(this.completedAt, that.completedAt);
+    return Objects.equals(this.status, that.status)
+        && this.progress == that.progress
+        && this.score == that.score
+        && Objects.equals(this.startedAt, that.startedAt)
+        && Objects.equals(this.completedAt, that.completedAt);
   }
 
   @Override
@@ -70,11 +70,21 @@ public class AniListMangaStatistics implements MangaStatistics {
 
   @Override
   public String toString() {
-    return "AniListMangaStatistics[" +
-           "status=" + status + ", " +
-           "progress=" + progress + ", " +
-           "score=" + score + ", " +
-           "startedAt=" + startedAt + ", " +
-           "completedAt=" + completedAt + ']';
+    return "AniListMangaStatistics["
+        + "status="
+        + status
+        + ", "
+        + "progress="
+        + progress
+        + ", "
+        + "score="
+        + score
+        + ", "
+        + "startedAt="
+        + startedAt
+        + ", "
+        + "completedAt="
+        + completedAt
+        + ']';
   }
 }

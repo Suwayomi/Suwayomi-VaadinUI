@@ -10,7 +10,10 @@ import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDa
 
 public interface MangaStatistics {
   int progress();
+
   int score();
+
   MediaDate startedAt();
+
   MediaDate completedAt();
 }
