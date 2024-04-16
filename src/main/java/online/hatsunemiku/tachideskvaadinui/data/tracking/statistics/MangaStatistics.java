@@ -8,7 +8,11 @@ package online.hatsunemiku.tachideskvaadinui.data.tracking.statistics;
 
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDate;
 
+/**
+ * Represents the statistics of a manga. For example, the score or the number of chapters read.
+ */
 public interface MangaStatistics {
+
   int progress();
 
   int score();

@@ -21,9 +21,14 @@ import reactor.core.Disposable;
 import reactor.core.Disposables;
 import reactor.core.publisher.Flux;
 
+/**
+ * This class is responsible for handling all operations related to manga. This includes adding and
+ * removing manga from the library, fetching chapters, downloading chapters and more.
+ */
 @Service
 @Slf4j
 public class MangaService {
+
   private final MangaClient mangaClient;
   private final DownloadClient downloadClient;
   private final Flux<List<DownloadChangeEvent>> downloadChangeEventTracker;
@@ -45,7 +50,7 @@ public class MangaService {
    *
    * @param mangaId the ID of the manga to be added
    * @return {@code true} if the manga was successfully added to the library, {@code false}
-   *     otherwise
+   * otherwise
    */
   public boolean addMangaToLibrary(int mangaId) {
     return mangaClient.addMangaToLibrary(mangaId);
@@ -56,7 +61,7 @@ public class MangaService {
    *
    * @param mangaId the ID of the manga to be removed
    * @return {@code true} if the manga was successfully removed from the library, {@code false}
-   *     otherwise
+   * otherwise
    */
   public boolean removeMangaFromLibrary(int mangaId) {
     return mangaClient.removeMangaFromLibrary(mangaId);
@@ -141,7 +146,7 @@ public class MangaService {
   /**
    * Adds a manga to a category.
    *
-   * @param mangaId the ID of the manga to be added
+   * @param mangaId    the ID of the manga to be added
    * @param categoryId the ID of the category to add the manga to
    */
   public void addMangaToCategory(int mangaId, int categoryId) {
@@ -151,7 +156,7 @@ public class MangaService {
   /**
    * Removes a manga from a category.
    *
-   * @param mangaId the ID of the manga to be removed
+   * @param mangaId    the ID of the manga to be removed
    * @param categoryId the ID of the category to remove the manga from
    */
   public void removeMangaFromCategory(int mangaId, int categoryId) {
@@ -210,7 +215,7 @@ public class MangaService {
    * Adds a listener to the download change event tracker.
    *
    * @param chapterId The id of the chapter to listen for
-   * @param callback The callback to run when the chapter is downloaded
+   * @param callback  The callback to run when the chapter is downloaded
    */
   public void addDownloadTrackListener(int chapterId, Runnable callback) {
     Disposable.Composite cancellation = Disposables.composite();

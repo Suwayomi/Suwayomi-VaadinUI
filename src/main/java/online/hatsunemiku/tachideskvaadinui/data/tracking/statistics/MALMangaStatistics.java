@@ -10,6 +10,9 @@ import dev.katsute.mal4j.manga.property.MangaStatus;
 import java.util.Objects;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDate;
 
+/**
+ * Represents the statistics for a manga on MyAnimeList. E.g. the score or the number of chapters.
+ */
 public class MALMangaStatistics implements MangaStatistics {
 
   private final MangaStatus status;
@@ -57,10 +60,10 @@ public class MALMangaStatistics implements MangaStatistics {
     }
     var that = (MALMangaStatistics) obj;
     return Objects.equals(this.status, that.status)
-        && this.progress == that.progress
-        && this.score == that.score
-        && Objects.equals(this.startedAt, that.startedAt)
-        && Objects.equals(this.completedAt, that.completedAt);
+           && this.progress == that.progress
+           && this.score == that.score
+           && Objects.equals(this.startedAt, that.startedAt)
+           && Objects.equals(this.completedAt, that.completedAt);
   }
 
   @Override
@@ -71,20 +74,20 @@ public class MALMangaStatistics implements MangaStatistics {
   @Override
   public String toString() {
     return "MALMangaStatistics["
-        + "status="
-        + status
-        + ", "
-        + "progress="
-        + progress
-        + ", "
-        + "score="
-        + score
-        + ", "
-        + "startedAt="
-        + startedAt
-        + ", "
-        + "completedAt="
-        + completedAt
-        + ']';
+           + "status="
+           + status
+           + ", "
+           + "progress="
+           + progress
+           + ", "
+           + "score="
+           + score
+           + ", "
+           + "startedAt="
+           + startedAt
+           + ", "
+           + "completedAt="
+           + completedAt
+           + ']';
   }
 }

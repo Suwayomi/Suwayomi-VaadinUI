@@ -19,6 +19,10 @@ import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.MALMangaSta
 import online.hatsunemiku.tachideskvaadinui.services.tracker.MyAnimeListAPIService;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService;
 
+/**
+ * A {@link SuwayomiProvider} implementation for MyAnimeList. Uses the MAL API to get data to
+ * consumers of this provider.
+ */
 public class MALTrackerProvider extends SuwayomiProvider {
 
   private final MyAnimeListAPIService malAPI;

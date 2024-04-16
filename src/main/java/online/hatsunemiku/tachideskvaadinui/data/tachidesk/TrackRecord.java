@@ -8,6 +8,9 @@ package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
 
 import lombok.Data;
 
+/**
+ * Represents a track record of a user for a manga.
+ */
 @Data
 public class TrackRecord {
   private int trackerId;

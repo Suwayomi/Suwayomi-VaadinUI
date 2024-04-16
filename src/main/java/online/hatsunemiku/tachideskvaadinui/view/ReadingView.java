@@ -25,6 +25,9 @@ import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 
+/**
+ * Represents a view for reading manga.
+ */
 @Route("reading/:mangaId(\\d+)/:chapterId(\\d+)")
 @CssImport("./css/reading.css")
 @Slf4j
