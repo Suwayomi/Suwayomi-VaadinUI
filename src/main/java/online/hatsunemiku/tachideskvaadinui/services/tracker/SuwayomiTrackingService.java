@@ -127,11 +127,21 @@ public class SuwayomiTrackingService {
     client.trackMangaOnTracker(mangaId, externalId, id);
   }
 
+  /**
+   * Checks if a manga is tracked on AniList.
+   * @param mangaId the ID of the manga to check
+   * @return {@code true} if the manga is tracked on AniList, {@code false} otherwise
+   */
   public boolean isMangaTrackedOnAniList(int mangaId) {
     int id = TrackerType.ANILIST.id;
     return client.isMangaTracked(mangaId, id);
   }
 
+  /**
+   * Checks if a manga is tracked on MyAnimeList (MAL).
+   * @param mangaId the ID of the manga to check
+   * @return {@code true} if the manga is tracked on MAL, {@code false} otherwise
+   */
   public boolean isMangaTrackedOnMAL(int mangaId) {
     int id = TrackerType.MAL.id;
     return client.isMangaTracked(mangaId, id);
@@ -180,6 +190,10 @@ public class SuwayomiTrackingService {
     return template.formatted(json);
   }
 
+  /**
+   * Syncs the progress of a manga from the Suwayomi server to the tracker.
+   * @param mangaId the ID of the manga to sync progress for
+   */
   public void trackProgress(int mangaId) {
     Optional<ServerVersion> version = suwayomiService.getServerVersion();
 

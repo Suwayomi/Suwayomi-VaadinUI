@@ -230,6 +230,10 @@ public class SuwayomiTrackingClient {
     }
   }
 
+  /**
+   * Syncs the manga data on the server with the tracker.
+   * @param mangaId the ID of the manga to sync
+   */
   public void trackProgress(int mangaId) {
     @Language("graphql")
     var query =
@@ -258,6 +262,12 @@ public class SuwayomiTrackingClient {
     log.info("Tracked progress on trackers");
   }
 
+  /**
+   * Checks if a manga is tracked on a tracker using the provided manga ID and tracker ID.
+   * @param mangaId the ID of the manga to check
+   * @param trackerId the ID of the tracker to check
+   * @return {@code true} if the manga is tracked on the tracker, {@code false} otherwise
+   */
   public boolean isMangaTracked(int mangaId, int trackerId) {
     @Language("graphql")
     var query =

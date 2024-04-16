@@ -30,22 +30,30 @@ public class MALMangaStatistics implements MangaStatistics {
     this.completedAt = completedAt;
   }
 
+  /**
+   * The status of the manga on MyAnimeList.
+   * @return The {@link MangaStatus status} of the manga.
+   */
   public MangaStatus status() {
     return status;
   }
 
+  @Override
   public int progress() {
     return progress;
   }
 
+  @Override
   public int score() {
     return score;
   }
 
+  @Override
   public MediaDate startedAt() {
     return startedAt;
   }
 
+  @Override
   public MediaDate completedAt() {
     return completedAt;
   }

@@ -95,6 +95,12 @@ public class ReadingView extends StandardLayout
     setContent(reader);
   }
 
+  /**
+   * Replaces the current reader with a new reader for the next chapter and updates the UI to
+   * reflect the new chapter url.
+   *
+   * @param event The {@link ReaderChapterChangeEvent} to process.
+   */
   private void processReaderChapterChangeEvent(ReaderChapterChangeEvent event) {
     var nextChapterId = event.getChapterId();
     var nextMangaId = event.getMangaId();

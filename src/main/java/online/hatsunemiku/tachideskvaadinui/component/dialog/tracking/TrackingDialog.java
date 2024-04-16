@@ -340,6 +340,13 @@ public class TrackingDialog extends Dialog {
     return privateCheckbox;
   }
 
+  /**
+   * Configures the end date field for tracking a manga.
+   * @param tracker the tracker to update the end date for
+   * @param endDate the end date field to configure
+   * @param mangaStats the statistics for the manga
+   * @param startDate the start date field to check against
+   */
   private void configureTrackingEndDateField(
       Tracker tracker,
       SuperDatePicker endDate,
@@ -397,6 +404,13 @@ public class TrackingDialog extends Dialog {
         });
   }
 
+  /**
+   * Creates a field for tracking the start date of a manga.
+   * @param tracker the tracker to update the start date for
+   * @param mangaStats the statistics for the manga
+   * @param endDate the end date field to check against
+   * @return a {@link SuperDatePicker} for tracking the start date of the manga
+   */
   @NotNull
   private SuperDatePicker getTrackingStartDateField(
       Tracker tracker, MangaStatistics mangaStats, SuperDatePicker endDate) {
@@ -453,6 +467,13 @@ public class TrackingDialog extends Dialog {
     return startDate;
   }
 
+  /**
+   * Creates a field for tracking the score of a manga.
+   * @param tracker the tracker to update the score for
+   * @param mangaStats the statistics for the manga
+   * @param provider the provider for the tracker
+   * @return a {@link SuperIntegerField} for tracking the score of the manga
+   */
   @NotNull
   private SuperIntegerField getTrackingScoreField(
       Tracker tracker, MangaStatistics mangaStats, TrackerProvider provider) {
@@ -509,6 +530,12 @@ public class TrackingDialog extends Dialog {
     return score;
   }
 
+  /**
+   * Creates a ComboBox for selecting the tracking status of a manga.
+   * @param tracker the tracker to update the status for
+   * @param mangaStats the statistics for the manga
+   * @return a {@link ComboBox} for selecting the status of the manga
+   */
   @NotNull
   private ComboBox<?> getTrackingStatusField(Tracker tracker, MangaStatistics mangaStats) {
     ComboBox<?> status;
@@ -525,6 +552,12 @@ public class TrackingDialog extends Dialog {
     return status;
   }
 
+  /**
+   * Creates and configures a ComboBox for selecting the status of a manga on AniList.
+   * @param tracker the tracker to update the status for
+   * @param mangaStats the statistics for the manga
+   * @return a {@link ComboBox} for selecting the status of the manga
+   */
   private ComboBox<AniListStatus> configureStatusComboBoxAniList(
       Tracker tracker, AniListMangaStatistics mangaStats) {
     ComboBox<AniListStatus> status = new ComboBox<>();
@@ -542,6 +575,12 @@ public class TrackingDialog extends Dialog {
     return status;
   }
 
+  /**
+   * Creates and configures a ComboBox for selecting the status of a manga on MyAnimeList.
+   * @param tracker the tracker to update the status for
+   * @param mangaStats the statistics for the manga
+   * @return a {@link ComboBox} for selecting the status of the manga
+   */
   private ComboBox<MangaStatus> configureStatusComboBoxMAL(
       Tracker tracker, MALMangaStatistics mangaStats) {
     ComboBox<MangaStatus> status = new ComboBox<>();
@@ -559,6 +598,13 @@ public class TrackingDialog extends Dialog {
     return status;
   }
 
+  /**
+   * Creates a Field for tracking the chapter progress of a manga.
+   * @param tracker the tracker to update the progress for
+   * @param mangaStats the statistics for the manga
+   * @param maxChapters the maximum number of chapters for the manga
+   * @return a {@link SuperIntegerField} for tracking the chapter progress
+   */
   @NotNull
   private SuperIntegerField getTrackingChapterField(
       Tracker tracker, MangaStatistics mangaStats, Integer maxChapters) {

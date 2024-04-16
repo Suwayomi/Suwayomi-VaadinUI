@@ -30,22 +30,30 @@ public class AniListMangaStatistics implements MangaStatistics {
     this.completedAt = completedAt;
   }
 
+  /**
+   * The status of the manga on AniList.
+   * @return The {@link AniListStatus status} of the manga.
+   */
   public AniListStatus status() {
     return status;
   }
 
+  @Override
   public int progress() {
     return progress;
   }
 
+  @Override
   public int score() {
     return score;
   }
 
+  @Override
   public MediaDate startedAt() {
     return startedAt;
   }
 
+  @Override
   public MediaDate completedAt() {
     return completedAt;
   }

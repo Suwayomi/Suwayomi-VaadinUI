@@ -37,6 +37,7 @@ public class MALTrackerProvider extends SuwayomiProvider {
     return TrackerType.MAL;
   }
 
+  @Override
   public MALMangaStatistics getStatistics(Tracker tracker) {
     int id = tracker.getMalId();
 

@@ -13,11 +13,27 @@ import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDa
  */
 public interface MangaStatistics {
 
+  /**
+   * The number of chapters read (progress) by the user.
+   * @return The progress of the user for the manga.
+   */
   int progress();
 
+  /**
+   * The score the user gave to the manga.
+   * @return The score.
+   */
   int score();
 
+  /**
+   * The date the user started reading the manga.
+   * @return The {@link MediaDate} object with the start date.
+   */
   MediaDate startedAt();
 
+  /**
+   * The date the user completed the manga.
+   * @return The {@link MediaDate} object with the completion date.
+   */
   MediaDate completedAt();
 }
