@@ -32,6 +32,7 @@ public class MALMangaStatistics implements MangaStatistics {
 
   /**
    * The status of the manga on MyAnimeList.
+   *
    * @return The {@link MangaStatus status} of the manga.
    */
   public MangaStatus status() {
@@ -68,10 +69,10 @@ public class MALMangaStatistics implements MangaStatistics {
     }
     var that = (MALMangaStatistics) obj;
     return Objects.equals(this.status, that.status)
-           && this.progress == that.progress
-           && this.score == that.score
-           && Objects.equals(this.startedAt, that.startedAt)
-           && Objects.equals(this.completedAt, that.completedAt);
+        && this.progress == that.progress
+        && this.score == that.score
+        && Objects.equals(this.startedAt, that.startedAt)
+        && Objects.equals(this.completedAt, that.completedAt);
   }
 
   @Override
@@ -82,20 +83,20 @@ public class MALMangaStatistics implements MangaStatistics {
   @Override
   public String toString() {
     return "MALMangaStatistics["
-           + "status="
-           + status
-           + ", "
-           + "progress="
-           + progress
-           + ", "
-           + "score="
-           + score
-           + ", "
-           + "startedAt="
-           + startedAt
-           + ", "
-           + "completedAt="
-           + completedAt
-           + ']';
+        + "status="
+        + status
+        + ", "
+        + "progress="
+        + progress
+        + ", "
+        + "score="
+        + score
+        + ", "
+        + "startedAt="
+        + startedAt
+        + ", "
+        + "completedAt="
+        + completedAt
+        + ']';
   }
 }

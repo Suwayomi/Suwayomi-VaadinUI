@@ -53,13 +53,12 @@ public class MyAnimeListAPIService {
   private final TrackingDataService tds;
   private final WebClient webClient;
   private final Cache<UUID, String> pkceCache;
-  @Nullable
-  private MyAnimeList mal;
+  @Nullable private MyAnimeList mal;
 
   /**
    * Initializes an instance of the MyAnimeListAPIService class.
    *
-   * @param tds       The {@link TrackingDataService} used for storing tokens.
+   * @param tds The {@link TrackingDataService} used for storing tokens.
    * @param webClient The {@link WebClient} used for making requests to the MAL API.
    */
   public MyAnimeListAPIService(TrackingDataService tds, WebClient webClient) {
@@ -132,7 +131,7 @@ public class MyAnimeListAPIService {
    * Exchanges the authorization code for an access and refresh token. Verifies the PKCE ID before
    * exchanging the code for tokens.
    *
-   * @param code   The authorization code to exchange for tokens.
+   * @param code The authorization code to exchange for tokens.
    * @param pkceId The PKCE ID used for generating the code challenge.
    */
   public void exchangeCodeForTokens(String code, String pkceId) {
@@ -207,6 +206,7 @@ public class MyAnimeListAPIService {
 
   /**
    * Retrieves a {@link Manga} object with the specified ID from MyAnimeList.
+   *
    * @param id The MyAnimeList ID of the manga.
    * @return The {@link Manga} object containing the manga's information.
    */
@@ -220,6 +220,7 @@ public class MyAnimeListAPIService {
 
   /**
    * Updates the status of a manga on the user's list.
+   *
    * @param id The MyAnimeList ID of the manga.
    * @param status The new status to be used.
    */
@@ -234,7 +235,7 @@ public class MyAnimeListAPIService {
   /**
    * Updates the score of a manga on the user's list.
    *
-   * @param id    The MyAnimeList ID of the manga.
+   * @param id The MyAnimeList ID of the manga.
    * @param score The new score of the manga.
    */
   public void updateMangaListScore(int id, int score) {
@@ -249,7 +250,7 @@ public class MyAnimeListAPIService {
    * Updates the start date of a manga on the user's list.
    *
    * @param malId The MyAnimeList ID of the manga.
-   * @param date  The new start date of the manga.
+   * @param date The new start date of the manga.
    */
   public void updateMangaListStartDate(int malId, MediaDate date) {
     if (mal == null) {
@@ -270,7 +271,7 @@ public class MyAnimeListAPIService {
    * Updates the end date of a manga on the user's list.
    *
    * @param malId The MyAnimeList ID of the manga.
-   * @param date  The new end date of the manga.
+   * @param date The new end date of the manga.
    */
   public void updateMangaListEndDate(int malId, MediaDate date) {
     if (mal == null) {

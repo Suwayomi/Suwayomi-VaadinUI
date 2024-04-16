@@ -10,9 +10,7 @@ import java.util.Objects;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListStatus;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDate;
 
-/**
- * Represents the statistics for a manga on AniList. E.g. the score or the number of chapters.
- */
+/** Represents the statistics for a manga on AniList. E.g. the score or the number of chapters. */
 public class AniListMangaStatistics implements MangaStatistics {
 
   private final AniListStatus status;
@@ -32,6 +30,7 @@ public class AniListMangaStatistics implements MangaStatistics {
 
   /**
    * The status of the manga on AniList.
+   *
    * @return The {@link AniListStatus status} of the manga.
    */
   public AniListStatus status() {

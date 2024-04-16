@@ -232,6 +232,7 @@ public class SuwayomiTrackingClient {
 
   /**
    * Syncs the manga data on the server with the tracker.
+   *
    * @param mangaId the ID of the manga to sync
    */
   public void trackProgress(int mangaId) {
@@ -264,6 +265,7 @@ public class SuwayomiTrackingClient {
 
   /**
    * Checks if a manga is tracked on a tracker using the provided manga ID and tracker ID.
+   *
    * @param mangaId the ID of the manga to check
    * @param trackerId the ID of the tracker to check
    * @return {@code true} if the manga is tracked on the tracker, {@code false} otherwise

@@ -24,7 +24,7 @@ public interface TrackerProvider {
    * Checks if the tracker supports setting entries to private.
    *
    * @return {@code true} if the tracker supports setting entries to private, {@code false}
-   * otherwise
+   *     otherwise
    */
   boolean canSetPrivate();
 
@@ -37,22 +37,24 @@ public interface TrackerProvider {
   List<TrackerSearchResult> search(String query);
 
   /**
-   * @param isPrivate  whether the entry should be set to private
-   * @param mangaId    the id of the manga according to Suwayomi
+   * @param isPrivate whether the entry should be set to private
+   * @param mangaId the id of the manga according to Suwayomi
    * @param externalId the id of the manga on the tracker
    * @throws IllegalArgumentException if `isPrivate` is set to true and the tracker does not support
-   *                                  private entries
+   *     private entries
    */
   void submitToTracker(boolean isPrivate, int mangaId, int externalId);
 
   /**
    * Gets the type of the tracker that the provider is for.
+   *
    * @return the {@link TrackerType type} of the tracker
    */
   TrackerType getTrackerType();
 
   /**
    * Gets the statistics for the manga on the tracker.
+   *
    * @param tracker the tracker including the external IDs for the manga
    * @return the {@link MangaStatistics statistics} for the manga
    */
@@ -63,8 +65,8 @@ public interface TrackerProvider {
    * max chapter number, returns either null.
    *
    * @param tracker the tracker including the external IDs for the manga
-   * @return the maximum chapter number for the manga on the tracker, or null if the external tracker does
-   * not have a max chapter number.
+   * @return the maximum chapter number for the manga on the tracker, or null if the external
+   *     tracker does not have a max chapter number.
    */
   Integer getMaxChapter(Tracker tracker);
 
