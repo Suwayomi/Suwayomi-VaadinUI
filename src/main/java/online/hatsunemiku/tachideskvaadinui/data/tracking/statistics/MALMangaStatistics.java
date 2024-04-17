@@ -21,6 +21,15 @@ public class MALMangaStatistics implements MangaStatistics {
   private final MediaDate startedAt;
   private final MediaDate completedAt;
 
+  /**
+   * Creates a new {@link MALMangaStatistics} object with the given parameters.
+   *
+   * @param status      The status of the manga on MyAnimeList.
+   * @param progress    The number of chapters read by the user.
+   * @param score       The score the user gave to the manga.
+   * @param startedAt   The date the user started reading the manga.
+   * @param completedAt The date the user completed the manga.
+   */
   public MALMangaStatistics(
       MangaStatus status, int progress, int score, MediaDate startedAt, MediaDate completedAt) {
     this.status = status;
@@ -32,6 +41,7 @@ public class MALMangaStatistics implements MangaStatistics {
 
   /**
    * The status of the manga on MyAnimeList.
+   *
    * @return The {@link MangaStatus status} of the manga.
    */
   public MangaStatus status() {

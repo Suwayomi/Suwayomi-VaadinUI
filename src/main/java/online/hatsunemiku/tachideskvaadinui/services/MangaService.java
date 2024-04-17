@@ -34,6 +34,12 @@ public class MangaService {
   private final Flux<List<DownloadChangeEvent>> downloadChangeEventTracker;
   private final SuwayomiTrackingService suwayomiTrackingService;
 
+  /**
+   * Creates a new MangaService.
+   * @param mangaClient the {@link MangaClient} to use for fetching manga data
+   * @param downloadCLient the {@link DownloadClient} to use for downloading chapters
+   * @param suwayomiTrackingService the {@link SuwayomiTrackingService} to use for tracking progress
+   */
   @Autowired
   public MangaService(
       MangaClient mangaClient,

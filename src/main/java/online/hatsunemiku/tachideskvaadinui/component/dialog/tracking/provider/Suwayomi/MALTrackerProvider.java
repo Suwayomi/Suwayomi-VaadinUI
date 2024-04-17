@@ -27,6 +27,11 @@ public class MALTrackerProvider extends SuwayomiProvider {
 
   private final MyAnimeListAPIService malAPI;
 
+  /**
+   * Creates a new {@link MALTrackerProvider} with the given parameters.
+   * @param suwayomiAPI the {@link SuwayomiTrackingService} to use for tracking on Suwayomi
+   * @param malAPI the {@link MyAnimeListAPIService} to use for getting data from MAL
+   */
   public MALTrackerProvider(SuwayomiTrackingService suwayomiAPI, MyAnimeListAPIService malAPI) {
     super(suwayomiAPI);
     this.malAPI = malAPI;
