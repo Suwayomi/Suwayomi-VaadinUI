@@ -129,6 +129,7 @@ public class SuwayomiTrackingService {
 
   /**
    * Checks if a manga is tracked on AniList.
+   *
    * @param mangaId the ID of the manga to check
    * @return {@code true} if the manga is tracked on AniList, {@code false} otherwise
    */
@@ -139,6 +140,7 @@ public class SuwayomiTrackingService {
 
   /**
    * Checks if a manga is tracked on MyAnimeList (MAL).
+   *
    * @param mangaId the ID of the manga to check
    * @return {@code true} if the manga is tracked on MAL, {@code false} otherwise
    */
@@ -192,6 +194,7 @@ public class SuwayomiTrackingService {
 
   /**
    * Syncs the progress of a manga from the Suwayomi server to the tracker.
+   *
    * @param mangaId the ID of the manga to sync progress for
    */
   public void trackProgress(int mangaId) {
