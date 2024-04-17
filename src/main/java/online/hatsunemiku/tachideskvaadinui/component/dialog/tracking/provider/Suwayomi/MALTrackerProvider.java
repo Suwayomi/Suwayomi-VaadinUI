@@ -29,6 +29,7 @@ public class MALTrackerProvider extends SuwayomiProvider {
 
   /**
    * Creates a new {@link MALTrackerProvider} with the given parameters.
+   *
    * @param suwayomiAPI the {@link SuwayomiTrackingService} to use for tracking on Suwayomi
    * @param malAPI the {@link MyAnimeListAPIService} to use for getting data from MAL
    */

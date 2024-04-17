@@ -22,10 +22,10 @@ public class AniListMangaStatistics implements MangaStatistics {
   /**
    * Creates a new {@link AniListMangaStatistics} object with the given parameters.
    *
-   * @param status      The status of the manga on AniList.
-   * @param progress    The number of chapters read by the user.
-   * @param score       The score the user gave to the manga.
-   * @param startedAt   The date the user started reading the manga.
+   * @param status The status of the manga on AniList.
+   * @param progress The number of chapters read by the user.
+   * @param score The score the user gave to the manga.
+   * @param startedAt The date the user started reading the manga.
    * @param completedAt The date the user completed the manga.
    */
   public AniListMangaStatistics(
@@ -76,10 +76,10 @@ public class AniListMangaStatistics implements MangaStatistics {
     }
     var that = (AniListMangaStatistics) obj;
     return Objects.equals(this.status, that.status)
-           && this.progress == that.progress
-           && this.score == that.score
-           && Objects.equals(this.startedAt, that.startedAt)
-           && Objects.equals(this.completedAt, that.completedAt);
+        && this.progress == that.progress
+        && this.score == that.score
+        && Objects.equals(this.startedAt, that.startedAt)
+        && Objects.equals(this.completedAt, that.completedAt);
   }
 
   @Override
@@ -90,20 +90,20 @@ public class AniListMangaStatistics implements MangaStatistics {
   @Override
   public String toString() {
     return "AniListMangaStatistics["
-           + "status="
-           + status
-           + ", "
-           + "progress="
-           + progress
-           + ", "
-           + "score="
-           + score
-           + ", "
-           + "startedAt="
-           + startedAt
-           + ", "
-           + "completedAt="
-           + completedAt
-           + ']';
+        + "status="
+        + status
+        + ", "
+        + "progress="
+        + progress
+        + ", "
+        + "score="
+        + score
+        + ", "
+        + "startedAt="
+        + startedAt
+        + ", "
+        + "completedAt="
+        + completedAt
+        + ']';
   }
 }

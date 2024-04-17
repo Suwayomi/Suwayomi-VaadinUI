@@ -38,7 +38,7 @@ public class ReadingView extends StandardLayout
   /**
    * Creates a new ReadingView and sets it to full screen.
    *
-   * @param mangaService    The {@link MangaService} to use for fetching manga.
+   * @param mangaService The {@link MangaService} to use for fetching manga.
    * @param settingsService The {@link SettingsService} to use for managing settings.
    */
   public ReadingView(MangaService mangaService, SettingsService settingsService) {
