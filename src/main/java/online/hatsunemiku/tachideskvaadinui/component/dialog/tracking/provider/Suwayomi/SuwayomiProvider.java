@@ -4,10 +4,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider;
+package online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider.Suwayomi;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
+import online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider.TrackerProvider;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchResult;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService;
 
@@ -17,9 +18,9 @@ import online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingSer
  * It implements the {@link TrackerProvider} interface.
  */
 @AllArgsConstructor
-public class SuwayomiProvider implements TrackerProvider {
+public abstract class SuwayomiProvider implements TrackerProvider {
 
-  private SuwayomiTrackingService suwayomiAPI;
+  protected SuwayomiTrackingService suwayomiAPI;
 
   @Override
   public boolean canSetPrivate() {

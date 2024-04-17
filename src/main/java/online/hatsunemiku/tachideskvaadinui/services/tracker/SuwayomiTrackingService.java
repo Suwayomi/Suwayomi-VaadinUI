@@ -6,11 +6,13 @@
 
 package online.hatsunemiku.tachideskvaadinui.services.tracker;
 
-import java.util.Arrays;
 import java.util.List;
-import javax.annotation.Nullable;
-import lombok.Getter;
+import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.ServerVersion;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackerType;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchResult;
+import online.hatsunemiku.tachideskvaadinui.services.SuwayomiService;
 import online.hatsunemiku.tachideskvaadinui.services.client.suwayomi.SuwayomiTrackingClient;
 import org.springframework.stereotype.Service;
 
@@ -19,19 +21,24 @@ import org.springframework.stereotype.Service;
  * wrapper around the {@link SuwayomiTrackingClient} class and provides methods to abstract the
  * inner workings of the client. Also provides convenience methods for handling tracking requests.
  */
+@Slf4j
 @Service
 public class SuwayomiTrackingService {
 
   private final SuwayomiTrackingClient client;
+  private final SuwayomiService suwayomiService;
 
   /**
    * Represents a Suwayomi Tracking Service.
    *
    * @param client the {@link SuwayomiTrackingClient} used for handling tracking requests to the
    *     Suwayomi Server.
+   * @param suwayomiService the {@link SuwayomiService} used for getting meta-data about the
+   *     Suwayomi Server.
    */
-  public SuwayomiTrackingService(SuwayomiTrackingClient client) {
+  public SuwayomiTrackingService(SuwayomiTrackingClient client, SuwayomiService suwayomiService) {
     this.client = client;
+    this.suwayomiService = suwayomiService;
   }
 
   /**
@@ -121,6 +128,28 @@ public class SuwayomiTrackingService {
   }
 
   /**
+   * Checks if a manga is tracked on AniList.
+   *
+   * @param mangaId the ID of the manga to check
+   * @return {@code true} if the manga is tracked on AniList, {@code false} otherwise
+   */
+  public boolean isMangaTrackedOnAniList(int mangaId) {
+    int id = TrackerType.ANILIST.id;
+    return client.isMangaTracked(mangaId, id);
+  }
+
+  /**
+   * Checks if a manga is tracked on MyAnimeList (MAL).
+   *
+   * @param mangaId the ID of the manga to check
+   * @return {@code true} if the manga is tracked on MAL, {@code false} otherwise
+   */
+  public boolean isMangaTrackedOnMAL(int mangaId) {
+    int id = TrackerType.MAL.id;
+    return client.isMangaTracked(mangaId, id);
+  }
+
+  /**
    * Logs in to the Suwayomi tracker with the specified URL and tracker ID.
    *
    * @param url the URL used for the login callback
@@ -163,37 +192,24 @@ public class SuwayomiTrackingService {
     return template.formatted(json);
   }
 
-  /** An enumeration representing different types of trackers. */
-  @Getter
-  private enum TrackerType {
-    MAL(1),
-    ANILIST(2);
+  /**
+   * Syncs the progress of a manga from the Suwayomi server to the tracker.
+   *
+   * @param mangaId the ID of the manga to sync progress for
+   */
+  public void trackProgress(int mangaId) {
+    Optional<ServerVersion> version = suwayomiService.getServerVersion();
 
-    private final int id;
-
-    /**
-     * Instantiates a TrackerType object with the specified id.
-     *
-     * @param id the id of the Tracker on the Suwayomi Server
-     */
-    TrackerType(int id) {
-      this.id = id;
+    if (version.isEmpty()) {
+      log.warn("Failed to get server version");
+      return;
     }
 
-    /**
-     * Retrieves the {@link TrackerType} object based on the provided id.
-     *
-     * @param id the id of the TrackerType
-     * @return the corresponding {@link TrackerType} object, or null if no match is found
-     */
-    @Nullable
-    public static TrackerType fromId(int id) {
-      var match =
-          Arrays.stream(TrackerType.values())
-              .filter(trackerType -> trackerType.id == id)
-              .findFirst();
+    int revision = version.get().getRevisionNumber();
 
-      return match.orElse(null);
+    if (revision > 1510) {
+      log.info("Tracking progress manually");
+      client.trackProgress(mangaId);
     }
   }
 }

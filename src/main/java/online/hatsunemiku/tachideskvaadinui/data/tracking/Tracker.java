@@ -47,4 +47,9 @@ public class Tracker {
   public void removeAniListId() {
     aniListId = 0;
   }
+
+  /** Removes the MyAnimeList ID from the tracker. */
+  public void removeMalId() {
+    malId = 0;
+  }
 }

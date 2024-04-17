@@ -6,7 +6,11 @@
 
 package online.hatsunemiku.tachideskvaadinui.component.reader;
 
-import com.vaadin.flow.component.*;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -19,8 +23,6 @@ import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.shared.Registration;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.component.reader.paged.PagedReader;
@@ -31,8 +33,6 @@ import online.hatsunemiku.tachideskvaadinui.data.settings.reader.ReaderDirection
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
-import online.hatsunemiku.tachideskvaadinui.services.TrackingCommunicationService;
-import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import online.hatsunemiku.tachideskvaadinui.utils.NavigationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.RootView;
 import org.jetbrains.annotations.NotNull;
@@ -48,29 +48,21 @@ public class MangaReader extends Div {
 
   private final SettingsService settingsService;
   private final MangaService mangaService;
-  private final TrackingDataService tds;
-  private final TrackingCommunicationService tcs;
   private final int chapterIndex;
   private final List<Chapter> chapters;
-  private final ExecutorService trackerExecutor = Executors.newSingleThreadExecutor();
 
   /**
    * Constructs a {@link MangaReader} object.
    *
    * @param chapter The Chapter object representing the chapter being read.
    * @param settingsService The SettingsService object used for managing reader settings.
-   * @param tds The TrackingDataService object used for tracking chapter progress.
-   * @param tcs The TrackingCommunicationService object used for communication with tracking
-   *     service.
    * @param mangaService The MangaService object used for manga-related operations.
    * @param chapters The list of chapters in the manga
    */
   public MangaReader(
       Chapter chapter,
       SettingsService settingsService,
-      TrackingDataService tds,
       MangaService mangaService,
-      TrackingCommunicationService tcs,
       List<Chapter> chapters) {
     addClassName("manga-reader");
 
@@ -78,8 +70,6 @@ public class MangaReader extends Div {
     this.mangaService = mangaService;
     this.chapterIndex = chapters.stream().map(Chapter::getId).toList().indexOf(chapter.getId());
     this.chapters = List.copyOf(chapters);
-    this.tds = tds;
-    this.tcs = tcs;
 
     Settings settings = settingsService.getSettings();
     var readerSettings = settings.getReaderSettings(chapter.getMangaId());
@@ -157,7 +147,7 @@ public class MangaReader extends Div {
 
     reader.addReaderReachEndListener(
         e -> {
-          if (mangaService.setChapterRead(chapter.getId())) {
+          if (mangaService.setChapterRead(chapter.getId(), chapter.getMangaId())) {
             log.info("Set chapter {} to read", chapter.getName());
           } else {
             log.warn("Couldn't set chapter {} to read", chapter.getName());
@@ -165,20 +155,6 @@ public class MangaReader extends Div {
 
           e.unregisterListener();
         });
-
-    int mangaId = chapter.getMangaId();
-
-    var tracker = tds.getTracker(mangaId);
-
-    if (tracker.hasAniListId()) {
-      reader.addReaderReachEndListener(
-          e -> {
-            log.debug("Setting chapter {} to read on AniList", chapter.getName());
-            trackerExecutor.submit(
-                () -> tcs.setChapterProgress(mangaId, chapter.getChapterNumber(), true));
-            e.unregisterListener();
-          });
-    }
 
     add(sidebar, reader, controls);
   }

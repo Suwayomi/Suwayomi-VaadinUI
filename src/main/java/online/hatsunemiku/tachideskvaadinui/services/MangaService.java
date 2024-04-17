@@ -13,6 +13,7 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.services.client.DownloadClient;
 import online.hatsunemiku.tachideskvaadinui.services.client.DownloadClient.DownloadChangeEvent;
 import online.hatsunemiku.tachideskvaadinui.services.client.MangaClient;
+import online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -20,18 +21,35 @@ import reactor.core.Disposable;
 import reactor.core.Disposables;
 import reactor.core.publisher.Flux;
 
+/**
+ * This class is responsible for handling all operations related to manga. This includes adding and
+ * removing manga from the library, fetching chapters, downloading chapters and more.
+ */
 @Service
 @Slf4j
 public class MangaService {
+
   private final MangaClient mangaClient;
   private final DownloadClient downloadClient;
   private final Flux<List<DownloadChangeEvent>> downloadChangeEventTracker;
+  private final SuwayomiTrackingService suwayomiTrackingService;
 
+  /**
+   * Creates a new MangaService.
+   *
+   * @param mangaClient the {@link MangaClient} to use for fetching manga data
+   * @param downloadCLient the {@link DownloadClient} to use for downloading chapters
+   * @param suwayomiTrackingService the {@link SuwayomiTrackingService} to use for tracking progress
+   */
   @Autowired
-  public MangaService(MangaClient mangaClient, DownloadClient downloadCLient) {
+  public MangaService(
+      MangaClient mangaClient,
+      DownloadClient downloadCLient,
+      SuwayomiTrackingService suwayomiTrackingService) {
     this.mangaClient = mangaClient;
     this.downloadClient = downloadCLient;
     this.downloadChangeEventTracker = downloadCLient.trackDownloads();
+    this.suwayomiTrackingService = suwayomiTrackingService;
   }
 
   /**
@@ -89,9 +107,19 @@ public class MangaService {
    * @param chapterId the ID of the chapter to be set as read
    * @return {@code true} if the chapter was successfully set as read, {@code false} otherwise
    */
-  public boolean setChapterRead(int chapterId) {
+  public boolean setChapterRead(int chapterId, int mangaId) {
     try {
-      return mangaClient.setChapterRead(chapterId);
+
+      boolean updated = mangaClient.setChapterRead(chapterId);
+
+      if (!updated) {
+        return false;
+      }
+
+      suwayomiTrackingService.trackProgress(mangaId);
+
+      return true;
+
     } catch (Exception e) {
       return false;
     }
@@ -201,21 +229,20 @@ public class MangaService {
 
     var subscription =
         downloadChangeEventTracker.subscribe(
-            events -> {
-              events.forEach(
-                  event -> {
-                    if (event.chapter().id() != chapterId) {
-                      return;
-                    }
+            events ->
+                events.forEach(
+                    event -> {
+                      if (event.chapter().id() != chapterId) {
+                        return;
+                      }
 
-                    if (event.progress() != 1) {
-                      return;
-                    }
+                      if (event.progress() != 1) {
+                        return;
+                      }
 
-                    callback.run();
-                    cancellation.dispose();
-                  });
-            });
+                      callback.run();
+                      cancellation.dispose();
+                    }));
 
     cancellation.add(subscription);
   }
