@@ -15,7 +15,6 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackerType;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.Tracker;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchResult;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.MangaStatistics;
-import online.hatsunemiku.tachideskvaadinui.services.tracker.AniListAPIService;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService;
 
 /**
@@ -27,7 +26,6 @@ import online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingSer
 public class SuwayomiProvider implements TrackerProvider {
 
   protected SuwayomiTrackingService suwayomiAPI;
-  private AniListAPIService aniListAPI;
 
   @Override
   public boolean canSetPrivate() {

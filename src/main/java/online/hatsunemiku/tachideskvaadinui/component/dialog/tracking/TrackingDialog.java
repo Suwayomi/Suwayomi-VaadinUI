@@ -111,7 +111,7 @@ public class TrackingDialog extends Dialog {
       Div statistics;
 
       try {
-        TrackerProvider provider = new SuwayomiProvider(suwayomiTrackingService, aniListAPIService);
+        TrackerProvider provider = new SuwayomiProvider(suwayomiTrackingService);
         statistics = getTrackingStatistics(tracker, provider);
         add(statistics);
       } catch (RuntimeException e) {
@@ -169,7 +169,7 @@ public class TrackingDialog extends Dialog {
             return;
           }
 
-          SuwayomiProvider provider = new SuwayomiProvider(suwayomiTrackingService, aniListAPIService);
+          SuwayomiProvider provider = new SuwayomiProvider(suwayomiTrackingService);
 
           try {
             displaySearch(manga.getTitle(), manga.getId(), provider, TrackerType.ANILIST);
@@ -198,7 +198,7 @@ public class TrackingDialog extends Dialog {
             return;
           }
 
-          SuwayomiProvider provider = new SuwayomiProvider(suwayomiTrackingService, aniListAPI);
+          SuwayomiProvider provider = new SuwayomiProvider(suwayomiTrackingService);
 
           try {
             displaySearch(manga.getTitle(), manga.getId(), provider, TrackerType.MAL);

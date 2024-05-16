@@ -19,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.OAuthData;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.TrackerTokens;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListMedia;
-import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListScoreFormat;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListStatus;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.GraphQLRequest;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.MangaList;
@@ -241,42 +240,6 @@ public class AniListAPIService {
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  /**
-   * Retrieves the user's score format from AniList.
-   *
-   * @return The user's score format as an {@link AniListScoreFormat} enum value.
-   */
-  public AniListScoreFormat getScoreFormat() {
-    String query =
-        """
-            query {
-              Viewer {
-                mediaListOptions {
-                  scoreFormat
-                }
-              }
-            }
-            """;
-
-    String variables = "{}";
-
-    String response = sendAuthGraphQLRequest(query, variables);
-
-    if (response == null || response.isEmpty()) {
-      throw new RuntimeException("Response is null");
-    }
-
-    JsonObject json = Json.parse(response);
-
-    String scoreFormat =
-        json.getObject("data")
-            .getObject("Viewer")
-            .getObject("mediaListOptions")
-            .getString("scoreFormat");
-
-    return AniListScoreFormat.valueOf(scoreFormat);
   }
 
   /**
