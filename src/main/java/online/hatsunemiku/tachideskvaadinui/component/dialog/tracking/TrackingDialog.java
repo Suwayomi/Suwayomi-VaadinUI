@@ -19,20 +19,22 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import dev.katsute.mal4j.manga.property.MangaStatus;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider.AniListProvider;
-import online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider.Suwayomi.MALTrackerProvider;
+import online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider.Suwayomi.SuwayomiProvider;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider.TrackerProvider;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Status;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackerType;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.Tracker;
-import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListScoreFormat;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListStatus;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDate;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.AniListMangaStatistics;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.MALMangaStatistics;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.MangaStatistics;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.SuwayomiMangaStatistics;
+import online.hatsunemiku.tachideskvaadinui.services.SuwayomiService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.AniListAPIService;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.MyAnimeListAPIService;
@@ -41,7 +43,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.vaadin.miki.superfields.dates.SuperDatePicker;
-import org.vaadin.miki.superfields.numbers.SuperIntegerField;
+import org.vaadin.miki.superfields.numbers.SuperDoubleField;
 
 /**
  * TrackingDialog is a custom dialog component used for tracking manga progress with Tracking
@@ -55,32 +57,41 @@ public class TrackingDialog extends Dialog {
   private final SuwayomiTrackingService suwayomiTrackingService;
   private final TrackingDataService dataService;
   private final MyAnimeListAPIService malAPI;
+  private final SuwayomiService suwayomiService;
 
   /**
    * Constructs a {@link TrackingDialog} with the given parameters.
    *
-   * @param dataService The {@link TrackingDataService} used for storing tracking data.
-   * @param manga the {@link Manga} to track with the dialog.
-   * @param aniListAPIService the {@link AniListAPIService} used for making requests to the AniList
-   *     API.
+   * @param dataService             The {@link TrackingDataService} used for storing tracking data.
+   * @param manga                   the {@link Manga} to track with the dialog.
+   * @param aniListAPIService       the {@link AniListAPIService} used for making requests to the
+   *                                AniList API.
    * @param suwayomiTrackingService the {@link SuwayomiTrackingService} used for making requests to
-   *     the Suwayomi API.
-   * @param malAPI the {@link MyAnimeListAPIService} used for making requests to the MyAnimeList
-   *     API.
+   *                                the Suwayomi API.
+   * @param malAPI                  the {@link MyAnimeListAPIService} used for making requests to
+   *                                the MyAnimeList API.
    */
   public TrackingDialog(
       TrackingDataService dataService,
       Manga manga,
       AniListAPIService aniListAPIService,
       SuwayomiTrackingService suwayomiTrackingService,
-      MyAnimeListAPIService malAPI) {
+      MyAnimeListAPIService malAPI,
+      SuwayomiService suwayomiService) {
     super();
     this.dataService = dataService;
     this.aniListAPI = aniListAPIService;
     this.suwayomiTrackingService = suwayomiTrackingService;
     this.malAPI = malAPI;
+    this.suwayomiService = suwayomiService;
 
     Tracker tracker = dataService.getTracker(manga.getId());
+
+    // for bugged trackers that have both MAL and AniList IDs
+    if (tracker.hasAniListId() && tracker.hasMalId()) {
+      tracker.removeMalId();
+      tracker.removeAniListId();
+    }
 
     if (tracker.hasAniListId()) {
       if (!suwayomiTrackingService.isMangaTrackedOnAniList(manga.getId())) {
@@ -100,18 +111,17 @@ public class TrackingDialog extends Dialog {
       Div statistics;
 
       try {
-        TrackerProvider provider;
-        if (tracker.hasAniListId()) {
-          provider = new AniListProvider(aniListAPIService, suwayomiTrackingService);
-        } else if (tracker.hasMalId()) {
-          provider = new MALTrackerProvider(suwayomiTrackingService, malAPI);
-        } else {
-          throw new IllegalStateException("Tracker has no tracking IDs");
-        }
-
+        TrackerProvider provider = new SuwayomiProvider(suwayomiTrackingService, aniListAPIService);
         statistics = getTrackingStatistics(tracker, provider);
         add(statistics);
       } catch (RuntimeException e) {
+
+        Notification notification = new Notification();
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.setText("Error getting manga stats: " + e.getMessage());
+        notification.setDuration(5000);
+        notification.open();
+
         addTrackingButtons(manga, aniListAPIService, tracker);
       }
     }
@@ -120,18 +130,24 @@ public class TrackingDialog extends Dialog {
   /**
    * Adds the tracking buttons to the dialog.
    *
-   * @param manga the {@link Manga} to track
+   * @param manga             the {@link Manga} to track
    * @param aniListAPIService the {@link AniListAPIService} to communicate with AniList with
-   * @param tracker the {@link Tracker} instance to update the button states via {@link
-   *     #updateButtons(Button, Button, Tracker)}
+   * @param tracker           the {@link Tracker} instance to update the button states via
+   *                          {@link #updateButtons(Button, Button, Tracker)}
    */
   private void addTrackingButtons(
       Manga manga, AniListAPIService aniListAPIService, Tracker tracker) {
     VerticalLayout buttons = new VerticalLayout();
     buttons.setId("tracking-dialog-tracker-buttons");
 
-    Button aniListBtn = new Button("Anilist");
+    Button aniListBtn = new Button("AniList");
     Button malBtn = new Button("MyAnimeList");
+
+    var version = suwayomiService.getServerVersion();
+
+    if (version.orElseThrow().getRevisionNumber() < 1510) {
+      malBtn.setEnabled(false);
+    }
 
     aniListBtn.addClickListener(
         e -> {
@@ -153,13 +169,12 @@ public class TrackingDialog extends Dialog {
             return;
           }
 
-          TrackerProvider provider =
-              new AniListProvider(aniListAPIService, suwayomiTrackingService);
+          SuwayomiProvider provider = new SuwayomiProvider(suwayomiTrackingService, aniListAPIService);
 
           try {
-            displaySearch(manga.getTitle(), manga.getId(), provider);
+            displaySearch(manga.getTitle(), manga.getId(), provider, TrackerType.ANILIST);
           } catch (WebClientResponseException.InternalServerError
-              | WebClientRequestException error) {
+                   | WebClientRequestException error) {
             log.error("Invalid response from AniList", error);
             Notification notification = new Notification();
             notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -183,12 +198,12 @@ public class TrackingDialog extends Dialog {
             return;
           }
 
-          TrackerProvider provider = new MALTrackerProvider(suwayomiTrackingService, malAPI);
+          SuwayomiProvider provider = new SuwayomiProvider(suwayomiTrackingService, aniListAPI);
 
           try {
-            displaySearch(manga.getTitle(), manga.getId(), provider);
+            displaySearch(manga.getTitle(), manga.getId(), provider, TrackerType.MAL);
           } catch (WebClientResponseException.InternalServerError
-              | WebClientRequestException error) {
+                   | WebClientRequestException error) {
             log.error("Invalid response from MyAnimeList", error);
             Notification notification = new Notification();
             notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -227,20 +242,6 @@ public class TrackingDialog extends Dialog {
     MangaStatistics mangaStats;
     try {
       mangaStats = provider.getStatistics(tracker);
-    } catch (WebClientResponseException.NotFound e) {
-      log.debug("Manga not found on AniList", e);
-      Notification notification = new Notification();
-      notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-      notification.setText(
-          """
-              The manga wasn't found on AniList.
-              Removing AniList tracking for this Manga.
-              You can add it again if you want to track it with AniList.
-              """);
-      notification.setDuration(5000);
-      notification.open();
-      tracker.removeAniListId();
-      throw new RuntimeException("Manga not found on AniList");
     } catch (Exception e) {
       log.error("Error getting manga stats", e);
       Notification notification = new Notification();
@@ -252,20 +253,20 @@ public class TrackingDialog extends Dialog {
 
     Div content = new Div();
 
-    ComboBox<?> status = getTrackingStatusField(tracker, mangaStats);
+    ComboBox<?> status = getTrackingStatusField(tracker, mangaStats, provider);
 
     var maxChapters = provider.getMaxChapter(tracker);
 
-    SuperIntegerField chapter = getTrackingChapterField(tracker, mangaStats, maxChapters);
+    SuperDoubleField chapter = getTrackingChapterField(tracker, mangaStats, maxChapters);
 
-    SuperIntegerField score = getTrackingScoreField(tracker, mangaStats, provider);
+    ComboBox<String> score = getTrackingScoreField(tracker, mangaStats);
 
     SuperDatePicker endDate = new SuperDatePicker();
     SuperDatePicker startDate = getTrackingStartDateField(tracker, mangaStats, endDate);
 
     Checkbox privateCheckbox = getPrivateCheckboxField(tracker);
 
-    if (!provider.canSetPrivate()) {
+    if (!tracker.hasAniListId()) {
       privateCheckbox.setVisible(false);
       privateCheckbox.setEnabled(false);
     }
@@ -278,26 +279,27 @@ public class TrackingDialog extends Dialog {
     statistics.add(status, chapter, score, startDate, endDate, privateCheckbox);
 
     String trackerName;
-    TrackerType type;
 
-    if (provider instanceof AniListProvider) {
+    if (tracker.hasAniListId()) {
       trackerName = "AniList";
-      type = TrackerType.ANILIST;
-    } else if (provider instanceof MALTrackerProvider) {
-      trackerName = "MAL";
-      type = TrackerType.MAL;
+    } else if (tracker.hasMalId()) {
+      trackerName = "MyAnimeList";
     } else {
-      throw new IllegalArgumentException("Unknown TrackerProvider type");
+      trackerName = "Suwayomi";
     }
 
     String trashBtnText = "Remove %s tracking".formatted(trackerName);
     Button trackingDeleteBtn = new Button(trashBtnText, VaadinIcon.TRASH.create());
     trackingDeleteBtn.addClickListener(
         e -> {
-          if (type == TrackerType.ANILIST) {
+          if (tracker.hasAniListId()) {
+            suwayomiTrackingService.stopTracking(tracker, false);
             tracker.removeAniListId();
-          } else {
+          } else if (tracker.hasMalId()) {
+            suwayomiTrackingService.stopTracking(tracker, false);
             tracker.removeMalId();
+          } else {
+            throw new IllegalArgumentException("Tracker has no ID");
           }
 
           close();
@@ -307,12 +309,31 @@ public class TrackingDialog extends Dialog {
     var nukeBtn = new Button(nukeBtnText, VaadinIcon.BOMB.create());
     nukeBtn.addClickListener(
         e -> {
-          if (type == TrackerType.ANILIST) {
-            aniListAPI.removeMangaFromList(tracker.getAniListId());
+
+          var version = suwayomiService.getServerVersion();
+
+          if (version.isEmpty()) {
+            throw new RuntimeException("Failed to get server version");
+          }
+
+          if (tracker.hasAniListId()) {
+            suwayomiTrackingService.stopTracking(tracker, true);
+
+            if (version.get().getRevisionNumber() < 1510) {
+              aniListAPI.removeMangaFromList(tracker.getAniListId());
+            }
+
             tracker.removeAniListId();
-          } else {
-            malAPI.removeMangaFromList(tracker.getMalId());
+          } else if (tracker.hasMalId()) {
+            suwayomiTrackingService.stopTracking(tracker, true);
+
+            if (version.get().getRevisionNumber() < 1510) {
+              malAPI.removeMangaFromList(tracker.getMalId());
+            }
+
             tracker.removeMalId();
+          } else {
+            throw new IllegalArgumentException("Tracker has no ID");
           }
 
           tracker.removeAniListId();
@@ -343,10 +364,10 @@ public class TrackingDialog extends Dialog {
   /**
    * Configures the end date field for tracking a manga.
    *
-   * @param tracker the tracker to update the end date for
-   * @param endDate the end date field to configure
+   * @param tracker    the tracker to update the end date for
+   * @param endDate    the end date field to configure
    * @param mangaStats the statistics for the manga
-   * @param startDate the start date field to check against
+   * @param startDate  the start date field to check against
    */
   private void configureTrackingEndDateField(
       Tracker tracker,
@@ -408,9 +429,9 @@ public class TrackingDialog extends Dialog {
   /**
    * Creates a field for tracking the start date of a manga.
    *
-   * @param tracker the tracker to update the start date for
+   * @param tracker    the tracker to update the start date for
    * @param mangaStats the statistics for the manga
-   * @param endDate the end date field to check against
+   * @param endDate    the end date field to check against
    * @return a {@link SuperDatePicker} for tracking the start date of the manga
    */
   @NotNull
@@ -435,13 +456,7 @@ public class TrackingDialog extends Dialog {
           if (e.getValue() == null) {
             MediaDate date = new MediaDate(null, null, null);
 
-            if (mangaStats instanceof AniListMangaStatistics) {
-              aniListAPI.updateMangaStartDate(tracker.getAniListId(), date);
-            } else if (mangaStats instanceof MALMangaStatistics) {
-              malAPI.updateMangaListStartDate(tracker.getMalId(), date);
-            } else {
-              throw new IllegalArgumentException("Unknown MangaStatistics type");
-            }
+            suwayomiTrackingService.updateMangaStartDate(tracker, date);
 
             return;
           }
@@ -458,13 +473,7 @@ public class TrackingDialog extends Dialog {
 
           MediaDate date = new MediaDate(e.getValue());
 
-          if (mangaStats instanceof AniListMangaStatistics) {
-            aniListAPI.updateMangaStartDate(tracker.getAniListId(), date);
-          } else if (mangaStats instanceof MALMangaStatistics) {
-            malAPI.updateMangaListStartDate(tracker.getMalId(), date);
-          } else {
-            throw new IllegalArgumentException("Unknown MangaStatistics type");
-          }
+          suwayomiTrackingService.updateMangaStartDate(tracker, date);
         });
     return startDate;
   }
@@ -472,31 +481,33 @@ public class TrackingDialog extends Dialog {
   /**
    * Creates a field for tracking the score of a manga.
    *
-   * @param tracker the tracker to update the score for
+   * @param tracker    the tracker to update the score for
    * @param mangaStats the statistics for the manga
-   * @param provider the provider for the tracker
-   * @return a {@link SuperIntegerField} for tracking the score of the manga
+   * @return a {@link ComboBox} for tracking the score of the manga
    */
   @NotNull
-  private SuperIntegerField getTrackingScoreField(
-      Tracker tracker, MangaStatistics mangaStats, TrackerProvider provider) {
-    AniListScoreFormat format = provider.getScoreFormat();
-
-    SuperIntegerField score = new SuperIntegerField();
-    score.setNullValueAllowed(true);
-    score.setPreventingInvalidInput(true);
+  private ComboBox<String> getTrackingScoreField(Tracker tracker, MangaStatistics mangaStats) {
+    ComboBox<String> score = new ComboBox<>();
+    List<String> trackingScores = suwayomiTrackingService.getTrackingScores(tracker);
+    score.setItems(trackingScores);
     score.setPlaceholder("Score");
     score.addClassName("two-span");
 
     if (mangaStats.score() != 0) {
-      score.setValue(mangaStats.score());
+
+      double scoreValue = mangaStats.score();
+      if (scoreValue % 1 == 0) {
+        score.setValue(String.valueOf((int) scoreValue));
+      } else {
+        score.setValue(String.valueOf(scoreValue));
+      }
     } else {
       score.setValue(null);
     }
 
     score.addValueChangeListener(
         e -> {
-          if (e.getValue() == null || e.getValue() == 0) {
+          if (e.getValue() == null || Objects.equals(e.getValue(), "0")) {
             score.setValue(null);
             if (mangaStats instanceof AniListMangaStatistics) {
               aniListAPI.updateMangaScore(tracker.getAniListId(), 0);
@@ -506,29 +517,35 @@ public class TrackingDialog extends Dialog {
             return;
           }
 
-          if (e.getValue() > format.getMaxScore()) {
+          double numericValue = Double.parseDouble(e.getValue());
+          double biggestValue = Double.parseDouble(trackingScores.get(trackingScores.size() - 1));
+
+          if (numericValue > biggestValue) {
             score.setValue(e.getOldValue());
             Notification notification = new Notification();
+            notification.setDuration(5000);
             notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-            notification.setText("Score cannot be higher than " + format.getMaxScore());
+            notification.setText("Score cannot be higher than " + biggestValue);
             notification.open();
             return;
           }
 
-          if (e.getValue() < format.getMinScore()) {
+          if (numericValue < 0) {
             score.setValue(e.getOldValue());
             Notification notification = new Notification();
+            notification.setDuration(5000);
             notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-            notification.setText("Score cannot be lower than " + format.getMinScore());
+            notification.setText("Score cannot be lower than 0");
             notification.open();
             return;
           }
 
-          if (mangaStats instanceof AniListMangaStatistics) {
-            aniListAPI.updateMangaScore(tracker.getAniListId(), e.getValue());
-          } else if (mangaStats instanceof MALMangaStatistics) {
-            malAPI.updateMangaListScore(tracker.getMalId(), e.getValue());
+          if (numericValue == mangaStats.score()) {
+            log.debug("Score is the same as before - not updating");
+            return;
           }
+
+          suwayomiTrackingService.updateMangaScore(tracker, e.getValue());
         });
     return score;
   }
@@ -536,17 +553,23 @@ public class TrackingDialog extends Dialog {
   /**
    * Creates a ComboBox for selecting the tracking status of a manga.
    *
-   * @param tracker the tracker to update the status for
+   * @param tracker    the tracker to update the status for
    * @param mangaStats the statistics for the manga
+   * @param provider   the provider with which to get info about the manga
    * @return a {@link ComboBox} for selecting the status of the manga
    */
   @NotNull
-  private ComboBox<?> getTrackingStatusField(Tracker tracker, MangaStatistics mangaStats) {
+  private ComboBox<?> getTrackingStatusField(Tracker tracker, MangaStatistics mangaStats,
+      TrackerProvider provider) {
     ComboBox<?> status;
+
     if (mangaStats instanceof AniListMangaStatistics) {
       status = configureStatusComboBoxAniList(tracker, (AniListMangaStatistics) mangaStats);
     } else if (mangaStats instanceof MALMangaStatistics) {
       status = configureStatusComboBoxMAL(tracker, (MALMangaStatistics) mangaStats);
+    } else if (mangaStats instanceof SuwayomiMangaStatistics) {
+      status = configureStatusBoxSuwayomi(tracker, (SuwayomiMangaStatistics) mangaStats,
+          (SuwayomiProvider) provider);
     } else {
       throw new IllegalArgumentException("Unknown MangaStatistics type");
     }
@@ -559,7 +582,7 @@ public class TrackingDialog extends Dialog {
   /**
    * Creates and configures a ComboBox for selecting the status of a manga on AniList.
    *
-   * @param tracker the tracker to update the status for
+   * @param tracker    the tracker to update the status for
    * @param mangaStats the statistics for the manga
    * @return a {@link ComboBox} for selecting the status of the manga
    */
@@ -583,7 +606,7 @@ public class TrackingDialog extends Dialog {
   /**
    * Creates and configures a ComboBox for selecting the status of a manga on MyAnimeList.
    *
-   * @param tracker the tracker to update the status for
+   * @param tracker    the tracker to update the status for
    * @param mangaStats the statistics for the manga
    * @return a {@link ComboBox} for selecting the status of the manga
    */
@@ -604,18 +627,48 @@ public class TrackingDialog extends Dialog {
     return status;
   }
 
+  private ComboBox<Status> configureStatusBoxSuwayomi(Tracker tracker,
+      SuwayomiMangaStatistics statistics, SuwayomiProvider provider) {
+    ComboBox<Status> status = new ComboBox<>();
+    status.setItemLabelGenerator(Status::getName);
+
+    var statuses = provider.getTrackerStatuses(tracker);
+
+    status.setItems(statuses);
+
+    for (Status s : statuses) {
+      if (s.getValue() == statistics.status()) {
+        status.setValue(s);
+        break;
+      }
+    }
+
+    status.addValueChangeListener(
+        e -> {
+          if (e.getValue() == null) {
+            status.setValue(e.getOldValue());
+          } else if (e.getValue().getValue() == statistics.status()) {
+            log.debug("Status is the same as before - not updating");
+          } else {
+            suwayomiTrackingService.updateMangaStatus(tracker, e.getValue().getValue());
+          }
+        });
+
+    return status;
+  }
+
   /**
    * Creates a Field for tracking the chapter progress of a manga.
    *
-   * @param tracker the tracker to update the progress for
-   * @param mangaStats the statistics for the manga
+   * @param tracker     the tracker to update the progress for
+   * @param mangaStats  the statistics for the manga
    * @param maxChapters the maximum number of chapters for the manga
-   * @return a {@link SuperIntegerField} for tracking the chapter progress
+   * @return a {@link SuperDoubleField} for tracking the chapter progress
    */
   @NotNull
-  private SuperIntegerField getTrackingChapterField(
-      Tracker tracker, MangaStatistics mangaStats, Integer maxChapters) {
-    SuperIntegerField chapter = new SuperIntegerField();
+  private SuperDoubleField getTrackingChapterField(Tracker tracker, MangaStatistics mangaStats,
+      Integer maxChapters) {
+    SuperDoubleField chapter = new SuperDoubleField();
     chapter.setPreventingInvalidInput(true);
     chapter.setValue(mangaStats.progress());
     chapter.setPlaceholder("Chapter");
@@ -636,24 +689,24 @@ public class TrackingDialog extends Dialog {
             return;
           }
 
-          if (maxChapters != null && e.getValue() > maxChapters) {
+          if (maxChapters != null && maxChapters != 0 && e.getValue() > maxChapters) {
             chapter.setValue(e.getOldValue());
             return;
           }
 
-          if (mangaStats instanceof AniListMangaStatistics) {
-            aniListAPI.updateMangaProgress(tracker.getAniListId(), e.getValue());
-          } else if (mangaStats instanceof MALMangaStatistics) {
-            malAPI.updateMangaListProgress(tracker.getMalId(), e.getValue());
-          } else {
-            throw new IllegalArgumentException("Unknown MangaStatistics type");
+          if (e.getValue() == mangaStats.progress()) {
+            log.debug("Progress same as before, ignoring update");
+            return;
           }
+
+          suwayomiTrackingService.updateMangaProgress(tracker, e.getValue());
         });
     return chapter;
   }
 
-  private void displaySearch(String mangaName, int mangaId, TrackerProvider trackerProvider) {
-    var dialog = new TrackingMangaChoiceDialog(mangaName, mangaId, trackerProvider, dataService);
+  private void displaySearch(String mangaName, int mangaId, TrackerProvider trackerProvider,
+      TrackerType trackerType) {
+    var dialog = new TrackingMangaChoiceDialog(mangaName, mangaId, trackerProvider, dataService, trackerType);
     dialog.open();
 
     dialog.addOpenedChangeListener(
@@ -672,8 +725,8 @@ public class TrackingDialog extends Dialog {
    * Updates the tracking buttons with the current tracking status.
    *
    * @param aniListBtn the AniList tracking button
-   * @param malBtn the MyAnimeList tracking button
-   * @param tracker the tracker to check the status of
+   * @param malBtn     the MyAnimeList tracking button
+   * @param tracker    the tracker to check the status of
    */
   private void updateButtons(Button aniListBtn, Button malBtn, Tracker tracker) {
     if (tracker.hasAniListId()) {

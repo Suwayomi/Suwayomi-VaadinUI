@@ -168,7 +168,15 @@ public class TrackingDataService {
   }
 
   public Tracker getTracker(long mangaId) {
-    mangaTrackers.putIfAbsent(mangaId, new Tracker());
-    return mangaTrackers.get(mangaId);
+    mangaTrackers.putIfAbsent(mangaId, new Tracker(mangaId));
+
+    var tracker = mangaTrackers.get(mangaId);
+
+    //Fix for old trackers without manga ID
+    if (tracker.getMangaId() == 0) {
+      tracker.setMangaId(mangaId);
+    }
+
+    return tracker;
   }
 }

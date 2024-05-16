@@ -10,8 +10,13 @@ import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.ServerVersion;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Status;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackRecord;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackerType;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.Tracker;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDate;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchResult;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.SuwayomiMangaStatistics;
 import online.hatsunemiku.tachideskvaadinui.services.SuwayomiService;
 import online.hatsunemiku.tachideskvaadinui.services.client.suwayomi.SuwayomiTrackingClient;
 import org.springframework.stereotype.Service;
@@ -31,10 +36,10 @@ public class SuwayomiTrackingService {
   /**
    * Represents a Suwayomi Tracking Service.
    *
-   * @param client the {@link SuwayomiTrackingClient} used for handling tracking requests to the
-   *     Suwayomi Server.
+   * @param client          the {@link SuwayomiTrackingClient} used for handling tracking requests
+   *                        to the Suwayomi Server.
    * @param suwayomiService the {@link SuwayomiService} used for getting meta-data about the
-   *     Suwayomi Server.
+   *                        Suwayomi Server.
    */
   public SuwayomiTrackingService(SuwayomiTrackingClient client, SuwayomiService suwayomiService) {
     this.client = client;
@@ -108,7 +113,7 @@ public class SuwayomiTrackingService {
   /**
    * Tracks a manga on AniList using the provided manga ID and external ID.
    *
-   * @param mangaId the ID of the manga to be tracked
+   * @param mangaId    the ID of the manga to be tracked
    * @param externalId the external ID of the manga on AniList
    */
   public void trackOnAniList(int mangaId, int externalId) {
@@ -119,7 +124,7 @@ public class SuwayomiTrackingService {
   /**
    * Tracks a manga on MyAnimeList (MAL) using the provided manga ID and external ID.
    *
-   * @param mangaId the ID of the manga to be tracked
+   * @param mangaId    the ID of the manga to be tracked
    * @param externalId the external ID of the manga on MAL
    */
   public void trackOnMAL(int mangaId, int externalId) {
@@ -152,7 +157,7 @@ public class SuwayomiTrackingService {
   /**
    * Logs in to the Suwayomi tracker with the specified URL and tracker ID.
    *
-   * @param url the URL used for the login callback
+   * @param url       the URL used for the login callback
    * @param trackerId the ID of the tracker to log in to
    */
   public void loginSuwayomi(String url, int trackerId) {
@@ -211,5 +216,101 @@ public class SuwayomiTrackingService {
       log.info("Tracking progress manually");
       client.trackProgress(mangaId);
     }
+  }
+
+  /**
+   * Retrieves the AniList track record for a manga from the Suwayomi server.
+   *
+   * @param mangaId the ID of the manga to get the track record for
+   * @return the track record for the manga or {@code null} if the manga is not tracked on AniList
+   */
+  public TrackRecord getTrackRecordAniList(long mangaId) {
+    return client.getTrackRecord(mangaId, TrackerType.ANILIST.id);
+  }
+
+  /**
+   * Retrieves the MyAnimeList (MAL) track record for a manga from the Suwayomi server.
+   *
+   * @param mangaId the ID of the manga to get the track record for
+   * @return the track record for the manga or {@code null} if the manga is not tracked on MAL
+   */
+  public TrackRecord getTrackRecordMAL(long mangaId) {
+    return client.getTrackRecord(mangaId, TrackerType.MAL.id);
+  }
+
+  /**
+   * Updates the tracking data for a manga on the Suwayomi server.
+   *
+   * @param record the {@link TrackRecord} object representing the updated tracking data for the
+   *               manga
+   */
+  public void updateTrackingData(TrackRecord record) {
+    client.updateTrackerData(record);
+  }
+
+  public SuwayomiMangaStatistics getStatistics(TrackRecord tracker) {
+    return new SuwayomiMangaStatistics(tracker);
+  }
+
+  public List<Status> getStatuses(TrackRecord record) {
+    return client.getStatuses(record.getTrackerId());
+  }
+
+  public void updateMangaStatus(Tracker tracker, int status) {
+    var record = getTrackRecord(tracker);
+
+    record.setStatus(status);
+
+    updateTrackingData(record);
+  }
+
+  public void updateMangaStartDate(Tracker tracker, MediaDate startDate) {
+    var record = getTrackRecord(tracker);
+
+    record.setStartDate(startDate.toInstant());
+
+    updateTrackingData(record);
+  }
+
+  private TrackRecord getTrackRecord(Tracker tracker) {
+    TrackRecord record = null;
+
+    if (tracker.hasMalId()) {
+      record = getTrackRecordMAL(tracker.getMangaId());
+    } else if (tracker.hasAniListId()) {
+      record = getTrackRecordAniList(tracker.getMangaId());
+    }
+
+    if (record == null) {
+      throw new IllegalArgumentException("No record found for tracker");
+    }
+
+    return record;
+  }
+
+  public void stopTracking(Tracker tracker, boolean deleteRemote) {
+    var trackRecord = getTrackRecord(tracker);
+
+    client.stopTracking(trackRecord.getId(), deleteRemote);
+  }
+
+  public void updateMangaProgress(Tracker tracker, double value) {
+    var record = getTrackRecord(tracker);
+
+    record.setLastChapterRead((float) value);
+
+    updateTrackingData(record);
+  }
+
+  public void updateMangaScore(Tracker tracker, String value) {
+    var record = getTrackRecord(tracker);
+
+    client.updateScore(record.getId(), value);
+  }
+
+  public List<String> getTrackingScores(Tracker tracker) {
+    var record = getTrackRecord(tracker);
+
+    return client.getTrackingScores(record.getId());
   }
 }

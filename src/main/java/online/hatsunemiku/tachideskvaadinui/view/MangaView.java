@@ -34,6 +34,7 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
+import online.hatsunemiku.tachideskvaadinui.services.SuwayomiService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.AniListAPIService;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.MyAnimeListAPIService;
@@ -56,15 +57,19 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
   private final TrackingDataService dataService;
   private final SuwayomiTrackingService suwayomiTrackingService;
   private final MyAnimeListAPIService malAPI;
+  private final SuwayomiService suwayomiService;
 
   /**
    * Creates a MangaView object.
    *
-   * @param mangaService The {@link MangaService} for accessing the manga data from the server.
-   * @param settingsService The {@link SettingsService} for accessing and managing application
-   *     settings.
-   * @param aniListAPIService The {@link AniListAPIService} for connecting to the AniList API.
-   * @param dataService The {@link TrackingDataService} for tracking manga reading data.
+   * @param mangaService            The {@link MangaService} for accessing the manga data from the
+   *                                server.
+   * @param settingsService         The {@link SettingsService} for accessing and managing
+   *                                application settings.
+   * @param aniListAPIService       The {@link AniListAPIService} for connecting to the AniList
+   *                                API.
+   * @param dataService             The {@link TrackingDataService} for tracking manga reading
+   *                                data.
    * @param suwayomiTrackingService The {@link SuwayomiTrackingService} for Suwayomi tracking.
    */
   public MangaView(
@@ -73,7 +78,7 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
       AniListAPIService aniListAPIService,
       TrackingDataService dataService,
       SuwayomiTrackingService suwayomiTrackingService,
-      MyAnimeListAPIService malAPI) {
+      MyAnimeListAPIService malAPI, SuwayomiService suwayomiService) {
     super("Manga");
     this.mangaService = mangaService;
     this.settingsService = settingsService;
@@ -81,6 +86,7 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     this.dataService = dataService;
     this.suwayomiTrackingService = suwayomiTrackingService;
     this.malAPI = malAPI;
+    this.suwayomiService = suwayomiService;
   }
 
   @Override
@@ -142,7 +148,7 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
   /**
    * Retrieves and constructs the buttons needed for functionality for a manga.
    *
-   * @param manga The {@link Manga} object for which to retrieve the buttons.
+   * @param manga    The {@link Manga} object for which to retrieve the buttons.
    * @param chapters The list of {@link Chapter} objects available for the manga.
    * @return The constructed {@link Div} element containing the buttons.
    */
@@ -163,7 +169,8 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
         e -> {
           var dialog =
               new TrackingDialog(
-                  dataService, manga, aniListAPIService, suwayomiTrackingService, malAPI);
+                  dataService, manga, aniListAPIService, suwayomiTrackingService, malAPI,
+                  suwayomiService);
           dialog.open();
         });
 
@@ -204,7 +211,7 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
    * Creates and retrieves the resume button for a manga, which allows the user to resume reading
    * from the last chapter they left off.
    *
-   * @param manga The manga object for which to retrieve the resume button.
+   * @param manga    The manga object for which to retrieve the resume button.
    * @param chapters The list of chapters available for the manga.
    * @return The resume button with the appropriate click listener.
    */
@@ -321,8 +328,9 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
      * Creates a new event using the given source and indicator whether the event originated from
      * the client side or the server side.
      *
-     * @param source the source component
-     * @param fromClient <code>true</code> if the event originated from the client side, <code>false
+     * @param source     the source component
+     * @param fromClient <code>true</code> if the event originated from the client side,
+     *                   <code>false
      *                   </code> otherwise
      */
     public DownloadAllChapterEvent(MangaView source, boolean fromClient) {

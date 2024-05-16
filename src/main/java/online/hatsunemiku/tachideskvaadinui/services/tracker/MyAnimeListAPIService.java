@@ -205,20 +205,6 @@ public class MyAnimeListAPIService {
   }
 
   /**
-   * Retrieves a {@link Manga} object with the specified ID from MyAnimeList.
-   *
-   * @param id The MyAnimeList ID of the manga.
-   * @return The {@link Manga} object containing the manga's information.
-   */
-  public Manga getManga(int id) {
-    if (mal == null) {
-      throw new IllegalStateException("Not authenticated with MAL");
-    }
-
-    return mal.getManga(id);
-  }
-
-  /**
    * Updates the status of a manga on the user's list.
    *
    * @param id The MyAnimeList ID of the manga.
@@ -238,33 +224,14 @@ public class MyAnimeListAPIService {
    * @param id The MyAnimeList ID of the manga.
    * @param score The new score of the manga.
    */
-  public void updateMangaListScore(int id, int score) {
+  public void updateMangaListScore(int id, double score) {
     if (mal == null) {
       throw new IllegalStateException("Not authenticated with MAL");
     }
 
-    mal.updateMangaListing(id).score(score).update();
-  }
+    int scoreInt = (int) score;
 
-  /**
-   * Updates the start date of a manga on the user's list.
-   *
-   * @param malId The MyAnimeList ID of the manga.
-   * @param date The new start date of the manga.
-   */
-  public void updateMangaListStartDate(int malId, MediaDate date) {
-    if (mal == null) {
-      throw new IllegalStateException("Not authenticated with MAL");
-    }
-
-    Instant instant =
-        LocalDate.of(date.year(), date.month(), date.day())
-            .atStartOfDay()
-            .atZone(ZoneId.systemDefault())
-            .toInstant();
-    Date startDate = Date.from(instant);
-
-    mal.updateMangaListing(malId).startDate(startDate).update();
+    mal.updateMangaListing(id).score(scoreInt).update();
   }
 
   /**
@@ -305,17 +272,4 @@ public class MyAnimeListAPIService {
     mal.deleteMangaListing(malId);
   }
 
-  /**
-   * Updates the progress (read chapter count) of a manga on the user's list.
-   *
-   * @param malId The MyAnimeList ID of the manga.
-   * @param value The new progress value. This is the chapter number the user has read.
-   */
-  public void updateMangaListProgress(int malId, int value) {
-    if (mal == null) {
-      throw new IllegalStateException("Not authenticated with MAL");
-    }
-
-    mal.updateMangaListing(malId).chaptersRead(value).update();
-  }
 }

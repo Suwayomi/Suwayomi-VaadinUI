@@ -6,6 +6,7 @@
 
 package online.hatsunemiku.tachideskvaadinui.data.tracking;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Data;
 import lombok.Setter;
 
@@ -15,7 +16,6 @@ import lombok.Setter;
  */
 @Data
 public class Tracker {
-
   /** Represents the ID of a manga on the Suwayomi Server. */
   @Setter private long mangaId;
 
@@ -30,6 +30,18 @@ public class Tracker {
    * if possible be marked as private on external trackers.
    */
   private boolean isPrivate;
+
+  @JsonCreator
+  public Tracker(long mangaId, int aniListId, int malId, boolean isPrivate) {
+    this.mangaId = mangaId;
+    this.aniListId = aniListId;
+    this.malId = malId;
+    this.isPrivate = isPrivate;
+  }
+
+  public Tracker(long mangaId) {
+    this.mangaId = mangaId;
+  }
 
   public boolean hasAniListId() {
     return aniListId != 0;

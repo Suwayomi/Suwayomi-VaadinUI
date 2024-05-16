@@ -47,12 +47,12 @@ public class AniListMangaStatistics implements MangaStatistics {
   }
 
   @Override
-  public int progress() {
+  public double progress() {
     return progress;
   }
 
   @Override
-  public int score() {
+  public double score() {
     return score;
   }
 

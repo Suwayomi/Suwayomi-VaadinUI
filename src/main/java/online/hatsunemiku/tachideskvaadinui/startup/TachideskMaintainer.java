@@ -142,7 +142,9 @@ public class TachideskMaintainer {
 
     starter.stopJar();
 
-    deleteOldServerFile(oldServer);
+    if (!oldServer.getJarName().equals(newServerMeta.getJarName())) {
+      deleteOldServerFile(oldServer);
+    }
 
     oldServer.setJarName(newServerMeta.getJarName());
     oldServer.setJarVersion(newServerMeta.getJarVersion());

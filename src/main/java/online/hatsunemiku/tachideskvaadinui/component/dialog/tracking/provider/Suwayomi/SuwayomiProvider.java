@@ -9,7 +9,13 @@ package online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider.
 import java.util.List;
 import lombok.AllArgsConstructor;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider.TrackerProvider;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Status;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackRecord;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackerType;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.Tracker;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchResult;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.MangaStatistics;
+import online.hatsunemiku.tachideskvaadinui.services.tracker.AniListAPIService;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService;
 
 /**
@@ -18,26 +24,79 @@ import online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingSer
  * It implements the {@link TrackerProvider} interface.
  */
 @AllArgsConstructor
-public abstract class SuwayomiProvider implements TrackerProvider {
+public class SuwayomiProvider implements TrackerProvider {
 
   protected SuwayomiTrackingService suwayomiAPI;
+  private AniListAPIService aniListAPI;
 
   @Override
   public boolean canSetPrivate() {
     return false;
   }
 
-  @Override
-  public List<TrackerSearchResult> search(String query) {
-    return suwayomiAPI.searchMAL(query);
+  public List<TrackerSearchResult> search(String query, TrackerType type) {
+    if (type == TrackerType.MAL) {
+      return suwayomiAPI.searchMAL(query);
+    } else if (type == TrackerType.ANILIST) {
+      return suwayomiAPI.searchAniList(query);
+    } else {
+      return null;
+    }
   }
 
   @Override
-  public void submitToTracker(boolean isPrivate, int mangaId, int externalId) {
+  public void submitToTracker(boolean isPrivate, int mangaId, int externalId, TrackerType trackerType) {
     if (isPrivate) {
       throw new IllegalArgumentException("Suwayomi does not support private entries");
     }
 
-    suwayomiAPI.trackOnMAL(mangaId, externalId);
+    if (trackerType == TrackerType.MAL) {
+      suwayomiAPI.trackOnMAL(mangaId, externalId);
+    } else if (trackerType == TrackerType.ANILIST) {
+      suwayomiAPI.trackOnAniList(mangaId, externalId);
+    }
+
+  }
+
+  @Override
+  public MangaStatistics getStatistics(Tracker tracker) {
+    TrackRecord record = getTrackRecord(tracker);
+
+    if (record == null) {
+      throw new IllegalArgumentException("No record found for tracker");
+    }
+
+    return suwayomiAPI.getStatistics(record);
+  }
+
+  @Override
+  public Integer getMaxChapter(Tracker tracker) {
+    TrackRecord record = getTrackRecord(tracker);
+
+    if (record == null) {
+      throw new IllegalArgumentException("No record found for tracker");
+    }
+
+    return record.getTotalChapters();
+  }
+
+  private TrackRecord getTrackRecord(Tracker tracker) {
+    if (tracker.hasMalId()) {
+      return suwayomiAPI.getTrackRecordMAL(tracker.getMangaId());
+    } else if (tracker.hasAniListId()) {
+      return suwayomiAPI.getTrackRecordAniList(tracker.getMangaId());
+    } else {
+      return null;
+    }
+  }
+
+  public List<Status> getTrackerStatuses(Tracker tracker) {
+    TrackRecord record = getTrackRecord(tracker);
+
+    if (record == null) {
+      throw new IllegalArgumentException("No record found for tracker");
+    }
+
+    return suwayomiAPI.getStatuses(record);
   }
 }

@@ -10,10 +10,13 @@ import com.jayway.jsonpath.TypeRef;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Status;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackRecord;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchResult;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
 import org.intellij.lang.annotations.Language;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -27,14 +30,17 @@ public class SuwayomiTrackingClient {
 
   private static final Logger log = LoggerFactory.getLogger(SuwayomiTrackingClient.class);
   private final WebClientService clientService;
+  private final SuwayomiMetaClient suwayomiMetaClient;
 
   /**
    * Creates a new instance of the {@link SuwayomiTrackingClient} class.
    *
    * @param clientService the {@link WebClientService} used for making API requests
    */
-  public SuwayomiTrackingClient(WebClientService clientService) {
+  public SuwayomiTrackingClient(WebClientService clientService,
+      SuwayomiMetaClient suwayomiMetaClient) {
     this.clientService = clientService;
+    this.suwayomiMetaClient = suwayomiMetaClient;
   }
 
   /**
@@ -106,7 +112,7 @@ public class SuwayomiTrackingClient {
    * Logs in to a tracker using the provided redirect URL and tracker ID.
    *
    * @param url the redirect URL to log in to the tracker
-   * @param id the ID of the tracker to log in to
+   * @param id  the ID of the tracker to log in to
    */
   public void loginTracker(String url, int id) {
     @Language("graphql")
@@ -138,7 +144,7 @@ public class SuwayomiTrackingClient {
    * Searches for a manga on a tracker using the provided query and tracker ID.
    *
    * @param query the search query for the manga
-   * @param id the ID of the tracker to search on
+   * @param id    the ID of the tracker to search on
    * @return a list of {@link TrackerSearchResult} objects representing the search results
    * @see online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService.TrackerType
    */
@@ -181,7 +187,8 @@ public class SuwayomiTrackingClient {
       throw new RuntimeException(errorText);
     }
 
-    TypeRef<List<TrackerSearchResult>> typeRef = new TypeRef<>() {};
+    TypeRef<List<TrackerSearchResult>> typeRef = new TypeRef<>() {
+    };
 
     return response.extractValueAsObject("searchTracker.trackSearches", typeRef);
   }
@@ -189,10 +196,10 @@ public class SuwayomiTrackingClient {
   /**
    * Tracks a manga on a tracker using the provided manga ID, external ID, and tracker ID.
    *
-   * @param mangaId the Suwayomi ID of the manga to be tracked
+   * @param mangaId    the Suwayomi ID of the manga to be tracked
    * @param externalId the external ID of the manga on the tracker. This is the ID of the manga on
-   *     the tracker's website.
-   * @param trackerId the ID of the tracker to track the manga on.
+   *                   the tracker's website.
+   * @param trackerId  the ID of the tracker to track the manga on.
    * @see online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService.TrackerType
    */
   @SuppressWarnings("JavadocReference")
@@ -266,7 +273,7 @@ public class SuwayomiTrackingClient {
   /**
    * Checks if a manga is tracked on a tracker using the provided manga ID and tracker ID.
    *
-   * @param mangaId the ID of the manga to check
+   * @param mangaId   the ID of the manga to check
    * @param trackerId the ID of the tracker to check
    * @return {@code true} if the manga is tracked on the tracker, {@code false} otherwise
    */
@@ -274,16 +281,16 @@ public class SuwayomiTrackingClient {
     @Language("graphql")
     var query =
         """
-        query IsMangaTracked($mangaId: Int!) {
-          manga(id: $mangaId) {
-            trackRecords {
-              nodes {
-                trackerId
+            query IsMangaTracked($mangaId: Int!) {
+              manga(id: $mangaId) {
+                trackRecords {
+                  nodes {
+                    trackerId
+                  }
+                }
               }
             }
-          }
-        }
-        """;
+            """;
 
     var variables = Map.of("mangaId", mangaId, "trackerId", trackerId);
 
@@ -295,10 +302,316 @@ public class SuwayomiTrackingClient {
       throw new RuntimeException("Error while checking if manga is tracked");
     }
 
-    TypeRef<List<TrackRecord>> typeRef = new TypeRef<>() {};
+    TypeRef<List<TrackRecord>> typeRef = new TypeRef<>() {
+    };
 
     var trackRecords = response.extractValueAsObject("manga.trackRecords.nodes", typeRef);
 
     return trackRecords.stream().anyMatch(record -> record.getTrackerId() == trackerId);
+  }
+
+  /**
+   * Returns the track record of a manga for a specific tracker.
+   *
+   * @param mangaId   the ID of the
+   *                  {@link online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga Manga} to get
+   *                  the track record for
+   * @param trackerId the ID of the tracker to get the track record for
+   * @return the {@link TrackRecord} of the manga for the tracker or {@code null} if the manga is
+   * not tracked on the tracker.
+   */
+  public TrackRecord getTrackRecord(long mangaId, int trackerId) {
+    @Language("graphql")
+    var query = """
+        query GetMangaTrackRecords($mangaId: Int!) {
+          manga(id: $mangaId) {
+            trackRecords {
+              nodes {
+            		id
+                libraryId
+                mangaId
+                remoteId
+                trackerId
+               \s
+                remoteUrl
+               \s
+                title
+                lastChapterRead
+                totalChapters
+                displayScore
+               \s
+                finishDate
+                startDate
+                score
+                status
+              }
+            }
+          }
+        }
+        """;
+
+    var variables = Map.of("mangaId", mangaId);
+
+    var graphClient = clientService.getDgsGraphQlClient();
+
+    var response = graphClient.reactiveExecuteQuery(query, variables).block();
+
+    if (response == null) {
+      throw new RuntimeException("Error while getting manga track records");
+    }
+
+    if (response.hasErrors()) {
+      throw new RuntimeException(
+          "Error while getting manga track records: " + response.getErrors());
+    }
+
+    TypeRef<List<TrackRecord>> typeRef = new TypeRef<>() {
+    };
+
+    var trackRecords = response.extractValueAsObject("manga.trackRecords.nodes", typeRef);
+
+    return trackRecords.stream()
+        .filter(record -> record.getTrackerId() == trackerId)
+        .findFirst()
+        .orElse(null);
+  }
+
+  public void updateTrackerData(TrackRecord trackRecord) {
+    @Language("graphql")
+    var query = """
+        mutation AllTheStuffForSuwayomiTracking(
+          $recordId: Int!
+          $finishDate: LongString!
+          $lastChapterRead: Float!
+          $startDate: LongString!
+          $status: Int!
+        ) {
+          updateTrack(
+            input: {
+              recordId: $recordId
+              finishDate: $finishDate
+              lastChapterRead: $lastChapterRead
+              startDate: $startDate
+              status: $status
+            }
+          ) {
+            trackRecord {
+              id
+              finishDate
+              lastChapterRead
+              startDate
+              status
+            }
+          }
+        }
+        """;
+
+    String startDate;
+    if (trackRecord.getStartDate() == null) {
+      startDate = "0";
+    } else {
+      startDate = String.valueOf(trackRecord.getStartDate().toEpochMilli());
+    }
+
+    String finishDate;
+    if (trackRecord.getFinishDate() == null) {
+      finishDate = "0";
+    } else {
+      finishDate = String.valueOf(trackRecord.getFinishDate().toEpochMilli());
+    }
+
+    var variables = Map.of(
+        "recordId", trackRecord.getId(),
+        "finishDate", finishDate,
+        "lastChapterRead", trackRecord.getLastChapterRead(),
+        "startDate", startDate,
+        "status", trackRecord.getStatus()
+    );
+
+    var graphClient = clientService.getDgsGraphQlClient();
+
+    var response = graphClient.reactiveExecuteQuery(query, variables).block();
+
+    if (response == null) {
+      throw new RuntimeException("Error while updating track record");
+    }
+
+    if (response.hasErrors()) {
+      throw new RuntimeException("Error while updating track record: " + response.getErrors());
+    }
+
+    var updatedRecord = response.extractValueAsObject("updateTrack.trackRecord", TrackRecord.class);
+
+    //check if the new data is as expected
+
+    if (!Objects.equals(updatedRecord.getFinishDate(), trackRecord.getFinishDate())) {
+      throw new RuntimeException("Finish date was not updated correctly");
+    }
+
+    if (updatedRecord.getLastChapterRead() != trackRecord.getLastChapterRead()) {
+      throw new RuntimeException("Last chapter read was not updated correctly");
+    }
+
+    if (!Objects.equals(updatedRecord.getStartDate(), trackRecord.getStartDate())) {
+      throw new RuntimeException("Start date was not updated correctly");
+    }
+
+    if (updatedRecord.getStatus() != trackRecord.getStatus()) {
+      throw new RuntimeException("Status was not updated correctly");
+    }
+
+    log.info("Updated track record with ID {}", updatedRecord.getId());
+  }
+
+  public List<Status> getStatuses(int trackRecordId) {
+    @Language("graphql")
+    var query = """
+        query GetStatuses($trackRecordId: Int!) {
+          tracker(id: $trackRecordId) {
+            statuses {
+              name
+              value
+            }
+          }
+        }
+        """;
+
+    var variables = Map.of("trackRecordId", trackRecordId);
+
+    var graphClient = clientService.getDgsGraphQlClient();
+
+    var response = graphClient.reactiveExecuteQuery(query, variables).block();
+
+    if (response == null) {
+      throw new RuntimeException("Error while getting track statuses");
+    }
+
+    if (response.hasErrors()) {
+      throw new RuntimeException("Error while getting track statuses: " + response.getErrors());
+    }
+
+    TypeRef<List<Status>> typeRef = new TypeRef<>() {
+    };
+
+    return response.extractValueAsObject("tracker.statuses", typeRef);
+  }
+
+  public void stopTracking(int recordId, boolean deleteRemote) {
+    @Language("graphql")
+    String query = getStopTrackingQuery();
+
+    var variables = Map.of("recordId", recordId, "deleteRemote", deleteRemote);
+
+    var graphClient = clientService.getDgsGraphQlClient();
+
+    var response = graphClient.reactiveExecuteQuery(query, variables).block();
+
+    if (response == null) {
+      throw new RuntimeException("Error while stopping tracking");
+    }
+
+    if (response.hasErrors()) {
+      throw new RuntimeException("Error while stopping tracking: " + response.getErrors());
+    }
+
+    log.info("Stopped tracking manga with ID {}", recordId);
+  }
+
+  @Language("graphql")
+  private @NotNull String getStopTrackingQuery() {
+    @Language("graphql")
+    String query;
+
+    var version = suwayomiMetaClient.getServerVersion();
+
+    if (version.getRevisionNumber() >= 1510) {
+      query = """
+          mutation StopTracking($recordId: Int!, $deleteRemote: Boolean!) {
+            unbindTrack(input: { recordId: $recordId, deleteRemoteTrack: $deleteRemote }) {
+              trackRecord {
+                id
+              }
+            }
+          }
+          """;
+    } else {
+      query = """
+              mutation StopTracking($recordId: Int!) {
+                updateTrack(input: { recordId: $recordId, unbind: true }) {
+                  trackRecord {
+                    id
+                  }
+                }
+              }
+          """;
+    }
+    return query;
+  }
+
+  public List<String> getTrackingScores(int recordId) {
+    @Language("graphql")
+    var query = """
+        query GetTrackingScores($recordId: Int!) {
+          trackRecord(id: $recordId) {
+            tracker {
+              scores
+            }
+          }
+        }
+        """;
+
+    var variables = Map.of("recordId", recordId);
+
+    var graphClient = clientService.getDgsGraphQlClient();
+
+    var response = graphClient.reactiveExecuteQuery(query, variables).block();
+
+    if (response == null) {
+      throw new RuntimeException("Error while getting tracking scores");
+    }
+
+    if (response.hasErrors()) {
+      throw new RuntimeException("Error while getting tracking scores: " + response.getErrors());
+    }
+
+    TypeRef<List<String>> typeRef = new TypeRef<>() {
+    };
+
+    return response.extractValueAsObject("trackRecord.tracker.scores", typeRef);
+  }
+
+  public void updateScore(int recordId, String value) {
+    @Language("graphql")
+    String query = """
+        mutation updateScore($score: String!, $recordId: Int!) {
+          updateTrack(input: {scoreString: $score, recordId: $recordId}) {
+            trackRecord {
+              score
+            }
+          }
+        }
+        """;
+
+    var variables = Map.of("score", value, "recordId", recordId);
+
+    var graphClient = clientService.getDgsGraphQlClient();
+
+    var response = graphClient.reactiveExecuteQuery(query, variables).block();
+
+    if (response == null) {
+      throw new RuntimeException("Error while updating score");
+    }
+
+    if (response.hasErrors()) {
+      throw new RuntimeException("Error while updating score: " + response.getErrors());
+    }
+
+    float score = response.extractValueAsObject("updateTrack.trackRecord.score", Float.class);
+
+    if (score != Float.parseFloat(value)) {
+      throw new RuntimeException("Score was not updated correctly");
+    }
+
+    log.info("Updated score for track record with ID {}", recordId);
   }
 }
