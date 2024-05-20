@@ -29,9 +29,9 @@ import org.springframework.stereotype.Service;
  * This class is responsible for managing tracking data. It handles the serialization and
  * deserialization of tokens and trackers, which are stored in JSON files. The tokens are used for
  * authentication with tracking services, while the trackers keep track of individual manga.
- * <p>
- * The serialization and deserialization processes are automatically executed upon the creation and
- * destruction of the service, respectively.
+ *
+ * <p>The serialization and deserialization processes are automatically executed upon the creation
+ * and destruction of the service, respectively.
  *
  * @author aless2003
  */
@@ -43,8 +43,7 @@ public class TrackingDataService {
   private final Path tokenFile;
   private final Path trackerFile;
   private final HashMap<Long, Tracker> mangaTrackers = new HashMap<>();
-  @Getter
-  private TrackerTokens tokens;
+  @Getter private TrackerTokens tokens;
 
   public TrackingDataService(ObjectMapper mapper, Environment env) {
     this.mapper = mapper;
@@ -142,8 +141,7 @@ public class TrackingDataService {
 
     try (var in = Files.newInputStream(trackerFile)) {
 
-      TypeReference<HashMap<Long, Tracker>> typeRef = new TypeReference<>() {
-      };
+      TypeReference<HashMap<Long, Tracker>> typeRef = new TypeReference<>() {};
 
       HashMap<Long, Tracker> tempTrackers = mapper.readValue(in, typeRef);
       if (tempTrackers == null) {

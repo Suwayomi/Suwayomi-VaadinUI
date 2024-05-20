@@ -378,8 +378,7 @@ public class SuwayomiTrackingClient {
    *
    * @param trackRecord The {@link TrackRecord} object containing the data to be updated.
    * @throws RuntimeException If an error occurs while updating the track record, if the response
-   *                          from the server contains errors, or if the updated data does not match
-   *                          the expected data.
+   *     from the server contains errors, or if the updated data does not match the expected data.
    */
   public void updateTrackerData(TrackRecord trackRecord) {
     @Language("graphql")
@@ -475,7 +474,7 @@ public class SuwayomiTrackingClient {
    * @param trackRecordId The ID of the track record for which the statuses are to be retrieved.
    * @return A list of Status objects representing the statuses for the specified track record.
    * @throws RuntimeException If an error occurs while retrieving the statuses or if the response
-   *                          from the server contains errors.
+   *     from the server contains errors.
    */
   public List<Status> getStatuses(int trackRecordId) {
     @Language("graphql")
@@ -513,10 +512,10 @@ public class SuwayomiTrackingClient {
   /**
    * Stops tracking a manga on a tracker.
    *
-   * @param recordId     The ID of the track record to stop tracking.
+   * @param recordId The ID of the track record to stop tracking.
    * @param deleteRemote A boolean indicating whether to delete the remote track record.
    * @throws RuntimeException If an error occurs while stopping tracking or if the response from the
-   *                          server contains errors.
+   *     server contains errors.
    */
   public void stopTracking(int recordId, boolean deleteRemote) {
     @Language("graphql")
@@ -583,9 +582,9 @@ public class SuwayomiTrackingClient {
    *
    * @param recordId The ID of the track record for which the tracker scores are to be retrieved.
    * @return A list of strings representing the available scores for the tracker type of the track
-   * record.
+   *     record.
    * @throws RuntimeException If an error occurs while retrieving the tracking scores or if the
-   *                          response contains errors.
+   *     response contains errors.
    */
   public List<String> getTrackingScores(int recordId) {
     @Language("graphql")
@@ -623,9 +622,9 @@ public class SuwayomiTrackingClient {
    * Updates the score of a track record.
    *
    * @param recordId The ID of the track record to be updated.
-   * @param value    The new score value as a string.
+   * @param value The new score value as a string.
    * @throws RuntimeException If an error occurs while updating the score or if the updated score
-   *                          does not match the expected value.
+   *     does not match the expected value.
    */
   public void updateScore(int recordId, String value) {
     @Language("graphql")

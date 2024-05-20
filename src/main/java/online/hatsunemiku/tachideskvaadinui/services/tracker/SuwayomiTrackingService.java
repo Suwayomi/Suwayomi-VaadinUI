@@ -253,7 +253,7 @@ public class SuwayomiTrackingService {
    *
    * @param tracker The {@link TrackRecord} object for which the statistics are to be retrieved.
    * @return A {@link SuwayomiMangaStatistics} object representing the statistics for the specified
-   * tracking record.
+   *     tracking record.
    */
   public SuwayomiMangaStatistics getStatistics(TrackRecord tracker) {
     return new SuwayomiMangaStatistics(tracker);
@@ -273,7 +273,7 @@ public class SuwayomiTrackingService {
    * Updates the status of a manga on the tracker.
    *
    * @param tracker The {@link Tracker} object for which the status is to be updated.
-   * @param status  The new status value as an integer.
+   * @param status The new status value as an integer.
    */
   public void updateMangaStatus(Tracker tracker, int status) {
     var record = getTrackRecord(tracker);
@@ -286,7 +286,7 @@ public class SuwayomiTrackingService {
   /**
    * Updates the start date of a manga on the tracker.
    *
-   * @param tracker   The {@link Tracker} object for which the start date is to be updated.
+   * @param tracker The {@link Tracker} object for which the start date is to be updated.
    * @param startDate The new start date as a {@link MediaDate} object.
    */
   public void updateMangaStartDate(Tracker tracker, MediaDate startDate) {
@@ -302,7 +302,7 @@ public class SuwayomiTrackingService {
    *
    * @param tracker The {@link Tracker} object for which the tracking record is to be retrieved.
    * @return The {@link TrackRecord} object representing the tracking record for the specified
-   * tracker.
+   *     tracker.
    * @throws IllegalArgumentException If no tracking record is found for the specified tracker.
    */
   private TrackRecord getTrackRecord(Tracker tracker) {
@@ -324,7 +324,7 @@ public class SuwayomiTrackingService {
   /**
    * Stops tracking a manga on the tracker.
    *
-   * @param tracker      The {@link Tracker} object for which tracking is to be stopped.
+   * @param tracker The {@link Tracker} object for which tracking is to be stopped.
    * @param deleteRemote A boolean value indicating whether to delete the remote tracking record.
    */
   public void stopTracking(Tracker tracker, boolean deleteRemote) {
@@ -337,7 +337,7 @@ public class SuwayomiTrackingService {
    * Updates the progress of a manga on the tracker.
    *
    * @param tracker The {@link Tracker} object for which the progress is to be updated.
-   * @param value   The new progress value as a double.
+   * @param value The new progress value as a double.
    */
   public void updateMangaProgress(Tracker tracker, double value) {
     var record = getTrackRecord(tracker);
@@ -351,7 +351,7 @@ public class SuwayomiTrackingService {
    * Updates the score of a manga on the tracker.
    *
    * @param tracker The {@link Tracker} object for which the score is to be updated.
-   * @param value   The new score value as a string.
+   * @param value The new score value as a string.
    */
   public void updateMangaScore(Tracker tracker, String value) {
     var record = getTrackRecord(tracker);

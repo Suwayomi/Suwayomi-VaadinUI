@@ -22,7 +22,7 @@ public record MediaDate(Integer year, Integer month, Integer day) {
    * Converts the {@link MediaDate} to an {@link Instant}.
    *
    * @return an {@link Instant} representing the start of the day in the UTC time zone, or null if
-   * any of the year, month, or day values are null
+   *     any of the year, month, or day values are null
    */
   public @Nullable Instant toInstant() {
     if (year() == null || month() == null || day() == null) {

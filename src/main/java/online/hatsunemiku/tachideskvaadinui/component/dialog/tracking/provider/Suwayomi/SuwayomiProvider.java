@@ -36,9 +36,9 @@ public class SuwayomiProvider implements TrackerProvider {
    * Searches for trackers based on the provided query and tracker type.
    *
    * @param query The search query.
-   * @param type  The {@link TrackerType} to search through.
+   * @param type The {@link TrackerType} to search through.
    * @return A list of {@link TrackerSearchResult} objects representing the search results. If the
-   * tracker type is neither MAL nor AniList, it <b>returns an empty list</b>.
+   *     tracker type is neither MAL nor AniList, it <b>returns an empty list</b>.
    */
   public List<TrackerSearchResult> search(String query, TrackerType type) {
     if (type == TrackerType.MAL) {
@@ -51,8 +51,8 @@ public class SuwayomiProvider implements TrackerProvider {
   }
 
   @Override
-  public void submitToTracker(boolean isPrivate, int mangaId, int externalId,
-      TrackerType trackerType) {
+  public void submitToTracker(
+      boolean isPrivate, int mangaId, int externalId, TrackerType trackerType) {
     if (isPrivate) {
       throw new IllegalArgumentException("Suwayomi does not support private entries");
     }
@@ -62,7 +62,6 @@ public class SuwayomiProvider implements TrackerProvider {
     } else if (trackerType == TrackerType.ANILIST) {
       suwayomiAPI.trackOnAniList(mangaId, externalId);
     }
-
   }
 
   @Override
@@ -92,7 +91,7 @@ public class SuwayomiProvider implements TrackerProvider {
    *
    * @param tracker The {@link Tracker} for which to retrieve the tracking record.
    * @return The {@link TrackRecord} for the provided tracker, or {@code null} if the tracker does
-   * not have a MAL ID or an AniList ID.
+   *     not have a MAL ID or an AniList ID.
    */
   private TrackRecord getTrackRecord(Tracker tracker) {
     if (tracker.hasMalId()) {
