@@ -32,9 +32,21 @@ public class TrackRecord {
   private int status;
 
   @JsonCreator
-  private TrackRecord(int id, String libraryId, int mangaId, String remoteId, int trackerId,
-      String remoteUrl, String title, float lastChapterRead, int totalChapters, String displayScore,
-      String finishDate, String startDate, float score, int status) {
+  private TrackRecord(
+      int id,
+      String libraryId,
+      int mangaId,
+      String remoteId,
+      int trackerId,
+      String remoteUrl,
+      String title,
+      float lastChapterRead,
+      int totalChapters,
+      String displayScore,
+      String finishDate,
+      String startDate,
+      float score,
+      int status) {
     this.id = id;
 
     this.libraryId = libraryId == null ? 0 : Long.parseLong(libraryId);
@@ -48,7 +60,7 @@ public class TrackRecord {
     this.totalChapters = totalChapters;
     this.displayScore = displayScore;
 
-    //dates = String with unix timestamp
+    // dates = String with unix timestamp
     if (finishDate == null || finishDate.equals("0")) {
       this.finishDate = null;
     } else {
@@ -64,5 +76,4 @@ public class TrackRecord {
     this.score = score;
     this.status = status;
   }
-
 }

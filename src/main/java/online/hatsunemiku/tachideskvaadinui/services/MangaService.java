@@ -215,7 +215,7 @@ public class MangaService {
    * @return the list of manga in the library
    */
   public List<Manga> getLibraryManga() {
-    //TODO: make this throw a custom exception when the update fails with Cloudflare
+    // TODO: make this throw a custom exception when the update fails with Cloudflare
     return mangaClient.getLibraryManga();
   }
 

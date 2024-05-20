@@ -37,8 +37,8 @@ public class SuwayomiTrackingClient {
    *
    * @param clientService the {@link WebClientService} used for making API requests
    */
-  public SuwayomiTrackingClient(WebClientService clientService,
-      SuwayomiMetaClient suwayomiMetaClient) {
+  public SuwayomiTrackingClient(
+      WebClientService clientService, SuwayomiMetaClient suwayomiMetaClient) {
     this.clientService = clientService;
     this.suwayomiMetaClient = suwayomiMetaClient;
   }
@@ -112,7 +112,7 @@ public class SuwayomiTrackingClient {
    * Logs in to a tracker using the provided redirect URL and tracker ID.
    *
    * @param url the redirect URL to log in to the tracker
-   * @param id  the ID of the tracker to log in to
+   * @param id the ID of the tracker to log in to
    */
   public void loginTracker(String url, int id) {
     @Language("graphql")
@@ -144,7 +144,7 @@ public class SuwayomiTrackingClient {
    * Searches for a manga on a tracker using the provided query and tracker ID.
    *
    * @param query the search query for the manga
-   * @param id    the ID of the tracker to search on
+   * @param id the ID of the tracker to search on
    * @return a list of {@link TrackerSearchResult} objects representing the search results
    * @see online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService.TrackerType
    */
@@ -187,8 +187,7 @@ public class SuwayomiTrackingClient {
       throw new RuntimeException(errorText);
     }
 
-    TypeRef<List<TrackerSearchResult>> typeRef = new TypeRef<>() {
-    };
+    TypeRef<List<TrackerSearchResult>> typeRef = new TypeRef<>() {};
 
     return response.extractValueAsObject("searchTracker.trackSearches", typeRef);
   }
@@ -196,10 +195,10 @@ public class SuwayomiTrackingClient {
   /**
    * Tracks a manga on a tracker using the provided manga ID, external ID, and tracker ID.
    *
-   * @param mangaId    the Suwayomi ID of the manga to be tracked
+   * @param mangaId the Suwayomi ID of the manga to be tracked
    * @param externalId the external ID of the manga on the tracker. This is the ID of the manga on
-   *                   the tracker's website.
-   * @param trackerId  the ID of the tracker to track the manga on.
+   *     the tracker's website.
+   * @param trackerId the ID of the tracker to track the manga on.
    * @see online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService.TrackerType
    */
   @SuppressWarnings("JavadocReference")
@@ -273,7 +272,7 @@ public class SuwayomiTrackingClient {
   /**
    * Checks if a manga is tracked on a tracker using the provided manga ID and tracker ID.
    *
-   * @param mangaId   the ID of the manga to check
+   * @param mangaId the ID of the manga to check
    * @param trackerId the ID of the tracker to check
    * @return {@code true} if the manga is tracked on the tracker, {@code false} otherwise
    */
@@ -302,8 +301,7 @@ public class SuwayomiTrackingClient {
       throw new RuntimeException("Error while checking if manga is tracked");
     }
 
-    TypeRef<List<TrackRecord>> typeRef = new TypeRef<>() {
-    };
+    TypeRef<List<TrackRecord>> typeRef = new TypeRef<>() {};
 
     var trackRecords = response.extractValueAsObject("manga.trackRecords.nodes", typeRef);
 
@@ -313,16 +311,16 @@ public class SuwayomiTrackingClient {
   /**
    * Returns the track record of a manga for a specific tracker.
    *
-   * @param mangaId   the ID of the
-   *                  {@link online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga Manga} to get
-   *                  the track record for
+   * @param mangaId the ID of the {@link online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga
+   *     Manga} to get the track record for
    * @param trackerId the ID of the tracker to get the track record for
    * @return the {@link TrackRecord} of the manga for the tracker or {@code null} if the manga is
-   * not tracked on the tracker.
+   *     not tracked on the tracker.
    */
   public TrackRecord getTrackRecord(long mangaId, int trackerId) {
     @Language("graphql")
-    var query = """
+    var query =
+        """
         query GetMangaTrackRecords($mangaId: Int!) {
           manga(id: $mangaId) {
             trackRecords {
@@ -365,8 +363,7 @@ public class SuwayomiTrackingClient {
           "Error while getting manga track records: " + response.getErrors());
     }
 
-    TypeRef<List<TrackRecord>> typeRef = new TypeRef<>() {
-    };
+    TypeRef<List<TrackRecord>> typeRef = new TypeRef<>() {};
 
     var trackRecords = response.extractValueAsObject("manga.trackRecords.nodes", typeRef);
 
@@ -378,7 +375,8 @@ public class SuwayomiTrackingClient {
 
   public void updateTrackerData(TrackRecord trackRecord) {
     @Language("graphql")
-    var query = """
+    var query =
+        """
         mutation AllTheStuffForSuwayomiTracking(
           $recordId: Int!
           $finishDate: LongString!
@@ -420,13 +418,13 @@ public class SuwayomiTrackingClient {
       finishDate = String.valueOf(trackRecord.getFinishDate().toEpochMilli());
     }
 
-    var variables = Map.of(
-        "recordId", trackRecord.getId(),
-        "finishDate", finishDate,
-        "lastChapterRead", trackRecord.getLastChapterRead(),
-        "startDate", startDate,
-        "status", trackRecord.getStatus()
-    );
+    var variables =
+        Map.of(
+            "recordId", trackRecord.getId(),
+            "finishDate", finishDate,
+            "lastChapterRead", trackRecord.getLastChapterRead(),
+            "startDate", startDate,
+            "status", trackRecord.getStatus());
 
     var graphClient = clientService.getDgsGraphQlClient();
 
@@ -442,7 +440,7 @@ public class SuwayomiTrackingClient {
 
     var updatedRecord = response.extractValueAsObject("updateTrack.trackRecord", TrackRecord.class);
 
-    //check if the new data is as expected
+    // check if the new data is as expected
 
     if (!Objects.equals(updatedRecord.getFinishDate(), trackRecord.getFinishDate())) {
       throw new RuntimeException("Finish date was not updated correctly");
@@ -465,7 +463,8 @@ public class SuwayomiTrackingClient {
 
   public List<Status> getStatuses(int trackRecordId) {
     @Language("graphql")
-    var query = """
+    var query =
+        """
         query GetStatuses($trackRecordId: Int!) {
           tracker(id: $trackRecordId) {
             statuses {
@@ -490,8 +489,7 @@ public class SuwayomiTrackingClient {
       throw new RuntimeException("Error while getting track statuses: " + response.getErrors());
     }
 
-    TypeRef<List<Status>> typeRef = new TypeRef<>() {
-    };
+    TypeRef<List<Status>> typeRef = new TypeRef<>() {};
 
     return response.extractValueAsObject("tracker.statuses", typeRef);
   }
@@ -525,7 +523,8 @@ public class SuwayomiTrackingClient {
     var version = suwayomiMetaClient.getServerVersion();
 
     if (version.getRevisionNumber() >= 1510) {
-      query = """
+      query =
+          """
           mutation StopTracking($recordId: Int!, $deleteRemote: Boolean!) {
             unbindTrack(input: { recordId: $recordId, deleteRemoteTrack: $deleteRemote }) {
               trackRecord {
@@ -535,7 +534,8 @@ public class SuwayomiTrackingClient {
           }
           """;
     } else {
-      query = """
+      query =
+          """
               mutation StopTracking($recordId: Int!) {
                 updateTrack(input: { recordId: $recordId, unbind: true }) {
                   trackRecord {
@@ -550,7 +550,8 @@ public class SuwayomiTrackingClient {
 
   public List<String> getTrackingScores(int recordId) {
     @Language("graphql")
-    var query = """
+    var query =
+        """
         query GetTrackingScores($recordId: Int!) {
           trackRecord(id: $recordId) {
             tracker {
@@ -574,15 +575,15 @@ public class SuwayomiTrackingClient {
       throw new RuntimeException("Error while getting tracking scores: " + response.getErrors());
     }
 
-    TypeRef<List<String>> typeRef = new TypeRef<>() {
-    };
+    TypeRef<List<String>> typeRef = new TypeRef<>() {};
 
     return response.extractValueAsObject("trackRecord.tracker.scores", typeRef);
   }
 
   public void updateScore(int recordId, String value) {
     @Language("graphql")
-    String query = """
+    String query =
+        """
         mutation updateScore($score: String!, $recordId: Int!) {
           updateTrack(input: {scoreString: $score, recordId: $recordId}) {
             trackRecord {

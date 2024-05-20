@@ -172,7 +172,7 @@ public class TrackingDataService {
 
     var tracker = mangaTrackers.get(mangaId);
 
-    //Fix for old trackers without manga ID
+    // Fix for old trackers without manga ID
     if (tracker.getMangaId() == 0) {
       tracker.setMangaId(mangaId);
     }

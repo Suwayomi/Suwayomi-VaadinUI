@@ -43,7 +43,8 @@ public class SuwayomiProvider implements TrackerProvider {
   }
 
   @Override
-  public void submitToTracker(boolean isPrivate, int mangaId, int externalId, TrackerType trackerType) {
+  public void submitToTracker(
+      boolean isPrivate, int mangaId, int externalId, TrackerType trackerType) {
     if (isPrivate) {
       throw new IllegalArgumentException("Suwayomi does not support private entries");
     }
@@ -53,7 +54,6 @@ public class SuwayomiProvider implements TrackerProvider {
     } else if (trackerType == TrackerType.ANILIST) {
       suwayomiAPI.trackOnAniList(mangaId, externalId);
     }
-
   }
 
   @Override

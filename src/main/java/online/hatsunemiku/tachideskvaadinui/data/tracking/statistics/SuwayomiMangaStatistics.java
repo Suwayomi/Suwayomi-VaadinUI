@@ -60,6 +60,4 @@ public class SuwayomiMangaStatistics implements MangaStatistics {
   public int status() {
     return status;
   }
-
-
 }

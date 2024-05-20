@@ -28,25 +28,24 @@ import org.jetbrains.annotations.NotNull;
 import org.vaadin.miki.shared.labels.LabelPosition;
 import org.vaadin.miki.superfields.text.LabelField;
 
-/**
- * Represents a dialog for choosing and tracking a manga.
- */
+/** Represents a dialog for choosing and tracking a manga. */
 public class TrackingMangaChoiceDialog extends Dialog {
 
   /**
    * Constructs a {@link TrackingMangaChoiceDialog}.
    *
-   * @param mangaName       the name of the manga to search
-   * @param mangaId         the ID of the manga on Suwayomi
+   * @param mangaName the name of the manga to search
+   * @param mangaId the ID of the manga on Suwayomi
    * @param trackerProvider the {@link TrackerProvider} to use for tracking activities.
-   * @param dataService     the {@link TrackingDataService} to use for saving tracking data.
-   * @param trackerType     the {@link TrackerType} to use for tracking.
+   * @param dataService the {@link TrackingDataService} to use for saving tracking data.
+   * @param trackerType the {@link TrackerType} to use for tracking.
    */
   public TrackingMangaChoiceDialog(
       String mangaName,
       int mangaId,
       TrackerProvider trackerProvider,
-      TrackingDataService dataService, TrackerType trackerType) {
+      TrackingDataService dataService,
+      TrackerType trackerType) {
 
     this.setClassName("tracking-manga-choice-dialog");
 
@@ -153,9 +152,9 @@ public class TrackingMangaChoiceDialog extends Dialog {
    * Changes the visibility of the search results and the no results text based on whether the
    * search results are empty or not.
    *
-   * @param mangaList     the list of {@link TrackerSearchResult search results}
+   * @param mangaList the list of {@link TrackerSearchResult search results}
    * @param searchResults the {@link ListBox} containing the search results
-   * @param noResults     the {@link Div} containing the no results text
+   * @param noResults the {@link Div} containing the no results text
    */
   private static void changeSearchResultsVisibility(
       List<TrackerSearchResult> mangaList,

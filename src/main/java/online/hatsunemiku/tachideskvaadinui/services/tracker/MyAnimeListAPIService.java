@@ -271,5 +271,4 @@ public class MyAnimeListAPIService {
 
     mal.deleteMangaListing(malId);
   }
-
 }
