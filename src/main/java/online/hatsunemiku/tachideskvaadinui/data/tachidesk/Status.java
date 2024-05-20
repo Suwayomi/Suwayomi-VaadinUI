@@ -8,8 +8,12 @@ package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
 
 import lombok.Data;
 
+/**
+ * Represents the tracking status of a manga for a tracker on Suwayomi.
+ */
 @Data
 public class Status {
+
   private String name;
   private int value;
 }

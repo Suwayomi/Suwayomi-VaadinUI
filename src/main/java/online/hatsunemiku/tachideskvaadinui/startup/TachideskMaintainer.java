@@ -38,6 +38,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * This class is responsible for keeping the Tachidesk/Suwayomi Server up to date and running.
+ * It checks for updates and downloads them if necessary.
+ */
 @Component
 @Slf4j
 public class TachideskMaintainer {

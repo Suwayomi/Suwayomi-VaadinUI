@@ -25,6 +25,17 @@ import online.hatsunemiku.tachideskvaadinui.utils.ProfileUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+/**
+ * This class is responsible for managing tracking data.
+ * It handles the serialization and deserialization of tokens and trackers,
+ * which are stored in JSON files.
+ * The tokens are used for authentication with tracking services,
+ * while the trackers keep track of individual manga.
+ * <p>
+ * The serialization and deserialization processes are automatically executed upon the creation and destruction of the service,
+ * respectively.
+ * @author aless2003
+ */
 @Service
 @Slf4j
 public class TrackingDataService {
