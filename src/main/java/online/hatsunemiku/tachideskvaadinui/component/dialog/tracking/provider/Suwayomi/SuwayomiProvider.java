@@ -38,7 +38,7 @@ public class SuwayomiProvider implements TrackerProvider {
     } else if (type == TrackerType.ANILIST) {
       return suwayomiAPI.searchAniList(query);
     } else {
-      return null;
+      return List.of();
     }
   }
 
