@@ -7,7 +7,7 @@
     <summary>Desktop client for Tachidesk</summary>
     <description>
         <p>
-            Tachidesk-VaadinUI is a UI for the Tachidesk Server. It is written in Java and uses Vaadin as UI framework.
+            Tachidesk-VaadinUI is a Manga reader using Suwayomi.
         </p>
     </description>
     <launchable type="desktop-id">online.hatsune_miku.tachidesk-vaadinui.desktop</launchable>
@@ -42,9 +42,10 @@
         </screenshot>
     </screenshots>
     <releases>
-        <release version="1.6.1" date="2024-04-09">
+        <release version="1.8.0" date="2024-05-20">
             <description>
-                <p>Fixed a bug with AniList import authentication</p>
+                <p>Returned to Suwayomi Tracking method</p>
+                <p>MAL has been disabled for certain versions of Suwayomi. Use AniList Instead.</p>
             </description>
         </release>
     </releases>
