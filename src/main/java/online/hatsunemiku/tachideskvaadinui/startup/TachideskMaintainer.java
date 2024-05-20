@@ -39,21 +39,23 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * This class is responsible for keeping the Tachidesk/Suwayomi Server up to date and running.
- * It checks for updates and downloads them if necessary.
+ * This class is responsible for keeping the Tachidesk/Suwayomi Server up to date and running. It
+ * checks for updates and downloads them if necessary.
  */
 @Component
 @Slf4j
 public class TachideskMaintainer {
 
   private static final Logger logger = LoggerFactory.getLogger(TachideskMaintainer.class);
+  private static File serverDir;
   private final RestTemplate client;
   private final TachideskStarter starter;
   private final SettingsService settingsService;
-  private static File serverDir;
   private final File projectDir;
-  @Getter private boolean updating = false;
-  @Getter private double progress = 0;
+  @Getter
+  private boolean updating = false;
+  @Getter
+  private double progress = 0;
 
   public TachideskMaintainer(
       RestTemplate client,
@@ -73,6 +75,31 @@ public class TachideskMaintainer {
     serverDir = new File(projectDir, "server");
   }
 
+  private static void deleteOldServerFile(Meta oldServer) {
+
+    if (oldServer.getJarLocation().isEmpty()) {
+      return;
+    }
+
+    File oldServerFile = new File(serverDir, oldServer.getJarName());
+
+    if (!oldServerFile.exists()) {
+      return;
+    }
+
+    if (oldServerFile.delete()) {
+      return;
+    }
+
+    logger.info("Failed to delete old version");
+    oldServerFile.deleteOnExit();
+  }
+
+  /**
+   * This method is triggered when the application is ready or when the URL changes. It is
+   * responsible for starting the Suwayomi server, checking for updates, and applying them if
+   * necessary. It's being run asynchronously to avoid blocking the main thread.
+   */
   @EventListener({ApplicationReadyEvent.class, UrlChangeEvent.class})
   @Async
   public void start() {
@@ -167,7 +194,7 @@ public class TachideskMaintainer {
    * Checks if the project directory exists and creates it if it does not.
    *
    * @return {@code true} if the project directory exists or was successfully created, {@code false}
-   *     otherwise.
+   * otherwise.
    */
   private boolean checkProjectDir() {
     if (!projectDir.exists()) {
@@ -207,26 +234,6 @@ public class TachideskMaintainer {
         throw new RuntimeException(e);
       }
     }
-  }
-
-  private static void deleteOldServerFile(Meta oldServer) {
-
-    if (oldServer.getJarLocation().isEmpty()) {
-      return;
-    }
-
-    File oldServerFile = new File(serverDir, oldServer.getJarName());
-
-    if (!oldServerFile.exists()) {
-      return;
-    }
-
-    if (oldServerFile.delete()) {
-      return;
-    }
-
-    logger.info("Failed to delete old version");
-    oldServerFile.deleteOnExit();
   }
 
   private void downloadServerFile(String jarUrl, File serverFile) throws IOException {

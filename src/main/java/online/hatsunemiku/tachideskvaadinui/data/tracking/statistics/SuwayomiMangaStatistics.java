@@ -11,10 +11,11 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackRecord;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDate;
 
 /**
- * SuwayomiMangaStatistics is a class that implements the MangaStatistics interface.
- * It represents the tracking statistics of a manga on Suwayomi.
+ * SuwayomiMangaStatistics is a class that implements the MangaStatistics interface. It represents
+ * the tracking statistics of a manga on Suwayomi.
  */
 public class SuwayomiMangaStatistics implements MangaStatistics {
+
   private final int status;
   private final float progress;
   private final float score;
@@ -61,6 +62,11 @@ public class SuwayomiMangaStatistics implements MangaStatistics {
     return completedAt;
   }
 
+  /**
+   * Retrieves the status of the manga.
+   *
+   * @return The status of the manga as an integer.
+   */
   public int status() {
     return status;
   }

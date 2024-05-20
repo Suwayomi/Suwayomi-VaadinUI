@@ -627,6 +627,17 @@ public class TrackingDialog extends Dialog {
     return status;
   }
 
+  /**
+   * Configures a ComboBox for selecting the status of a manga on Suwayomi.
+   *
+   * @param tracker    The {@link Tracker} used to retrieve and update the status of the manga.
+   * @param statistics The {@link SuwayomiMangaStatistics} used to get the current status of the
+   *                   manga.
+   * @param provider   The {@link SuwayomiProvider} used to get the possible statuses for a manga on
+   *                   Suwayomi.
+   * @return A {@link ComboBox} of {@link Status} objects representing the possible statuses for a
+   * manga on Suwayomi.
+   */
   private ComboBox<Status> configureStatusBoxSuwayomi(Tracker tracker,
       SuwayomiMangaStatistics statistics, SuwayomiProvider provider) {
     ComboBox<Status> status = new ComboBox<>();
@@ -704,9 +715,18 @@ public class TrackingDialog extends Dialog {
     return chapter;
   }
 
+  /**
+   * Displays a dialog for the user to select a manga for tracking.
+   *
+   * @param mangaName       The name of the manga to be tracked.
+   * @param mangaId         The ID of the manga to be tracked.
+   * @param trackerProvider The {@link TrackerProvider provider} to be used for tracking the manga.
+   * @param trackerType     The {@link TrackerType} to be used for tracking the manga.
+   */
   private void displaySearch(String mangaName, int mangaId, TrackerProvider trackerProvider,
       TrackerType trackerType) {
-    var dialog = new TrackingMangaChoiceDialog(mangaName, mangaId, trackerProvider, dataService, trackerType);
+    var dialog = new TrackingMangaChoiceDialog(mangaName, mangaId, trackerProvider, dataService,
+        trackerType);
     dialog.open();
 
     dialog.addOpenedChangeListener(

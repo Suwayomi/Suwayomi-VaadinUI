@@ -376,6 +376,14 @@ public class SuwayomiTrackingClient {
         .orElse(null);
   }
 
+  /**
+   * Updates the data of a track record on the server.
+   *
+   * @param trackRecord The {@link TrackRecord} object containing the data to be updated.
+   * @throws RuntimeException If an error occurs while updating the track record, if the response
+   *                          from the server contains errors, or if the updated data does not match
+   *                          the expected data.
+   */
   public void updateTrackerData(TrackRecord trackRecord) {
     @Language("graphql")
     var query = """
@@ -463,6 +471,14 @@ public class SuwayomiTrackingClient {
     log.info("Updated track record with ID {}", updatedRecord.getId());
   }
 
+  /**
+   * Retrieves the statuses for a specific track record.
+   *
+   * @param trackRecordId The ID of the track record for which the statuses are to be retrieved.
+   * @return A list of Status objects representing the statuses for the specified track record.
+   * @throws RuntimeException If an error occurs while retrieving the statuses or if the response
+   *                          from the server contains errors.
+   */
   public List<Status> getStatuses(int trackRecordId) {
     @Language("graphql")
     var query = """
@@ -496,6 +512,14 @@ public class SuwayomiTrackingClient {
     return response.extractValueAsObject("tracker.statuses", typeRef);
   }
 
+  /**
+   * Stops tracking a manga on a tracker.
+   *
+   * @param recordId     The ID of the track record to stop tracking.
+   * @param deleteRemote A boolean indicating whether to delete the remote track record.
+   * @throws RuntimeException If an error occurs while stopping tracking or if the response from the
+   *                          server contains errors.
+   */
   public void stopTracking(int recordId, boolean deleteRemote) {
     @Language("graphql")
     String query = getStopTrackingQuery();
@@ -517,6 +541,12 @@ public class SuwayomiTrackingClient {
     log.info("Stopped tracking manga with ID {}", recordId);
   }
 
+  /**
+   * Constructs the GraphQL mutation query for stopping the tracking of a manga. The query differs
+   * based on the server version.
+   *
+   * @return The GraphQL mutation query as a string.
+   */
   @Language("graphql")
   private @NotNull String getStopTrackingQuery() {
     @Language("graphql")
@@ -548,6 +578,15 @@ public class SuwayomiTrackingClient {
     return query;
   }
 
+  /**
+   * Retrieves the tracking scores for a specific track record.
+   *
+   * @param recordId The ID of the track record for which the tracker scores are to be retrieved.
+   * @return A list of strings representing the available scores for the tracker type of the track
+   * record.
+   * @throws RuntimeException If an error occurs while retrieving the tracking scores or if the
+   *                          response contains errors.
+   */
   public List<String> getTrackingScores(int recordId) {
     @Language("graphql")
     var query = """
@@ -580,6 +619,14 @@ public class SuwayomiTrackingClient {
     return response.extractValueAsObject("trackRecord.tracker.scores", typeRef);
   }
 
+  /**
+   * Updates the score of a track record.
+   *
+   * @param recordId The ID of the track record to be updated.
+   * @param value    The new score value as a string.
+   * @throws RuntimeException If an error occurs while updating the score or if the updated score
+   *                          does not match the expected value.
+   */
   public void updateScore(int recordId, String value) {
     @Language("graphql")
     String query = """
