@@ -73,6 +73,11 @@ public class TachideskMaintainer {
     serverDir = new File(projectDir, "server");
   }
 
+  /**
+   * Deletes the old server file.
+   *
+   * @param oldServer The {@link Meta} object representing the old server.
+   */
   private static void deleteOldServerFile(Meta oldServer) {
 
     if (oldServer.getJarLocation().isEmpty()) {
