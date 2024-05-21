@@ -6,15 +6,12 @@
 
 package online.hatsunemiku.tachideskvaadinui.services.tracker;
 
-import static online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListStatus.CURRENT;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
-import elemental.json.JsonValue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.OAuthData;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.TrackerTokens;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListMedia;
-import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListScoreFormat;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListStatus;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.GraphQLRequest;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.MangaList;
@@ -37,7 +33,6 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Mono;
 
 /**
  * Is responsible for interacting with the AniList API. This class provides methods for retrieving
@@ -171,117 +166,6 @@ public class AniListAPIService {
   }
 
   /**
-   * Checks whether the manga with the given ID is in the user's list on AniList.
-   *
-   * @param mangaId The ID of the manga to check
-   * @return {@code true} if the manga is in the user's list, {@code false} otherwise
-   * @throws RuntimeException If an error occurs while checking the manga
-   */
-  public boolean isMangaInList(int mangaId) {
-    String query =
-        """
-            query ($userId: Int, $mangaId: Int) {
-              MediaList(userId: $userId, type: MANGA, mediaId: $mangaId) {
-                id
-                status
-              }
-            }
-            """;
-
-    String variables =
-        """
-            {
-              "userId": %s,
-              "mangaId": %s
-            }
-            """
-            .formatted(getCurrentUserId(), mangaId);
-
-    GraphQLRequest request = new GraphQLRequest(query, variables);
-
-    // false if 404. True if 200. Error if anything else
-    var response =
-        webClient
-            .post()
-            .contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getAniListTokenHeader())
-            .bodyValue(request)
-            .exchangeToMono(Mono::just)
-            .block();
-
-    if (response == null) {
-      throw new RuntimeException("Response is null");
-    }
-
-    if (response.statusCode().is2xxSuccessful()) {
-      return true;
-    }
-
-    if (response.statusCode().is4xxClientError()) {
-      return false;
-    }
-
-    throw new RuntimeException("Unexpected response code: " + response.statusCode());
-  }
-
-  /**
-   * Adds a manga to the user's list with the status "READING".
-   *
-   * @param mangaId The ID of the manga to be added
-   * @throws RuntimeException If an error occurs while adding the manga to the list
-   */
-  public void addMangaToList(int mangaId, boolean isPrivate) {
-    // language=graphql
-    String query =
-        """
-            mutation($mangaId: Int, $status: MediaListStatus, $private: Boolean){
-              SaveMediaListEntry(mediaId: $mangaId, status: $status, private: $private) {
-                id
-                status
-                private
-              }
-            }
-            """;
-
-    String variables =
-        """
-            {
-              "mangaId": %s,
-              "status": "%s",
-              "private": %s
-            }
-            """
-            .formatted(mangaId, CURRENT.name(), isPrivate);
-
-    GraphQLRequest request = new GraphQLRequest(query, variables);
-
-    // false if 404. True if 200. Error if anything else
-    var response =
-        webClient
-            .post()
-            .contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getAniListTokenHeader())
-            .bodyValue(request)
-            .retrieve()
-            .toEntity(String.class)
-            .block();
-
-    if (response == null) {
-      throw new RuntimeException("Response is null");
-    }
-
-    if (response.getStatusCode().is2xxSuccessful()) {
-      return;
-    }
-
-    if (response.getStatusCode().is4xxClientError()) {
-      throw new RuntimeException("Manga not found");
-    }
-
-    throw new RuntimeException("Unexpected response code: " + response.getStatusCode());
-  }
-
-  /**
    * Retrieves Manga statistics from AniList given a manga ID.
    *
    * @param mangaId The ID of the manga.
@@ -359,84 +243,6 @@ public class AniListAPIService {
   }
 
   /**
-   * Retrieves the user's score format from AniList.
-   *
-   * @return The user's score format as an {@link AniListScoreFormat} enum value.
-   */
-  public AniListScoreFormat getScoreFormat() {
-    String query =
-        """
-            query {
-              Viewer {
-                mediaListOptions {
-                  scoreFormat
-                }
-              }
-            }
-            """;
-
-    String variables = "{}";
-
-    String response = sendAuthGraphQLRequest(query, variables);
-
-    if (response == null || response.isEmpty()) {
-      throw new RuntimeException("Response is null");
-    }
-
-    JsonObject json = Json.parse(response);
-
-    String scoreFormat =
-        json.getObject("data")
-            .getObject("Viewer")
-            .getObject("mediaListOptions")
-            .getString("scoreFormat");
-
-    return AniListScoreFormat.valueOf(scoreFormat);
-  }
-
-  /**
-   * Retrieves the chapter count of the manga with the given AniList ID.
-   *
-   * @param mangaId The AniList ID of the manga to retrieve the chapter count for
-   * @return The chapter count of the manga as an {@link Optional} Integer. If the chapter count is
-   *     not available, an empty {@link Optional} is returned.
-   */
-  public Optional<Integer> getChapterCount(int mangaId) {
-    String query =
-        """
-            query ($mangaId: Int) {
-              Media(id: $mangaId) {
-                chapters
-              }
-            }
-            """;
-
-    String variables =
-        """
-            {
-              "mangaId": %s
-            }
-            """
-            .formatted(mangaId);
-
-    String response = sendAuthGraphQLRequest(query, variables);
-
-    if (response == null || response.isEmpty()) {
-      throw new RuntimeException("Response is null");
-    }
-
-    JsonObject json = Json.parse(response);
-
-    JsonValue possibleInt = json.getObject("data").getObject("Media").get("chapters");
-
-    if (possibleInt == null || possibleInt.jsEquals(Json.createNull())) {
-      return Optional.empty();
-    }
-
-    return Optional.of((int) possibleInt.asNumber());
-  }
-
-  /**
    * Sends a GraphQL request to the AniList API with the given query and variables. Additionally,
    * the request is authenticated with the user's AniList token, so the user must be logged in.
    *
@@ -464,7 +270,7 @@ public class AniListAPIService {
    * @param mangaId The AniList ID of the manga to update
    * @param mangaProgress The new progress of the manga
    */
-  public void updateMangaProgress(int mangaId, float mangaProgress) {
+  public void updateMangaProgress(int mangaId, double mangaProgress) {
     String query =
         """
             mutation ($mangaId: Int, $progress: Int) {
@@ -546,7 +352,7 @@ public class AniListAPIService {
    * @param aniListId The AniList ID of the manga to update
    * @param value The new score of the manga. Range depends on the user's score format.
    */
-  public void updateMangaScore(int aniListId, int value) {
+  public void updateMangaScore(int aniListId, double value) {
 
     String query =
         """
@@ -577,55 +383,6 @@ public class AniListAPIService {
         throw new RuntimeException("Response is null");
       }
       log.info("Updated manga with ID {} to score {}", response.id(), response.status());
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  /**
-   * Updates the start date of the manga with the given AniList ID.
-   *
-   * @param aniListId The AniList ID of the manga to update
-   * @param date The new start date of the manga as a {@link MediaDate} object
-   */
-  public void updateMangaStartDate(int aniListId, MediaDate date) {
-    String query =
-        """
-            mutation ($mangaId: Int, $startDate: FuzzyDateInput) {
-              SaveMediaListEntry (mediaId: $mangaId, startedAt: $startDate) {
-                id
-                startedAt {
-                  year
-                  month
-                  day
-                }
-              }
-            }
-            """;
-
-    String variables =
-        """
-            {
-              "mangaId": %s,
-              "startDate": {
-                "year": %s,
-                "month": %s,
-                "day": %s
-              }
-            }
-            """
-            .formatted(aniListId, date.year(), date.month(), date.day());
-
-    var json = Json.parse(sendAuthGraphQLRequest(query, variables));
-
-    String data = json.getObject("data").getObject("SaveMediaListEntry").toJson();
-
-    try {
-      var response = mapper.readValue(data, AniListChangeStatusResponse.class);
-      if (response == null) {
-        throw new RuntimeException("Response is null");
-      }
-      log.info("Updated manga with ID {} to start date {}", response.id(), response.status());
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
     }

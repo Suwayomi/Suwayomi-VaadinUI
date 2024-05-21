@@ -10,8 +10,13 @@ import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.ServerVersion;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Status;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackRecord;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackerType;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.Tracker;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDate;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchResult;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.SuwayomiMangaStatistics;
 import online.hatsunemiku.tachideskvaadinui.services.SuwayomiService;
 import online.hatsunemiku.tachideskvaadinui.services.client.suwayomi.SuwayomiTrackingClient;
 import org.springframework.stereotype.Service;
@@ -211,5 +216,158 @@ public class SuwayomiTrackingService {
       log.info("Tracking progress manually");
       client.trackProgress(mangaId);
     }
+  }
+
+  /**
+   * Retrieves the AniList track record for a manga from the Suwayomi server.
+   *
+   * @param mangaId the ID of the manga to get the track record for
+   * @return the track record for the manga or {@code null} if the manga is not tracked on AniList
+   */
+  public TrackRecord getTrackRecordAniList(long mangaId) {
+    return client.getTrackRecord(mangaId, TrackerType.ANILIST.id);
+  }
+
+  /**
+   * Retrieves the MyAnimeList (MAL) track record for a manga from the Suwayomi server.
+   *
+   * @param mangaId the ID of the manga to get the track record for
+   * @return the track record for the manga or {@code null} if the manga is not tracked on MAL
+   */
+  public TrackRecord getTrackRecordMAL(long mangaId) {
+    return client.getTrackRecord(mangaId, TrackerType.MAL.id);
+  }
+
+  /**
+   * Updates the tracking data for a manga on the Suwayomi server.
+   *
+   * @param record the {@link TrackRecord} object representing the updated tracking data for the
+   *     manga
+   */
+  public void updateTrackingData(TrackRecord record) {
+    client.updateTrackerData(record);
+  }
+
+  /**
+   * Retrieves the statistics for a specific tracking record.
+   *
+   * @param tracker The {@link TrackRecord} object for which the statistics are to be retrieved.
+   * @return A {@link SuwayomiMangaStatistics} object representing the statistics for the specified
+   *     tracking record.
+   */
+  public SuwayomiMangaStatistics getStatistics(TrackRecord tracker) {
+    return new SuwayomiMangaStatistics(tracker);
+  }
+
+  /**
+   * Retrieves the statuses for a specific tracker.
+   *
+   * @param record The {@link TrackRecord} object with the tracker type to get the statuses for.
+   * @return A list of {@link Status} objects representing the available statuses for the tracker.
+   */
+  public List<Status> getStatuses(TrackRecord record) {
+    return client.getStatuses(record.getTrackerId());
+  }
+
+  /**
+   * Updates the status of a manga on the tracker.
+   *
+   * @param tracker The {@link Tracker} object for which the status is to be updated.
+   * @param status The new status value as an integer.
+   */
+  public void updateMangaStatus(Tracker tracker, int status) {
+    var record = getTrackRecord(tracker);
+
+    record.setStatus(status);
+
+    updateTrackingData(record);
+  }
+
+  /**
+   * Updates the start date of a manga on the tracker.
+   *
+   * @param tracker The {@link Tracker} object for which the start date is to be updated.
+   * @param startDate The new start date as a {@link MediaDate} object.
+   */
+  public void updateMangaStartDate(Tracker tracker, MediaDate startDate) {
+    var record = getTrackRecord(tracker);
+
+    record.setStartDate(startDate.toInstant());
+
+    updateTrackingData(record);
+  }
+
+  /**
+   * Retrieves the tracking record for a specific tracker.
+   *
+   * @param tracker The {@link Tracker} object for which the tracking record is to be retrieved.
+   * @return The {@link TrackRecord} object representing the tracking record for the specified
+   *     tracker.
+   * @throws IllegalArgumentException If no tracking record is found for the specified tracker.
+   */
+  private TrackRecord getTrackRecord(Tracker tracker) {
+    TrackRecord record = null;
+
+    if (tracker.hasMalId()) {
+      record = getTrackRecordMAL(tracker.getMangaId());
+    } else if (tracker.hasAniListId()) {
+      record = getTrackRecordAniList(tracker.getMangaId());
+    }
+
+    if (record == null) {
+      throw new IllegalArgumentException("No record found for tracker");
+    }
+
+    return record;
+  }
+
+  /**
+   * Stops tracking a manga on the tracker.
+   *
+   * @param tracker The {@link Tracker} object for which tracking is to be stopped.
+   * @param deleteRemote A boolean value indicating whether to delete the remote tracking record.
+   */
+  public void stopTracking(Tracker tracker, boolean deleteRemote) {
+    var trackRecord = getTrackRecord(tracker);
+
+    client.stopTracking(trackRecord.getId(), deleteRemote);
+  }
+
+  /**
+   * Updates the progress of a manga on the tracker.
+   *
+   * @param tracker The {@link Tracker} object for which the progress is to be updated.
+   * @param value The new progress value as a double.
+   */
+  public void updateMangaProgress(Tracker tracker, double value) {
+    var record = getTrackRecord(tracker);
+
+    record.setLastChapterRead((float) value);
+
+    updateTrackingData(record);
+  }
+
+  /**
+   * Updates the score of a manga on the tracker.
+   *
+   * @param tracker The {@link Tracker} object for which the score is to be updated.
+   * @param value The new score value as a string.
+   */
+  public void updateMangaScore(Tracker tracker, String value) {
+    var record = getTrackRecord(tracker);
+
+    client.updateScore(record.getId(), value);
+  }
+
+  /**
+   * Retrieves the tracking scores for a specific tracker.
+   *
+   * @param tracker The {@link Tracker} object for which the tracking scores are to be retrieved.
+   * @return A list of strings representing the available tracking scores for the specified tracker.
+   */
+  public List<String> getTrackingScores(Tracker tracker) {
+    var record = getTrackRecord(tracker);
+
+    return client.getTrackingScores(record.getId());
   }
 }

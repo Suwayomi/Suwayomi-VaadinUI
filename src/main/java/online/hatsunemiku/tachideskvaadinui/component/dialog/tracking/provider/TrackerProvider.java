@@ -9,7 +9,6 @@ package online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider;
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackerType;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.Tracker;
-import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListScoreFormat;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchResult;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.MangaStatistics;
 
@@ -31,26 +30,22 @@ public interface TrackerProvider {
   /**
    * Searches for manga on the tracker.
    *
-   * @param query the search query to use when searching for manga
-   * @return a list of {@link TrackerSearchResult} objects representing the search results
+   * @param query the search query
+   * @param type the type of tracker to search
+   * @return a list of {@link TrackerSearchResult search results} for the query
    */
-  List<TrackerSearchResult> search(String query);
+  List<TrackerSearchResult> search(String query, TrackerType type);
 
   /**
    * @param isPrivate whether the entry should be set to private
    * @param mangaId the id of the manga according to Suwayomi
    * @param externalId the id of the manga on the tracker
+   * @param trackerType the type of tracker to submit to
    * @throws IllegalArgumentException if `isPrivate` is set to true and the tracker does not support
    *     private entries
+   * @see TrackerType
    */
-  void submitToTracker(boolean isPrivate, int mangaId, int externalId);
-
-  /**
-   * Gets the type of the tracker that the provider is for.
-   *
-   * @return the {@link TrackerType type} of the tracker
-   */
-  TrackerType getTrackerType();
+  void submitToTracker(boolean isPrivate, int mangaId, int externalId, TrackerType trackerType);
 
   /**
    * Gets the statistics for the manga on the tracker.
@@ -69,11 +64,4 @@ public interface TrackerProvider {
    *     tracker does not have a max chapter number.
    */
   Integer getMaxChapter(Tracker tracker);
-
-  /**
-   * Gets the score format used by the tracker. e.g. 1-10, 1-100, etc.
-   *
-   * @return the {@link AniListScoreFormat score format} used by the tracker
-   */
-  AniListScoreFormat getScoreFormat();
 }

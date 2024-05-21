@@ -9,7 +9,12 @@ package online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider.
 import java.util.List;
 import lombok.AllArgsConstructor;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider.TrackerProvider;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Status;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackRecord;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackerType;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.Tracker;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchResult;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.MangaStatistics;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService;
 
 /**
@@ -18,7 +23,7 @@ import online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingSer
  * It implements the {@link TrackerProvider} interface.
  */
 @AllArgsConstructor
-public abstract class SuwayomiProvider implements TrackerProvider {
+public class SuwayomiProvider implements TrackerProvider {
 
   protected SuwayomiTrackingService suwayomiAPI;
 
@@ -27,17 +32,91 @@ public abstract class SuwayomiProvider implements TrackerProvider {
     return false;
   }
 
-  @Override
-  public List<TrackerSearchResult> search(String query) {
-    return suwayomiAPI.searchMAL(query);
+  /**
+   * Searches for trackers based on the provided query and tracker type.
+   *
+   * @param query The search query.
+   * @param type The {@link TrackerType} to search through.
+   * @return A list of {@link TrackerSearchResult} objects representing the search results. If the
+   *     tracker type is neither MAL nor AniList, it <b>returns an empty list</b>.
+   */
+  public List<TrackerSearchResult> search(String query, TrackerType type) {
+    if (type == TrackerType.MAL) {
+      return suwayomiAPI.searchMAL(query);
+    } else if (type == TrackerType.ANILIST) {
+      return suwayomiAPI.searchAniList(query);
+    } else {
+      return List.of();
+    }
   }
 
   @Override
-  public void submitToTracker(boolean isPrivate, int mangaId, int externalId) {
+  public void submitToTracker(
+      boolean isPrivate, int mangaId, int externalId, TrackerType trackerType) {
     if (isPrivate) {
       throw new IllegalArgumentException("Suwayomi does not support private entries");
     }
 
-    suwayomiAPI.trackOnMAL(mangaId, externalId);
+    if (trackerType == TrackerType.MAL) {
+      suwayomiAPI.trackOnMAL(mangaId, externalId);
+    } else if (trackerType == TrackerType.ANILIST) {
+      suwayomiAPI.trackOnAniList(mangaId, externalId);
+    }
+  }
+
+  @Override
+  public MangaStatistics getStatistics(Tracker tracker) {
+    TrackRecord record = getTrackRecord(tracker);
+
+    if (record == null) {
+      throw new IllegalArgumentException("No record found for tracker");
+    }
+
+    return suwayomiAPI.getStatistics(record);
+  }
+
+  @Override
+  public Integer getMaxChapter(Tracker tracker) {
+    TrackRecord record = getTrackRecord(tracker);
+
+    if (record == null) {
+      throw new IllegalArgumentException("No record found for tracker");
+    }
+
+    return record.getTotalChapters();
+  }
+
+  /**
+   * Retrieves the tracking record for a given tracker.
+   *
+   * @param tracker The {@link Tracker} for which to retrieve the tracking record.
+   * @return The {@link TrackRecord} for the provided tracker, or {@code null} if the tracker does
+   *     not have a MAL ID or an AniList ID.
+   */
+  private TrackRecord getTrackRecord(Tracker tracker) {
+    if (tracker.hasMalId()) {
+      return suwayomiAPI.getTrackRecordMAL(tracker.getMangaId());
+    } else if (tracker.hasAniListId()) {
+      return suwayomiAPI.getTrackRecordAniList(tracker.getMangaId());
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Retrieves the list of statuses for a given tracker.
+   *
+   * @param tracker The {@link Tracker} for which to retrieve the statuses.
+   * @return A list of {@link Status} objects representing the statuses for the tracker.
+   * @throws IllegalArgumentException if no tracking record is found for the provided tracker.
+   */
+  public List<Status> getTrackerStatuses(Tracker tracker) {
+    TrackRecord record = getTrackRecord(tracker);
+
+    if (record == null) {
+      throw new IllegalArgumentException("No record found for tracker");
+    }
+
+    return suwayomiAPI.getStatuses(record);
   }
 }

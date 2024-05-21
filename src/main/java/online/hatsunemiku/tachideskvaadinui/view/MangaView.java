@@ -34,6 +34,7 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
+import online.hatsunemiku.tachideskvaadinui.services.SuwayomiService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.AniListAPIService;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.MyAnimeListAPIService;
@@ -56,6 +57,7 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
   private final TrackingDataService dataService;
   private final SuwayomiTrackingService suwayomiTrackingService;
   private final MyAnimeListAPIService malAPI;
+  private final SuwayomiService suwayomiService;
 
   /**
    * Creates a MangaView object.
@@ -73,7 +75,8 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
       AniListAPIService aniListAPIService,
       TrackingDataService dataService,
       SuwayomiTrackingService suwayomiTrackingService,
-      MyAnimeListAPIService malAPI) {
+      MyAnimeListAPIService malAPI,
+      SuwayomiService suwayomiService) {
     super("Manga");
     this.mangaService = mangaService;
     this.settingsService = settingsService;
@@ -81,6 +84,7 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     this.dataService = dataService;
     this.suwayomiTrackingService = suwayomiTrackingService;
     this.malAPI = malAPI;
+    this.suwayomiService = suwayomiService;
   }
 
   @Override
@@ -163,7 +167,12 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
         e -> {
           var dialog =
               new TrackingDialog(
-                  dataService, manga, aniListAPIService, suwayomiTrackingService, malAPI);
+                  dataService,
+                  manga,
+                  aniListAPIService,
+                  suwayomiTrackingService,
+                  malAPI,
+                  suwayomiService);
           dialog.open();
         });
 

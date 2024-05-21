@@ -16,14 +16,14 @@ public interface MangaStatistics {
    *
    * @return The progress of the user for the manga.
    */
-  int progress();
+  double progress();
 
   /**
    * The score the user gave to the manga.
    *
    * @return The score.
    */
-  int score();
+  double score();
 
   /**
    * The date the user started reading the manga.

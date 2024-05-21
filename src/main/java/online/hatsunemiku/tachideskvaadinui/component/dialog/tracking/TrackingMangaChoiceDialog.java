@@ -20,6 +20,8 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider.TrackerProvider;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackerType;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.Tracker;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchResult;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import org.jetbrains.annotations.NotNull;
@@ -28,6 +30,7 @@ import org.vaadin.miki.superfields.text.LabelField;
 
 /** Represents a dialog for choosing and tracking a manga. */
 public class TrackingMangaChoiceDialog extends Dialog {
+
   /**
    * Constructs a {@link TrackingMangaChoiceDialog}.
    *
@@ -35,19 +38,23 @@ public class TrackingMangaChoiceDialog extends Dialog {
    * @param mangaId the ID of the manga on Suwayomi
    * @param trackerProvider the {@link TrackerProvider} to use for tracking activities.
    * @param dataService the {@link TrackingDataService} to use for saving tracking data.
+   * @param trackerType the {@link TrackerType} to use for tracking.
    */
   public TrackingMangaChoiceDialog(
       String mangaName,
       int mangaId,
       TrackerProvider trackerProvider,
-      TrackingDataService dataService) {
+      TrackingDataService dataService,
+      TrackerType trackerType) {
 
     this.setClassName("tracking-manga-choice-dialog");
 
     TextField searchField = new TextField("Search Manga");
     searchField.setValue(mangaName);
 
-    var mangaList = trackerProvider.search(mangaName);
+    Tracker mangaTracker = dataService.getTracker(mangaId);
+
+    var mangaList = trackerProvider.search(mangaName, trackerType);
 
     AtomicReference<TrackerSearchResult> selectedManga = new AtomicReference<>();
 
@@ -83,7 +90,7 @@ public class TrackingMangaChoiceDialog extends Dialog {
             return;
           }
 
-          var results = trackerProvider.search(value);
+          var results = trackerProvider.search(value, trackerType);
           mangaList.clear();
 
           mangaList.addAll(results);
@@ -121,15 +128,15 @@ public class TrackingMangaChoiceDialog extends Dialog {
 
           boolean isPrivate = trackerProvider.canSetPrivate() && privateCheckbox.getValue();
 
-          trackerProvider.submitToTracker(isPrivate, mangaId, manga.getRemoteId());
+          trackerProvider.submitToTracker(isPrivate, mangaId, manga.getRemoteId(), trackerType);
 
-          switch (trackerProvider.getTrackerType()) {
-            case MAL -> dataService.getTracker(mangaId).setMalId(remoteId);
-            case ANILIST -> dataService.getTracker(mangaId).setAniListId(remoteId);
+          switch (trackerType) {
+            case MAL -> mangaTracker.setMalId(remoteId);
+            case ANILIST -> mangaTracker.setAniListId(remoteId);
             default -> throw new IllegalArgumentException("Invalid tracker type");
           }
 
-          dataService.getTracker(mangaId).setPrivate(isPrivate);
+          mangaTracker.setPrivate(isPrivate);
 
           close();
         });

@@ -25,14 +25,25 @@ import online.hatsunemiku.tachideskvaadinui.utils.ProfileUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+/**
+ * This class is responsible for managing tracking data. It handles the serialization and
+ * deserialization of tokens and trackers, which are stored in JSON files. The tokens are used for
+ * authentication with tracking services, while the trackers keep track of individual manga.
+ *
+ * <p>The serialization and deserialization processes are automatically executed upon the creation
+ * and destruction of the service, respectively.
+ *
+ * @author aless2003
+ */
 @Service
 @Slf4j
 public class TrackingDataService {
+
   private final ObjectMapper mapper;
   private final Path tokenFile;
   private final Path trackerFile;
-  @Getter private TrackerTokens tokens;
   private final HashMap<Long, Tracker> mangaTrackers = new HashMap<>();
+  @Getter private TrackerTokens tokens;
 
   public TrackingDataService(ObjectMapper mapper, Environment env) {
     this.mapper = mapper;
@@ -167,8 +178,22 @@ public class TrackingDataService {
     }
   }
 
+  /**
+   * Retrieves the tracker for a specific manga.
+   *
+   * @param mangaId The ID of the manga for which the tracker is to be retrieved.
+   * @return The {@link Tracker} object for the specified manga.
+   */
   public Tracker getTracker(long mangaId) {
-    mangaTrackers.putIfAbsent(mangaId, new Tracker());
-    return mangaTrackers.get(mangaId);
+    mangaTrackers.putIfAbsent(mangaId, new Tracker(mangaId));
+
+    var tracker = mangaTrackers.get(mangaId);
+
+    // Fix for old trackers without manga ID
+    if (tracker.getMangaId() == 0) {
+      tracker.setMangaId(mangaId);
+    }
+
+    return tracker;
   }
 }
