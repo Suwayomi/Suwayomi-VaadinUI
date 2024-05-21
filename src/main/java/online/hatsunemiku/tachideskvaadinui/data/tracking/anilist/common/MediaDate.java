@@ -14,6 +14,11 @@ import org.jetbrains.annotations.Nullable;
 
 public record MediaDate(Integer year, Integer month, Integer day) {
 
+  /**
+   * Constructs a new MediaDate object with the given LocalDate.
+   *
+   * @param date the {@link LocalDate} object from which to construct the MediaDate
+   */
   public MediaDate(@NotNull LocalDate date) {
     this(date.getYear(), date.getMonthValue(), date.getDayOfMonth());
   }

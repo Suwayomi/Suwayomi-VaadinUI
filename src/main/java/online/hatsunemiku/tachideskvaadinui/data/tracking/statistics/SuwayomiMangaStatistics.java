@@ -22,6 +22,11 @@ public class SuwayomiMangaStatistics implements MangaStatistics {
   private final MediaDate startedAt;
   private final MediaDate completedAt;
 
+  /**
+   * Constructs a new SuwayomiMangaStatistics object with the given TrackRecord.
+   *
+   * @param record the {@link TrackRecord} object from which to construct the SuwayomiMangaStatistics
+   */
   public SuwayomiMangaStatistics(TrackRecord record) {
     this.status = record.getStatus();
     this.progress = record.getLastChapterRead();
