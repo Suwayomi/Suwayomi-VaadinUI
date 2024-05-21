@@ -17,20 +17,13 @@ import lombok.Setter;
 @Data
 public class Tracker {
 
-  /**
-   * Represents the ID of a manga on the Suwayomi Server.
-   */
-  @Setter
-  private long mangaId;
+  /** Represents the ID of a manga on the Suwayomi Server. */
+  @Setter private long mangaId;
 
-  /**
-   * Represents the ID of a manga on AniList.
-   */
+  /** Represents the ID of a manga on AniList. */
   private int aniListId;
 
-  /**
-   * Represents the ID of a manga on MyAnimeList.
-   */
+  /** Represents the ID of a manga on MyAnimeList. */
   private int malId;
 
   /**
@@ -42,9 +35,9 @@ public class Tracker {
   /**
    * Constructs a new Tracker object with the given parameters.
    *
-   * @param mangaId   the ID of a manga on the Suwayomi Server
+   * @param mangaId the ID of a manga on the Suwayomi Server
    * @param aniListId the ID of a manga on AniList
-   * @param malId     the ID of a manga on MyAnimeList
+   * @param malId the ID of a manga on MyAnimeList
    * @param isPrivate whether the tracker should be treated as private
    */
   @JsonCreator
@@ -81,9 +74,7 @@ public class Tracker {
     aniListId = 0;
   }
 
-  /**
-   * Removes the MyAnimeList ID from the tracker.
-   */
+  /** Removes the MyAnimeList ID from the tracker. */
   public void removeMalId() {
     malId = 0;
   }

@@ -10,9 +10,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import java.time.Instant;
 import lombok.Data;
 
-/**
- * Represents a track record of a user for a manga.
- */
+/** Represents a track record of a user for a manga. */
 @Data
 public class TrackRecord {
 
@@ -37,20 +35,20 @@ public class TrackRecord {
   /**
    * Constructs a new TrackRecord object with the given parameters.
    *
-   * @param id              the ID of the track record
-   * @param libraryId       the ID of the manga in the library as a string
-   * @param mangaId         the ID of the manga
-   * @param remoteId        the ID of the manga on the tracker as a string
-   * @param trackerId       the ID of the tracker
-   * @param remoteUrl       the URL of the manga on the tracker
-   * @param title           the title of the manga
+   * @param id the ID of the track record
+   * @param libraryId the ID of the manga in the library as a string
+   * @param mangaId the ID of the manga
+   * @param remoteId the ID of the manga on the tracker as a string
+   * @param trackerId the ID of the tracker
+   * @param remoteUrl the URL of the manga on the tracker
+   * @param title the title of the manga
    * @param lastChapterRead the last chapter read by the user
-   * @param totalChapters   the total number of chapters in the manga
-   * @param displayScore    the visual representation of the score for the manga on the tracker
-   * @param finishDate      the date the user finished reading the manga as a unix timestamp string
-   * @param startDate       the date the user started reading the manga as a unix timestamp string
-   * @param score           the score of the manga
-   * @param status          the status of the manga
+   * @param totalChapters the total number of chapters in the manga
+   * @param displayScore the visual representation of the score for the manga on the tracker
+   * @param finishDate the date the user finished reading the manga as a unix timestamp string
+   * @param startDate the date the user started reading the manga as a unix timestamp string
+   * @param score the score of the manga
+   * @param status the status of the manga
    */
   @JsonCreator
   private TrackRecord(

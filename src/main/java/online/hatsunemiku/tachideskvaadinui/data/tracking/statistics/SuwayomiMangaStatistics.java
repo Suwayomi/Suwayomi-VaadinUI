@@ -25,7 +25,8 @@ public class SuwayomiMangaStatistics implements MangaStatistics {
   /**
    * Constructs a new SuwayomiMangaStatistics object with the given TrackRecord.
    *
-   * @param record the {@link TrackRecord} object from which to construct the SuwayomiMangaStatistics
+   * @param record the {@link TrackRecord} object from which to construct the
+   *     SuwayomiMangaStatistics
    */
   public SuwayomiMangaStatistics(TrackRecord record) {
     this.status = record.getStatus();

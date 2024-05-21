@@ -13,8 +13,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A record that represents a date in the Media context.
- * It contains year, month, and day as Integer values.
+ * A record that represents a date in the Media context. It contains year, month, and day as Integer
+ * values.
  */
 public record MediaDate(Integer year, Integer month, Integer day) {
 
