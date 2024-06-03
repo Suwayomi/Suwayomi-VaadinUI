@@ -36,12 +36,13 @@ public class LangComboBox extends ComboBox<String>
           ComponentUtil.fireEvent(UI.getCurrent(), filterUpdateEvent);
         });
 
-
-    getListDataView().addItemCountChangeListener(e -> {
-      if (e.getItemCount() > 0) {
-        langUpdateListeners.forEach(listener -> listener.apply(null));
-      }
-    });
+    getListDataView()
+        .addItemCountChangeListener(
+            e -> {
+              if (e.getItemCount() > 0) {
+                langUpdateListeners.forEach(listener -> listener.apply(null));
+              }
+            });
   }
 
   @Override
@@ -80,6 +81,4 @@ public class LangComboBox extends ComboBox<String>
   public void addLangUpdateEventListener(Function<Void, Void> listener) {
     langUpdateListeners.add(listener);
   }
-
-
 }

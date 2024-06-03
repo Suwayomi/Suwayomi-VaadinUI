@@ -49,20 +49,20 @@ public class SourcesView extends StandardLayout {
     LangComboBox langFilter = new LangComboBox();
     langFilter.addClassName("source-lang-filter");
     langFilter.setAllowCustomValue(false);
-    langFilter.addLangUpdateEventListener(e -> {
-      if (langFilter.getValue() != null) {
-        return null;
-      }
+    langFilter.addLangUpdateEventListener(
+        e -> {
+          if (langFilter.getValue() != null) {
+            return null;
+          }
 
-      Settings settings = settingsService.getSettings();
-      var sourceLang = settings.getDefaultSourceLang();
-      if (sourceLang != null) {
-        langFilter.setValue(sourceLang);
-      }
+          Settings settings = settingsService.getSettings();
+          var sourceLang = settings.getDefaultSourceLang();
+          if (sourceLang != null) {
+            langFilter.setValue(sourceLang);
+          }
 
-      return null;
-    });
-
+          return null;
+        });
 
     filters.add(nameFilter, langFilter);
 
