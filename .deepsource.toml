@@ -4,7 +4,7 @@ version = 1
 name = "java"
 
   [analyzers.meta]
-  runtime_version = "17"
+  runtime_version = "21"
 
 [[transformers]]
 name = "google-java-format"
