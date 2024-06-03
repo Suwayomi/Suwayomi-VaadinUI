@@ -19,26 +19,27 @@ import org.springframework.lang.NonNull;
 
 public class Settings {
 
+  @Getter
+  @JsonProperty("defaultReaderSettings")
+  private final ReaderSettings defaultReaderSettings;
+  @JsonProperty("mangaReaderSettings")
+  private final Map<Integer, ReaderSettings> mangaReaderSettings;
   @NonNull
   @JsonProperty("url")
   private String url;
-
   @Getter
   @Setter
   @JsonProperty("startPopup")
   private boolean startPopup;
-
-  @Getter
-  @JsonProperty("defaultReaderSettings")
-  private final ReaderSettings defaultReaderSettings;
-
-  @JsonProperty("mangaReaderSettings")
-  private final Map<Integer, ReaderSettings> mangaReaderSettings;
-
   @JsonProperty("defaultSearchLang")
   @Getter
   @Setter
   private String defaultSearchLang;
+
+  @JsonProperty("defaultSourceLang")
+  @Getter
+  @Setter
+  private String defaultSourceLang;
 
   @JsonCreator
   public Settings(
@@ -46,7 +47,8 @@ public class Settings {
       @JsonProperty("startPopup") Boolean startPopup,
       @JsonProperty("defaultReaderSettings") ReaderSettings defaultReaderSettings,
       @JsonProperty("mangaReaderSettings") Map<Integer, ReaderSettings> mangaReaderSettings,
-      @JsonProperty("defaultSearchLang") String defaultSearchLang) {
+      @JsonProperty("defaultSearchLang") String defaultSearchLang,
+      @JsonProperty("defaultSourceLang") String defaultSourceLang) {
 
     this.startPopup = Objects.requireNonNullElse(startPopup, true);
 
@@ -62,6 +64,7 @@ public class Settings {
     this.defaultReaderSettings = defaultReaderSettings;
     this.mangaReaderSettings = new HashMap<>(mangaReaderSettings);
     this.defaultSearchLang = defaultSearchLang;
+    this.defaultSourceLang = defaultSourceLang;
   }
 
   public Settings(@NotNull String url) {
@@ -71,13 +74,13 @@ public class Settings {
     this.startPopup = true;
   }
 
-  public void setUrl(@NonNull String url) {
-    this.url = url;
-  }
-
   @NonNull
   public String getUrl() {
     return url;
+  }
+
+  public void setUrl(@NonNull String url) {
+    this.url = url;
   }
 
   public ReaderSettings getReaderSettings(Integer mangaId) {
@@ -92,7 +95,7 @@ public class Settings {
   /**
    * Adds {@link ReaderSettings} for a Manga based on the given Manga ID.
    *
-   * @param mangaId The ID of the Manga to add the reader settings for.
+   * @param mangaId        The ID of the Manga to add the reader settings for.
    * @param readerSettings The ReaderSettings object containing the Reader settings for the Manga.
    */
   public void addMangaReaderSettings(int mangaId, ReaderSettings readerSettings) {
@@ -104,7 +107,7 @@ public class Settings {
    *
    * @param mangaId The ID of the manga to check for settings.
    * @return {@code true} if the manga reader has settings for the given manga ID, {@code false}
-   *     otherwise.
+   * otherwise.
    */
   public boolean hasMangaReaderSettings(int mangaId) {
     return mangaReaderSettings.containsKey(mangaId);
@@ -114,7 +117,7 @@ public class Settings {
    * Checks if the User has a default search language set.
    *
    * @return {@code true} if the manga reader has a default search language set, {@code false}
-   *     otherwise.
+   * otherwise.
    */
   public boolean hasDefaultSearchLang() {
     return defaultSearchLang != null && !defaultSearchLang.isEmpty();

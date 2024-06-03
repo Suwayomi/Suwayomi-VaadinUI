@@ -77,6 +77,20 @@ public class SettingsView extends StandardLayout {
   }
 
   @NotNull
+  private static Button getEditingCancelBtn(Editor<ExtensionRepo> editor) {
+    Button cancelButton = new Button("Cancel");
+    cancelButton.addClickListener(
+        event -> {
+          if (!editor.isOpen()) {
+            return;
+          }
+
+          editor.cancel();
+        });
+    return cancelButton;
+  }
+
+  @NotNull
   private Section getGeneralSettingsSection(
       SettingsService settingsService, SourceService sourceService) {
     Section generalSettingsSection = new Section();
@@ -90,6 +104,7 @@ public class SettingsView extends StandardLayout {
     Binder<Settings> binder = new Binder<>(Settings.class);
     SuperTextField urlField = createUrlFieldWithValidation(binder);
     var defaultSearchLangField = createSearchLangField(sourceService, binder);
+    var defaultSourceField = getDefaultSourceField(sourceService, binder);
 
     Div checkboxContainer = new Div();
     checkboxContainer.addClassName("checkbox-container");
@@ -102,7 +117,7 @@ public class SettingsView extends StandardLayout {
 
     binder.setBean(settingsService.getSettings());
 
-    generalSettingsContent.add(urlField, defaultSearchLangField);
+    generalSettingsContent.add(urlField, defaultSearchLangField, defaultSourceField);
     generalSettingsContent.add(checkboxContainer, 2);
 
     generalSettingsSection.add(header, generalSettingsContent);
@@ -121,14 +136,14 @@ public class SettingsView extends StandardLayout {
 
     String descriptionText =
         """
-    So, because there's people who abuse DMCA to take down repos I can't include any extension repos by default.
-    However, you can add them yourself here. Just paste the URL of the repo where the extensions are stored in the box below.
-    Now the obligatory disclaimer: I'm not responsible for any malicious code that might be in the extensions you install.
-    I also do not condone piracy, etc. etc. etc. blah blah blah. You know the drill.
-    If you don't know where to find extension repos, you can find some on github.
-    Some that were brought up during a discussion are https://github.com/keiyoushi/extensions and https://github.com/ThePBone/tachiyomi-extensions-revived.
-    I do not endorse them, I'm merely mentioning them as examples ;)
-    """;
+            So, because there's people who abuse DMCA to take down repos I can't include any extension repos by default.
+            However, you can add them yourself here. Just paste the URL of the repo where the extensions are stored in the box below.
+            Now the obligatory disclaimer: I'm not responsible for any malicious code that might be in the extensions you install.
+            I also do not condone piracy, etc. etc. etc. blah blah blah. You know the drill.
+            If you don't know where to find extension repos, you can find some on github.
+            Some that were brought up during a discussion are https://github.com/keiyoushi/extensions and https://github.com/ThePBone/tachiyomi-extensions-revived.
+            I do not endorse them, I'm merely mentioning them as examples ;)
+            """;
 
     Span description = new Span(descriptionText);
     description.setId("extension-settings-description");
@@ -281,20 +296,6 @@ public class SettingsView extends StandardLayout {
   }
 
   @NotNull
-  private static Button getEditingCancelBtn(Editor<ExtensionRepo> editor) {
-    Button cancelButton = new Button("Cancel");
-    cancelButton.addClickListener(
-        event -> {
-          if (!editor.isOpen()) {
-            return;
-          }
-
-          editor.cancel();
-        });
-    return cancelButton;
-  }
-
-  @NotNull
   private Button getEditingSaveBtn(Editor<ExtensionRepo> editor, Grid<ExtensionRepo> repoGrid) {
     Button saveButton = new Button("Save");
     saveButton.addClickListener(
@@ -361,22 +362,11 @@ public class SettingsView extends StandardLayout {
     grid.setItems(extensionRepos);
   }
 
-  private ComboBox<String> createSearchLangField(
-      SourceService sourceService, Binder<Settings> binder) {
-    ComboBox<String> defaultSearchLang = new ComboBox<>("Default Search Language");
-    defaultSearchLang.setAllowCustomValue(false);
+  private ComboBox<String> createSearchLangField(SourceService sourceService,
+      Binder<Settings> binder) {
 
-    List<Source> sources;
-    try {
-      sources = sourceService.getSources();
-    } catch (ResourceAccessException e) {
-      defaultSearchLang.setReadOnly(true);
-      defaultSearchLang.setItems("Not available, because server is not running");
-      defaultSearchLang.setValue("Not available, because server is not running");
-      return defaultSearchLang;
-    }
-    var langs = new ArrayList<>(sources.stream().map(Source::getLang).distinct().toList());
-    defaultSearchLang.setItems(langs);
+    var defaultSearchLang = getDefaultLangField(sourceService);
+    defaultSearchLang.setLabel("Default Search Language");
 
     binder
         .forField(defaultSearchLang)
@@ -427,5 +417,54 @@ public class SettingsView extends StandardLayout {
               settingsEventPublisher.publishUrlChangeEvent(this, url);
             });
     return urlField;
+  }
+
+  private ComboBox<String> getDefaultSourceField(SourceService sourceService,
+      Binder<Settings> binder) {
+    var defaultSource = getDefaultLangField(sourceService);
+    defaultSource.setLabel("Default Source");
+
+    if (defaultSource.isReadOnly()) {
+      return defaultSource;
+    }
+
+    binder
+        .forField(defaultSource)
+        .withValidator(
+            (source, context) -> {
+              if (source == null || source.isEmpty()) {
+                return ValidationResult.error("Default Source cannot be empty");
+              }
+
+              if (source.equals("Loading...")) {
+                return ValidationResult.error("Default Source cannot be Loading...");
+              }
+
+              return ValidationResult.ok();
+            })
+        .bind(Settings::getDefaultSourceLang, Settings::setDefaultSourceLang);
+
+    return defaultSource;
+  }
+
+  private ComboBox<String> getDefaultLangField(SourceService sourceService) {
+
+    ComboBox<String> defaultLang = new ComboBox<>();
+    defaultLang.setAllowCustomValue(false);
+    List<Source> sources;
+    try {
+      sources = sourceService.getSources();
+    } catch (ResourceAccessException e) {
+      defaultLang.setReadOnly(true);
+      defaultLang.setItems("Not available, because server is not running");
+      defaultLang.setValue("Not available, because server is not running");
+      return defaultLang;
+    }
+
+    var langs = new ArrayList<>(sources.stream().map(Source::getLang).distinct().toList());
+
+    defaultLang.setItems(langs);
+
+    return defaultLang;
   }
 }
