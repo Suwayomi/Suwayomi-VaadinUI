@@ -19,7 +19,7 @@ import online.hatsunemiku.tachideskvaadinui.component.events.source.SourceLangFi
 public class LangComboBox extends ComboBox<String>
     implements ComponentEventListener<LanguageListChangeEvent> {
 
-  private List<Function<Void, Void>> langUpdateListeners = new ArrayList<>();
+  private final List<Function<Void, Void>> langUpdateListeners = new ArrayList<>();
 
   public LangComboBox() {
     super("Language");
