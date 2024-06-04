@@ -20,6 +20,7 @@ import online.hatsunemiku.tachideskvaadinui.component.events.source.SourceLangFi
  * This class represents a Combo box component with language selection. It includes the
  * functionality for updating the language list and firing events when the language selection
  * changes.
+ *
  * @author aless2003
  * @version 1.1.0
  * @since 1.0.0
@@ -89,6 +90,4 @@ public class LangComboBox extends ComboBox<String>
   public void addLangUpdateEventListener(Function<Void, Void> listener) {
     langUpdateListeners.add(listener);
   }
-
-
 }

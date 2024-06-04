@@ -22,8 +22,8 @@ import online.hatsunemiku.tachideskvaadinui.services.SourceService;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 
 /**
- * This class is used to create the view for the sources in the application.
- * It includes the functionality for filtering and displaying sources.
+ * This class is used to create the view for the sources in the application. It includes the
+ * functionality for filtering and displaying sources.
  *
  * @author aless2003
  * @version 1.1.0
