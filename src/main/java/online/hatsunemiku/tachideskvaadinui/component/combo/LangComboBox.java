@@ -16,6 +16,14 @@ import java.util.function.Function;
 import online.hatsunemiku.tachideskvaadinui.component.events.source.LanguageListChangeEvent;
 import online.hatsunemiku.tachideskvaadinui.component.events.source.SourceLangFilterUpdateEvent;
 
+/**
+ * This class represents a Combo box component with language selection. It includes the
+ * functionality for updating the language list and firing events when the language selection
+ * changes.
+ * @author aless2003
+ * @version 1.1.0
+ * @since 1.0.0
+ */
 public class LangComboBox extends ComboBox<String>
     implements ComponentEventListener<LanguageListChangeEvent> {
 
@@ -35,7 +43,6 @@ public class LangComboBox extends ComboBox<String>
           var filterUpdateEvent = new SourceLangFilterUpdateEvent(this, newVal);
           ComponentUtil.fireEvent(UI.getCurrent(), filterUpdateEvent);
         });
-
 
     getListDataView().addItemCountChangeListener(e -> {
       if (e.getItemCount() > 0) {

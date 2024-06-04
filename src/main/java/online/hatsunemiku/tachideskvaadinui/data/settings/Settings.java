@@ -17,6 +17,15 @@ import online.hatsunemiku.tachideskvaadinui.data.settings.reader.ReaderSettings;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.lang.NonNull;
 
+/**
+ * The Settings class is a data class used to manage the settings of the application. It contains
+ * all the settings that the user can set, such as the default reader settings, the URL of the
+ * Server, and more.
+ *
+ * @author aless2003
+ * @version 1.3.0
+ * @since 1.0.0
+ */
 public class Settings {
 
   @Getter

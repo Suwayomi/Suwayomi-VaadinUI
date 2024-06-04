@@ -44,6 +44,13 @@ import org.springframework.web.client.ResourceAccessException;
 import org.vaadin.miki.superfields.checkbox.SuperCheckbox;
 import org.vaadin.miki.superfields.text.SuperTextField;
 
+/**
+ * This class represents a view for the settings of the application. It includes functionality for
+ * changing the settings of the application.
+ * @author aless2003
+ * @version 1.1.0
+ * @since 1.0.0
+ */
 @Route("settings")
 @CssImport("./css/views/settings-view.css")
 public class SettingsView extends StandardLayout {
