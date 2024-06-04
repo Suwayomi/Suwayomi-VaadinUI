@@ -16,14 +16,29 @@ import com.vaadin.flow.router.Route;
 import online.hatsunemiku.tachideskvaadinui.component.combo.LangComboBox;
 import online.hatsunemiku.tachideskvaadinui.component.events.source.SourceFilterUpdateEvent;
 import online.hatsunemiku.tachideskvaadinui.component.scroller.source.SourceScroller;
+import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.SourceService;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 
+/**
+ * This class is used to create the view for the sources in the application. It includes the
+ * functionality for filtering and displaying sources.
+ *
+ * @author aless2003
+ * @version 1.1.0
+ * @since 1.0.0
+ */
 @Route("sources")
 @CssImport("./css/views/sources.css")
 public class SourcesView extends StandardLayout {
 
+  /**
+   * Creates a new SourcesView object with the given sources and settings service.
+   *
+   * @param sources The {@link SourceService} to use to get the sources
+   * @param settingsService The {@link SettingsService} to use to get the settings
+   */
   public SourcesView(SourceService sources, SettingsService settingsService) {
     super("Sources");
 
@@ -48,6 +63,20 @@ public class SourcesView extends StandardLayout {
     LangComboBox langFilter = new LangComboBox();
     langFilter.addClassName("source-lang-filter");
     langFilter.setAllowCustomValue(false);
+    langFilter.addLangUpdateEventListener(
+        e -> {
+          if (langFilter.getValue() != null) {
+            return null;
+          }
+
+          Settings settings = settingsService.getSettings();
+          var sourceLang = settings.getDefaultSourceLang();
+          if (sourceLang != null) {
+            langFilter.setValue(sourceLang);
+          }
+
+          return null;
+        });
 
     filters.add(nameFilter, langFilter);
 
