@@ -87,6 +87,12 @@ public class LangComboBox extends ComboBox<String>
         });
   }
 
+  /**
+   * Adds a listener to the list of listeners that will be called when the language list has been
+   * updated.
+   *
+   * @param listener The listener to add to the list in the form of a {@link Function}.
+   */
   public void addLangUpdateEventListener(Function<Void, Void> listener) {
     langUpdateListeners.add(listener);
   }
