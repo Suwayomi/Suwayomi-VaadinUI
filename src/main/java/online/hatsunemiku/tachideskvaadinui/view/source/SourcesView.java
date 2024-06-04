@@ -33,6 +33,11 @@ import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 @CssImport("./css/views/sources.css")
 public class SourcesView extends StandardLayout {
 
+  /**
+   * Creates a new SourcesView object with the given sources and settings service.
+   * @param sources The {@link SourceService} to use to get the sources
+   * @param settingsService The {@link SettingsService} to use to get the settings
+   */
   public SourcesView(SourceService sources, SettingsService settingsService) {
     super("Sources");
 

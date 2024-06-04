@@ -54,6 +54,16 @@ public class Settings {
   @Setter
   private String defaultSourceLang;
 
+  /**
+   * Creates a new Settings object with the given parameters.
+   *
+   * @param url The URL of the Server to connect to.
+   * @param startPopup Whether to show the popup on startup.
+   * @param defaultReaderSettings The {@link ReaderSettings} object to use.
+   * @param mangaReaderSettings A map of Manga IDs to {@link ReaderSettings} objects.
+   * @param defaultSearchLang The default search language to use.
+   * @param defaultSourceLang The default source language to use.
+   */
   @JsonCreator
   public Settings(
       @NotNull @JsonProperty("url") String url,
@@ -108,7 +118,7 @@ public class Settings {
   /**
    * Adds {@link ReaderSettings} for a Manga based on the given Manga ID.
    *
-   * @param mangaId The ID of the Manga to add the reader settings for.
+   * @param mangaId        The ID of the Manga to add the reader settings for.
    * @param readerSettings The ReaderSettings object containing the Reader settings for the Manga.
    */
   public void addMangaReaderSettings(int mangaId, ReaderSettings readerSettings) {
@@ -120,7 +130,7 @@ public class Settings {
    *
    * @param mangaId The ID of the manga to check for settings.
    * @return {@code true} if the manga reader has settings for the given manga ID, {@code false}
-   *     otherwise.
+   * otherwise.
    */
   public boolean hasMangaReaderSettings(int mangaId) {
     return mangaReaderSettings.containsKey(mangaId);
@@ -130,7 +140,7 @@ public class Settings {
    * Checks if the User has a default search language set.
    *
    * @return {@code true} if the manga reader has a default search language set, {@code false}
-   *     otherwise.
+   * otherwise.
    */
   public boolean hasDefaultSearchLang() {
     return defaultSearchLang != null && !defaultSearchLang.isEmpty();
