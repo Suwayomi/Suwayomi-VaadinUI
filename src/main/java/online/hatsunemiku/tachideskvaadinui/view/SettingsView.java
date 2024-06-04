@@ -369,8 +369,8 @@ public class SettingsView extends StandardLayout {
     grid.setItems(extensionRepos);
   }
 
-  private ComboBox<String> createSearchLangField(SourceService sourceService,
-      Binder<Settings> binder) {
+  private ComboBox<String> createSearchLangField(
+      SourceService sourceService, Binder<Settings> binder) {
 
     var defaultSearchLang = getDefaultLangField(sourceService);
     defaultSearchLang.setLabel("Default Search Language");
@@ -426,8 +426,8 @@ public class SettingsView extends StandardLayout {
     return urlField;
   }
 
-  private ComboBox<String> getDefaultSourceField(SourceService sourceService,
-      Binder<Settings> binder) {
+  private ComboBox<String> getDefaultSourceField(
+      SourceService sourceService, Binder<Settings> binder) {
     var defaultSource = getDefaultLangField(sourceService);
     defaultSource.setLabel("Default Source");
 
