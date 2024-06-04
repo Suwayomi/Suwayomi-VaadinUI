@@ -30,9 +30,7 @@ public class LangComboBox extends ComboBox<String>
 
   private final List<Function<Void, Void>> langUpdateListeners = new ArrayList<>();
 
-  /**
-   * Creates a new LangComboBox object with the default label "Language".
-   */
+  /** Creates a new LangComboBox object with the default label "Language". */
   public LangComboBox() {
     super("Language");
 
