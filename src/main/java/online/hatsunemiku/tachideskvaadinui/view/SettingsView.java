@@ -86,6 +86,7 @@ public class SettingsView extends StandardLayout {
 
   /**
    * This method is used to create a button to cancel editing.
+   *
    * @param editor The editor to cancel.
    * @return A {@link Button} to cancel editing.
    */
@@ -107,7 +108,7 @@ public class SettingsView extends StandardLayout {
    * This method is used to create a section for the general settings.
    *
    * @param settingsService The service to retrieve settings from.
-   * @param sourceService   The service to retrieve sources from.
+   * @param sourceService The service to retrieve sources from.
    * @return A {@link Section} containing the general settings.
    */
   @NotNull
@@ -387,10 +388,9 @@ public class SettingsView extends StandardLayout {
    * default search language.
    *
    * @param sourceService The service to retrieve sources from.
-   * @param binder        The binder to bind the selected language to the defaultSearchLang
-   *                      property
+   * @param binder The binder to bind the selected language to the defaultSearchLang property
    * @return A {@link ComboBox} of available languages, or a read-only ComboBox with a warning
-   * message if the server is not running.
+   *     message if the server is not running.
    */
   private ComboBox<String> createSearchLangField(
       SourceService sourceService, Binder<Settings> binder) {
@@ -454,10 +454,10 @@ public class SettingsView extends StandardLayout {
    * default source language.
    *
    * @param sourceService The service to retrieve sources from.
-   * @param binder        The binder to bind the selected source to the defaultSourceLang property
-   *                      of the Settings object.
+   * @param binder The binder to bind the selected source to the defaultSourceLang property of the
+   *     Settings object.
    * @return A {@link ComboBox} of available languages, or a read-only ComboBox with a warning
-   * message if the server is not running.
+   *     message if the server is not running.
    */
   private ComboBox<String> getDefaultSourceField(
       SourceService sourceService, Binder<Settings> binder) {
@@ -492,7 +492,7 @@ public class SettingsView extends StandardLayout {
    *
    * @param sourceService The service to retrieve sources from.
    * @return A {@link ComboBox} of languages available from the sources, or a read-only ComboBox
-   * with a warning message if the server is not running.
+   *     with a warning message if the server is not running.
    */
   private ComboBox<String> getDefaultLangField(SourceService sourceService) {
 
