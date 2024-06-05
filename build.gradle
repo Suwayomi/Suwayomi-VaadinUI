@@ -6,8 +6,8 @@ import org.springframework.boot.gradle.tasks.run.BootRun
 plugins {
     id 'java'
     id 'idea'
-    id 'org.springframework.boot' version '3.2.1'
-    id 'io.spring.dependency-management' version '1.1.0'
+    id 'org.springframework.boot' version '3.3.0'
+    id 'io.spring.dependency-management' version '1.1.5'
     //id 'org.graalvm.buildtools.native' version '0.9.20'
     id 'com.vaadin' version '24.3.2'
 
@@ -23,7 +23,7 @@ java {
 }
 
 group = 'online.hatsunemiku'
-version = '1.8.0'
+version = '1.8.1'
 sourceCompatibility = JavaVersion.VERSION_21
 targetCompatibility = JavaVersion.VERSION_21
 
@@ -187,7 +187,7 @@ class WindowsInstallTask extends InstallTask {
     WindowsInstallTask() {
         super()
 
-        //winConsole = true //enable only for debugging
+        winConsole = true //enable only for debugging
         winDirChooser = true
         winHelpUrl = "https://github.com/aless2003/Tachidesk-VaadinUI"
         winMenu = true
