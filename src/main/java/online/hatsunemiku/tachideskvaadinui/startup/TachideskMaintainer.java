@@ -243,6 +243,13 @@ public class TachideskMaintainer {
     }
   }
 
+  /**
+   * This method is used to download the server file from a given URL.
+   *
+   * @param jarUrl The URL of the jar file to download.
+   * @param serverFile The file to write the downloaded content to.
+   * @throws IOException If an I/O error occurs.
+   */
   private void downloadServerFile(String jarUrl, File serverFile) throws IOException {
     updating = true;
 
