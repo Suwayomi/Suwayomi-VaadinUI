@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.Channels;
@@ -52,8 +54,10 @@ public class TachideskMaintainer {
   private final TachideskStarter starter;
   private final SettingsService settingsService;
   private final File projectDir;
-  @Getter private boolean updating = false;
-  @Getter private double progress = 0;
+  @Getter
+  private boolean updating = false;
+  @Getter
+  private double progress = 0;
 
   public TachideskMaintainer(
       RestTemplate client,
@@ -197,7 +201,7 @@ public class TachideskMaintainer {
    * Checks if the project directory exists and creates it if it does not.
    *
    * @return {@code true} if the project directory exists or was successfully created, {@code false}
-   *     otherwise.
+   * otherwise.
    */
   private boolean checkProjectDir() {
     if (!projectDir.exists()) {
@@ -241,7 +245,15 @@ public class TachideskMaintainer {
 
   private void downloadServerFile(String jarUrl, File serverFile) throws IOException {
     updating = true;
-    URL url = new URL(jarUrl);
+
+    URL url;
+
+    try {
+      url = new URI(jarUrl).toURL();
+    } catch (URISyntaxException e) {
+      log.error("Failed to create URL from URI", e);
+      throw new RuntimeException(e);
+    }
 
     URLConnection connection = url.openConnection();
     int size = connection.getContentLength();
