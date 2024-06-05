@@ -15,10 +15,17 @@ plugins {
     id("org.panteleyev.jpackageplugin") version "1.5.2"
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+        vendor = JvmVendorSpec.BELLSOFT
+    }
+}
+
 group = 'online.hatsunemiku'
 version = '1.8.0'
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+sourceCompatibility = JavaVersion.VERSION_21
+targetCompatibility = JavaVersion.VERSION_21
 
 configurations {
     compileOnly {
