@@ -54,10 +54,8 @@ public class TachideskMaintainer {
   private final TachideskStarter starter;
   private final SettingsService settingsService;
   private final File projectDir;
-  @Getter
-  private boolean updating = false;
-  @Getter
-  private double progress = 0;
+  @Getter private boolean updating = false;
+  @Getter private double progress = 0;
 
   public TachideskMaintainer(
       RestTemplate client,
@@ -201,7 +199,7 @@ public class TachideskMaintainer {
    * Checks if the project directory exists and creates it if it does not.
    *
    * @return {@code true} if the project directory exists or was successfully created, {@code false}
-   * otherwise.
+   *     otherwise.
    */
   private boolean checkProjectDir() {
     if (!projectDir.exists()) {
