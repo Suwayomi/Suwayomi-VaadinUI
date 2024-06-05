@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.Channels;
@@ -239,9 +241,24 @@ public class TachideskMaintainer {
     }
   }
 
+  /**
+   * This method is used to download the server file from a given URL.
+   *
+   * @param jarUrl The URL of the jar file to download.
+   * @param serverFile The file to write the downloaded content to.
+   * @throws IOException If an I/O error occurs.
+   */
   private void downloadServerFile(String jarUrl, File serverFile) throws IOException {
     updating = true;
-    URL url = new URL(jarUrl);
+
+    URL url;
+
+    try {
+      url = new URI(jarUrl).toURL();
+    } catch (URISyntaxException e) {
+      log.error("Failed to create URL from URI", e);
+      throw new RuntimeException(e);
+    }
 
     URLConnection connection = url.openConnection();
     int size = connection.getContentLength();
