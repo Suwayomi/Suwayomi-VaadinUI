@@ -12,7 +12,7 @@ plugins {
     id 'com.vaadin' version '24.3.13'
 
     //Jpackage for building native installers
-    id("org.panteleyev.jpackageplugin") version "1.5.2"
+    id("org.panteleyev.jpackageplugin") version "1.6.0"
 }
 
 java {
