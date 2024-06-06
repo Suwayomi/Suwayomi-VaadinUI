@@ -6,13 +6,13 @@ import org.springframework.boot.gradle.tasks.run.BootRun
 plugins {
     id 'java'
     id 'idea'
-    id 'org.springframework.boot' version '3.2.1'
-    id 'io.spring.dependency-management' version '1.1.0'
+    id 'org.springframework.boot' version '3.3.0'
+    id 'io.spring.dependency-management' version '1.1.5'
     //id 'org.graalvm.buildtools.native' version '0.9.20'
-    id 'com.vaadin' version '24.3.2'
+    id 'com.vaadin' version '24.3.13'
 
     //Jpackage for building native installers
-    id("org.panteleyev.jpackageplugin") version "1.5.2"
+    id("org.panteleyev.jpackageplugin") version "1.6.0"
 }
 
 java {
@@ -23,9 +23,9 @@ java {
 }
 
 group = 'online.hatsunemiku'
-version = '1.8.0'
-sourceCompatibility = JavaVersion.VERSION_21
-targetCompatibility = JavaVersion.VERSION_21
+version = '1.8.1'
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 configurations {
     compileOnly {
@@ -42,7 +42,7 @@ repositories {
 }
 
 ext {
-    set('vaadinVersion', "24.3.2")
+    set('vaadinVersion', "24.3.13")
 }
 
 idea {
@@ -102,7 +102,7 @@ dependencies {
 dependencyManagement {
     imports {
         mavenBom "com.vaadin:vaadin-bom:${vaadinVersion}"
-        mavenBom "com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:latest.release"
+        mavenBom "com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:9.0.0"
     }
 }
 
@@ -111,6 +111,9 @@ tasks.named('test') {
 }
 
 tasks.register('runDebug', BootRun) {
+
+    dependsOn('vaadinBuildFrontend')
+
     group = 'application'
     systemProperty 'spring.profiles.active', 'dev'
     mainClass = 'online.hatsunemiku.tachideskvaadinui.TachideskVaadinUiApplication'
