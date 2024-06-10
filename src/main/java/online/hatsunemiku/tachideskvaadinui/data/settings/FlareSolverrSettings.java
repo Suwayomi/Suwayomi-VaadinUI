@@ -14,12 +14,16 @@ public class FlareSolverrSettings {
 
   @JsonProperty("flareSolverrEnabled")
   private boolean enabled;
+
   @JsonProperty("flareSolverrSessionName")
   private String sessionName;
+
   @JsonProperty("flareSolverrSessionTtl")
   private int sessionTTL;
+
   @JsonProperty("flareSolverrTimeout")
   private int timeout;
+
   @JsonProperty("flareSolverrUrl")
   private String url;
 }
