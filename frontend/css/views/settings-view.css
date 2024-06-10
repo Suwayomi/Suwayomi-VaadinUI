@@ -75,3 +75,9 @@
     flex-direction: column;
     width: 100%;
 }
+
+.flare-solverr-settings {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}

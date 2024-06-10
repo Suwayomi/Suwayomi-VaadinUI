@@ -6,8 +6,10 @@
 
 package online.hatsunemiku.tachideskvaadinui.services;
 
+import com.helger.commons.url.URLValidator;
 import java.util.ArrayList;
 import java.util.List;
+import online.hatsunemiku.tachideskvaadinui.data.settings.FlareSolverrSettings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.ExtensionRepo;
 import online.hatsunemiku.tachideskvaadinui.services.client.suwayomi.SuwayomiSettingsClient;
 import org.springframework.stereotype.Service;
@@ -59,5 +61,24 @@ public class SuwayomiSettingsService {
 
   public List<ExtensionRepo> getExtensionRepos() {
     return new ArrayList<>(client.getExtensionRepos().stream().map(ExtensionRepo::new).toList());
+  }
+
+  public boolean updateFlareSolverrEnabledStatus(boolean status) {
+    return client.updateFlareSolverrEnabledStatus(status);
+  }
+
+  public boolean updateFlareSolverrUrl(String url) throws IllegalArgumentException {
+    //check if url is valid
+    boolean valid = URLValidator.isValid(url);
+
+    if (!valid) {
+      throw new IllegalArgumentException("Invalid URL");
+    }
+
+    return client.updateFlareSolverrUrl(url);
+  }
+
+  public FlareSolverrSettings getFlareSolverrSettings() {
+    return client.getFlareSolverrSettings();
   }
 }

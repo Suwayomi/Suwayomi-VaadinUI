@@ -21,6 +21,8 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Section;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -28,6 +30,7 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.router.Route;
 import java.util.ArrayList;
 import java.util.List;
+import online.hatsunemiku.tachideskvaadinui.data.settings.FlareSolverrSettings;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.settings.event.SettingsEventPublisher;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.ExtensionRepo;
@@ -49,7 +52,7 @@ import org.vaadin.miki.superfields.text.SuperTextField;
  * changing the settings of the application.
  *
  * @author aless2003
- * @version 1.1.0
+ * @version 1.2.0
  * @since 1.0.0
  */
 @Route("settings")
@@ -76,10 +79,12 @@ public class SettingsView extends StandardLayout {
     content.setClassName("settings-content");
 
     Section generalSettings = getGeneralSettingsSection(settingsService, sourceService);
+    Div flareSeparator = getSeparator();
+    Section flareSolverrSettings = createFlareSolverrSection();
     Div separator = getSeparator();
     Section extensionSettings = getExtensionSettingsSection();
 
-    content.add(generalSettings, separator, extensionSettings);
+    content.add(generalSettings, flareSeparator, flareSolverrSettings, separator, extensionSettings);
 
     setContent(content);
   }
@@ -108,7 +113,7 @@ public class SettingsView extends StandardLayout {
    * This method is used to create a section for the general settings.
    *
    * @param settingsService The service to retrieve settings from.
-   * @param sourceService The service to retrieve sources from.
+   * @param sourceService   The service to retrieve sources from.
    * @return A {@link Section} containing the general settings.
    */
   @NotNull
@@ -388,9 +393,10 @@ public class SettingsView extends StandardLayout {
    * default search language.
    *
    * @param sourceService The service to retrieve sources from.
-   * @param binder The binder to bind the selected language to the defaultSearchLang property
+   * @param binder        The binder to bind the selected language to the defaultSearchLang
+   *                      property
    * @return A {@link ComboBox} of available languages, or a read-only ComboBox with a warning
-   *     message if the server is not running.
+   * message if the server is not running.
    */
   private ComboBox<String> createSearchLangField(
       SourceService sourceService, Binder<Settings> binder) {
@@ -454,10 +460,10 @@ public class SettingsView extends StandardLayout {
    * default source language.
    *
    * @param sourceService The service to retrieve sources from.
-   * @param binder The binder to bind the selected source to the defaultSourceLang property of the
-   *     Settings object.
+   * @param binder        The binder to bind the selected source to the defaultSourceLang property
+   *                      of the Settings object.
    * @return A {@link ComboBox} of available languages, or a read-only ComboBox with a warning
-   *     message if the server is not running.
+   * message if the server is not running.
    */
   private ComboBox<String> getDefaultSourceField(
       SourceService sourceService, Binder<Settings> binder) {
@@ -492,7 +498,7 @@ public class SettingsView extends StandardLayout {
    *
    * @param sourceService The service to retrieve sources from.
    * @return A {@link ComboBox} of languages available from the sources, or a read-only ComboBox
-   *     with a warning message if the server is not running.
+   * with a warning message if the server is not running.
    */
   private ComboBox<String> getDefaultLangField(SourceService sourceService) {
 
@@ -513,5 +519,80 @@ public class SettingsView extends StandardLayout {
     defaultLang.setItems(langs);
 
     return defaultLang;
+  }
+
+  private Section createFlareSolverrSection() {
+    Section section = new Section();
+    section.addClassName("flare-solverr-settings");
+
+    FormLayout form = new FormLayout();
+
+    FlareSolverrSettings flareSolverrSettings = suwayomiSettingsService.getFlareSolverrSettings();
+
+    TextField urlField = createFlareSolverrUrlField(flareSolverrSettings);
+
+    ComboBox<Boolean> enabledChoiceBox = createFlareSolverrEnabledField(flareSolverrSettings);
+    form.add(urlField);
+    form.add(enabledChoiceBox);
+
+    section.add(form);
+
+    return section;
+  }
+
+  private @NotNull TextField createFlareSolverrUrlField(FlareSolverrSettings flareSolverrSettings) {
+    TextField urlField = new TextField("FlareSolverr URL");
+    urlField.setValue(flareSolverrSettings.getUrl());
+    urlField.setPlaceholder("http://localhost:8191");
+    urlField.addValueChangeListener(e -> {
+      String url = e.getValue();
+      if (url == null || url.isBlank()) {
+        return;
+      }
+
+      try {
+        boolean success = suwayomiSettingsService.updateFlareSolverrUrl(url);
+
+        Notification notification;
+        if (!success) {
+          notification = new Notification("Failed to update FlareSolverr URL", 3000);
+          notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        } else {
+          notification = new Notification("FlareSolverr URL updated", 3000);
+          notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        }
+        notification.open();
+      } catch (IllegalArgumentException ex) {
+        log.error("Invalid URL", ex);
+        Notification notification = new Notification("Invalid URL", 3000);
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        notification.open();
+      }
+    });
+    return urlField;
+  }
+
+  private @NotNull ComboBox<Boolean> createFlareSolverrEnabledField(
+      FlareSolverrSettings flareSolverrSettings) {
+    ComboBox<Boolean> enabledChoiceBox = new ComboBox<>();
+    enabledChoiceBox.setLabel("FlareSolverr Enabled");
+    enabledChoiceBox.setItems(true, false);
+    enabledChoiceBox.setValue(flareSolverrSettings.isEnabled());
+    enabledChoiceBox.addValueChangeListener(
+        e -> {
+          boolean enabled = e.getValue();
+          boolean success = suwayomiSettingsService.updateFlareSolverrEnabledStatus(enabled);
+
+          Notification notification;
+          if (!success) {
+            notification = new Notification("Failed to update FlareSolverr enabled status", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+          } else {
+            notification = new Notification("FlareSolverr enabled status updated", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+          }
+          notification.open();
+        });
+    return enabledChoiceBox;
   }
 }

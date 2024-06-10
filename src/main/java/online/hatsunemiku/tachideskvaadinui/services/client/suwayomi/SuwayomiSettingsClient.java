@@ -7,7 +7,10 @@
 package online.hatsunemiku.tachideskvaadinui.services.client.suwayomi;
 
 import java.util.List;
+import java.util.Map;
+import online.hatsunemiku.tachideskvaadinui.data.settings.FlareSolverrSettings;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
+import org.intellij.lang.annotations.Language;
 import org.springframework.stereotype.Component;
 
 /**
@@ -23,7 +26,7 @@ public class SuwayomiSettingsClient {
    * Creates a new instance of the {@link SuwayomiSettingsClient} class.
    *
    * @param clientService the {@link WebClientService} used for making API requests to the Suwayomi
-   *     Server.
+   *                      Server.
    */
   public SuwayomiSettingsClient(WebClientService clientService) {
     this.clientService = clientService;
@@ -96,5 +99,89 @@ public class SuwayomiSettingsClient {
     }
 
     return extensionRepos;
+  }
+
+  public FlareSolverrSettings getFlareSolverrSettings() {
+    @Language("graphql")
+    String query =
+        """
+            query GetFlareSolverrSettings {
+              settings {
+                flareSolverrEnabled
+                flareSolverrSessionName
+                flareSolverrSessionTtl
+                flareSolverrTimeout
+                flareSolverrUrl
+              }
+            }
+            """;
+
+    var graphClient = clientService.getDgsGraphQlClient();
+
+    var response = graphClient
+        .reactiveExecuteQuery(query)
+        .block();
+
+    if (response == null) {
+      throw new RuntimeException("Error while getting FlareSolverrSettings - response is null");
+    }
+
+    return response.extractValueAsObject("settings", FlareSolverrSettings.class);
+  }
+
+  public boolean updateFlareSolverrUrl(String url) {
+    @Language("graphql")
+    String query =
+        """
+            mutation UpdateFlareSolverrUrl($url: String!) {
+              setSettings(input: {settings: {flareSolverrUrl: $url}}) {
+                settings {
+                  flareSolverrUrl
+                }
+              }
+            }
+            """;
+
+    var variables = Map.of("url", url);
+
+    var graphClient = clientService.getDgsGraphQlClient();
+
+    var response = graphClient.reactiveExecuteQuery(query, variables).block();
+
+    if (response == null) {
+      throw new RuntimeException("Error while updating FlareSolverr URL - response is null");
+    }
+
+    var flareSolverrUrl = response.extractValueAsObject("setSettings.settings.flareSolverrUrl", String.class);
+
+    return flareSolverrUrl.equals(url);
+  }
+
+  public boolean updateFlareSolverrEnabledStatus(boolean enabled) {
+    @Language("graphql")
+    String query =
+        """
+            mutation UpdateFlareSolverrEnabledStatus($enabled: Boolean!) {
+              setSettings(input: {settings: {flareSolverrEnabled: $enabled}}) {
+                settings {
+                  flareSolverrEnabled
+                }
+              }
+            }
+            """;
+
+    var graphClient = clientService.getDgsGraphQlClient();
+
+    var variables = Map.of("enabled", enabled);
+
+    var response = graphClient.reactiveExecuteQuery(query, variables).block();
+
+    if (response == null) {
+      throw new RuntimeException("Error while updating FlareSolverr enabled status - response is null");
+    }
+
+    var flareSolverrEnabled = response.extractValueAsObject("setSettings.settings.flareSolverrEnabled", Boolean.class);
+
+    return flareSolverrEnabled.equals(enabled);
   }
 }
