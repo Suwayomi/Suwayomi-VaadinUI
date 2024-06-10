@@ -21,6 +21,8 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Section;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -28,6 +30,7 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.router.Route;
 import java.util.ArrayList;
 import java.util.List;
+import online.hatsunemiku.tachideskvaadinui.data.settings.FlareSolverrSettings;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.settings.event.SettingsEventPublisher;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.ExtensionRepo;
@@ -49,7 +52,7 @@ import org.vaadin.miki.superfields.text.SuperTextField;
  * changing the settings of the application.
  *
  * @author aless2003
- * @version 1.1.0
+ * @version 1.2.0
  * @since 1.0.0
  */
 @Route("settings")
@@ -61,6 +64,14 @@ public class SettingsView extends StandardLayout {
   private final SettingsEventPublisher settingsEventPublisher;
   private final SuwayomiSettingsService suwayomiSettingsService;
 
+  /**
+   * Creates a new instance of the {@link SettingsView} class.
+   *
+   * @param settingsService The service to retrieve settings from.
+   * @param eventPublisher The event publisher to publish settings events with.
+   * @param sourceService The service to retrieve sources from.
+   * @param suwayomiSettingsService The service to retrieve Suwayomi settings from.
+   */
   public SettingsView(
       SettingsService settingsService,
       SettingsEventPublisher eventPublisher,
@@ -76,10 +87,13 @@ public class SettingsView extends StandardLayout {
     content.setClassName("settings-content");
 
     Section generalSettings = getGeneralSettingsSection(settingsService, sourceService);
+    Div flareSeparator = getSeparator();
+    Section flareSolverrSettings = createFlareSolverrSection();
     Div separator = getSeparator();
     Section extensionSettings = getExtensionSettingsSection();
 
-    content.add(generalSettings, separator, extensionSettings);
+    content.add(
+        generalSettings, flareSeparator, flareSolverrSettings, separator, extensionSettings);
 
     setContent(content);
   }
@@ -513,5 +527,100 @@ public class SettingsView extends StandardLayout {
     defaultLang.setItems(langs);
 
     return defaultLang;
+  }
+
+  /**
+   * This method is used to create a section for the settings specific to FlareSolverr.
+   *
+   * @return A {@link Section} containing the settings for FlareSolverr.
+   */
+  private Section createFlareSolverrSection() {
+    Section section = new Section();
+    section.addClassName("flare-solverr-settings");
+
+    FormLayout form = new FormLayout();
+
+    FlareSolverrSettings flareSolverrSettings = suwayomiSettingsService.getFlareSolverrSettings();
+
+    TextField urlField = createFlareSolverrUrlField(flareSolverrSettings);
+
+    ComboBox<Boolean> enabledChoiceBox = createFlareSolverrEnabledField(flareSolverrSettings);
+    form.add(urlField);
+    form.add(enabledChoiceBox);
+
+    section.add(form);
+
+    return section;
+  }
+
+  /**
+   * This method is used to create a TextField to set the URL of the FlareSolverr server.
+   *
+   * @param flareSolverrSettings The {@link FlareSolverrSettings FlareSolverr Settings} representing
+   *     the initial state.
+   * @return A {@link TextField} to set the URL of the FlareSolverr server.
+   */
+  private @NotNull TextField createFlareSolverrUrlField(FlareSolverrSettings flareSolverrSettings) {
+    TextField urlField = new TextField("FlareSolverr URL");
+    urlField.setValue(flareSolverrSettings.getUrl());
+    urlField.setPlaceholder("http://localhost:8191");
+    urlField.addValueChangeListener(
+        e -> {
+          String url = e.getValue();
+          if (url == null || url.isBlank()) {
+            return;
+          }
+
+          try {
+            boolean success = suwayomiSettingsService.updateFlareSolverrUrl(url);
+
+            Notification notification;
+            if (!success) {
+              notification = new Notification("Failed to update FlareSolverr URL", 3000);
+              notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            } else {
+              notification = new Notification("FlareSolverr URL updated", 3000);
+              notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            }
+            notification.open();
+          } catch (IllegalArgumentException ex) {
+            log.error("Invalid URL", ex);
+            Notification notification = new Notification("Invalid URL", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            notification.open();
+          }
+        });
+    return urlField;
+  }
+
+  /**
+   * This method is used to create a ComboBox to enable or disable FlareSolverr.
+   *
+   * @param flareSolverrSettings The {@link FlareSolverrSettings FlareSolverr Settings} representing
+   *     the initial state.
+   * @return A {@link ComboBox} to enable or disable FlareSolverr.
+   */
+  private @NotNull ComboBox<Boolean> createFlareSolverrEnabledField(
+      FlareSolverrSettings flareSolverrSettings) {
+    ComboBox<Boolean> enabledChoiceBox = new ComboBox<>();
+    enabledChoiceBox.setLabel("FlareSolverr Enabled");
+    enabledChoiceBox.setItems(true, false);
+    enabledChoiceBox.setValue(flareSolverrSettings.isEnabled());
+    enabledChoiceBox.addValueChangeListener(
+        e -> {
+          boolean enabled = e.getValue();
+          boolean success = suwayomiSettingsService.updateFlareSolverrEnabledStatus(enabled);
+
+          Notification notification;
+          if (!success) {
+            notification = new Notification("Failed to update FlareSolverr enabled status", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+          } else {
+            notification = new Notification("FlareSolverr enabled status updated", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+          }
+          notification.open();
+        });
+    return enabledChoiceBox;
   }
 }

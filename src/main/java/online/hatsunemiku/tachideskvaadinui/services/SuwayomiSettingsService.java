@@ -6,8 +6,10 @@
 
 package online.hatsunemiku.tachideskvaadinui.services;
 
+import com.helger.commons.url.URLValidator;
 import java.util.ArrayList;
 import java.util.List;
+import online.hatsunemiku.tachideskvaadinui.data.settings.FlareSolverrSettings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.ExtensionRepo;
 import online.hatsunemiku.tachideskvaadinui.services.client.suwayomi.SuwayomiSettingsClient;
 import org.springframework.stereotype.Service;
@@ -59,5 +61,43 @@ public class SuwayomiSettingsService {
 
   public List<ExtensionRepo> getExtensionRepos() {
     return new ArrayList<>(client.getExtensionRepos().stream().map(ExtensionRepo::new).toList());
+  }
+
+  /**
+   * Updates whether FlareSolverr is used by the Suwayomi Server.
+   *
+   * @param status whether to enable or disable FlareSolverr.
+   * @return {@code true} if the status was updated successfully, {@code false} otherwise.
+   */
+  public boolean updateFlareSolverrEnabledStatus(boolean status) {
+    return client.updateFlareSolverrEnabledStatus(status);
+  }
+
+  /**
+   * Updates the URL to the FlareSolverr Server on the Suwayomi Server.
+   *
+   * @param url the URL to the FlareSolverr Server.
+   * @return {@code true} if the URL was updated successfully, {@code false} otherwise.
+   * @throws IllegalArgumentException if the URL is invalid.
+   */
+  public boolean updateFlareSolverrUrl(String url) throws IllegalArgumentException {
+    // check if url is valid
+    boolean valid = URLValidator.isValid(url);
+
+    if (!valid) {
+      throw new IllegalArgumentException("Invalid URL");
+    }
+
+    return client.updateFlareSolverrUrl(url);
+  }
+
+  /**
+   * Retrieves the FlareSolverr settings on the Suwayomi Server.
+   *
+   * @return the {@link FlareSolverrSettings} object representing the FlareSolverr settings on the
+   *     server.
+   */
+  public FlareSolverrSettings getFlareSolverrSettings() {
+    return client.getFlareSolverrSettings();
   }
 }
