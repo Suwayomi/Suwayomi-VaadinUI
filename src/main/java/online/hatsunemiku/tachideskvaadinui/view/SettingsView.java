@@ -64,6 +64,14 @@ public class SettingsView extends StandardLayout {
   private final SettingsEventPublisher settingsEventPublisher;
   private final SuwayomiSettingsService suwayomiSettingsService;
 
+  /**
+   * Creates a new instance of the {@link SettingsView} class.
+   *
+   * @param settingsService         The service to retrieve settings from.
+   * @param eventPublisher          The event publisher to publish settings events with.
+   * @param sourceService           The service to retrieve sources from.
+   * @param suwayomiSettingsService The service to retrieve Suwayomi settings from.
+   */
   public SettingsView(
       SettingsService settingsService,
       SettingsEventPublisher eventPublisher,
