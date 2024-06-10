@@ -81,7 +81,7 @@ public class SuwayomiSettingsService {
    * @throws IllegalArgumentException if the URL is invalid.
    */
   public boolean updateFlareSolverrUrl(String url) throws IllegalArgumentException {
-    //check if url is valid
+    // check if url is valid
     boolean valid = URLValidator.isValid(url);
 
     if (!valid) {
