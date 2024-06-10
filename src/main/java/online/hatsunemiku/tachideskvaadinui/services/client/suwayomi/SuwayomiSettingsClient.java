@@ -26,7 +26,7 @@ public class SuwayomiSettingsClient {
    * Creates a new instance of the {@link SuwayomiSettingsClient} class.
    *
    * @param clientService the {@link WebClientService} used for making API requests to the Suwayomi
-   *                      Server.
+   *     Server.
    */
   public SuwayomiSettingsClient(WebClientService clientService) {
     this.clientService = clientService;
@@ -103,6 +103,7 @@ public class SuwayomiSettingsClient {
 
   /**
    * Retrieves the FlareSolverr settings from the Suwayomi Server.
+   *
    * @return the FlareSolverr settings from the server as a {@link FlareSolverrSettings} object.
    */
   public FlareSolverrSettings getFlareSolverrSettings() {
@@ -122,9 +123,7 @@ public class SuwayomiSettingsClient {
 
     var graphClient = clientService.getDgsGraphQlClient();
 
-    var response = graphClient
-        .reactiveExecuteQuery(query)
-        .block();
+    var response = graphClient.reactiveExecuteQuery(query).block();
 
     if (response == null) {
       throw new RuntimeException("Error while getting FlareSolverrSettings - response is null");
@@ -162,8 +161,8 @@ public class SuwayomiSettingsClient {
       throw new RuntimeException("Error while updating FlareSolverr URL - response is null");
     }
 
-    var flareSolverrUrl = response.extractValueAsObject("setSettings.settings.flareSolverrUrl",
-        String.class);
+    var flareSolverrUrl =
+        response.extractValueAsObject("setSettings.settings.flareSolverrUrl", String.class);
 
     return flareSolverrUrl.equals(url);
   }
@@ -173,7 +172,7 @@ public class SuwayomiSettingsClient {
    *
    * @param enabled the new enabled status
    * @return {@code true} if the FlareSolverr enabled status was updated successfully, {@code false}
-   * otherwise
+   *     otherwise
    */
   public boolean updateFlareSolverrEnabledStatus(boolean enabled) {
     @Language("graphql")
@@ -199,8 +198,8 @@ public class SuwayomiSettingsClient {
           "Error while updating FlareSolverr enabled status - response is null");
     }
 
-    var flareSolverrEnabled = response.extractValueAsObject(
-        "setSettings.settings.flareSolverrEnabled", Boolean.class);
+    var flareSolverrEnabled =
+        response.extractValueAsObject("setSettings.settings.flareSolverrEnabled", Boolean.class);
 
     return flareSolverrEnabled.equals(enabled);
   }

@@ -17,29 +17,23 @@ import lombok.Data;
 @Data
 public class FlareSolverrSettings {
 
-  /**
-   * A boolean indicating whether FlareSolverr is enabled on the server.
-   */
+  /** A boolean indicating whether FlareSolverr is enabled on the server. */
   @JsonProperty("flareSolverrEnabled")
   private boolean enabled;
-  /**
-   * The name of the FlareSolverr session.
-   */
+
+  /** The name of the FlareSolverr session. */
   @JsonProperty("flareSolverrSessionName")
   private String sessionName;
-  /**
-   * The time-to-live (TTL) of the FlareSolverr session.
-   */
+
+  /** The time-to-live (TTL) of the FlareSolverr session. */
   @JsonProperty("flareSolverrSessionTtl")
   private int sessionTTL;
-  /**
-   * The timeout for the FlareSolverr session, in seconds.
-   */
+
+  /** The timeout for the FlareSolverr session, in seconds. */
   @JsonProperty("flareSolverrTimeout")
   private int timeout;
-  /**
-   * The URL of the FlareSolverr server. e.g. http://localhost:8191
-   */
+
+  /** The URL of the FlareSolverr server. e.g. http://localhost:8191 */
   @JsonProperty("flareSolverrUrl")
   private String url;
 }
