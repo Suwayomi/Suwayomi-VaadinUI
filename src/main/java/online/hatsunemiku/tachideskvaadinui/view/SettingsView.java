@@ -84,7 +84,8 @@ public class SettingsView extends StandardLayout {
     Div separator = getSeparator();
     Section extensionSettings = getExtensionSettingsSection();
 
-    content.add(generalSettings, flareSeparator, flareSolverrSettings, separator, extensionSettings);
+    content.add(generalSettings, flareSeparator, flareSolverrSettings, separator,
+        extensionSettings);
 
     setContent(content);
   }
@@ -521,6 +522,11 @@ public class SettingsView extends StandardLayout {
     return defaultLang;
   }
 
+  /**
+   * This method is used to create a section for the settings specific to FlareSolverr.
+   *
+   * @return A {@link Section} containing the settings for FlareSolverr.
+   */
   private Section createFlareSolverrSection() {
     Section section = new Section();
     section.addClassName("flare-solverr-settings");
@@ -540,6 +546,13 @@ public class SettingsView extends StandardLayout {
     return section;
   }
 
+  /**
+   * This method is used to create a TextField to set the URL of the FlareSolverr server.
+   *
+   * @param flareSolverrSettings The {@link FlareSolverrSettings FlareSolverr Settings} representing
+   *                             the initial state.
+   * @return A {@link TextField} to set the URL of the FlareSolverr server.
+   */
   private @NotNull TextField createFlareSolverrUrlField(FlareSolverrSettings flareSolverrSettings) {
     TextField urlField = new TextField("FlareSolverr URL");
     urlField.setValue(flareSolverrSettings.getUrl());
@@ -572,6 +585,13 @@ public class SettingsView extends StandardLayout {
     return urlField;
   }
 
+  /**
+   * This method is used to create a ComboBox to enable or disable FlareSolverr.
+   *
+   * @param flareSolverrSettings The {@link FlareSolverrSettings FlareSolverr Settings} representing
+   *                             the initial state.
+   * @return A {@link ComboBox} to enable or disable FlareSolverr.
+   */
   private @NotNull ComboBox<Boolean> createFlareSolverrEnabledField(
       FlareSolverrSettings flareSolverrSettings) {
     ComboBox<Boolean> enabledChoiceBox = new ComboBox<>();

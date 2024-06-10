@@ -15,9 +15,9 @@ import online.hatsunemiku.tachideskvaadinui.services.client.suwayomi.SuwayomiSet
 import org.springframework.stereotype.Service;
 
 /**
- * Responsible for managing Suwayomi server settings. This class is an abstraction over the {@link
- * SuwayomiSettingsClient} class and provides methods for updating and retrieving Suwayomi server
- * settings.
+ * Responsible for managing Suwayomi server settings. This class is an abstraction over the
+ * {@link SuwayomiSettingsClient} class and provides methods for updating and retrieving Suwayomi
+ * server settings.
  */
 @Service
 public class SuwayomiSettingsService {
@@ -28,7 +28,7 @@ public class SuwayomiSettingsService {
    * Creates a new instance of the {@link SuwayomiSettingsService} class.
    *
    * @param client the {@link SuwayomiSettingsClient} used for making API requests to the Suwayomi
-   *     Server.
+   *               Server.
    */
   public SuwayomiSettingsService(SuwayomiSettingsClient client) {
     this.client = client;
@@ -63,10 +63,23 @@ public class SuwayomiSettingsService {
     return new ArrayList<>(client.getExtensionRepos().stream().map(ExtensionRepo::new).toList());
   }
 
+  /**
+   * Updates whether FlareSolverr is used by the Suwayomi Server.
+   *
+   * @param status whether to enable or disable FlareSolverr.
+   * @return {@code true} if the status was updated successfully, {@code false} otherwise.
+   */
   public boolean updateFlareSolverrEnabledStatus(boolean status) {
     return client.updateFlareSolverrEnabledStatus(status);
   }
 
+  /**
+   * Updates the URL to the FlareSolverr Server on the Suwayomi Server.
+   *
+   * @param url the URL to the FlareSolverr Server.
+   * @return {@code true} if the URL was updated successfully, {@code false} otherwise.
+   * @throws IllegalArgumentException if the URL is invalid.
+   */
   public boolean updateFlareSolverrUrl(String url) throws IllegalArgumentException {
     //check if url is valid
     boolean valid = URLValidator.isValid(url);
@@ -78,6 +91,12 @@ public class SuwayomiSettingsService {
     return client.updateFlareSolverrUrl(url);
   }
 
+  /**
+   * Retrieves the FlareSolverr settings on the Suwayomi Server.
+   *
+   * @return the {@link FlareSolverrSettings} object representing the FlareSolverr settings on the
+   * server.
+   */
   public FlareSolverrSettings getFlareSolverrSettings() {
     return client.getFlareSolverrSettings();
   }
