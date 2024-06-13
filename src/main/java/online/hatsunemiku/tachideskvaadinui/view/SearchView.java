@@ -327,6 +327,12 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     return searchResult;
   }
 
+  /**
+   * Searches for manga in the specified sources
+   *
+   * @param query the search query
+   * @param langGroupedSources the sources grouped by language
+   */
   private void searchSources(String query, Map<String, List<Source>> langGroupedSources) {
     for (var langSet : langGroupedSources.entrySet()) {
 
@@ -348,9 +354,7 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
         searchTasks.add(runnable);
       }
 
-      // When upgrading to Java 21 put the executor in a try-with-resources block instead
-      var executor = Executors.newCachedThreadPool();
-      try {
+      try (var executor = Executors.newCachedThreadPool()) {
         executor.invokeAll(searchTasks);
         executor.shutdown();
       } catch (InterruptedException e) {
