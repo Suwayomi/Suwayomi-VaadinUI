@@ -22,7 +22,6 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
-import feign.FeignException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -371,9 +370,9 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
       SourceSearchResult searchResponse;
       try {
         searchResponse = searchService.search(query, source.getId(), i);
-      } catch (FeignException e) {
-        String message = "Source %s failed with error code %d";
-        String errorMessage = String.format(message, source.getDisplayName(), e.status());
+      } catch (Exception e) {
+        String message = "Source %s failed to return search results.";
+        String errorMessage = String.format(message, source.getDisplayName());
 
         Notification notification = new Notification(errorMessage, 3000, Position.BOTTOM_END);
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
