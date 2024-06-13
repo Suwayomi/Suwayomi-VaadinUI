@@ -89,7 +89,7 @@ public class MyAnimeListAPIService {
    * @param data The {@link OAuthData} object containing the access token.
    */
   private void authenticateMALWithToken(OAuthData data) {
-   var accessToken = data.getAccessToken();
+    var accessToken = data.getAccessToken();
 
     if (!accessToken.startsWith("Bearer")) {
       accessToken = "Bearer " + accessToken;
