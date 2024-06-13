@@ -68,12 +68,12 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   /**
    * Constructs a SearchView object.
    *
-   * @param sourceService the {@link SourceService} used for retrieving manga sources
-   * @param searchService the {@link SearchService} used for performing search operations
+   * @param sourceService   the {@link SourceService} used for retrieving manga sources
+   * @param searchService   the {@link SearchService} used for performing search operations
    * @param settingsService the {@link SettingsService} used for accessing search settings
    */
-  public SearchView(
-      SourceService sourceService, SearchService searchService, SettingsService settingsService) {
+  public SearchView(SourceService sourceService, SearchService searchService,
+      SettingsService settingsService) {
     super("Search");
 
     this.sourceService = sourceService;
@@ -107,7 +107,8 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   }
 
   /**
-   * Retrieves the "Import from MAL" button. This button is used to navigate to the {@link MALView}.
+   * Retrieves the "Import from MAL" button. This button is used to navigate to the
+   * {@link MALView}.
    *
    * @return the button that navigates to the {@link MALView}
    */
@@ -115,43 +116,41 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   private Button getMalImportBtn() {
     Button malImportBtn = new Button("Import from MAL", VaadinIcon.DOWNLOAD.create());
 
-    malImportBtn.addClickListener(
-        e -> {
-          UI ui = getUI().orElse(UI.getCurrent());
+    malImportBtn.addClickListener(e -> {
+      UI ui = getUI().orElse(UI.getCurrent());
 
-          if (ui == null) {
-            return;
-          }
+      if (ui == null) {
+        return;
+      }
 
-          ui.navigate(MALView.class);
-        });
+      ui.navigate(MALView.class);
+    });
     return malImportBtn;
   }
 
   /**
-   * Retrieves the "Import from AniList" button. This button is used to navigate to the {@link
-   * AniListView}.
+   * Retrieves the "Import from AniList" button. This button is used to navigate to the
+   * {@link AniListView}.
    *
    * @return The button that navigates to the {@link AniListView}
    */
   @NotNull
   private Button getALImportBtn() {
     Button importBtn = new Button("Import from AniList", VaadinIcon.DOWNLOAD.create());
-    importBtn.addClickListener(
-        e -> {
-          UI ui = UI.getCurrent();
+    importBtn.addClickListener(e -> {
+      UI ui = UI.getCurrent();
 
-          if (ui == null) {
-            if (getUI().isEmpty()) {
-              log.error("UI is not present");
-              return;
-            }
+      if (ui == null) {
+        if (getUI().isEmpty()) {
+          log.error("UI is not present");
+          return;
+        }
 
-            ui = getUI().get();
-          }
+        ui = getUI().get();
+      }
 
-          ui.navigate(AniListView.class);
-        });
+      ui.navigate(AniListView.class);
+    });
     return importBtn;
   }
 
@@ -171,13 +170,12 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
       }
     }
 
-    langFilter.addValueChangeListener(
-        e -> {
-          if (!e.isFromClient()) {
-            return;
-          }
-          runSearch(searchField);
-        });
+    langFilter.addValueChangeListener(e -> {
+      if (!e.isFromClient()) {
+        return;
+      }
+      runSearch(searchField);
+    });
 
     return langFilter;
   }
@@ -208,34 +206,28 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
 
     CompletableFuture<?> future = CompletableFuture.runAsync(() -> search(searchField.getValue()));
 
-    future
-        .thenRun(
-            () -> {
-              var ui = getUI();
+    future.thenRun(() -> {
+      var ui = getUI();
 
-              if (ui.isEmpty()) {
-                log.error("UI is not present");
-                return;
-              }
+      if (ui.isEmpty()) {
+        log.error("UI is not present");
+        return;
+      }
 
-              if (!ui.get().isAttached()) {
-                log.debug("UI is not attached anymore");
-                return;
-              }
+      if (!ui.get().isAttached()) {
+        log.debug("UI is not attached anymore");
+        return;
+      }
 
-              ui.get()
-                  .access(
-                      () -> {
-                        searchField.setSuffixComponent(null);
-                        searchField.setReadOnly(false);
-                        langFilter.setReadOnly(false);
-                      });
-            })
-        .exceptionally(
-            ex -> {
-              log.error("Error searching", ex);
-              return null;
-            });
+      ui.get().access(() -> {
+        searchField.setSuffixComponent(null);
+        searchField.setReadOnly(false);
+        langFilter.setReadOnly(false);
+      });
+    }).exceptionally(ex -> {
+      log.error("Error searching", ex);
+      return null;
+    });
   }
 
   private Div getLoadingDiv() {
@@ -255,10 +247,9 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
 
   public void search(String query) {
     var sources = sourceService.getSources();
-    var langGroupedSources =
-        sources.stream()
-            .sorted((a, b) -> a.getDisplayName().compareToIgnoreCase(b.getDisplayName()))
-            .collect(Collectors.groupingBy(Source::getLang));
+    var langGroupedSources = sources.stream()
+        .sorted((a, b) -> a.getDisplayName().compareToIgnoreCase(b.getDisplayName()))
+        .collect(Collectors.groupingBy(Source::getLang));
 
     searchSources(query, langGroupedSources);
   }
@@ -266,7 +257,7 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   /**
    * Adds a search result to the user interface.
    *
-   * @param source the source of the search result
+   * @param source    the source of the search result
    * @param mangaList the list of manga from the search result
    * @return true if the search result was successfully added, otherwise false
    */
@@ -327,6 +318,12 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     return searchResult;
   }
 
+  /**
+   * Searches for manga in the specified sources
+   *
+   * @param query              the search query
+   * @param langGroupedSources the sources grouped by language
+   */
   private void searchSources(String query, Map<String, List<Source>> langGroupedSources) {
     for (var langSet : langGroupedSources.entrySet()) {
 
@@ -340,11 +337,10 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
 
       List<Callable<Void>> searchTasks = new ArrayList<>();
       for (var source : langSources) {
-        Callable<Void> runnable =
-            () -> {
-              searchSource(query, source);
-              return null;
-            };
+        Callable<Void> runnable = () -> {
+          searchSource(query, source);
+          return null;
+        };
         searchTasks.add(runnable);
       }
 
