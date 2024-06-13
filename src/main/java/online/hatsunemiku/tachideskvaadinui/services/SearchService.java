@@ -6,7 +6,6 @@
 
 package online.hatsunemiku.tachideskvaadinui.services;
 
-import feign.FeignException;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.search.SourceSearchResult;
 import online.hatsunemiku.tachideskvaadinui.services.client.SearchClient;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,6 @@ public class SearchService {
    * @param sourceId The sourceId to search within.
    * @param pageNum The page number for pagination.
    * @return The search response containing the results.
-   * @throws FeignException if an error occurs during the search.
    */
   public SourceSearchResult search(String query, String sourceId, int pageNum) {
     return searchClient.search(query, pageNum, sourceId);

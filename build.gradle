@@ -9,7 +9,7 @@ plugins {
     id 'org.springframework.boot' version '3.3.0'
     id 'io.spring.dependency-management' version '1.1.5'
     //id 'org.graalvm.buildtools.native' version '0.9.20'
-    id 'com.vaadin' version '24.3.13'
+    id 'com.vaadin' version '24.4.1'
 
     //Jpackage for building native installers
     id("org.panteleyev.jpackageplugin") version "1.6.0"
@@ -42,7 +42,7 @@ repositories {
 }
 
 ext {
-    set('vaadinVersion', "24.3.13")
+    set('vaadinVersion', "24.4.1")
 }
 
 idea {
@@ -54,7 +54,7 @@ idea {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-cache'
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation('org.springframework.boot:spring-boot-starter-webflux')
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-graphql'
     implementation('com.vaadin:vaadin-spring-boot-starter') {
@@ -62,15 +62,27 @@ dependencies {
             exclude group: "com.vaadin", module: "vaadin-dev-server"
         }
     }
+    //databind
+    implementation ("com.fasterxml.jackson.core:jackson-databind") {
+        version {
+            strictly '2.17.1'
+        }
+    }
+
+    implementation('com.fasterxml.jackson.module:jackson-module-kotlin') {
+        version {
+            strictly '2.17.1'
+        }
+    }
+
+    implementation('com.fasterxml.jackson.core:jackson-core') {
+        version {
+            strictly '2.17.1'
+        }
+    }
 
     implementation 'org.jetbrains:annotations:24.0.0'
     implementation 'com.github.ben-manes.caffeine:caffeine:3.1.5'
-
-    //Feign Client
-    implementation 'io.github.openfeign:feign-jackson:12.2'
-    implementation 'io.github.openfeign.form:feign-form:3.8.0'
-    implementation 'io.github.openfeign.form:feign-form-spring:3.8.0'
-    implementation 'io.github.openfeign:feign-okhttp:12.4'
 
     //MAL API
     implementation 'dev.katsute:mal4j:3.4.2'
