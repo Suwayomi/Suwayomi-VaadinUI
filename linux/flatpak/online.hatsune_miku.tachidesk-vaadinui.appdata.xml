@@ -42,10 +42,13 @@
         </screenshot>
     </screenshots>
     <releases>
-        <release version="1.8.0" date="2024-05-20">
+        <release version="1.9.0" date="2024-06-22">
             <description>
-                <p>Returned to Suwayomi Tracking method</p>
-                <p>MAL has been disabled for certain versions of Suwayomi. Use AniList Instead.</p>
+                <ul>
+                    <li>Now uses Java 21</li>
+                    <li>Added support for FlareSolverr</li>
+                    <li>General fixes and improvements</li>
+                </ul>
             </description>
         </release>
     </releases>
