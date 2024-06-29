@@ -24,10 +24,15 @@ import online.hatsunemiku.tachideskvaadinui.component.listbox.chapter.event.Chap
 import online.hatsunemiku.tachideskvaadinui.component.listbox.chapter.event.ChapterReadSyncEvent;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
+import online.hatsunemiku.tachideskvaadinui.view.MangaView;
 import online.hatsunemiku.tachideskvaadinui.view.MangaView.DownloadAllChapterEvent;
 import online.hatsunemiku.tachideskvaadinui.view.ReadingView;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Renders a {@link Chapter} as a {@link HorizontalLayout} component for use in a list box. This is
+ * used for the chapter list in the {@link MangaView}.
+ */
 @Slf4j
 public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter> {
 

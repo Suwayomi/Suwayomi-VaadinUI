@@ -11,6 +11,10 @@ import com.vaadin.flow.component.button.Button;
 import java.util.List;
 import lombok.Getter;
 
+/**
+ * Event that is fired when the read status of manga chapters is synchronized with a tracking
+ * service.
+ */
 @Getter
 public class ChapterReadSyncEvent extends ComponentEvent<Button> {
 
