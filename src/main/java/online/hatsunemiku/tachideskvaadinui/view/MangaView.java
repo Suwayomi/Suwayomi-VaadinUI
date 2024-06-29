@@ -246,7 +246,7 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
             }
 
             if (nextChapter == null) {
-              nextChapter = chapters.get(0);
+              nextChapter = chapters.getFirst();
             }
 
           } else {
