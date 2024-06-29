@@ -20,7 +20,7 @@ public class ChapterReadSyncEvent extends ComponentEvent<Button> {
    * Creates a new event using the given source and indicator whether the event originated from the
    * client side or the server side.
    *
-   * @param source         the source component
+   * @param source the source component
    * @param chapterNumbers the chapter numbers that were set to read
    */
   public ChapterReadSyncEvent(Button source, List<Float> chapterNumbers) {
