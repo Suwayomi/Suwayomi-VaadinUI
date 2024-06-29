@@ -42,12 +42,11 @@
         </screenshot>
     </screenshots>
     <releases>
-        <release version="1.9.0" date="2024-06-22">
+        <release version="1.10.0" date="2024-06-29">
             <description>
                 <ul>
-                    <li>Now uses Java 21</li>
-                    <li>Added support for FlareSolverr</li>
-                    <li>General fixes and improvements</li>
+                    <li>New Sync Chapter progress with Tracker Feature</li>
+                    <li>Small backend changes</li>
                 </ul>
             </description>
         </release>
