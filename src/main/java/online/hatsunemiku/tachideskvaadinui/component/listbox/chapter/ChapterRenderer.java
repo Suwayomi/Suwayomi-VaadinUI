@@ -40,6 +40,13 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
     super(chapter -> createPresentation(chapter, mangaService));
   }
 
+  /**
+   * Creates the presentation of a chapter in a list box.
+   *
+   * @param chapter      The chapter to render
+   * @param mangaService The manga service to use for setting the chapter read status
+   * @return The presentation of the chapter as a {@link HorizontalLayout}
+   */
   private static HorizontalLayout createPresentation(Chapter chapter, MangaService mangaService) {
     HorizontalLayout container = new HorizontalLayout();
     container.addClassName("chapter-list-box-item");
@@ -224,6 +231,14 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
     return background;
   }
 
+  /**
+   * Creates a read button for the given chapter.
+   *
+   * @param chapter      The chapter to create the read button for
+   * @param mangaService The manga service to use for setting the chapter read
+   * @param rightSide    The right side div the button is in for replacement
+   * @return The read {@link Button button}
+   */
   private static Button getReadButton(Chapter chapter, MangaService mangaService, Div rightSide) {
     Button readButton = new Button(VaadinIcon.EYE.create());
     readButton.setId("read-button");
@@ -248,6 +263,14 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
     return readButton;
   }
 
+  /**
+   * Creates an unread button for the given chapter.
+   *
+   * @param chapter      The chapter to create the unread button for
+   * @param mangaService The manga service to use for setting the chapter unread
+   * @param rightSide    The right side div the button is in for replacement
+   * @return The unread {@link Button button}
+   */
   private static Button getUnreadButton(Chapter chapter, MangaService mangaService, Div rightSide) {
     Button unreadButton = new Button(VaadinIcon.EYE_SLASH.create());
     unreadButton.setId("unread-button");
