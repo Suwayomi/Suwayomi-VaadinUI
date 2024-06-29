@@ -23,7 +23,7 @@ java {
 }
 
 group = 'online.hatsunemiku'
-version = '1.9.0'
+version = '1.10.0'
 sourceCompatibility = JavaVersion.VERSION_21
 targetCompatibility = JavaVersion.VERSION_21
 
