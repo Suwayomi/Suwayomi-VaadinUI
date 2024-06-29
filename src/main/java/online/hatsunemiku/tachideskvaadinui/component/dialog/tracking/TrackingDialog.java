@@ -387,7 +387,7 @@ public class TrackingDialog extends Dialog {
 
     var buttons = new Div();
     buttons.add(trackingDeleteBtn, nukeBtn, chapterSyncBtn);
-    buttons.addClassName("tracking-dialog-remove-buttons");
+    buttons.addClassName("tracking-dialog-buttons");
 
     content.add(statistics, buttons);
 
