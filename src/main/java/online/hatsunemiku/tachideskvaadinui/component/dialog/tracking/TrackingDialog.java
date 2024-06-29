@@ -6,6 +6,8 @@
 
 package online.hatsunemiku.tachideskvaadinui.component.dialog.tracking;
 
+import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -24,6 +26,7 @@ import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider.Suwayomi.SuwayomiProvider;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider.TrackerProvider;
+import online.hatsunemiku.tachideskvaadinui.component.listbox.chapter.event.ChapterReadSyncEvent;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Status;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackerType;
@@ -34,6 +37,7 @@ import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.AniListMang
 import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.MALMangaStatistics;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.MangaStatistics;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.SuwayomiMangaStatistics;
+import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SuwayomiService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.AniListAPIService;
@@ -58,6 +62,7 @@ public class TrackingDialog extends Dialog {
   private final TrackingDataService dataService;
   private final MyAnimeListAPIService malAPI;
   private final SuwayomiService suwayomiService;
+  private final MangaService mangaService;
 
   /**
    * Constructs a {@link TrackingDialog} with the given parameters.
@@ -70,6 +75,8 @@ public class TrackingDialog extends Dialog {
    *     the Suwayomi API.
    * @param malAPI the {@link MyAnimeListAPIService} used for making requests to the MyAnimeList
    *     API.
+   * @param mangaService the {@link MangaService} used for making requests to the Suwayomi API for
+   *     manga data.
    */
   public TrackingDialog(
       TrackingDataService dataService,
@@ -77,13 +84,15 @@ public class TrackingDialog extends Dialog {
       AniListAPIService aniListAPIService,
       SuwayomiTrackingService suwayomiTrackingService,
       MyAnimeListAPIService malAPI,
-      SuwayomiService suwayomiService) {
+      SuwayomiService suwayomiService,
+      MangaService mangaService) {
     super();
     this.dataService = dataService;
     this.aniListAPI = aniListAPIService;
     this.suwayomiTrackingService = suwayomiTrackingService;
     this.malAPI = malAPI;
     this.suwayomiService = suwayomiService;
+    this.mangaService = mangaService;
 
     Tracker tracker = dataService.getTracker(manga.getId());
 
@@ -339,9 +348,48 @@ public class TrackingDialog extends Dialog {
           close();
         });
 
+    var chapterSyncBtn = new Button("Sync Chapter Progress", VaadinIcon.REFRESH.create());
+    chapterSyncBtn.setDisableOnClick(true);
+    chapterSyncBtn.addClickListener(
+        e -> {
+          var mangaId = tracker.getMangaId();
+          var newStats = provider.getStatistics(tracker);
+
+          var progress = newStats.progress();
+          var chapters = mangaService.setChaptersBelowAndEqualRead((int) progress, (int) mangaId);
+
+          if (chapters.isEmpty()) {
+            Notification notification = new Notification();
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.setText("No chapters found to sync");
+            notification.open();
+            chapterSyncBtn.setEnabled(true);
+            return;
+          }
+
+          var event = new ChapterReadSyncEvent(chapterSyncBtn, chapters);
+          UI ui = getUI().orElse(UI.getCurrent());
+
+          if (ui == null) {
+            chapterSyncBtn.setEnabled(true);
+            return;
+          }
+
+          ComponentUtil.fireEvent(ui, event);
+
+          ui.access(
+              () -> {
+                Notification notification = new Notification();
+                notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                notification.setText("Chapters synced");
+                notification.open();
+              });
+          chapterSyncBtn.setEnabled(true);
+        });
+
     var buttons = new Div();
-    buttons.add(trackingDeleteBtn, nukeBtn);
-    buttons.addClassName("tracking-dialog-remove-buttons");
+    buttons.add(trackingDeleteBtn, nukeBtn, chapterSyncBtn);
+    buttons.addClassName("tracking-dialog-buttons");
 
     content.add(statistics, buttons);
 

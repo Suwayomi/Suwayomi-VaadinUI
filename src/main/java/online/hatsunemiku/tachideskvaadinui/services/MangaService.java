@@ -6,7 +6,13 @@
 
 package online.hatsunemiku.tachideskvaadinui.services;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
@@ -123,6 +129,57 @@ public class MangaService {
     } catch (Exception e) {
       return false;
     }
+  }
+
+  /**
+   * Sets all chapters of a manga as read where their chapter number is below or equal to the
+   * specified chapter number.
+   *
+   * @param chapterNumber the chapter number to set as the threshold
+   * @param mangaId the ID of the manga to set the chapters as read
+   * @return a list of chapter numbers that were successfully set as read
+   */
+  public List<Float> setChaptersBelowAndEqualRead(int chapterNumber, int mangaId) {
+    var chapters = getChapterList(mangaId);
+    Set<Float> updated = ConcurrentHashMap.newKeySet();
+
+    try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+      List<Callable<Boolean>> tasks = new ArrayList<>();
+
+      for (var chapter : chapters) {
+        if (chapter.isRead()) {
+          continue;
+        }
+
+        if (chapter.getChapterNumber() <= chapterNumber) {
+          tasks.add(
+              () -> {
+                if (!setChapterRead(chapter.getId(), mangaId)) {
+                  return false;
+                }
+                updated.add(chapter.getChapterNumber());
+                return true;
+              });
+        }
+      }
+
+      var result = executor.invokeAll(tasks);
+
+      for (var future : result) {
+        if (!future.get()) {
+          log.warn("Failed to set a chapter as read");
+        }
+      }
+
+    } catch (InterruptedException e) {
+      log.error("Chapter read update interrupted", e);
+      throw new RuntimeException(e);
+    } catch (ExecutionException e) {
+      log.error("Chapter read update failed", e);
+      throw new RuntimeException(e);
+    }
+
+    return new ArrayList<>(updated);
   }
 
   /**
