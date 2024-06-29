@@ -43,7 +43,7 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
   /**
    * Creates the presentation of a chapter in a list box.
    *
-   * @param chapter      The chapter to render
+   * @param chapter The chapter to render
    * @param mangaService The manga service to use for setting the chapter read status
    * @return The presentation of the chapter as a {@link HorizontalLayout}
    */
@@ -239,9 +239,9 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
   /**
    * Creates a read button for the given chapter.
    *
-   * @param chapter      The chapter to create the read button for
+   * @param chapter The chapter to create the read button for
    * @param mangaService The manga service to use for setting the chapter read
-   * @param rightSide    The right side div the button is in for replacement
+   * @param rightSide The right side div the button is in for replacement
    * @return The read {@link Button button}
    */
   private static Button getReadButton(Chapter chapter, MangaService mangaService, Div rightSide) {
@@ -271,9 +271,9 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
   /**
    * Creates an unread button for the given chapter.
    *
-   * @param chapter      The chapter to create the unread button for
+   * @param chapter The chapter to create the unread button for
    * @param mangaService The manga service to use for setting the chapter unread
-   * @param rightSide    The right side div the button is in for replacement
+   * @param rightSide The right side div the button is in for replacement
    * @return The unread {@link Button button}
    */
   private static Button getUnreadButton(Chapter chapter, MangaService mangaService, Div rightSide) {
