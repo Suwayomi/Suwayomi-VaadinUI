@@ -111,18 +111,23 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
 
     var ui = container.getUI().orElse(UI.getCurrent());
 
-    ComponentUtil.addListener(ui, ChapterReadSyncEvent.class, e -> {
-      if (e.getChapterNumbers().contains(chapter.getChapterNumber())) {
-        addReadStatus(container);
-        var readBtn = rightSide.getChildren()
-            .filter(btn -> btn instanceof Button)
-            .filter(btn -> btn.getId().orElse("").equals("read-button"))
-            .findFirst()
-            .orElseThrow();
+    ComponentUtil.addListener(
+        ui,
+        ChapterReadSyncEvent.class,
+        e -> {
+          if (e.getChapterNumbers().contains(chapter.getChapterNumber())) {
+            addReadStatus(container);
+            var readBtn =
+                rightSide
+                    .getChildren()
+                    .filter(btn -> btn instanceof Button)
+                    .filter(btn -> btn.getId().orElse("").equals("read-button"))
+                    .findFirst()
+                    .orElseThrow();
 
-        rightSide.replace(readBtn, getUnreadButton(chapter, mangaService, rightSide));
-      }
-    });
+            rightSide.replace(readBtn, getUnreadButton(chapter, mangaService, rightSide));
+          }
+        });
 
     return container;
   }

@@ -43,10 +43,9 @@ public class MangaService {
   /**
    * Creates a new MangaService.
    *
-   * @param mangaClient             the {@link MangaClient} to use for fetching manga data
-   * @param downloadCLient          the {@link DownloadClient} to use for downloading chapters
-   * @param suwayomiTrackingService the {@link SuwayomiTrackingService} to use for tracking
-   *                                progress
+   * @param mangaClient the {@link MangaClient} to use for fetching manga data
+   * @param downloadCLient the {@link DownloadClient} to use for downloading chapters
+   * @param suwayomiTrackingService the {@link SuwayomiTrackingService} to use for tracking progress
    */
   @Autowired
   public MangaService(
@@ -64,7 +63,7 @@ public class MangaService {
    *
    * @param mangaId the ID of the manga to be added
    * @return {@code true} if the manga was successfully added to the library, {@code false}
-   * otherwise
+   *     otherwise
    */
   public boolean addMangaToLibrary(int mangaId) {
     return mangaClient.addMangaToLibrary(mangaId);
@@ -75,7 +74,7 @@ public class MangaService {
    *
    * @param mangaId the ID of the manga to be removed
    * @return {@code true} if the manga was successfully removed from the library, {@code false}
-   * otherwise
+   *     otherwise
    */
   public boolean removeMangaFromLibrary(int mangaId) {
     return mangaClient.removeMangaFromLibrary(mangaId);
@@ -133,11 +132,11 @@ public class MangaService {
   }
 
   /**
-   * Sets all chapters of a manga as read where their chapter number is below or equal to the specified chapter
-   * number.
+   * Sets all chapters of a manga as read where their chapter number is below or equal to the
+   * specified chapter number.
    *
    * @param chapterNumber the chapter number to set as the threshold
-   * @param mangaId       the ID of the manga to set the chapters as read
+   * @param mangaId the ID of the manga to set the chapters as read
    * @return a list of chapter numbers that were successfully set as read
    */
   public List<Float> setChaptersBelowAndEqualRead(int chapterNumber, int mangaId) {
@@ -153,13 +152,14 @@ public class MangaService {
         }
 
         if (chapter.getChapterNumber() <= chapterNumber) {
-          tasks.add(() -> {
-            if (!setChapterRead(chapter.getId(), mangaId)) {
-              return false;
-            }
-            updated.add(chapter.getChapterNumber());
-            return true;
-          });
+          tasks.add(
+              () -> {
+                if (!setChapterRead(chapter.getId(), mangaId)) {
+                  return false;
+                }
+                updated.add(chapter.getChapterNumber());
+                return true;
+              });
         }
       }
 
@@ -210,7 +210,7 @@ public class MangaService {
   /**
    * Adds a manga to a category.
    *
-   * @param mangaId    the ID of the manga to be added
+   * @param mangaId the ID of the manga to be added
    * @param categoryId the ID of the category to add the manga to
    */
   public void addMangaToCategory(int mangaId, int categoryId) {
@@ -220,7 +220,7 @@ public class MangaService {
   /**
    * Removes a manga from a category.
    *
-   * @param mangaId    the ID of the manga to be removed
+   * @param mangaId the ID of the manga to be removed
    * @param categoryId the ID of the category to remove the manga from
    */
   public void removeMangaFromCategory(int mangaId, int categoryId) {
@@ -280,7 +280,7 @@ public class MangaService {
    * Adds a listener to the download change event tracker.
    *
    * @param chapterId The id of the chapter to listen for
-   * @param callback  The callback to run when the chapter is downloaded
+   * @param callback The callback to run when the chapter is downloaded
    */
   public void addDownloadTrackListener(int chapterId, Runnable callback) {
     Disposable.Composite cancellation = Disposables.composite();
