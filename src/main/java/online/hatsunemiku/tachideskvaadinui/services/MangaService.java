@@ -6,7 +6,13 @@
 
 package online.hatsunemiku.tachideskvaadinui.services;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
@@ -37,9 +43,10 @@ public class MangaService {
   /**
    * Creates a new MangaService.
    *
-   * @param mangaClient the {@link MangaClient} to use for fetching manga data
-   * @param downloadCLient the {@link DownloadClient} to use for downloading chapters
-   * @param suwayomiTrackingService the {@link SuwayomiTrackingService} to use for tracking progress
+   * @param mangaClient             the {@link MangaClient} to use for fetching manga data
+   * @param downloadCLient          the {@link DownloadClient} to use for downloading chapters
+   * @param suwayomiTrackingService the {@link SuwayomiTrackingService} to use for tracking
+   *                                progress
    */
   @Autowired
   public MangaService(
@@ -57,7 +64,7 @@ public class MangaService {
    *
    * @param mangaId the ID of the manga to be added
    * @return {@code true} if the manga was successfully added to the library, {@code false}
-   *     otherwise
+   * otherwise
    */
   public boolean addMangaToLibrary(int mangaId) {
     return mangaClient.addMangaToLibrary(mangaId);
@@ -68,7 +75,7 @@ public class MangaService {
    *
    * @param mangaId the ID of the manga to be removed
    * @return {@code true} if the manga was successfully removed from the library, {@code false}
-   *     otherwise
+   * otherwise
    */
   public boolean removeMangaFromLibrary(int mangaId) {
     return mangaClient.removeMangaFromLibrary(mangaId);
@@ -126,6 +133,56 @@ public class MangaService {
   }
 
   /**
+   * Sets all chapters of a manga as read where their chapter number is below or equal to the specified chapter
+   * number.
+   *
+   * @param chapterNumber the chapter number to set as the threshold
+   * @param mangaId       the ID of the manga to set the chapters as read
+   * @return a list of chapter numbers that were successfully set as read
+   */
+  public List<Float> setChaptersBelowAndEqualRead(int chapterNumber, int mangaId) {
+    var chapters = getChapterList(mangaId);
+    Set<Float> updated = ConcurrentHashMap.newKeySet();
+
+    try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+      List<Callable<Boolean>> tasks = new ArrayList<>();
+
+      for (var chapter : chapters) {
+        if (chapter.isRead()) {
+          continue;
+        }
+
+        if (chapter.getChapterNumber() <= chapterNumber) {
+          tasks.add(() -> {
+            if (!setChapterRead(chapter.getId(), mangaId)) {
+              return false;
+            }
+            updated.add(chapter.getChapterNumber());
+            return true;
+          });
+        }
+      }
+
+      var result = executor.invokeAll(tasks);
+
+      for (var future : result) {
+        if (!future.get()) {
+          log.warn("Failed to set a chapter as read");
+        }
+      }
+
+    } catch (InterruptedException e) {
+      log.error("Chapter read update interrupted", e);
+      throw new RuntimeException(e);
+    } catch (ExecutionException e) {
+      log.error("Chapter read update failed", e);
+      throw new RuntimeException(e);
+    }
+
+    return new ArrayList<>(updated);
+  }
+
+  /**
    * Sets a chapter as unread.
    *
    * @param chapterId the ID of the chapter to be set as unread
@@ -153,7 +210,7 @@ public class MangaService {
   /**
    * Adds a manga to a category.
    *
-   * @param mangaId the ID of the manga to be added
+   * @param mangaId    the ID of the manga to be added
    * @param categoryId the ID of the category to add the manga to
    */
   public void addMangaToCategory(int mangaId, int categoryId) {
@@ -163,7 +220,7 @@ public class MangaService {
   /**
    * Removes a manga from a category.
    *
-   * @param mangaId the ID of the manga to be removed
+   * @param mangaId    the ID of the manga to be removed
    * @param categoryId the ID of the category to remove the manga from
    */
   public void removeMangaFromCategory(int mangaId, int categoryId) {
@@ -223,7 +280,7 @@ public class MangaService {
    * Adds a listener to the download change event tracker.
    *
    * @param chapterId The id of the chapter to listen for
-   * @param callback The callback to run when the chapter is downloaded
+   * @param callback  The callback to run when the chapter is downloaded
    */
   public void addDownloadTrackListener(int chapterId, Runnable callback) {
     Disposable.Composite cancellation = Disposables.composite();

@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.component.listbox.chapter.event.ChapterReadStatusChangeEvent;
+import online.hatsunemiku.tachideskvaadinui.component.listbox.chapter.event.ChapterReadSyncEvent;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.view.MangaView.DownloadAllChapterEvent;
@@ -95,6 +96,21 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
             removeReadStatus(container);
           }
         });
+
+    var ui = container.getUI().orElse(UI.getCurrent());
+
+    ComponentUtil.addListener(ui, ChapterReadSyncEvent.class, e -> {
+      if (e.getChapterNumbers().contains(chapter.getChapterNumber())) {
+        addReadStatus(container);
+        var readBtn = rightSide.getChildren()
+            .filter(btn -> btn instanceof Button)
+            .filter(btn -> btn.getId().orElse("").equals("read-button"))
+            .findFirst()
+            .orElseThrow();
+
+        rightSide.replace(readBtn, getUnreadButton(chapter, mangaService, rightSide));
+      }
+    });
 
     return container;
   }
@@ -205,6 +221,7 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
 
   private static Button getReadButton(Chapter chapter, MangaService mangaService, Div rightSide) {
     Button readButton = new Button(VaadinIcon.EYE.create());
+    readButton.setId("read-button");
     readButton.addClickListener(
         e -> {
           if (!mangaService.setChapterRead(chapter.getId(), chapter.getMangaId())) {
@@ -228,6 +245,7 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
 
   private static Button getUnreadButton(Chapter chapter, MangaService mangaService, Div rightSide) {
     Button unreadButton = new Button(VaadinIcon.EYE_SLASH.create());
+    unreadButton.setId("unread-button");
     unreadButton.addClickListener(
         e -> {
           if (!mangaService.setChapterUnread(chapter.getId())) {

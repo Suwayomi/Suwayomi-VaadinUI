@@ -6,6 +6,8 @@
 
 package online.hatsunemiku.tachideskvaadinui.component.dialog.tracking;
 
+import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -24,6 +26,7 @@ import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider.Suwayomi.SuwayomiProvider;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider.TrackerProvider;
+import online.hatsunemiku.tachideskvaadinui.component.listbox.chapter.event.ChapterReadSyncEvent;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Status;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackerType;
@@ -34,6 +37,7 @@ import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.AniListMang
 import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.MALMangaStatistics;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.MangaStatistics;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.SuwayomiMangaStatistics;
+import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SuwayomiService;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.AniListAPIService;
@@ -58,18 +62,21 @@ public class TrackingDialog extends Dialog {
   private final TrackingDataService dataService;
   private final MyAnimeListAPIService malAPI;
   private final SuwayomiService suwayomiService;
+  private final MangaService mangaService;
 
   /**
    * Constructs a {@link TrackingDialog} with the given parameters.
    *
-   * @param dataService The {@link TrackingDataService} used for storing tracking data.
-   * @param manga the {@link Manga} to track with the dialog.
-   * @param aniListAPIService the {@link AniListAPIService} used for making requests to the AniList
-   *     API.
+   * @param dataService             The {@link TrackingDataService} used for storing tracking data.
+   * @param manga                   the {@link Manga} to track with the dialog.
+   * @param aniListAPIService       the {@link AniListAPIService} used for making requests to the
+   *                                AniList API.
    * @param suwayomiTrackingService the {@link SuwayomiTrackingService} used for making requests to
-   *     the Suwayomi API.
-   * @param malAPI the {@link MyAnimeListAPIService} used for making requests to the MyAnimeList
-   *     API.
+   *                                the Suwayomi API.
+   * @param malAPI                  the {@link MyAnimeListAPIService} used for making requests to
+   *                                the MyAnimeList API.
+   * @param mangaService            the {@link MangaService} used for making requests to the
+   *                                Suwayomi API for manga data.
    */
   public TrackingDialog(
       TrackingDataService dataService,
@@ -77,13 +84,15 @@ public class TrackingDialog extends Dialog {
       AniListAPIService aniListAPIService,
       SuwayomiTrackingService suwayomiTrackingService,
       MyAnimeListAPIService malAPI,
-      SuwayomiService suwayomiService) {
+      SuwayomiService suwayomiService,
+      MangaService mangaService) {
     super();
     this.dataService = dataService;
     this.aniListAPI = aniListAPIService;
     this.suwayomiTrackingService = suwayomiTrackingService;
     this.malAPI = malAPI;
     this.suwayomiService = suwayomiService;
+    this.mangaService = mangaService;
 
     Tracker tracker = dataService.getTracker(manga.getId());
 
@@ -130,10 +139,10 @@ public class TrackingDialog extends Dialog {
   /**
    * Adds the tracking buttons to the dialog.
    *
-   * @param manga the {@link Manga} to track
+   * @param manga             the {@link Manga} to track
    * @param aniListAPIService the {@link AniListAPIService} to communicate with AniList with
-   * @param tracker the {@link Tracker} instance to update the button states via {@link
-   *     #updateButtons(Button, Button, Tracker)}
+   * @param tracker           the {@link Tracker} instance to update the button states via
+   *                          {@link #updateButtons(Button, Button, Tracker)}
    */
   private void addTrackingButtons(
       Manga manga, AniListAPIService aniListAPIService, Tracker tracker) {
@@ -174,7 +183,7 @@ public class TrackingDialog extends Dialog {
           try {
             displaySearch(manga.getTitle(), manga.getId(), provider, TrackerType.ANILIST);
           } catch (WebClientResponseException.InternalServerError
-              | WebClientRequestException error) {
+                   | WebClientRequestException error) {
             log.error("Invalid response from AniList", error);
             Notification notification = new Notification();
             notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -203,7 +212,7 @@ public class TrackingDialog extends Dialog {
           try {
             displaySearch(manga.getTitle(), manga.getId(), provider, TrackerType.MAL);
           } catch (WebClientResponseException.InternalServerError
-              | WebClientRequestException error) {
+                   | WebClientRequestException error) {
             log.error("Invalid response from MyAnimeList", error);
             Notification notification = new Notification();
             notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -339,8 +348,45 @@ public class TrackingDialog extends Dialog {
           close();
         });
 
+    var chapterSyncBtn = new Button("Sync Chapter Progress", VaadinIcon.REFRESH.create());
+    chapterSyncBtn.setDisableOnClick(true);
+    chapterSyncBtn.addClickListener(e -> {
+      var mangaId = tracker.getMangaId();
+      var newStats = provider.getStatistics(tracker);
+
+      var progress = newStats.progress();
+      var chapters = mangaService.setChaptersBelowAndEqualRead((int) progress, (int) mangaId);
+
+      if (chapters.isEmpty()) {
+        Notification notification = new Notification();
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.setText("No chapters found to sync");
+        notification.open();
+        chapterSyncBtn.setEnabled(true);
+        return;
+      }
+
+      var event = new ChapterReadSyncEvent(chapterSyncBtn, chapters);
+      UI ui = getUI().orElse(UI.getCurrent());
+
+      if (ui == null) {
+        chapterSyncBtn.setEnabled(true);
+        return;
+      }
+
+      ComponentUtil.fireEvent(ui, event);
+
+      ui.access(() -> {
+        Notification notification = new Notification();
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        notification.setText("Chapters synced");
+        notification.open();
+      });
+      chapterSyncBtn.setEnabled(true);
+    });
+
     var buttons = new Div();
-    buttons.add(trackingDeleteBtn, nukeBtn);
+    buttons.add(trackingDeleteBtn, nukeBtn, chapterSyncBtn);
     buttons.addClassName("tracking-dialog-remove-buttons");
 
     content.add(statistics, buttons);
@@ -363,10 +409,10 @@ public class TrackingDialog extends Dialog {
   /**
    * Configures the end date field for tracking a manga.
    *
-   * @param tracker the tracker to update the end date for
-   * @param endDate the end date field to configure
+   * @param tracker    the tracker to update the end date for
+   * @param endDate    the end date field to configure
    * @param mangaStats the statistics for the manga
-   * @param startDate the start date field to check against
+   * @param startDate  the start date field to check against
    */
   private void configureTrackingEndDateField(
       Tracker tracker,
@@ -428,9 +474,9 @@ public class TrackingDialog extends Dialog {
   /**
    * Creates a field for tracking the start date of a manga.
    *
-   * @param tracker the tracker to update the start date for
+   * @param tracker    the tracker to update the start date for
    * @param mangaStats the statistics for the manga
-   * @param endDate the end date field to check against
+   * @param endDate    the end date field to check against
    * @return a {@link SuperDatePicker} for tracking the start date of the manga
    */
   @NotNull
@@ -480,7 +526,7 @@ public class TrackingDialog extends Dialog {
   /**
    * Creates a field for tracking the score of a manga.
    *
-   * @param tracker the tracker to update the score for
+   * @param tracker    the tracker to update the score for
    * @param mangaStats the statistics for the manga
    * @return a {@link ComboBox} for tracking the score of the manga
    */
@@ -552,9 +598,9 @@ public class TrackingDialog extends Dialog {
   /**
    * Creates a ComboBox for selecting the tracking status of a manga.
    *
-   * @param tracker the tracker to update the status for
+   * @param tracker    the tracker to update the status for
    * @param mangaStats the statistics for the manga
-   * @param provider the provider with which to get info about the manga
+   * @param provider   the provider with which to get info about the manga
    * @return a {@link ComboBox} for selecting the status of the manga
    */
   @NotNull
@@ -582,7 +628,7 @@ public class TrackingDialog extends Dialog {
   /**
    * Creates and configures a ComboBox for selecting the status of a manga on AniList.
    *
-   * @param tracker the tracker to update the status for
+   * @param tracker    the tracker to update the status for
    * @param mangaStats the statistics for the manga
    * @return a {@link ComboBox} for selecting the status of the manga
    */
@@ -606,7 +652,7 @@ public class TrackingDialog extends Dialog {
   /**
    * Creates and configures a ComboBox for selecting the status of a manga on MyAnimeList.
    *
-   * @param tracker the tracker to update the status for
+   * @param tracker    the tracker to update the status for
    * @param mangaStats the statistics for the manga
    * @return a {@link ComboBox} for selecting the status of the manga
    */
@@ -630,13 +676,13 @@ public class TrackingDialog extends Dialog {
   /**
    * Configures a ComboBox for selecting the status of a manga on Suwayomi.
    *
-   * @param tracker The {@link Tracker} used to retrieve and update the status of the manga.
+   * @param tracker    The {@link Tracker} used to retrieve and update the status of the manga.
    * @param statistics The {@link SuwayomiMangaStatistics} used to get the current status of the
-   *     manga.
-   * @param provider The {@link SuwayomiProvider} used to get the possible statuses for a manga on
-   *     Suwayomi.
+   *                   manga.
+   * @param provider   The {@link SuwayomiProvider} used to get the possible statuses for a manga on
+   *                   Suwayomi.
    * @return A {@link ComboBox} of {@link Status} objects representing the possible statuses for a
-   *     manga on Suwayomi.
+   * manga on Suwayomi.
    */
   private ComboBox<Status> configureStatusBoxSuwayomi(
       Tracker tracker, SuwayomiMangaStatistics statistics, SuwayomiProvider provider) {
@@ -671,8 +717,8 @@ public class TrackingDialog extends Dialog {
   /**
    * Creates a Field for tracking the chapter progress of a manga.
    *
-   * @param tracker the tracker to update the progress for
-   * @param mangaStats the statistics for the manga
+   * @param tracker     the tracker to update the progress for
+   * @param mangaStats  the statistics for the manga
    * @param maxChapters the maximum number of chapters for the manga
    * @return a {@link SuperDoubleField} for tracking the chapter progress
    */
@@ -718,10 +764,10 @@ public class TrackingDialog extends Dialog {
   /**
    * Displays a dialog for the user to select a manga for tracking.
    *
-   * @param mangaName The name of the manga to be tracked.
-   * @param mangaId The ID of the manga to be tracked.
+   * @param mangaName       The name of the manga to be tracked.
+   * @param mangaId         The ID of the manga to be tracked.
    * @param trackerProvider The {@link TrackerProvider provider} to be used for tracking the manga.
-   * @param trackerType The {@link TrackerType} to be used for tracking the manga.
+   * @param trackerType     The {@link TrackerType} to be used for tracking the manga.
    */
   private void displaySearch(
       String mangaName, int mangaId, TrackerProvider trackerProvider, TrackerType trackerType) {
@@ -746,8 +792,8 @@ public class TrackingDialog extends Dialog {
    * Updates the tracking buttons with the current tracking status.
    *
    * @param aniListBtn the AniList tracking button
-   * @param malBtn the MyAnimeList tracking button
-   * @param tracker the tracker to check the status of
+   * @param malBtn     the MyAnimeList tracking button
+   * @param tracker    the tracker to check the status of
    */
   private void updateButtons(Button aniListBtn, Button malBtn, Tracker tracker) {
     if (tracker.hasAniListId()) {

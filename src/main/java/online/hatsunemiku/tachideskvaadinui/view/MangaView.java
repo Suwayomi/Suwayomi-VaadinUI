@@ -172,7 +172,8 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
                   aniListAPIService,
                   suwayomiTrackingService,
                   malAPI,
-                  suwayomiService);
+                  suwayomiService,
+                  mangaService);
           dialog.open();
         });
 
