@@ -40,8 +40,8 @@ public class StripReader extends Reader {
   /**
    * Constructs a {@link StripReader} object.
    *
-   * @param chapter         The Chapter object representing the chapter being read.
-   * @param mangaService    The MangaService object used for manga-related operations.
+   * @param chapter The Chapter object representing the chapter being read.
+   * @param mangaService The MangaService object used for manga-related operations.
    * @param settingsService The SettingsService object used for managing reader settings.
    */
   public StripReader(Chapter chapter, MangaService mangaService, SettingsService settingsService) {
@@ -49,7 +49,7 @@ public class StripReader extends Reader {
     addClassName("strip-reader");
     var chapters = mangaService.getChapterPages(chapter.getId());
 
-    //get height of first and second image
+    // get height of first and second image
 
     int imgHeight;
     var firstImgUrl = chapters.getFirst();
@@ -69,8 +69,8 @@ public class StripReader extends Reader {
       imgHeight = higher == -1 ? 10000 : higher;
     }
 
-    //60 % for manga pages - typically shorter e.g. less than 2000px in height
-    //5 % for manhwa pages - typically longer e.g. more than 2000px in height
+    // 60 % for manga pages - typically shorter e.g. less than 2000px in height
+    // 5 % for manhwa pages - typically longer e.g. more than 2000px in height
 
     double ratio = imgHeight < 2000 ? 0.6 : 0.05;
 
@@ -252,5 +252,4 @@ public class StripReader extends Reader {
       return -1;
     }
   }
-
 }
