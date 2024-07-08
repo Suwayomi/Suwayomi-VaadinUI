@@ -12,8 +12,12 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.shared.Registration;
+import java.awt.image.BufferedImage;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import javax.imageio.ImageIO;
 import online.hatsunemiku.tachideskvaadinui.component.reader.Reader;
 import online.hatsunemiku.tachideskvaadinui.component.reader.ReaderPageIndexChangeEvent;
 import online.hatsunemiku.tachideskvaadinui.data.settings.reader.ReaderDirection;
@@ -43,15 +47,41 @@ public class StripReader extends Reader {
   public StripReader(Chapter chapter, MangaService mangaService, SettingsService settingsService) {
     super(chapter, mangaService, settingsService);
     addClassName("strip-reader");
+    var chapters = mangaService.getChapterPages(chapter.getId());
+
+    // get height of first and second image
+
+    int imgHeight;
+    var firstImgUrl = chapters.getFirst();
+
+    if (chapters.size() < 2) {
+      var tempHeight = getImageHeightFromUrl(firstImgUrl);
+
+      imgHeight = tempHeight == -1 ? 10000 : tempHeight;
+    } else {
+      var secondImgUrl = chapters.get(1);
+
+      var firstHeight = getImageHeightFromUrl(firstImgUrl);
+      var secondHeight = getImageHeightFromUrl(secondImgUrl);
+
+      int higher = Math.max(firstHeight, secondHeight);
+
+      imgHeight = higher == -1 ? 10000 : higher;
+    }
+
+    // 60 % for manga pages - typically shorter e.g. less than 2000px in height
+    // 5 % for manhwa pages - typically longer e.g. more than 2000px in height
+
+    double ratio = imgHeight < 2000 ? 0.6 : 0.05;
 
     // language=JavaScript
     String jsObserver =
         """
+            //console.log("detection ration", $0);
+
             const observer = new IntersectionObserver((entries) => {
                    entries.forEach(entry => {
-                       console.log(entry)
-
-                       if (entry.isIntersecting) {
+                       if (entry.isIntersecting && entry.intersectionRatio !== 1) {
                        console.log('Intersecting');
                            //send manga page view event
                            const page = entry.target;
@@ -71,7 +101,7 @@ public class StripReader extends Reader {
                }, {
                    root: null,
                    rootMargin: '0px',
-                   threshold: 0.7
+                   threshold: $0
                });
 
                var pages = document.querySelectorAll('.manga-page');
@@ -87,7 +117,7 @@ public class StripReader extends Reader {
       throw new IllegalStateException("No UI available");
     }
 
-    var pending = ui.getPage().executeJs(jsObserver);
+    var pending = ui.getPage().executeJs(jsObserver, ratio);
 
     loadChapter();
 
@@ -132,9 +162,13 @@ public class StripReader extends Reader {
 
       image.addClassName("manga-page");
 
+      Div imgContainer = new Div();
+      imgContainer.addClassName("image-container");
+
       pages.add(image);
 
-      container.add(image);
+      imgContainer.add(image);
+      container.add(imgContainer);
     }
 
     this.pages = pages;
@@ -190,5 +224,32 @@ public class StripReader extends Reader {
   public Registration addMangaPageViewListener(
       ComponentEventListener<MangaPageViewEvent> listener) {
     return addListener(MangaPageViewEvent.class, listener);
+  }
+
+  /**
+   * Reads the Image from a URL and returns its height or -1 if it couldn't be determined.
+   *
+   * @param url the partial URL of the image to be read. The base URL will be prepended to this URL.
+   * @return the height of the image or -1 if it couldn't be determined.
+   */
+  private int getImageHeightFromUrl(String url) {
+    var baseUrl = settingsService.getSettings().getUrl();
+
+    var fullUrl = baseUrl + url;
+
+    try {
+      URL imageUrl = new URI(fullUrl).toURL();
+
+      BufferedImage image = ImageIO.read(imageUrl);
+
+      if (image == null) {
+        return -1;
+      }
+
+      return image.getHeight();
+    } catch (Exception e) {
+      log.error("Error getting image height from URL", e);
+      return -1;
+    }
   }
 }
