@@ -15,6 +15,9 @@ import lombok.NoArgsConstructor;
 import lombok.With;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a chapter of a manga.
+ */
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
