@@ -83,23 +83,33 @@ public class MangaService {
   /**
    * Retrieves the cached list of chapters for a manga. This method does NOT find new chapters. Use
    * {@link #fetchChapterList(int)} to find new chapters.
+   * This method also sorts the chapters by chapter number in ascending order.
    *
    * @param mangaId the ID of the manga for which to get the chapter list
    * @return the list of Chapter objects representing the chapters of the manga
    */
   public List<Chapter> getChapterList(int mangaId) {
-    return mangaClient.getChapters(mangaId);
+    List<Chapter> chapters = mangaClient.getChapters(mangaId);
+
+    chapters.sort(Chapter::compareTo);
+
+    return chapters;
   }
 
   /**
    * Retrieves the list of chapters for a manga from the server. This method finds new chapters and
    * updates the cache. Use {@link #getChapterList(int)} to retrieve the cached list of chapters.
+   * This method also sorts the chapters by chapter number in ascending order.
    *
    * @param mangaId the ID of the manga for which to get the chapter list
    * @return the list of Chapter objects representing the chapters of the manga
    */
   public List<Chapter> fetchChapterList(int mangaId) {
-    return mangaClient.fetchChapterList(mangaId);
+    List<Chapter> chapters = mangaClient.fetchChapterList(mangaId);
+
+    chapters.sort(Chapter::compareTo);
+
+    return chapters;
   }
 
   @Cacheable(value = "chapter", key = "#chapterId", unless = "#result.pageCount == -1")

@@ -12,13 +12,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.With;
+import org.jetbrains.annotations.NotNull;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @With
 @EqualsAndHashCode
-public class Chapter {
+public class Chapter implements Comparable<Chapter> {
 
   @JsonProperty("pageCount")
   private int pageCount;
@@ -74,5 +75,15 @@ public class Chapter {
   @Override
   public String toString() {
     return name;
+  }
+
+  /**
+   * Compares this chapter to another chapter based on the chapter number.
+   * @param o the object to be compared.
+   * @return a negative integer, zero, or a positive integer as this chapter is less than, equal to, or greater than the specified chapter.
+   */
+  @Override
+  public int compareTo(@NotNull Chapter o) {
+    return Float.compare(chapterNumber, o.chapterNumber);
   }
 }
