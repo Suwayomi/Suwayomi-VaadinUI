@@ -82,8 +82,8 @@ public class MangaService {
 
   /**
    * Retrieves the cached list of chapters for a manga. This method does NOT find new chapters. Use
-   * {@link #fetchChapterList(int)} to find new chapters.
-   * This method also sorts the chapters by chapter number in ascending order.
+   * {@link #fetchChapterList(int)} to find new chapters. This method also sorts the chapters by
+   * chapter number in ascending order.
    *
    * @param mangaId the ID of the manga for which to get the chapter list
    * @return the list of Chapter objects representing the chapters of the manga
