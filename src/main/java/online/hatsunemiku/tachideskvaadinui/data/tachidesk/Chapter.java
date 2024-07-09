@@ -7,6 +7,7 @@
 package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -84,6 +85,10 @@ public class Chapter implements Comparable<Chapter> {
    */
   @Override
   public int compareTo(@NotNull Chapter o) {
+    if (Objects.equals(this, o)) {
+      return 0;
+    }
+
     return Float.compare(chapterNumber, o.chapterNumber);
   }
 }
