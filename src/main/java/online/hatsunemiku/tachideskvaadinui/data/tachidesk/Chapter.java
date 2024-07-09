@@ -86,7 +86,7 @@ public class Chapter implements Comparable<Chapter> {
    *     or greater than the specified chapter.
    */
   @Override
-  public int compareTo(@NotNull Chapter o) {
+  public int compareTo(@NotNull Chapter o) { // skipqc: JAVA-W1056
     if (Objects.equals(this, o)) {
       return 0;
     }
