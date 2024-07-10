@@ -369,7 +369,7 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
 
     List<Manga> mangaList = new ArrayList<>();
 
-    // skipqc: JAVA-E0214
+    // skipcq: JAVA-E0214
     for (int i = 1; hasNext; i++) {
       SourceSearchResult searchResponse;
       try {
