@@ -523,7 +523,7 @@ public class AniListAPIService {
 
         var tempList = mapper.readValue(listJson, typeRef);
 
-        var status = AniListStatus.valueOf(tempList.get(0).status());
+        var status = AniListStatus.valueOf(tempList.getFirst().status());
 
         switch (status) {
           case COMPLETED -> completed.addAll(tempList);
