@@ -6,6 +6,8 @@
 
 package online.hatsunemiku.tachideskvaadinui.services.tracker;
 
+import static online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListStatus.CURRENT;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,6 +30,7 @@ import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.responses.AniL
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.responses.AniListChangeStatusResponse;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.AniListMangaStatistics;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
+import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -685,5 +688,62 @@ public class AniListAPIService {
     } else {
       throw new RuntimeException("Manga could not be deleted");
     }
+  }
+
+  /**
+   * Adds a manga to the user's list with the status "READING".
+   *
+   * @param mangaId The ID of the manga to be added
+   * @throws RuntimeException If an error occurs while adding the manga to the list
+   */
+  public void addMangaToList(int mangaId, boolean isPrivate) {
+    @Language("GraphQL")
+    String query =
+        """
+            mutation($mangaId: Int, $status: MediaListStatus, $private: Boolean){
+              SaveMediaListEntry(mediaId: $mangaId, status: $status, private: $private) {
+                id
+                status
+                private
+              }
+            }
+            """;
+
+    String variables =
+        """
+            {
+              "mangaId": %s,
+              "status": "%s",
+              "private": %s
+            }
+            """
+            .formatted(mangaId, CURRENT.name(), isPrivate);
+
+    GraphQLRequest request = new GraphQLRequest(query, variables);
+
+    // false if 404. True if 200. Error if anything else
+    var response =
+        webClient
+            .post()
+            .contentType(MediaType.APPLICATION_JSON)
+            .header("Authorization", getAniListTokenHeader())
+            .bodyValue(request)
+            .retrieve()
+            .toEntity(String.class)
+            .block();
+
+    if (response == null) {
+      throw new RuntimeException("Response is null");
+    }
+
+    if (response.getStatusCode().is2xxSuccessful()) {
+      return;
+    }
+
+    if (response.getStatusCode().is4xxClientError()) {
+      throw new RuntimeException("Manga not found");
+    }
+
+    throw new RuntimeException("Unexpected response code: " + response.getStatusCode());
   }
 }

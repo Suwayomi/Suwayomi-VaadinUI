@@ -95,6 +95,7 @@ public class TrackingDialog extends Dialog {
     this.mangaService = mangaService;
 
     Tracker tracker = dataService.getTracker(manga.getId());
+    TrackerType type = null;
 
     // for bugged trackers that have both MAL and AniList IDs
     if (tracker.hasAniListId() && tracker.hasMalId()) {
@@ -103,12 +104,14 @@ public class TrackingDialog extends Dialog {
     }
 
     if (tracker.hasAniListId()) {
+      type = TrackerType.ANILIST;
       if (!suwayomiTrackingService.isMangaTrackedOnAniList(manga.getId())) {
         tracker.removeAniListId();
       }
     }
 
     if (tracker.hasMalId()) {
+      type = TrackerType.MAL;
       if (!suwayomiTrackingService.isMangaTrackedOnMAL(manga.getId())) {
         tracker.removeMalId();
       }
@@ -118,9 +121,20 @@ public class TrackingDialog extends Dialog {
       addTrackingButtons(manga, aniListAPIService, tracker);
     } else {
       Div statistics;
-
       try {
-        TrackerProvider provider = new SuwayomiProvider(suwayomiTrackingService);
+
+        if (type == null) {
+          log.warn("Tracker has no type in TrackingDialog");
+        }
+
+        TrackerProvider provider;
+
+        if (type == TrackerType.ANILIST) {
+          provider = new SuwayomiProvider(suwayomiTrackingService, type, aniListAPIService);
+        } else {
+          provider = new SuwayomiProvider(suwayomiTrackingService, type);
+        }
+
         statistics = getTrackingStatistics(tracker, provider);
         add(statistics);
       } catch (RuntimeException e) {
@@ -178,10 +192,12 @@ public class TrackingDialog extends Dialog {
             return;
           }
 
-          SuwayomiProvider provider = new SuwayomiProvider(suwayomiTrackingService);
+          final TrackerType trackerType = TrackerType.ANILIST;
+
+          SuwayomiProvider provider = new SuwayomiProvider(suwayomiTrackingService, trackerType, aniListAPIService);
 
           try {
-            displaySearch(manga.getTitle(), manga.getId(), provider, TrackerType.ANILIST);
+            displaySearch(manga.getTitle(), manga.getId(), provider, trackerType);
           } catch (WebClientResponseException.InternalServerError
                    | WebClientRequestException error) {
             log.error("Invalid response from AniList", error);
@@ -206,11 +222,13 @@ public class TrackingDialog extends Dialog {
             getUI().ifPresent(ui -> ui.getPage().open(url));
             return;
           }
+          final TrackerType trackerType = TrackerType.MAL;
 
-          SuwayomiProvider provider = new SuwayomiProvider(suwayomiTrackingService);
+
+          SuwayomiProvider provider = new SuwayomiProvider(suwayomiTrackingService, trackerType);
 
           try {
-            displaySearch(manga.getTitle(), manga.getId(), provider, TrackerType.MAL);
+            displaySearch(manga.getTitle(), manga.getId(), provider, trackerType);
           } catch (WebClientResponseException.InternalServerError
                    | WebClientRequestException error) {
             log.error("Invalid response from MyAnimeList", error);
