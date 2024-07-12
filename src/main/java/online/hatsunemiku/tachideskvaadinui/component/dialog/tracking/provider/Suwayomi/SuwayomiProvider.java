@@ -7,7 +7,7 @@
 package online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider.Suwayomi;
 
 import java.util.List;
-import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.component.dialog.tracking.provider.TrackerProvider;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Status;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackRecord;
@@ -15,6 +15,7 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackerType;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.Tracker;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchResult;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.MangaStatistics;
+import online.hatsunemiku.tachideskvaadinui.services.tracker.AniListAPIService;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingService;
 
 /**
@@ -22,23 +23,64 @@ import online.hatsunemiku.tachideskvaadinui.services.tracker.SuwayomiTrackingSer
  * interacting with the Suwayomi API and handling tracking requests to Suwayomi tracking services.
  * It implements the {@link TrackerProvider} interface.
  */
-@AllArgsConstructor
+@Slf4j
 public class SuwayomiProvider implements TrackerProvider {
 
   protected SuwayomiTrackingService suwayomiAPI;
+  private final TrackerType trackerType;
+  private AniListAPIService aniListAPIService;
+
+  /**
+   * Creates a new instance of the {@link SuwayomiProvider} class.
+   * This constructor should <b>not</b> be used for AniList tracking.
+   * @param suwayomiAPI The {@link SuwayomiTrackingService} to use for tracking.
+   * @param trackerType The {@link TrackerType} to use for tracking.
+   */
+  public SuwayomiProvider(SuwayomiTrackingService suwayomiAPI, TrackerType trackerType) {
+
+    if (trackerType == TrackerType.ANILIST) {
+      String msg = "This Constructor should not be used for AniList tracking";
+      log.error(msg);
+      throw new IllegalArgumentException(msg);
+    }
+
+    this.suwayomiAPI = suwayomiAPI;
+    this.trackerType = trackerType;
+  }
+
+  /**
+   * Creates a new instance of the {@link SuwayomiProvider} class.
+   * This constructor should <b>only</b> be used for AniList tracking.
+   * @param suwayomiAPI The {@link SuwayomiTrackingService} to use for tracking.
+   * @param trackerType The {@link TrackerType} to use for tracking.
+   * @param aniListAPIService The {@link AniListAPIService} to use for tracking privately on AniList.
+   */
+  public SuwayomiProvider(SuwayomiTrackingService suwayomiAPI, TrackerType trackerType,
+      AniListAPIService aniListAPIService) {
+
+    if (trackerType != TrackerType.ANILIST) {
+      String msg = "This Constructor should only be used for AniList tracking";
+      log.error(msg);
+      throw new IllegalArgumentException(msg);
+    }
+
+    this.suwayomiAPI = suwayomiAPI;
+    this.trackerType = trackerType;
+    this.aniListAPIService = aniListAPIService;
+  }
 
   @Override
   public boolean canSetPrivate() {
-    return false;
+    return trackerType == TrackerType.ANILIST;
   }
 
   /**
    * Searches for trackers based on the provided query and tracker type.
    *
    * @param query The search query.
-   * @param type The {@link TrackerType} to search through.
+   * @param type  The {@link TrackerType} to search through.
    * @return A list of {@link TrackerSearchResult} objects representing the search results. If the
-   *     tracker type is neither MAL nor AniList, it <b>returns an empty list</b>.
+   * tracker type is neither MAL nor AniList, it <b>returns an empty list</b>.
    */
   public List<TrackerSearchResult> search(String query, TrackerType type) {
     if (type == TrackerType.MAL) {
@@ -54,7 +96,11 @@ public class SuwayomiProvider implements TrackerProvider {
   public void submitToTracker(
       boolean isPrivate, int mangaId, int externalId, TrackerType trackerType) {
     if (isPrivate) {
-      throw new IllegalArgumentException("Suwayomi does not support private entries");
+      if (trackerType != TrackerType.ANILIST) {
+        throw new IllegalArgumentException("Tracker does not support private entries");
+      }
+
+      aniListAPIService.addMangaToList(externalId, true);
     }
 
     if (trackerType == TrackerType.MAL) {
@@ -91,7 +137,7 @@ public class SuwayomiProvider implements TrackerProvider {
    *
    * @param tracker The {@link Tracker} for which to retrieve the tracking record.
    * @return The {@link TrackRecord} for the provided tracker, or {@code null} if the tracker does
-   *     not have a MAL ID or an AniList ID.
+   * not have a MAL ID or an AniList ID.
    */
   private TrackRecord getTrackRecord(Tracker tracker) {
     if (tracker.hasMalId()) {
