@@ -30,6 +30,12 @@ public class SuwayomiProvider implements TrackerProvider {
   private final TrackerType trackerType;
   private AniListAPIService aniListAPIService;
 
+  /**
+   * Creates a new instance of the {@link SuwayomiProvider} class.
+   * This constructor should <b>not</b> be used for AniList tracking.
+   * @param suwayomiAPI The {@link SuwayomiTrackingService} to use for tracking.
+   * @param trackerType The {@link TrackerType} to use for tracking.
+   */
   public SuwayomiProvider(SuwayomiTrackingService suwayomiAPI, TrackerType trackerType) {
 
     if (trackerType == TrackerType.ANILIST) {
@@ -42,6 +48,13 @@ public class SuwayomiProvider implements TrackerProvider {
     this.trackerType = trackerType;
   }
 
+  /**
+   * Creates a new instance of the {@link SuwayomiProvider} class.
+   * This constructor should <b>only</b> be used for AniList tracking.
+   * @param suwayomiAPI The {@link SuwayomiTrackingService} to use for tracking.
+   * @param trackerType The {@link TrackerType} to use for tracking.
+   * @param aniListAPIService The {@link AniListAPIService} to use for tracking privately on AniList.
+   */
   public SuwayomiProvider(SuwayomiTrackingService suwayomiAPI, TrackerType trackerType,
       AniListAPIService aniListAPIService) {
 
