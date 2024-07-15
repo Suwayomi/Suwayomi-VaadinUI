@@ -7,20 +7,26 @@
 package online.hatsunemiku.tachideskvaadinui.services.client;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.event.MangaUpdateEvent;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
+import org.intellij.lang.annotations.Language;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 @Component
 public class LibUpdateClient {
 
   private final WebClientService webClientService;
+  private final ApplicationEventPublisher eventPublisher;
 
-  public LibUpdateClient(WebClientService webClientService) {
+  public LibUpdateClient(WebClientService webClientService,
+      ApplicationEventPublisher eventPublisher) {
     this.webClientService = webClientService;
+    this.eventPublisher = eventPublisher;
   }
 
   public boolean fetchUpdate() {
-    // TODO: Check for skipped jobs and throw custom exception if any
     // language=GraphQL
     String runningQuery =
         """
@@ -78,6 +84,56 @@ public class LibUpdateClient {
     }
 
     return isRunning;
+  }
+
+  public void startUpdateTracking() {
+    @Language("GraphQL")
+    String query = """
+     subscription TrackMangaUpdate {
+       updateStatusChanged {
+         completeJobs {
+           mangas {
+             nodes {
+               chapters {
+                 totalCount
+               }
+               id
+             }
+           }
+         }
+         isRunning
+       }
+     }
+     """;
+
+    var graphClient = webClientService.getWebSocketGraphQlClient();
+
+    graphClient.document(query)
+        .executeSubscription()
+        .<MangaUpdateEvent>handle((data, sink) -> {
+          var completedManga = data.field("updateStatusChanged.completeJobs.mangas.nodes")
+              .toEntityList(Manga.class);
+
+          Boolean isRunning = data.field("updateStatusChanged.isRunning").toEntity(Boolean.class);
+
+          if (isRunning == null) {
+            sink.error(new RuntimeException("Couldn't retrieve update run status"));
+            return;
+          }
+
+          sink.next(new MangaUpdateEvent(isRunning, completedManga));
+        })
+        .doOnNext(event -> {
+          if (event.isRunning()) {
+            return;
+          }
+
+          // send event to event bus
+          eventPublisher.publishEvent(event);
+        })
+        .subscribe();
+
+
   }
 
   private static class SkippedManga {

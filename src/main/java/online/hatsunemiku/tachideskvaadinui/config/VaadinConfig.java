@@ -8,10 +8,12 @@ package online.hatsunemiku.tachideskvaadinui.config;
 
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
+import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @Push
 @Theme("miku")
+@PWA(name = "Suwayomi VaadinUI", shortName = "VaadinUI", offline = false)
 public class VaadinConfig implements AppShellConfigurator {}
