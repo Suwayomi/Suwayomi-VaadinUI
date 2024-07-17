@@ -16,7 +16,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.services.client.LibUpdateClient;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.graphql.client.FieldAccessException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -66,7 +65,7 @@ public class LibUpdateService {
     for (var m : manga) {
       try {
         mangaService.fetchChapterList(m.getId());
-      } catch (FieldAccessException e) {
+      } catch (RuntimeException e) {
         if (ui == null) {
           log.debug(e.getMessage());
           continue;

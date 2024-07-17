@@ -15,5 +15,5 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @Push
 @Theme("miku")
-@PWA(name = "Suwayomi VaadinUI", shortName = "VaadinUI", offline = false)
+@PWA(name = "Suwayomi VaadinUI", shortName = "VaadinUI")
 public class VaadinConfig implements AppShellConfigurator {}
