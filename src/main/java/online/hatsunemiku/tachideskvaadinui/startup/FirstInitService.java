@@ -14,7 +14,6 @@ import online.hatsunemiku.tachideskvaadinui.data.InitData;
 import online.hatsunemiku.tachideskvaadinui.data.server.event.ServerStartedEvent;
 import online.hatsunemiku.tachideskvaadinui.services.SuwayomiSettingsService;
 import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
-import online.hatsunemiku.tachideskvaadinui.utils.ProfileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -29,13 +28,8 @@ public class FirstInitService {
   private final ObjectMapper objectMapper;
   private final SuwayomiSettingsService suwayomiSettingsService;
 
-  public FirstInitService(
-      Environment env, ObjectMapper objectMapper, SuwayomiSettingsService suwayomiSettingsService) {
-    if (ProfileUtils.isDev(env)) {
-      projectDir = PathUtils.getDevDir();
-    } else {
-      projectDir = PathUtils.getProjectDir();
-    }
+  public FirstInitService(Environment env, ObjectMapper objectMapper, SuwayomiSettingsService suwayomiSettingsService) {
+    projectDir = PathUtils.getResolvedProjectPath(env);
 
     this.objectMapper = objectMapper;
     this.suwayomiSettingsService = suwayomiSettingsService;

@@ -26,7 +26,6 @@ import online.hatsunemiku.tachideskvaadinui.data.settings.event.UrlChangeEvent;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.startup.download.ReadableProgressByteChannel;
 import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
-import online.hatsunemiku.tachideskvaadinui.utils.ProfileUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.TachideskUtils;
 import org.slf4j.Logger;
@@ -66,11 +65,7 @@ public class TachideskMaintainer {
     this.starter = starter;
     this.settingsService = settingsService;
 
-    if (ProfileUtils.isDev(env)) {
-      projectDir = PathUtils.getDevDir().toFile();
-    } else {
-      projectDir = PathUtils.getProjectDir().toFile();
-    }
+    projectDir = PathUtils.getResolvedProjectPath(env).toFile();
 
     serverDir = new File(projectDir, "server");
   }

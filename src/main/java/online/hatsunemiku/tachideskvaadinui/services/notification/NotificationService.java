@@ -16,7 +16,6 @@ import online.hatsunemiku.tachideskvaadinui.data.MangaChapterCount;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.event.MangaUpdateEvent;
 import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
-import online.hatsunemiku.tachideskvaadinui.utils.ProfileUtils;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -32,11 +31,7 @@ public class NotificationService {
   private MangaChapterCount mangaChapterCount;
 
   public NotificationService(Environment env, ObjectMapper mapper, WebPushService webPushService) {
-    if (ProfileUtils.isDev(env)) {
-      projectDir = PathUtils.getDevDir();
-    } else {
-      projectDir = PathUtils.getProjectDir();
-    }
+    projectDir = PathUtils.getResolvedProjectPath(env);
     this.mapper = mapper;
     this.webPushService = webPushService;
   }

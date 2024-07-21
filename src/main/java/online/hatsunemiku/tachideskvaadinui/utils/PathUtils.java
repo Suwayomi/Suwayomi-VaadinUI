@@ -11,6 +11,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.core.env.Environment;
 
 @UtilityClass
 @Slf4j
@@ -72,5 +74,15 @@ public class PathUtils {
     }
 
     return devDir;
+  }
+
+  public static @NotNull Path getResolvedProjectPath(Environment env) {
+    Path projectDirPath;
+    if (ProfileUtils.isDev(env)) {
+      projectDirPath = PathUtils.getDevDir();
+    } else {
+      projectDirPath = PathUtils.getProjectDir();
+    }
+    return projectDirPath;
   }
 }

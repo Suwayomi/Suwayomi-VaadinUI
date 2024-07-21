@@ -17,7 +17,6 @@ import java.nio.file.Path;
 import lombok.extern.slf4j.Slf4j;
 import nl.martijndwars.webpush.Subscription;
 import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
-import online.hatsunemiku.tachideskvaadinui.utils.ProfileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -43,11 +42,7 @@ public class WebPushService {
     this.mapper = mapper;
 
     Path projectDirPath;
-    if (ProfileUtils.isDev(env)) {
-      projectDirPath = PathUtils.getDevDir();
-    } else {
-      projectDirPath = PathUtils.getProjectDir();
-    }
+    projectDirPath = PathUtils.getResolvedProjectPath(env);
 
     subscriptionFile = projectDirPath.resolve("subscription.json");
 

@@ -19,7 +19,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
-import online.hatsunemiku.tachideskvaadinui.utils.ProfileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,12 +48,7 @@ public class SettingsService {
   private Settings deserialize() {
     final Settings settings;
 
-    Path projectDirPath;
-    if (ProfileUtils.isDev(env)) {
-      projectDirPath = PathUtils.getDevDir();
-    } else {
-      projectDirPath = PathUtils.getProjectDir();
-    }
+    Path projectDirPath = PathUtils.getResolvedProjectPath(env);
 
     Path settingsFile = projectDirPath.resolve("settings.json");
 
@@ -86,12 +80,7 @@ public class SettingsService {
   private void serialize() {
     ObjectMapper mapper = new ObjectMapper();
 
-    Path projectDirPath;
-    if (ProfileUtils.isDev(env)) {
-      projectDirPath = PathUtils.getDevDir();
-    } else {
-      projectDirPath = PathUtils.getProjectDir();
-    }
+    Path projectDirPath = PathUtils.getResolvedProjectPath(env);
 
     Path settingsFile = projectDirPath.resolve("settings.json");
 
