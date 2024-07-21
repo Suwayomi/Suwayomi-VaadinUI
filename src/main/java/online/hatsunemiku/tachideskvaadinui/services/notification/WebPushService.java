@@ -6,19 +6,27 @@
 
 package online.hatsunemiku.tachideskvaadinui.services.notification;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.webpush.WebPush;
 import com.vaadin.flow.server.webpush.WebPushMessage;
-import java.util.HashMap;
-import java.util.Map;
+import jakarta.annotation.PreDestroy;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import lombok.extern.slf4j.Slf4j;
 import nl.martijndwars.webpush.Subscription;
+import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
+import online.hatsunemiku.tachideskvaadinui.utils.ProfileUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 public class WebPushService {
+
+  private final ObjectMapper mapper;
   @Value("${vaadin.webpush.publicKey}")
   private String publicKey;
   @Value("${vaadin.webpush.privateKey}")
@@ -26,16 +34,34 @@ public class WebPushService {
   @Value("${vaadin.webpush.subject}")
   private String subject;
 
-  //TODO figure out how to serialize this
-  /**
-   * Maps the key (endpoint as of now) to the subscription object.
-   */
-  private final Map<String, Subscription> endpointSubscriptions;
+  private Subscription subscription;
 
   private WebPush webPush;
+  private final Path subscriptionFile;
 
-  public WebPushService() {
-    endpointSubscriptions = new HashMap<>();
+  public WebPushService(ObjectMapper mapper, Environment env) {
+    this.mapper = mapper;
+
+    Path projectDirPath;
+    if (ProfileUtils.isDev(env)) {
+      projectDirPath = PathUtils.getDevDir();
+    } else {
+      projectDirPath = PathUtils.getProjectDir();
+    }
+
+    subscriptionFile = projectDirPath.resolve("subscription.json");
+
+    if (Files.notExists(subscriptionFile)) {
+      return;
+    }
+
+    try (var in = Files.newInputStream(subscriptionFile)) {
+      subscription = mapper.readValue(in, Subscription.class);
+    } catch (IOException e) {
+      log.error("Could not read subscription file", e);
+      throw new RuntimeException(e);
+    }
+
   }
 
   private WebPush getWebPush() {
@@ -47,24 +73,42 @@ public class WebPushService {
   }
 
   public void subscribe(UI ui) {
-    getWebPush().subscribe(ui, this::addSubscription);
+    getWebPush().subscribe(ui, this::setSubscription);
   }
 
-  public void notifyAll(String title, String message) {
+  public void notify(String title, String message) {
+
+    if (subscription == null) {
+      log.debug("No subscription available");
+      return;
+    }
+
     WebPushMessage pushMessage = new WebPushMessage(title, message);
 
-    endpointSubscriptions.values().forEach(subscription -> {
-      getWebPush().sendNotification(subscription, pushMessage);
-    });
+    getWebPush().sendNotification(subscription, pushMessage);
   }
 
-  private void addSubscription(Subscription subscription) {
+  private void setSubscription(Subscription subscription) {
     log.info("Adding subscription: {}", subscription.endpoint());
-    endpointSubscriptions.put(subscription.endpoint(), subscription);
+    this.subscription = subscription;
   }
 
-  public void removeSubscription(Subscription subscription) {
+  public void removeSubscription() {
     log.info("Removing subscription: {}", subscription.endpoint());
-    endpointSubscriptions.remove(subscription.endpoint());
+    this.subscription = null;
+  }
+
+  @PreDestroy
+  public void destroy() {
+    if (webPush == null) {
+      return;
+    }
+
+    try (var out = Files.newOutputStream(subscriptionFile)) {
+      mapper.writeValue(out, subscription);
+    } catch (IOException e) {
+      log.error("Could not write subscription file", e);
+      throw new RuntimeException(e);
+    }
   }
 }

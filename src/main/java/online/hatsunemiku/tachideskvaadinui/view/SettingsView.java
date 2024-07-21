@@ -144,7 +144,7 @@ public class SettingsView extends StandardLayout {
 
     Button testNotificationButton = new Button("Test notification");
     testNotificationButton.addClickListener(event -> {
-      webPushService.notifyAll("Test Title", "Test Message");
+      webPushService.notify("Test Title", "Test Message");
       Notification notification = new Notification("Test notification sent", 3000);
       notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
       notification.open();

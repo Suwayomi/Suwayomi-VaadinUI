@@ -68,7 +68,7 @@ public class NotificationService {
         String title = "New chapter available for " + mangaTitle;
         String message = "A new chapter is available for " + mangaTitle + "!";
 
-        webPushService.notifyAll(title, message);
+        webPushService.notify(title, message);
       }
     });
 
