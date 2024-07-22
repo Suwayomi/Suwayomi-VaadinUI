@@ -42,11 +42,12 @@
         </screenshot>
     </screenshots>
     <releases>
-        <release version="1.10.0" date="2024-06-29">
+        <release version="1.11.0" date="2024-07-22">
             <description>
                 <ul>
-                    <li>New Sync Chapter progress with Tracker Feature</li>
-                    <li>Small backend changes</li>
+                    <li>Fixes the option to track privately on AniList</li>
+                    <li>Made the Chapter list sorting now go by chapter number, rather than date</li>
+                    <li>Enhances the Vertical reading experience</li>
                 </ul>
             </description>
         </release>
