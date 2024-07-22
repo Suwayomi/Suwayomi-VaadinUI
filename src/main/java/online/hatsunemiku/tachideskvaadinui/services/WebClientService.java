@@ -11,6 +11,7 @@ import com.netflix.graphql.dgs.client.WebClientGraphQLClient;
 import jakarta.annotation.PreDestroy;
 import java.net.URI;
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import lombok.Getter;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.settings.event.UrlChangeEvent;
@@ -70,7 +71,7 @@ public class WebClientService {
   @PreDestroy
   protected void destroy() {
     if (webSocketGraphQlClient != null) {
-      webSocketGraphQlClient.stop().block(Duration.ofSeconds(5));
+      webSocketGraphQlClient.stop().block(Duration.ofSeconds(10));
     }
   }
 
@@ -104,7 +105,9 @@ public class WebClientService {
 
     URI uri = URI.create(url);
 
-    this.webSocketGraphQlClient = WebSocketGraphQlClient.create(uri, webSocketClient);
+    this.webSocketGraphQlClient = WebSocketGraphQlClient.builder(uri, webSocketClient)
+        .keepAlive(Duration.of(10, ChronoUnit.SECONDS))
+        .build();
   }
 
   /**

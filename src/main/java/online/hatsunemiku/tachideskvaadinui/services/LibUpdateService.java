@@ -30,6 +30,8 @@ public class LibUpdateService {
   public LibUpdateService(LibUpdateClient client, MangaService mangaService) {
     this.client = client;
     this.mangaService = mangaService;
+
+    client.startUpdateTracking();
   }
 
   @CacheEvict(

@@ -94,6 +94,7 @@ public class LibUpdateClient {
          completeJobs {
            mangas {
              nodes {
+               title
                chapters {
                  totalCount
                }

@@ -130,6 +130,9 @@ public class Manga {
 
     @JsonProperty("edges")
     private List<Edge> edge;
+
+    @JsonProperty("totalCount")
+    private long totalCount;
   }
 
   @Getter
@@ -151,5 +154,23 @@ public class Manga {
 
     @JsonProperty("nodes")
     private List<Category> nodes;
+  }
+
+  /**
+   * Get the total number of chapters for this manga. If the chapter count is not set, the count will
+   * be retrieved from the {@link Chapters chapters} object if available.
+   * The default value is 0.
+   * @return the total number of chapters for this manga
+   */
+  public int getChapterCount() {
+    if (this.chapterCount != 0) {
+      return chapterCount;
+    }
+
+    if (chapters == null) {
+      return 0;
+    }
+
+    return (int) chapters.getTotalCount();
   }
 }

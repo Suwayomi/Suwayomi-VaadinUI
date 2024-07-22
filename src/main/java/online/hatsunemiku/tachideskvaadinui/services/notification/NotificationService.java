@@ -7,6 +7,7 @@
 package online.hatsunemiku.tachideskvaadinui.services.notification;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vaadin.flow.server.VaadinService;
 import jakarta.annotation.PreDestroy;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.MangaChapterCount;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.event.MangaUpdateEvent;
+import online.hatsunemiku.tachideskvaadinui.services.VaadinServiceProvider;
 import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
@@ -39,6 +41,14 @@ public class NotificationService {
 
   @EventListener(MangaUpdateEvent.class)
   public void notify(MangaUpdateEvent event) {
+    VaadinService vaadinService = VaadinServiceProvider.getCurrentService();
+
+    if (vaadinService == null) {
+      log.error("VaadinService is null");
+      return;
+    }
+
+    VaadinService.setCurrent(vaadinService);
     if (event.isRunning()) {
       throw new IllegalArgumentException(
           "Manga Update event has reached NotificationService, while it's still running - this should not happen");
@@ -64,6 +74,7 @@ public class NotificationService {
         String message = "A new chapter is available for " + mangaTitle + "!";
 
         webPushService.notify(title, message);
+        log.info("Notified user of new chapter for manga: {}", mangaTitle);
       }
     });
 
@@ -102,6 +113,16 @@ public class NotificationService {
 
     var saveFile = projectDir.resolve(MANGA_SAVE_FILE);
 
+    if (Files.notExists(saveFile)) {
+      try {
+        Files.createFile(saveFile);
+      } catch (Exception e) {
+        String msg = "Couldn't create notification data file";
+        log.error(msg);
+        throw new RuntimeException(msg, e);
+      }
+    }
+
     try (var out = Files.newOutputStream(saveFile)) {
       mapper.writeValue(out, mangaChapterCount);
     } catch (Exception e) {
@@ -110,5 +131,4 @@ public class NotificationService {
       throw new RuntimeException(msg, e);
     }
   }
-
 }
