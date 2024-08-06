@@ -9,7 +9,7 @@ plugins {
     id 'org.springframework.boot' version '3.3.0'
     id 'io.spring.dependency-management' version '1.1.5'
     //id 'org.graalvm.buildtools.native' version '0.9.20'
-    id 'com.vaadin' version '24.4.6'
+    id 'com.vaadin' version "$vaadinVersion"
 
     //Jpackage for building native installers
     id("org.panteleyev.jpackageplugin") version "1.6.0"
@@ -39,10 +39,6 @@ repositories {
         name = "Vaadin Addons"
         url = "https://maven.vaadin.com/vaadin-addons"
     }
-}
-
-ext {
-    set('vaadinVersion', "24.4.6")
 }
 
 idea {
@@ -115,7 +111,7 @@ dependencies {
 
 dependencyManagement {
     imports {
-        mavenBom "com.vaadin:vaadin-bom:${vaadinVersion}"
+        mavenBom "com.vaadin:vaadin-bom:$vaadinVersion"
         mavenBom "com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:9.0.0"
     }
 }
