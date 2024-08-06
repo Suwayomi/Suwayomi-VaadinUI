@@ -7,11 +7,13 @@
 package online.hatsunemiku.tachideskvaadinui.services.client;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.IOException;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.event.MangaUpdateEvent;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
 import org.intellij.lang.annotations.Language;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.graphql.client.GraphQlTransportException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -132,9 +134,24 @@ public class LibUpdateClient {
           // send event to event bus
           eventPublisher.publishEvent(event);
         })
+        .onErrorComplete(e -> {
+          Thread.ofVirtual().start(this::restartUpdateTracking);
+
+          return true;
+        })
         .subscribe();
 
 
+  }
+
+  private void restartUpdateTracking() {
+    try {
+      Thread.sleep(5000);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+
+    startUpdateTracking();
   }
 
   private static class SkippedManga {
