@@ -117,13 +117,18 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
         e -> {
           if (e.getChapterNumbers().contains(chapter.getChapterNumber())) {
             addReadStatus(container);
-            var readBtn =
+            var optional =
                 rightSide
                     .getChildren()
                     .filter(btn -> btn instanceof Button)
                     .filter(btn -> btn.getId().orElse("").equals("read-button"))
-                    .findFirst()
-                    .orElseThrow();
+                    .findFirst();
+
+            if (optional.isEmpty()) {
+              return;
+            }
+
+            var readBtn = (Button) optional.get();
 
             rightSide.replace(readBtn, getUnreadButton(chapter, mangaService, rightSide));
           }
