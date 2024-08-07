@@ -105,9 +105,10 @@ public class WebClientService {
 
     URI uri = URI.create(url);
 
-    this.webSocketGraphQlClient = WebSocketGraphQlClient.builder(uri, webSocketClient)
-        .keepAlive(Duration.of(10, ChronoUnit.SECONDS))
-        .build();
+    this.webSocketGraphQlClient =
+        WebSocketGraphQlClient.builder(uri, webSocketClient)
+            .keepAlive(Duration.of(10, ChronoUnit.SECONDS))
+            .build();
   }
 
   /**

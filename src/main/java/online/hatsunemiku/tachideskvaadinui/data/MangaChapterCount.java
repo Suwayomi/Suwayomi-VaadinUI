@@ -25,7 +25,6 @@ public class MangaChapterCount {
     mangaMap = new HashMap<>();
   }
 
-
   public void addManga(int mangaId, int chapterCount) {
     mangaMap.put(mangaId, chapterCount);
   }
@@ -41,5 +40,4 @@ public class MangaChapterCount {
 
     return mangaMap.get(mangaId);
   }
-
 }

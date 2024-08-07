@@ -16,8 +16,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.services.client.LibUpdateClient;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.context.SmartLifecycle;
-import org.springframework.graphql.client.GraphQlTransportException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 

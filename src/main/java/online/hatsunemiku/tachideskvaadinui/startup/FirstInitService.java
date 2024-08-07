@@ -28,7 +28,8 @@ public class FirstInitService {
   private final ObjectMapper objectMapper;
   private final SuwayomiSettingsService suwayomiSettingsService;
 
-  public FirstInitService(Environment env, ObjectMapper objectMapper, SuwayomiSettingsService suwayomiSettingsService) {
+  public FirstInitService(
+      Environment env, ObjectMapper objectMapper, SuwayomiSettingsService suwayomiSettingsService) {
     projectDir = PathUtils.getResolvedProjectPath(env);
 
     this.objectMapper = objectMapper;

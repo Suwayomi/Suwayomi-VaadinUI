@@ -38,7 +38,6 @@ public class NotificationService {
     this.webPushService = webPushService;
   }
 
-
   @EventListener(MangaUpdateEvent.class)
   public void notify(MangaUpdateEvent event) {
     VaadinService vaadinService = VaadinServiceProvider.getCurrentService();
@@ -51,7 +50,8 @@ public class NotificationService {
     VaadinService.setCurrent(vaadinService);
     if (event.isRunning()) {
       throw new IllegalArgumentException(
-          "Manga Update event has reached NotificationService, while it's still running - this should not happen");
+          "Manga Update event has reached NotificationService, while it's still running - this"
+              + " should not happen");
     }
 
     List<Manga> completedJobs = event.getCompletedJobs();
@@ -59,25 +59,25 @@ public class NotificationService {
       return;
     }
 
-    completedJobs.forEach(manga -> {
-      var count = getNotificationData(manga);
+    completedJobs.forEach(
+        manga -> {
+          var count = getNotificationData(manga);
 
-      if (count == -1) {
-        mangaChapterCount.addManga(manga.getId(), manga.getChapterCount());
-        return;
-      }
+          if (count == -1) {
+            mangaChapterCount.addManga(manga.getId(), manga.getChapterCount());
+            return;
+          }
 
-      if (count < manga.getChapterCount()) {
-        mangaChapterCount.updateChapterCount(manga.getId(), manga.getChapterCount());
-        String mangaTitle = manga.getTitle();
-        String title = "New chapter available for " + mangaTitle;
-        String message = "A new chapter is available for " + mangaTitle + "!";
+          if (count < manga.getChapterCount()) {
+            mangaChapterCount.updateChapterCount(manga.getId(), manga.getChapterCount());
+            String mangaTitle = manga.getTitle();
+            String title = "New chapter available for " + mangaTitle;
+            String message = "A new chapter is available for " + mangaTitle + "!";
 
-        webPushService.notify(title, message);
-        log.info("Notified user of new chapter for manga: {}", mangaTitle);
-      }
-    });
-
+            webPushService.notify(title, message);
+            log.info("Notified user of new chapter for manga: {}", mangaTitle);
+          }
+        });
   }
 
   private int getNotificationData(Manga manga) {

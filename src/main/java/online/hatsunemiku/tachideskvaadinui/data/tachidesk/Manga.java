@@ -157,9 +157,10 @@ public class Manga {
   }
 
   /**
-   * Get the total number of chapters for this manga. If the chapter count is not set, the count will
-   * be retrieved from the {@link Chapters chapters} object if available.
-   * The default value is 0.
+   * Get the total number of chapters for this manga. If the chapter count is not set, the count
+   * will be retrieved from the {@link Chapters chapters} object if available. The default value is
+   * 0.
+   *
    * @return the total number of chapters for this manga
    */
   public int getChapterCount() {

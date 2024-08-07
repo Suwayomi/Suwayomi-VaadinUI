@@ -70,16 +70,17 @@ public class SettingsView extends StandardLayout {
   /**
    * Creates a new instance of the {@link SettingsView} class.
    *
-   * @param settingsService         The service to retrieve settings from.
-   * @param eventPublisher          The event publisher to publish settings events with.
-   * @param sourceService           The service to retrieve sources from.
+   * @param settingsService The service to retrieve settings from.
+   * @param eventPublisher The event publisher to publish settings events with.
+   * @param sourceService The service to retrieve sources from.
    * @param suwayomiSettingsService The service to retrieve Suwayomi settings from.
    */
   public SettingsView(
       SettingsService settingsService,
       SettingsEventPublisher eventPublisher,
       SourceService sourceService,
-      SuwayomiSettingsService suwayomiSettingsService, WebPushService webPushService) {
+      SuwayomiSettingsService suwayomiSettingsService,
+      WebPushService webPushService) {
     super("Settings");
     setClassName("settings-view");
 
@@ -95,7 +96,8 @@ public class SettingsView extends StandardLayout {
     Div separator = getSeparator();
     Section extensionSettings = getExtensionSettingsSection();
     Div notificationSeparator = getSeparator();
-    Section notificationSettings = createNotificationSettingsSection();;
+    Section notificationSettings = createNotificationSettingsSection();
+    ;
     content.add(
         generalSettings,
         flareSeparator,
@@ -143,12 +145,13 @@ public class SettingsView extends StandardLayout {
         });
 
     Button testNotificationButton = new Button("Test notification");
-    testNotificationButton.addClickListener(event -> {
-      webPushService.notify("Test Title", "Test Message");
-      Notification notification = new Notification("Test notification sent", 3000);
-      notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-      notification.open();
-    });
+    testNotificationButton.addClickListener(
+        event -> {
+          webPushService.notify("Test Title", "Test Message");
+          Notification notification = new Notification("Test notification sent", 3000);
+          notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+          notification.open();
+        });
 
     section.add(subscribeButton, testNotificationButton);
 
@@ -159,7 +162,7 @@ public class SettingsView extends StandardLayout {
    * This method is used to create a section for the general settings.
    *
    * @param settingsService The service to retrieve settings from.
-   * @param sourceService   The service to retrieve sources from.
+   * @param sourceService The service to retrieve sources from.
    * @return A {@link Section} containing the general settings.
    */
   @NotNull
@@ -439,10 +442,9 @@ public class SettingsView extends StandardLayout {
    * default search language.
    *
    * @param sourceService The service to retrieve sources from.
-   * @param binder        The binder to bind the selected language to the defaultSearchLang
-   *                      property
+   * @param binder The binder to bind the selected language to the defaultSearchLang property
    * @return A {@link ComboBox} of available languages, or a read-only ComboBox with a warning
-   * message if the server is not running.
+   *     message if the server is not running.
    */
   private ComboBox<String> createSearchLangField(
       SourceService sourceService, Binder<Settings> binder) {
@@ -506,10 +508,10 @@ public class SettingsView extends StandardLayout {
    * default source language.
    *
    * @param sourceService The service to retrieve sources from.
-   * @param binder        The binder to bind the selected source to the defaultSourceLang property
-   *                      of the Settings object.
+   * @param binder The binder to bind the selected source to the defaultSourceLang property of the
+   *     Settings object.
    * @return A {@link ComboBox} of available languages, or a read-only ComboBox with a warning
-   * message if the server is not running.
+   *     message if the server is not running.
    */
   private ComboBox<String> getDefaultSourceField(
       SourceService sourceService, Binder<Settings> binder) {
@@ -544,7 +546,7 @@ public class SettingsView extends StandardLayout {
    *
    * @param sourceService The service to retrieve sources from.
    * @return A {@link ComboBox} of languages available from the sources, or a read-only ComboBox
-   * with a warning message if the server is not running.
+   *     with a warning message if the server is not running.
    */
   private ComboBox<String> getDefaultLangField(SourceService sourceService) {
 
@@ -595,7 +597,7 @@ public class SettingsView extends StandardLayout {
    * This method is used to create a TextField to set the URL of the FlareSolverr server.
    *
    * @param flareSolverrSettings The {@link FlareSolverrSettings FlareSolverr Settings} representing
-   *                             the initial state.
+   *     the initial state.
    * @return A {@link TextField} to set the URL of the FlareSolverr server.
    */
   private @NotNull TextField createFlareSolverrUrlField(FlareSolverrSettings flareSolverrSettings) {
@@ -635,7 +637,7 @@ public class SettingsView extends StandardLayout {
    * This method is used to create a ComboBox to enable or disable FlareSolverr.
    *
    * @param flareSolverrSettings The {@link FlareSolverrSettings FlareSolverr Settings} representing
-   *                             the initial state.
+   *     the initial state.
    * @return A {@link ComboBox} to enable or disable FlareSolverr.
    */
   private @NotNull ComboBox<Boolean> createFlareSolverrEnabledField(

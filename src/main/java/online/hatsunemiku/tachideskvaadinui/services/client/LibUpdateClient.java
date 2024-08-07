@@ -7,13 +7,11 @@
 package online.hatsunemiku.tachideskvaadinui.services.client;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.IOException;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.event.MangaUpdateEvent;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
 import org.intellij.lang.annotations.Language;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.graphql.client.GraphQlTransportException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -22,8 +20,8 @@ public class LibUpdateClient {
   private final WebClientService webClientService;
   private final ApplicationEventPublisher eventPublisher;
 
-  public LibUpdateClient(WebClientService webClientService,
-      ApplicationEventPublisher eventPublisher) {
+  public LibUpdateClient(
+      WebClientService webClientService, ApplicationEventPublisher eventPublisher) {
     this.webClientService = webClientService;
     this.eventPublisher = eventPublisher;
   }
@@ -90,7 +88,8 @@ public class LibUpdateClient {
 
   public void startUpdateTracking() {
     @Language("GraphQL")
-    String query = """
+    String query =
+        """
      subscription TrackMangaUpdate {
        updateStatusChanged {
          completeJobs {
@@ -111,37 +110,41 @@ public class LibUpdateClient {
 
     var graphClient = webClientService.getWebSocketGraphQlClient();
 
-    graphClient.document(query)
+    graphClient
+        .document(query)
         .executeSubscription()
-        .<MangaUpdateEvent>handle((data, sink) -> {
-          var completedManga = data.field("updateStatusChanged.completeJobs.mangas.nodes")
-              .toEntityList(Manga.class);
+        .<MangaUpdateEvent>handle(
+            (data, sink) -> {
+              var completedManga =
+                  data.field("updateStatusChanged.completeJobs.mangas.nodes")
+                      .toEntityList(Manga.class);
 
-          Boolean isRunning = data.field("updateStatusChanged.isRunning").toEntity(Boolean.class);
+              Boolean isRunning =
+                  data.field("updateStatusChanged.isRunning").toEntity(Boolean.class);
 
-          if (isRunning == null) {
-            sink.error(new RuntimeException("Couldn't retrieve update run status"));
-            return;
-          }
+              if (isRunning == null) {
+                sink.error(new RuntimeException("Couldn't retrieve update run status"));
+                return;
+              }
 
-          sink.next(new MangaUpdateEvent(isRunning, completedManga));
-        })
-        .doOnNext(event -> {
-          if (event.isRunning()) {
-            return;
-          }
+              sink.next(new MangaUpdateEvent(isRunning, completedManga));
+            })
+        .doOnNext(
+            event -> {
+              if (event.isRunning()) {
+                return;
+              }
 
-          // send event to event bus
-          eventPublisher.publishEvent(event);
-        })
-        .onErrorComplete(e -> {
-          Thread.ofVirtual().start(this::restartUpdateTracking);
+              // send event to event bus
+              eventPublisher.publishEvent(event);
+            })
+        .onErrorComplete(
+            e -> {
+              Thread.ofVirtual().start(this::restartUpdateTracking);
 
-          return true;
-        })
+              return true;
+            })
         .subscribe();
-
-
   }
 
   private void restartUpdateTracking() {
