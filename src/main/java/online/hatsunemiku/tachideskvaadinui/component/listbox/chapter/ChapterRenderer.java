@@ -117,7 +117,8 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
         e -> {
           if (e.getChapterNumbers().contains(chapter.getChapterNumber())) {
             addReadStatus(container);
-            var optional = rightSide
+            var optional =
+                rightSide
                     .getChildren()
                     .filter(btn -> btn instanceof Button)
                     .filter(btn -> btn.getId().orElse("").equals("read-button"))
