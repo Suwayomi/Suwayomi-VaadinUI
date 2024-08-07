@@ -89,7 +89,7 @@ public class LibUpdateService {
     return true;
   }
 
-  @Scheduled(initialDelay = 1, fixedRate = 30, timeUnit = TimeUnit.MINUTES)
+  @Scheduled(initialDelay = 2, fixedRate = 30, timeUnit = TimeUnit.MINUTES)
   protected void scheduledUpdate() {
     boolean success;
     try {
