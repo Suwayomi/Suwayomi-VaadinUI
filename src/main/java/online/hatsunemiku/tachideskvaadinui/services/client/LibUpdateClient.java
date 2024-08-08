@@ -97,9 +97,7 @@ public class LibUpdateClient {
     return isRunning;
   }
 
-  /**
-   * Opens a WebSocket connection to the server to track the update status of the manga library.
-   */
+  /** Opens a WebSocket connection to the server to track the update status of the manga library. */
   public void startUpdateTracking() {
     @Language("GraphQL")
     String query =
@@ -163,8 +161,7 @@ public class LibUpdateClient {
 
   /**
    * Restarts the update tracking after a delay of 5 seconds. This is used to prevent the client
-   * from spamming the server with requests in case of an error, such as the server not running
-   * yet.
+   * from spamming the server with requests in case of an error, such as the server not running yet.
    */
   private void restartUpdateTracking() {
     try {

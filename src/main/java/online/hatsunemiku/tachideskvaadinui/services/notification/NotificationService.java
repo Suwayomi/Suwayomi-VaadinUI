@@ -62,7 +62,7 @@ public class NotificationService {
     if (event.isRunning()) {
       throw new IllegalArgumentException(
           "Manga Update event has reached NotificationService, while it's still running - this"
-          + " should not happen");
+              + " should not happen");
     }
 
     List<Manga> completedJobs = event.getCompletedJobs();
@@ -105,9 +105,7 @@ public class NotificationService {
     return mangaChapterCount.getChapterCount(manga.getId());
   }
 
-  /**
-   * Deserializes the notification data from the save file.
-   */
+  /** Deserializes the notification data from the save file. */
   private void loadNotificationData() {
     var saveFile = projectDir.resolve(MANGA_SAVE_FILE);
 
@@ -125,9 +123,7 @@ public class NotificationService {
     }
   }
 
-  /**
-   * Saves the notification data to a file when the application is shut down.
-   */
+  /** Saves the notification data to a file when the application is shut down. */
   @PreDestroy
   public void saveNotificationData() {
     if (mangaChapterCount == null) {

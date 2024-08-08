@@ -12,8 +12,8 @@ import java.util.Map;
 import lombok.Data;
 
 /**
- * Represents a map of manga IDs to their respective chapter count. <br> Example: {3445: 43, 1234:
- * 39, 139: 1}
+ * Represents a map of manga IDs to their respective chapter count. <br>
+ * Example: {3445: 43, 1234: 39, 139: 1}
  *
  * @version 1.12.0
  * @since 1.12.0
@@ -35,7 +35,7 @@ public class MangaChapterCount {
   /**
    * Updates the chapter count of the manga with the given ID.
    *
-   * @param mangaId      The ID of the manga to update the chapter count of.
+   * @param mangaId The ID of the manga to update the chapter count of.
    * @param chapterCount The new chapter count of the manga.
    */
   public void updateChapterCount(int mangaId, int chapterCount) {
