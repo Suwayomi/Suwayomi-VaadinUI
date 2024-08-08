@@ -22,6 +22,12 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service responsible for processing events that might require a notification to be sent.
+ *
+ * @since 1.12.0
+ * @version 1.12.0
+ */
 @Slf4j
 @Service
 public class NotificationService {

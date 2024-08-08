@@ -11,6 +11,12 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Represents a manga object from the Suwayomi API.
+ *
+ * @since 0.9.0
+ * @version 1.12.0
+ */
 @Getter
 public class Manga {
 
@@ -125,6 +131,9 @@ public class Manga {
     return categories.getNodes();
   }
 
+  /**
+   * Represents chapters of a manga with the total count of chapters.
+   */
   @Getter
   private static class Chapters {
 

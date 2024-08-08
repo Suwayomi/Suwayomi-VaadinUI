@@ -20,6 +20,13 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service that initializes the application on the first start.
+ * Mainly used for setting up the Suwayomi settings.
+ *
+ * @since 1.1.0
+ * @version 1.12.0
+ */
 @Service
 public class FirstInitService {
 

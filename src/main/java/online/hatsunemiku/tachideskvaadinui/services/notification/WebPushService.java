@@ -21,22 +21,26 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service for sending web push notifications via the WebPush API.
+ *
+ * @since 1.12.0
+ * @version 1.12.0
+ */
 @Slf4j
 @Service
 public class WebPushService {
 
   private final ObjectMapper mapper;
+  private final Path subscriptionFile;
   @Value("${vaadin.webpush.publicKey}")
   private String publicKey;
   @Value("${vaadin.webpush.privateKey}")
   private String privateKey;
   @Value("${vaadin.webpush.subject}")
   private String subject;
-
   private Subscription subscription;
-
   private WebPush webPush;
-  private final Path subscriptionFile;
 
   public WebPushService(ObjectMapper mapper, Environment env) {
     this.mapper = mapper;

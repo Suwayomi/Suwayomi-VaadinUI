@@ -27,12 +27,21 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service for managing the application settings. <br>
+ * Also, responsible for saving the settings to disk and distributing them to the application.
+ *
+ * @since 0.9.0
+ * @version 1.12.0
+ */
 @Service
 @Slf4j
 public class SettingsService {
+
   private static final Logger logger = LoggerFactory.getLogger(SettingsService.class);
 
-  @Getter private final Settings settings;
+  @Getter
+  private final Settings settings;
 
   @Getter(AccessLevel.NONE)
   private final ObjectMapper mapper;

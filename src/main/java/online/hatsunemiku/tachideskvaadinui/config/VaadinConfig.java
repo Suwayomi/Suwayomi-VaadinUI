@@ -12,6 +12,13 @@ import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Vaadin configuration class. <br>
+ * Configures the Vaadin UI with the Miku theme and PWA settings.
+ *
+ * @since 1.10.0
+ * @version 1.12.0
+ */
 @Configuration
 @Push
 @Theme("miku")

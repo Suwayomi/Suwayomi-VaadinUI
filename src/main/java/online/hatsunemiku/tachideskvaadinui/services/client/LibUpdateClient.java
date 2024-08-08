@@ -16,6 +16,12 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.graphql.client.GraphQlTransportException;
 import org.springframework.stereotype.Component;
 
+/**
+ * Client responsible for any server communication related to manga library updates.
+ *
+ * @since 0.9.0
+ * @version 1.12.0
+ */
 @Component
 public class LibUpdateClient {
 

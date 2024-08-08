@@ -11,6 +11,13 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.Data;
 
+/**
+ * Represents a map of manga IDs to their respective chapter count. <br>
+ * Example: {3445: 43, 1234: 39, 139: 1}
+ *
+ * @since 1.12.0
+ * @version 1.12.0
+ */
 @Data
 public class MangaChapterCount {
 

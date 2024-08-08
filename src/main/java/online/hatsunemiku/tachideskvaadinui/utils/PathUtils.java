@@ -14,6 +14,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.env.Environment;
 
+
+/**
+ * Utility class for getting common paths.
+ *
+ * @since 0.9.0
+ * @version 1.12.0
+ */
 @UtilityClass
 @Slf4j
 public class PathUtils {

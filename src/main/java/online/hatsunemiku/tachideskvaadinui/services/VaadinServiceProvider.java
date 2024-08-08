@@ -11,17 +11,24 @@ import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service that provides the current VaadinService instance.
+ * Needed when outside the Vaadin context, but still need access to the VaadinService.
+ *
+ * @since 1.12.0
+ * @version 1.12.0
+ */
 @Service
 public class VaadinServiceProvider implements VaadinServiceInitListener {
 
   private static VaadinService vaadinService;
 
+  public static VaadinService getCurrentService() {
+    return vaadinService;
+  }
+
   @Override
   public void serviceInit(ServiceInitEvent event) {
     vaadinService = event.getSource();
-  }
-
-  public static VaadinService getCurrentService() {
-    return vaadinService;
   }
 }
