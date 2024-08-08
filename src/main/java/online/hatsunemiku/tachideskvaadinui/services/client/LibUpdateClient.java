@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component;
 /**
  * Client responsible for any server communication related to manga library updates.
  *
- * @since 0.9.0
  * @version 1.12.0
+ * @since 0.9.0
  */
 @Component
 public class LibUpdateClient {
@@ -32,18 +32,23 @@ public class LibUpdateClient {
     this.eventPublisher = eventPublisher;
   }
 
+  /**
+   * Starts the library update process on the server.
+   *
+   * @return {@code true} if the update process has started running, {@code false} otherwise
+   */
   public boolean fetchUpdate() {
     // language=GraphQL
     String runningQuery =
         """
-        mutation updateLibraryManga {
-          updateLibraryManga(input: {}) {
-            updateStatus {
-              isRunning
+            mutation updateLibraryManga {
+              updateLibraryManga(input: {}) {
+                updateStatus {
+                  isRunning
+                }
+              }
             }
-          }
-        }
-        """;
+            """;
 
     var graphClient = webClientService.getGraphQlClient();
 
@@ -92,27 +97,30 @@ public class LibUpdateClient {
     return isRunning;
   }
 
+  /**
+   * Opens a WebSocket connection to the server to track the update status of the manga library.
+   */
   public void startUpdateTracking() {
     @Language("GraphQL")
     String query =
         """
-     subscription TrackMangaUpdate {
-       updateStatusChanged {
-         completeJobs {
-           mangas {
-             nodes {
-               title
-               chapters {
-                 totalCount
-               }
-               id
-             }
-           }
-         }
-         isRunning
-       }
-     }
-     """;
+            subscription TrackMangaUpdate {
+              updateStatusChanged {
+                completeJobs {
+                  mangas {
+                    nodes {
+                      title
+                      chapters {
+                        totalCount
+                      }
+                      id
+                    }
+                  }
+                }
+                isRunning
+              }
+            }
+            """;
 
     var graphClient = webClientService.getWebSocketGraphQlClient();
 
@@ -153,6 +161,11 @@ public class LibUpdateClient {
         .subscribe();
   }
 
+  /**
+   * Restarts the update tracking after a delay of 5 seconds. This is used to prevent the client
+   * from spamming the server with requests in case of an error, such as the server not running
+   * yet.
+   */
   private void restartUpdateTracking() {
     try {
       Thread.sleep(5000);
@@ -164,6 +177,7 @@ public class LibUpdateClient {
   }
 
   private static class SkippedManga {
+
     @JsonProperty("id")
     private Long id;
   }

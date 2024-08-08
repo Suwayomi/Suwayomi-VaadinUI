@@ -28,11 +28,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 /**
- * Service for managing the application settings. <br>
- * Also, responsible for saving the settings to disk and distributing them to the application.
+ * Service for managing the application settings. <br> Also, responsible for saving the settings to
+ * disk and distributing them to the application.
  *
- * @since 0.9.0
  * @version 1.12.0
+ * @since 0.9.0
  */
 @Service
 @Slf4j
@@ -40,7 +40,8 @@ public class SettingsService {
 
   private static final Logger logger = LoggerFactory.getLogger(SettingsService.class);
 
-  @Getter private final Settings settings;
+  @Getter
+  private final Settings settings;
 
   @Getter(AccessLevel.NONE)
   private final ObjectMapper mapper;
@@ -53,6 +54,10 @@ public class SettingsService {
     settings = deserialize();
   }
 
+  /**
+   * Deserializes the settings from disk.
+   * @return The deserialized {@link Settings} instance.
+   */
   private Settings deserialize() {
     final Settings settings;
 
@@ -85,6 +90,9 @@ public class SettingsService {
     return settings;
   }
 
+  /**
+   * Serializes the settings to disk.
+   */
   private void serialize() {
     ObjectMapper mapper = new ObjectMapper();
 

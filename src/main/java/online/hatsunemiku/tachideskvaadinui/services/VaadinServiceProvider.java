@@ -23,6 +23,12 @@ public class VaadinServiceProvider implements VaadinServiceInitListener {
 
   private static VaadinService vaadinService = null;
 
+  /**
+   * Returns the current {@link VaadinService} instance.
+   *
+   * @return The current {@link VaadinService} instance or null if not available (although it should
+   * always be available)
+   */
   public static VaadinService getCurrentService() {
     return vaadinService;
   }

@@ -24,8 +24,8 @@ import org.springframework.stereotype.Service;
 /**
  * Service for sending web push notifications via the WebPush API.
  *
- * @since 1.12.0
  * @version 1.12.0
+ * @since 1.12.0
  */
 @Slf4j
 @Service
@@ -74,10 +74,19 @@ public class WebPushService {
     return webPush;
   }
 
+  /**
+   * Subscribes the client to the push notification service.
+   * @param ui The {@link UI} to subscribe with
+   */
   public void subscribe(UI ui) {
     getWebPush().subscribe(ui, this::setSubscription);
   }
 
+  /**
+   * Sends a notification to the subscribed client.
+   * @param title The title of the notification
+   * @param message The message of the notification
+   */
   public void notify(String title, String message) {
 
     if (subscription == null) {
@@ -95,11 +104,18 @@ public class WebPushService {
     this.subscription = subscription;
   }
 
+  /**
+   * Removes the active subscription from the service.
+   */
   public void removeSubscription() {
     log.info("Removing subscription: {}", subscription.endpoint());
     this.subscription = null;
   }
 
+  /**
+   * Handles the serialization of the subscription object to a file before the service is
+   * destroyed.
+   */
   @PreDestroy
   public void destroy() {
     if (webPush == null) {

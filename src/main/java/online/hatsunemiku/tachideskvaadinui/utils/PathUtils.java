@@ -17,8 +17,8 @@ import org.springframework.core.env.Environment;
 /**
  * Utility class for getting common paths.
  *
- * @since 0.9.0
  * @version 1.12.0
+ * @since 0.9.0
  */
 @UtilityClass
 @Slf4j
@@ -82,6 +82,13 @@ public class PathUtils {
     return devDir;
   }
 
+  /**
+   * Retrieves the resolved project path. e.g. either the project directory or a development
+   * directory depending on the environment.
+   *
+   * @param env The {@link Environment} object used to determine the appropriate path.
+   * @return The resolved project path specified as a {@link Path} object.
+   */
   public static @NotNull Path getResolvedProjectPath(Environment env) {
     Path projectDirPath;
     if (ProfileUtils.isDev(env)) {

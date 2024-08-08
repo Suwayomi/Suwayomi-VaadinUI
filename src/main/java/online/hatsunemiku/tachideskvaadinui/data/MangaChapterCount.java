@@ -12,11 +12,11 @@ import java.util.Map;
 import lombok.Data;
 
 /**
- * Represents a map of manga IDs to their respective chapter count. <br>
- * Example: {3445: 43, 1234: 39, 139: 1}
+ * Represents a map of manga IDs to their respective chapter count. <br> Example: {3445: 43, 1234:
+ * 39, 139: 1}
  *
- * @since 1.12.0
  * @version 1.12.0
+ * @since 1.12.0
  */
 @Data
 public class MangaChapterCount {
@@ -32,14 +32,22 @@ public class MangaChapterCount {
     mangaMap = new HashMap<>();
   }
 
-  public void addManga(int mangaId, int chapterCount) {
-    mangaMap.put(mangaId, chapterCount);
-  }
-
+  /**
+   * Updates the chapter count of the manga with the given ID.
+   *
+   * @param mangaId      The ID of the manga to update the chapter count of.
+   * @param chapterCount The new chapter count of the manga.
+   */
   public void updateChapterCount(int mangaId, int chapterCount) {
     mangaMap.put(mangaId, chapterCount);
   }
 
+  /**
+   * Returns the last known chapter count of the manga with the given ID.
+   *
+   * @param mangaId The ID of the manga to get the chapter count of.
+   * @return The chapter count of the manga with the given ID or -1 if the manga is not in the map.
+   */
   public int getChapterCount(int mangaId) {
     if (!mangaMap.containsKey(mangaId)) {
       return -1;

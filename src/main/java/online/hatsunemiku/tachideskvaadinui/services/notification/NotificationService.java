@@ -25,8 +25,8 @@ import org.springframework.stereotype.Service;
 /**
  * Service responsible for processing events that might require a notification to be sent.
  *
- * @since 1.12.0
  * @version 1.12.0
+ * @since 1.12.0
  */
 @Slf4j
 @Service
@@ -44,6 +44,11 @@ public class NotificationService {
     this.webPushService = webPushService;
   }
 
+  /**
+   * Processes a {@link MangaUpdateEvent} and sends a notification if necessary.
+   *
+   * @param event The {@link MangaUpdateEvent} to process
+   */
   @EventListener(MangaUpdateEvent.class)
   public void notify(MangaUpdateEvent event) {
     VaadinService vaadinService = VaadinServiceProvider.getCurrentService();
@@ -57,7 +62,7 @@ public class NotificationService {
     if (event.isRunning()) {
       throw new IllegalArgumentException(
           "Manga Update event has reached NotificationService, while it's still running - this"
-              + " should not happen");
+          + " should not happen");
     }
 
     List<Manga> completedJobs = event.getCompletedJobs();
@@ -70,7 +75,7 @@ public class NotificationService {
           var count = getNotificationData(manga);
 
           if (count == -1) {
-            mangaChapterCount.addManga(manga.getId(), manga.getChapterCount());
+            mangaChapterCount.updateChapterCount(manga.getId(), manga.getChapterCount());
             return;
           }
 
@@ -86,6 +91,12 @@ public class NotificationService {
         });
   }
 
+  /**
+   * Gets the notification data for a specific manga.
+   *
+   * @param manga The manga to get the data for
+   * @return The chapter count for the manga
+   */
   private int getNotificationData(Manga manga) {
     if (mangaChapterCount == null) {
       loadNotificationData();
@@ -94,6 +105,9 @@ public class NotificationService {
     return mangaChapterCount.getChapterCount(manga.getId());
   }
 
+  /**
+   * Deserializes the notification data from the save file.
+   */
   private void loadNotificationData() {
     var saveFile = projectDir.resolve(MANGA_SAVE_FILE);
 
@@ -111,6 +125,9 @@ public class NotificationService {
     }
   }
 
+  /**
+   * Saves the notification data to a file when the application is shut down.
+   */
   @PreDestroy
   public void saveNotificationData() {
     if (mangaChapterCount == null) {

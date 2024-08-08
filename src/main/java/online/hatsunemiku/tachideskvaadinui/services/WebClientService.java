@@ -95,6 +95,11 @@ public class WebClientService {
     this.graphQlClient = HttpGraphQlClient.create(graphClient);
   }
 
+  /**
+   * Initializes the WebSocket GraphQL client with the given URL.
+   *
+   * @param url the URL of the GraphQL server without the {@code /api/graphql} path.
+   */
   private void initWebSocketGraphQlClient(String url) {
     url = url + "/api/graphql";
     url = url.replace("//api", "/api");
