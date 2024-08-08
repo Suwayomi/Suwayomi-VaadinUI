@@ -19,6 +19,12 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service that handles the updating process of the library.
+ *
+ * @since 0.9.0
+ * @version 1.12.0
+ */
 @Service
 @Slf4j
 public class LibUpdateService {
