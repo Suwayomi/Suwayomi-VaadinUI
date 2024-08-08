@@ -46,6 +46,12 @@ public class WebPushService {
   private Subscription subscription;
   private WebPush webPush;
 
+  /**
+   * Creates a new {@link WebPushService} instance.
+   *
+   * @param mapper The {@link ObjectMapper} used to serialize the subscription
+   * @param env    The {@link Environment} used to get the project directory
+   */
   public WebPushService(ObjectMapper mapper, Environment env) {
     this.mapper = mapper;
 
@@ -86,7 +92,7 @@ public class WebPushService {
   /**
    * Sends a notification to the subscribed client.
    *
-   * @param title The title of the notification
+   * @param title   The title of the notification
    * @param message The message of the notification
    */
   public void notify(String title, String message) {
@@ -106,14 +112,17 @@ public class WebPushService {
     this.subscription = subscription;
   }
 
-  /** Removes the active subscription from the service. */
+  /**
+   * Removes the active subscription from the service.
+   */
   public void removeSubscription() {
     log.info("Removing subscription: {}", subscription.endpoint());
     this.subscription = null;
   }
 
   /**
-   * Handles the serialization of the subscription object to a file before the service is destroyed.
+   * Handles the serialization of the subscription object to a file before the service is
+   * destroyed.
    */
   @PreDestroy
   public void destroy() {

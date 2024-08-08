@@ -22,8 +22,8 @@ import org.springframework.stereotype.Service;
 /**
  * Service that handles the updating process of the library.
  *
- * @since 0.9.0
  * @version 1.12.0
+ * @since 0.9.0
  */
 @Service
 @Slf4j
@@ -33,6 +33,12 @@ public class LibUpdateService {
   private final MangaService mangaService;
   private final Lock lock = new ReentrantLock();
 
+  /**
+   * Creates a new {@link LibUpdateService} instance.
+   *
+   * @param client       The {@link LibUpdateClient} used to communicate with the server
+   * @param mangaService The {@link MangaService} used to fetch manga data
+   */
   public LibUpdateService(LibUpdateClient client, MangaService mangaService) {
     this.client = client;
     this.mangaService = mangaService;
