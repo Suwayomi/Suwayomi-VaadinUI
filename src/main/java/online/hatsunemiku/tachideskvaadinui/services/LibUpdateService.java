@@ -36,7 +36,7 @@ public class LibUpdateService {
   /**
    * Creates a new {@link LibUpdateService} instance.
    *
-   * @param client       The {@link LibUpdateClient} used to communicate with the server
+   * @param client The {@link LibUpdateClient} used to communicate with the server
    * @param mangaService The {@link MangaService} used to fetch manga data
    */
   public LibUpdateService(LibUpdateClient client, MangaService mangaService) {

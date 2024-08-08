@@ -30,7 +30,7 @@ public class LibUpdateClient {
    * Creates a new {@link LibUpdateClient} instance.
    *
    * @param webClientService The {@link WebClientService} used to communicate with the server
-   * @param eventPublisher   The {@link ApplicationEventPublisher} used to publish events
+   * @param eventPublisher The {@link ApplicationEventPublisher} used to publish events
    */
   public LibUpdateClient(
       WebClientService webClientService, ApplicationEventPublisher eventPublisher) {
@@ -103,9 +103,7 @@ public class LibUpdateClient {
     return isRunning;
   }
 
-  /**
-   * Opens a WebSocket connection to the server to track the update status of the manga library.
-   */
+  /** Opens a WebSocket connection to the server to track the update status of the manga library. */
   public void startUpdateTracking() {
     @Language("GraphQL")
     String query =
@@ -169,8 +167,7 @@ public class LibUpdateClient {
 
   /**
    * Restarts the update tracking after a delay of 5 seconds. This is used to prevent the client
-   * from spamming the server with requests in case of an error, such as the server not running
-   * yet.
+   * from spamming the server with requests in case of an error, such as the server not running yet.
    */
   private void restartUpdateTracking() {
     try {
@@ -182,9 +179,7 @@ public class LibUpdateClient {
     startUpdateTracking();
   }
 
-  /**
-   * Represents a manga that has been skipped during the update process.
-   */
+  /** Represents a manga that has been skipped during the update process. */
   private static class SkippedManga {
 
     @JsonProperty("id")

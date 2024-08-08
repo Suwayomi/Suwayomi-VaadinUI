@@ -42,14 +42,13 @@ public class TrackingDataService {
   private final Path tokenFile;
   private final Path trackerFile;
   private final HashMap<Long, Tracker> mangaTrackers = new HashMap<>();
-  @Getter
-  private TrackerTokens tokens;
+  @Getter private TrackerTokens tokens;
 
   /**
    * Creates a new {@link TrackingDataService} instance.
    *
    * @param mapper The {@link ObjectMapper} used to serialize and deserialize the tracking data.
-   * @param env    The {@link Environment} used to get the project directory.
+   * @param env The {@link Environment} used to get the project directory.
    */
   public TrackingDataService(ObjectMapper mapper, Environment env) {
     this.mapper = mapper;
@@ -142,8 +141,7 @@ public class TrackingDataService {
 
     try (var in = Files.newInputStream(trackerFile)) {
 
-      TypeReference<HashMap<Long, Tracker>> typeRef = new TypeReference<>() {
-      };
+      TypeReference<HashMap<Long, Tracker>> typeRef = new TypeReference<>() {};
 
       HashMap<Long, Tracker> tempTrackers = mapper.readValue(in, typeRef);
       if (tempTrackers == null) {

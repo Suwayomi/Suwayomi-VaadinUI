@@ -37,9 +37,12 @@ public class FirstInitService {
 
   /**
    * Creates a {@link FirstInitService} instance.
+   *
    * @param env The {@link Environment} used to get the project directory
-   * @param objectMapper The {@link ObjectMapper} used to read and write the initialization check file
-   * @param suwayomiSettingsService The {@link SuwayomiSettingsService} to change the Suwayomi settings
+   * @param objectMapper The {@link ObjectMapper} used to read and write the initialization check
+   *     file
+   * @param suwayomiSettingsService The {@link SuwayomiSettingsService} to change the Suwayomi
+   *     settings
    */
   public FirstInitService(
       Environment env, ObjectMapper objectMapper, SuwayomiSettingsService suwayomiSettingsService) {
