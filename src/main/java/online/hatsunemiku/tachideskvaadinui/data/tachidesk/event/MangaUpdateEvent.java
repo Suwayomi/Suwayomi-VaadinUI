@@ -13,9 +13,9 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 
 /**
  * Event that is fired when a manga update is completed. <br>
- * Contains a list of completed jobs and a boolean indicating if the update is still running.
- * <br>Any listeners should either fail while the update is still running
- * or should be independent of the update status.
+ * Contains a list of completed jobs and a boolean indicating if the update is still running. <br>
+ * Any listeners should either fail while the update is still running or should be independent of
+ * the update status.
  *
  * @since 1.12.0
  * @version 1.12.0
