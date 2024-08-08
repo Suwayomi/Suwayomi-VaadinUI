@@ -173,9 +173,7 @@ public class LibUpdateClient {
     startUpdateTracking();
   }
 
-  /**
-   * Represents a manga that has been skipped during the update process.
-   */
+  /** Represents a manga that has been skipped during the update process. */
   private static class SkippedManga {
 
     @JsonProperty("id")
