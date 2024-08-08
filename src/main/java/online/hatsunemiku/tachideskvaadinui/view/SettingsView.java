@@ -138,6 +138,13 @@ public class SettingsView extends StandardLayout {
    */
   private Section createNotificationSettingsSection() {
     Section section = new Section();
+    section.setId("notification-settings-section");
+
+    var buttons = new Div();
+    buttons.setId("notification-buttons");
+
+    H2 header = new H2("Notifications");
+    header.addClassName("settings-header");
 
     Button subscribeButton = new Button("Subscribe to notifications");
     subscribeButton.addClickListener(
@@ -158,8 +165,18 @@ public class SettingsView extends StandardLayout {
           notification.open();
         });
 
-    section.add(subscribeButton, testNotificationButton);
+    Button unsubscribeButton = new Button("Unsubscribe from notifications");
+    unsubscribeButton.addClickListener(
+        event -> {
+          webPushService.removeSubscription();
+          Notification notification = new Notification("Unsubscribed from notifications", 3000);
+          notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+          notification.open();
+        });
 
+    buttons.add(subscribeButton, testNotificationButton, unsubscribeButton);
+
+    section.add(header, buttons);
     return section;
   }
 
