@@ -53,18 +53,16 @@ public class TachideskMaintainer {
   private final TachideskStarter starter;
   private final SettingsService settingsService;
   private final File projectDir;
-  @Getter
-  private boolean updating = false;
-  @Getter
-  private double progress = 0;
+  @Getter private boolean updating = false;
+  @Getter private double progress = 0;
 
   /**
    * Creates a new {@link TachideskMaintainer} instance.
    *
-   * @param client          The {@link RestTemplate} used for making HTTP requests.
-   * @param starter         The {@link TachideskStarter} used for starting and stopping the server.
+   * @param client The {@link RestTemplate} used for making HTTP requests.
+   * @param starter The {@link TachideskStarter} used for starting and stopping the server.
    * @param settingsService The {@link SettingsService} used for getting the current settings.
-   * @param env             The {@link Environment} used for getting the project directory.
+   * @param env The {@link Environment} used for getting the project directory.
    */
   public TachideskMaintainer(
       RestTemplate client,
@@ -204,7 +202,7 @@ public class TachideskMaintainer {
    * Checks if the project directory exists and creates it if it does not.
    *
    * @return {@code true} if the project directory exists or was successfully created, {@code false}
-   * otherwise.
+   *     otherwise.
    */
   private boolean checkProjectDir() {
     if (!projectDir.exists()) {
@@ -249,7 +247,7 @@ public class TachideskMaintainer {
   /**
    * This method is used to download the server file from a given URL.
    *
-   * @param jarUrl     The URL of the jar file to download.
+   * @param jarUrl The URL of the jar file to download.
    * @param serverFile The file to write the downloaded content to.
    * @throws IOException If an I/O error occurs.
    */
