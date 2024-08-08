@@ -33,12 +33,16 @@ public class WebPushService {
 
   private final ObjectMapper mapper;
   private final Path subscriptionFile;
+
   @Value("${vaadin.webpush.publicKey}")
   private String publicKey;
+
   @Value("${vaadin.webpush.privateKey}")
   private String privateKey;
+
   @Value("${vaadin.webpush.subject}")
   private String subject;
+
   private Subscription subscription;
   private WebPush webPush;
 
@@ -60,7 +64,6 @@ public class WebPushService {
       log.error("Could not read subscription file", e);
       throw new RuntimeException(e);
     }
-
   }
 
   private WebPush getWebPush() {

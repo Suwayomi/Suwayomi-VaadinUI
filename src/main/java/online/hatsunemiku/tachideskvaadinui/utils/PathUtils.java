@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.env.Environment;
 
-
 /**
  * Utility class for getting common paths.
  *

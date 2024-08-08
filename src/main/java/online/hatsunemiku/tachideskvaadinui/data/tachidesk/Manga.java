@@ -131,9 +131,7 @@ public class Manga {
     return categories.getNodes();
   }
 
-  /**
-   * Represents chapters of a manga with the total count of chapters.
-   */
+  /** Represents chapters of a manga with the total count of chapters. */
   @Getter
   private static class Chapters {
 
