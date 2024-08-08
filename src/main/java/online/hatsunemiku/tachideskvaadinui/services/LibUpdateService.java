@@ -16,10 +16,15 @@ import java.util.concurrent.locks.ReentrantLock;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.services.client.LibUpdateClient;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.graphql.client.FieldAccessException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service that handles the updating process of the library.
+ *
+ * @version 1.12.0
+ * @since 0.9.0
+ */
 @Service
 @Slf4j
 public class LibUpdateService {
@@ -28,9 +33,17 @@ public class LibUpdateService {
   private final MangaService mangaService;
   private final Lock lock = new ReentrantLock();
 
+  /**
+   * Creates a new {@link LibUpdateService} instance.
+   *
+   * @param client The {@link LibUpdateClient} used to communicate with the server
+   * @param mangaService The {@link MangaService} used to fetch manga data
+   */
   public LibUpdateService(LibUpdateClient client, MangaService mangaService) {
     this.client = client;
     this.mangaService = mangaService;
+
+    client.startUpdateTracking();
   }
 
   @CacheEvict(
@@ -66,7 +79,7 @@ public class LibUpdateService {
     for (var m : manga) {
       try {
         mangaService.fetchChapterList(m.getId());
-      } catch (FieldAccessException e) {
+      } catch (RuntimeException e) {
         if (ui == null) {
           log.debug(e.getMessage());
           continue;
@@ -86,7 +99,7 @@ public class LibUpdateService {
     return true;
   }
 
-  @Scheduled(initialDelay = 1, fixedRate = 30, timeUnit = TimeUnit.MINUTES)
+  @Scheduled(initialDelay = 2, fixedRate = 30, timeUnit = TimeUnit.MINUTES)
   protected void scheduledUpdate() {
     boolean success;
     try {

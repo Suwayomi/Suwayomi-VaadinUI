@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.Tracker;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.TrackerTokens;
 import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
-import online.hatsunemiku.tachideskvaadinui.utils.ProfileUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
@@ -45,15 +44,16 @@ public class TrackingDataService {
   private final HashMap<Long, Tracker> mangaTrackers = new HashMap<>();
   @Getter private TrackerTokens tokens;
 
+  /**
+   * Creates a new {@link TrackingDataService} instance.
+   *
+   * @param mapper The {@link ObjectMapper} used to serialize and deserialize the tracking data.
+   * @param env The {@link Environment} used to get the project directory.
+   */
   public TrackingDataService(ObjectMapper mapper, Environment env) {
     this.mapper = mapper;
 
-    Path projectDirPath;
-    if (ProfileUtils.isDev(env)) {
-      projectDirPath = PathUtils.getDevDir();
-    } else {
-      projectDirPath = PathUtils.getProjectDir();
-    }
+    Path projectDirPath = PathUtils.getResolvedProjectPath(env);
 
     this.tokenFile = projectDirPath.resolve("tokens.json");
     this.trackerFile = projectDirPath.resolve("trackers.json");

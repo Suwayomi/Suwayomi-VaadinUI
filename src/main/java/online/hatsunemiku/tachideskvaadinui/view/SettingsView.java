@@ -8,6 +8,7 @@ package online.hatsunemiku.tachideskvaadinui.view;
 
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -38,6 +39,7 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Source;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.SourceService;
 import online.hatsunemiku.tachideskvaadinui.services.SuwayomiSettingsService;
+import online.hatsunemiku.tachideskvaadinui.services.notification.WebPushService;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jetbrains.annotations.NotNull;
@@ -63,6 +65,7 @@ public class SettingsView extends StandardLayout {
   private static final UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
   private final SettingsEventPublisher settingsEventPublisher;
   private final SuwayomiSettingsService suwayomiSettingsService;
+  private final WebPushService webPushService;
 
   /**
    * Creates a new instance of the {@link SettingsView} class.
@@ -76,7 +79,8 @@ public class SettingsView extends StandardLayout {
       SettingsService settingsService,
       SettingsEventPublisher eventPublisher,
       SourceService sourceService,
-      SuwayomiSettingsService suwayomiSettingsService) {
+      SuwayomiSettingsService suwayomiSettingsService,
+      WebPushService webPushService) {
     super("Settings");
     setClassName("settings-view");
 
@@ -91,11 +95,20 @@ public class SettingsView extends StandardLayout {
     Section flareSolverrSettings = createFlareSolverrSection();
     Div separator = getSeparator();
     Section extensionSettings = getExtensionSettingsSection();
-
+    Div notificationSeparator = getSeparator();
+    Section notificationSettings = createNotificationSettingsSection();
+    ;
     content.add(
-        generalSettings, flareSeparator, flareSolverrSettings, separator, extensionSettings);
+        generalSettings,
+        flareSeparator,
+        flareSolverrSettings,
+        separator,
+        extensionSettings,
+        notificationSeparator,
+        notificationSettings);
 
     setContent(content);
+    this.webPushService = webPushService;
   }
 
   /**
@@ -116,6 +129,55 @@ public class SettingsView extends StandardLayout {
           editor.cancel();
         });
     return cancelButton;
+  }
+
+  /**
+   * This method creates the UI section for the settings related to notifications.
+   *
+   * @return A {@link Section} element containing the notification settings UI.
+   */
+  private Section createNotificationSettingsSection() {
+    Section section = new Section();
+    section.setId("notification-settings-section");
+
+    var buttons = new Div();
+    buttons.setId("notification-buttons");
+
+    H2 header = new H2("Notifications");
+    header.addClassName("settings-header");
+
+    Button subscribeButton = new Button("Subscribe to notifications");
+    subscribeButton.addClickListener(
+        event -> {
+          var ui = getUI().orElse(UI.getCurrent());
+          webPushService.subscribe(ui);
+          Notification notification = new Notification("Subscribed to notifications", 3000);
+          notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+          notification.open();
+        });
+
+    Button testNotificationButton = new Button("Test notification");
+    testNotificationButton.addClickListener(
+        event -> {
+          webPushService.notify("Test Title", "Test Message");
+          Notification notification = new Notification("Test notification sent", 3000);
+          notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+          notification.open();
+        });
+
+    Button unsubscribeButton = new Button("Unsubscribe from notifications");
+    unsubscribeButton.addClickListener(
+        event -> {
+          webPushService.removeSubscription();
+          Notification notification = new Notification("Unsubscribed from notifications", 3000);
+          notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+          notification.open();
+        });
+
+    buttons.add(subscribeButton, testNotificationButton, unsubscribeButton);
+
+    section.add(header, buttons);
+    return section;
   }
 
   /**

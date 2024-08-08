@@ -11,7 +11,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.core.env.Environment;
 
+/**
+ * Utility class for getting common paths.
+ *
+ * @version 1.12.0
+ * @since 0.9.0
+ */
 @UtilityClass
 @Slf4j
 public class PathUtils {
@@ -72,5 +80,22 @@ public class PathUtils {
     }
 
     return devDir;
+  }
+
+  /**
+   * Retrieves the resolved project path. e.g. either the project directory or a development
+   * directory depending on the environment.
+   *
+   * @param env The {@link Environment} object used to determine the appropriate path.
+   * @return The resolved project path specified as a {@link Path} object.
+   */
+  public static @NotNull Path getResolvedProjectPath(Environment env) {
+    Path projectDirPath;
+    if (ProfileUtils.isDev(env)) {
+      projectDirPath = PathUtils.getDevDir();
+    } else {
+      projectDirPath = PathUtils.getProjectDir();
+    }
+    return projectDirPath;
   }
 }

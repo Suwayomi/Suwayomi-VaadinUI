@@ -11,6 +11,12 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Represents a manga object from the Suwayomi API.
+ *
+ * @since 0.9.0
+ * @version 1.12.0
+ */
 @Getter
 public class Manga {
 
@@ -125,11 +131,15 @@ public class Manga {
     return categories.getNodes();
   }
 
+  /** Represents chapters of a manga with the total count of chapters. */
   @Getter
   private static class Chapters {
 
     @JsonProperty("edges")
     private List<Edge> edge;
+
+    @JsonProperty("totalCount")
+    private long totalCount;
   }
 
   @Getter
@@ -151,5 +161,24 @@ public class Manga {
 
     @JsonProperty("nodes")
     private List<Category> nodes;
+  }
+
+  /**
+   * Get the total number of chapters for this manga. If the chapter count is not set, the count
+   * will be retrieved from the {@link Chapters chapters} object if available. The default value is
+   * 0.
+   *
+   * @return the total number of chapters for this manga
+   */
+  public int getChapterCount() {
+    if (this.chapterCount != 0) {
+      return chapterCount;
+    }
+
+    if (chapters == null) {
+      return 0;
+    }
+
+    return (int) chapters.getTotalCount();
   }
 }

@@ -19,7 +19,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
-import online.hatsunemiku.tachideskvaadinui.utils.ProfileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +27,17 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service for managing the application settings. <br>
+ * Also, responsible for saving the settings to disk and distributing them to the application.
+ *
+ * @version 1.12.0
+ * @since 0.9.0
+ */
 @Service
 @Slf4j
 public class SettingsService {
+
   private static final Logger logger = LoggerFactory.getLogger(SettingsService.class);
 
   @Getter private final Settings settings;
@@ -46,15 +53,15 @@ public class SettingsService {
     settings = deserialize();
   }
 
+  /**
+   * Deserializes the settings from disk.
+   *
+   * @return The deserialized {@link Settings} instance.
+   */
   private Settings deserialize() {
     final Settings settings;
 
-    Path projectDirPath;
-    if (ProfileUtils.isDev(env)) {
-      projectDirPath = PathUtils.getDevDir();
-    } else {
-      projectDirPath = PathUtils.getProjectDir();
-    }
+    Path projectDirPath = PathUtils.getResolvedProjectPath(env);
 
     Path settingsFile = projectDirPath.resolve("settings.json");
 
@@ -83,15 +90,11 @@ public class SettingsService {
     return settings;
   }
 
+  /** Serializes the settings to disk. */
   private void serialize() {
     ObjectMapper mapper = new ObjectMapper();
 
-    Path projectDirPath;
-    if (ProfileUtils.isDev(env)) {
-      projectDirPath = PathUtils.getDevDir();
-    } else {
-      projectDirPath = PathUtils.getProjectDir();
-    }
+    Path projectDirPath = PathUtils.getResolvedProjectPath(env);
 
     Path settingsFile = projectDirPath.resolve("settings.json");
 

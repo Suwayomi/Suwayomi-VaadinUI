@@ -81,3 +81,18 @@
     flex-direction: column;
     width: 100%;
 }
+
+#notification-settings-section {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+#notification-settings-section #notification-buttons {
+    display: flex;
+    justify-content: center;
+}
+
+#notification-settings-section #notification-buttons vaadin-button {
+    margin-right: .5rem;
+}

@@ -8,10 +8,19 @@ package online.hatsunemiku.tachideskvaadinui.config;
 
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
+import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Vaadin configuration class. <br>
+ * Configures the Vaadin UI with the Miku theme and PWA settings.
+ *
+ * @since 1.10.0
+ * @version 1.12.0
+ */
 @Configuration
 @Push
 @Theme("miku")
+@PWA(name = "Suwayomi VaadinUI", shortName = "VaadinUI")
 public class VaadinConfig implements AppShellConfigurator {}

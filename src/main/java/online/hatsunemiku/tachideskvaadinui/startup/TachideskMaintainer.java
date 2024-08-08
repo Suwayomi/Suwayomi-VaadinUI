@@ -26,7 +26,6 @@ import online.hatsunemiku.tachideskvaadinui.data.settings.event.UrlChangeEvent;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.startup.download.ReadableProgressByteChannel;
 import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
-import online.hatsunemiku.tachideskvaadinui.utils.ProfileUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.TachideskUtils;
 import org.slf4j.Logger;
@@ -57,6 +56,14 @@ public class TachideskMaintainer {
   @Getter private boolean updating = false;
   @Getter private double progress = 0;
 
+  /**
+   * Creates a new {@link TachideskMaintainer} instance.
+   *
+   * @param client The {@link RestTemplate} used for making HTTP requests.
+   * @param starter The {@link TachideskStarter} used for starting and stopping the server.
+   * @param settingsService The {@link SettingsService} used for getting the current settings.
+   * @param env The {@link Environment} used for getting the project directory.
+   */
   public TachideskMaintainer(
       RestTemplate client,
       TachideskStarter starter,
@@ -66,11 +73,7 @@ public class TachideskMaintainer {
     this.starter = starter;
     this.settingsService = settingsService;
 
-    if (ProfileUtils.isDev(env)) {
-      projectDir = PathUtils.getDevDir().toFile();
-    } else {
-      projectDir = PathUtils.getProjectDir().toFile();
-    }
+    projectDir = PathUtils.getResolvedProjectPath(env).toFile();
 
     serverDir = new File(projectDir, "server");
   }

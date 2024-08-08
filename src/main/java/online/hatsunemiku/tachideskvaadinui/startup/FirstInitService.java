@@ -14,13 +14,19 @@ import online.hatsunemiku.tachideskvaadinui.data.InitData;
 import online.hatsunemiku.tachideskvaadinui.data.server.event.ServerStartedEvent;
 import online.hatsunemiku.tachideskvaadinui.services.SuwayomiSettingsService;
 import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
-import online.hatsunemiku.tachideskvaadinui.utils.ProfileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service that initializes the application on the first start. Mainly used for setting up the
+ * Suwayomi settings.
+ *
+ * @since 1.1.0
+ * @version 1.12.0
+ */
 @Service
 public class FirstInitService {
 
@@ -29,13 +35,18 @@ public class FirstInitService {
   private final ObjectMapper objectMapper;
   private final SuwayomiSettingsService suwayomiSettingsService;
 
+  /**
+   * Creates a {@link FirstInitService} instance.
+   *
+   * @param env The {@link Environment} used to get the project directory
+   * @param objectMapper The {@link ObjectMapper} used to read and write the initialization check
+   *     file
+   * @param suwayomiSettingsService The {@link SuwayomiSettingsService} to change the Suwayomi
+   *     settings
+   */
   public FirstInitService(
       Environment env, ObjectMapper objectMapper, SuwayomiSettingsService suwayomiSettingsService) {
-    if (ProfileUtils.isDev(env)) {
-      projectDir = PathUtils.getDevDir();
-    } else {
-      projectDir = PathUtils.getProjectDir();
-    }
+    projectDir = PathUtils.getResolvedProjectPath(env);
 
     this.objectMapper = objectMapper;
     this.suwayomiSettingsService = suwayomiSettingsService;
