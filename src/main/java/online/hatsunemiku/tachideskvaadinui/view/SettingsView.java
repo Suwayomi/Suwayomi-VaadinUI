@@ -602,7 +602,12 @@ public class SettingsView extends StandardLayout {
 
     FormLayout form = new FormLayout();
 
-    FlareSolverrSettings flareSolverrSettings = suwayomiSettingsService.getFlareSolverrSettings();
+    FlareSolverrSettings flareSolverrSettings;
+    try {
+      flareSolverrSettings = suwayomiSettingsService.getFlareSolverrSettings();
+    } catch (Exception e) {
+      flareSolverrSettings = null;
+    }
 
     TextField urlField = createFlareSolverrUrlField(flareSolverrSettings);
 
@@ -624,7 +629,12 @@ public class SettingsView extends StandardLayout {
    */
   private @NotNull TextField createFlareSolverrUrlField(FlareSolverrSettings flareSolverrSettings) {
     TextField urlField = new TextField("FlareSolverr URL");
-    urlField.setValue(flareSolverrSettings.getUrl());
+    if (flareSolverrSettings != null) {
+      urlField.setValue(flareSolverrSettings.getUrl());
+    } else {
+      urlField.setEnabled(false);
+      urlField.setValue("Not available, because server is not running");
+    }
     urlField.setPlaceholder("http://localhost:8191");
     urlField.addValueChangeListener(
         e -> {
@@ -666,8 +676,13 @@ public class SettingsView extends StandardLayout {
       FlareSolverrSettings flareSolverrSettings) {
     ComboBox<Boolean> enabledChoiceBox = new ComboBox<>();
     enabledChoiceBox.setLabel("FlareSolverr Enabled");
-    enabledChoiceBox.setItems(true, false);
-    enabledChoiceBox.setValue(flareSolverrSettings.isEnabled());
+    if (flareSolverrSettings != null) {
+      enabledChoiceBox.setItems(true, false);
+      enabledChoiceBox.setValue(flareSolverrSettings.isEnabled());
+    } else {
+      enabledChoiceBox.setEnabled(false);
+    }
+
     enabledChoiceBox.addValueChangeListener(
         e -> {
           boolean enabled = e.getValue();
