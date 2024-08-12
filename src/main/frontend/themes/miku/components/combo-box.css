@@ -19,3 +19,11 @@ vaadin-combo-box::part(input-field) {
 vaadin-combo-box::part(toggle-button) {
   color: var(--miku-main-color);
 }
+vaadin-combo-box[disabled]::part(input-field) {
+  border: var(--miku-unselected-color) 1px dashed
+}
+
+vaadin-combo-box[readonly]::part(input-field) {
+  border: none;
+  --vaadin-input-field-readonly-border: var(--miku-unselected-color) 1px dashed !important;
+}
