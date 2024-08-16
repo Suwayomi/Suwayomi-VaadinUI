@@ -118,6 +118,10 @@ public class WebPushService {
     this.subscription = null;
   }
 
+  public void updateSubscription(Subscription subscription) {
+    this.subscription = subscription;
+  }
+
   /**
    * Handles the serialization of the subscription object to a file before the service is destroyed.
    */
