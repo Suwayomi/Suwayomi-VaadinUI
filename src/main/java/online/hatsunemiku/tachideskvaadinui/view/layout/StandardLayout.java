@@ -6,7 +6,9 @@
 
 package online.hatsunemiku.tachideskvaadinui.view.layout;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
@@ -16,19 +18,25 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.time.LocalDate;
+import lombok.extern.slf4j.Slf4j;
+import online.hatsunemiku.tachideskvaadinui.services.notification.WebPushService;
 import online.hatsunemiku.tachideskvaadinui.view.ExtensionsView;
 import online.hatsunemiku.tachideskvaadinui.view.RootView;
 import online.hatsunemiku.tachideskvaadinui.view.SearchView;
 import online.hatsunemiku.tachideskvaadinui.view.SettingsView;
 import online.hatsunemiku.tachideskvaadinui.view.source.SourcesView;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 
+@Slf4j
 @CssImport("./css/common.css")
 public class StandardLayout extends VerticalLayout {
 
   private HorizontalLayout navBar;
   private final VerticalLayout content;
   private final Footer footer;
+  @Autowired
+  private WebPushService webPushService;
 
   public StandardLayout(String title) {
     setId("container");
@@ -173,5 +181,16 @@ public class StandardLayout extends VerticalLayout {
     this.navBar.setVisible(true);
     this.footer.setVisible(true);
     removeClassName("fullscreen");
+  }
+
+  @Override
+  protected void onAttach(AttachEvent attachEvent) {
+    if (webPushService == null) {
+      log.warn("WebPushService is null");
+      return;
+    }
+
+    UI ui = attachEvent.getUI();
+    webPushService.checkExistingSubscription(ui);
   }
 }

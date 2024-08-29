@@ -122,6 +122,17 @@ public class WebPushService {
     this.subscription = subscription;
   }
 
+  public void checkExistingSubscription(UI ui) {
+
+    var webPush = getWebPush();
+
+    webPush.subscriptionExists(ui, registered -> {
+      if (registered) {
+        webPush.fetchExistingSubscription(ui, this::updateSubscription);
+      }
+    });
+  }
+
   /**
    * Handles the serialization of the subscription object to a file before the service is destroyed.
    */
