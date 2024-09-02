@@ -119,6 +119,33 @@ public class WebPushService {
   }
 
   /**
+   * Updates the subscription to a new instance.
+   *
+   * @param subscription The new subscription to update to
+   */
+  public void updateSubscription(Subscription subscription) {
+    this.subscription = subscription;
+  }
+
+  /**
+   * Checks if a subscription already exists on the client side and fetches it if it does.
+   *
+   * @param ui The {@link UI} to check the subscription for
+   */
+  public void checkExistingSubscription(UI ui) {
+
+    var webPush = getWebPush();
+
+    webPush.subscriptionExists(
+        ui,
+        registered -> {
+          if (registered) {
+            webPush.fetchExistingSubscription(ui, this::updateSubscription);
+          }
+        });
+  }
+
+  /**
    * Handles the serialization of the subscription object to a file before the service is destroyed.
    */
   @PreDestroy
