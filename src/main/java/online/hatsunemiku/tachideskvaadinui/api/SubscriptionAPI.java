@@ -54,15 +54,11 @@ public class SubscriptionAPI {
   /**
    * Request for updating the web push subscription.
    *
-   * @param old  The old subscription
+   * @param old The old subscription
    * @param _new The new subscription
    * @version 1.12.0
    * @since 1.12.0
    */
   public record SubscriptionUpdateRequest(
-      @JsonProperty("old") Subscription old,
-      @JsonProperty("new") Subscription _new
-  ) {
-
-  }
+      @JsonProperty("old") Subscription old, @JsonProperty("new") Subscription _new) {}
 }
