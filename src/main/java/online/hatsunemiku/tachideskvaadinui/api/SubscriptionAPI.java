@@ -33,13 +33,8 @@ public class SubscriptionAPI {
     log.info("replacing old subscription with new subscription");
 
     webPushService.updateSubscription(newSubscription);
-
   }
 
   public record SubscriptionUpdateRequest(
-      @JsonProperty("old") Subscription old,
-      @JsonProperty("new") Subscription _new
-  ) {
-  }
-
+      @JsonProperty("old") Subscription old, @JsonProperty("new") Subscription _new) {}
 }
