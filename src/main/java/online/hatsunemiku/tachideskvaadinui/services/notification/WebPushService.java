@@ -138,11 +138,13 @@ public class WebPushService {
 
     var webPush = getWebPush();
 
-    webPush.subscriptionExists(ui, registered -> {
-      if (registered) {
-        webPush.fetchExistingSubscription(ui, this::updateSubscription);
-      }
-    });
+    webPush.subscriptionExists(
+        ui,
+        registered -> {
+          if (registered) {
+            webPush.fetchExistingSubscription(ui, this::updateSubscription);
+          }
+        });
   }
 
   /**

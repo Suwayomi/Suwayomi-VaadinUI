@@ -43,7 +43,6 @@ public class SubscriptionAPI {
     log.info("replacing old subscription with new subscription");
 
     webPushService.updateSubscription(newSubscription);
-
   }
 
   public record SubscriptionUpdateRequest(
@@ -52,5 +51,4 @@ public class SubscriptionAPI {
   ) {
 
   }
-
 }

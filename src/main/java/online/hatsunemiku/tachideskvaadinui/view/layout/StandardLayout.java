@@ -42,8 +42,7 @@ public class StandardLayout extends VerticalLayout {
   private final VerticalLayout content;
   private final Footer footer;
   private HorizontalLayout navBar;
-  @Autowired
-  private WebPushService webPushService;
+  @Autowired private WebPushService webPushService;
 
   public StandardLayout(String title) {
     setId("container");
