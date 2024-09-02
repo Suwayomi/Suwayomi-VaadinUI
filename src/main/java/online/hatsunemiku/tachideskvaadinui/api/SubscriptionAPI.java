@@ -26,6 +26,10 @@ public class SubscriptionAPI {
 
   private WebPushService webPushService;
 
+  /**
+   * Creates a new {@link SubscriptionAPI} instance.
+   * @param webPushService The {@link WebPushService} used to update the subscription
+   */
   public SubscriptionAPI(WebPushService webPushService) {
     this.webPushService = webPushService;
   }
