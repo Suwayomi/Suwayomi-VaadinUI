@@ -30,6 +30,10 @@ public class SubscriptionAPI {
     this.webPushService = webPushService;
   }
 
+  /**
+   * Updates the web push subscription of the user.
+   * @param request The request containing the old and new subscription
+   */
   @PostMapping("update")
   public void updateSubscription(@RequestBody SubscriptionUpdateRequest request) {
     log.info("Updating subscription");
