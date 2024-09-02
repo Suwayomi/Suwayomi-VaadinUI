@@ -28,13 +28,20 @@ import online.hatsunemiku.tachideskvaadinui.view.source.SourcesView;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * A standard layout used by most views in the application. It contains a navigation bar, the main
+ * content and a footer.
+ *
+ * @version 1.12.0
+ * @since 0.9.0
+ */
 @Slf4j
 @CssImport("./css/common.css")
 public class StandardLayout extends VerticalLayout {
 
-  private HorizontalLayout navBar;
   private final VerticalLayout content;
   private final Footer footer;
+  private HorizontalLayout navBar;
   @Autowired
   private WebPushService webPushService;
 

@@ -14,6 +14,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * API for updating the web push subscription of the user.
+ *
+ * @version 1.12.0
+ * @since 1.12.0
+ */
 @Slf4j
 @RestController("/api/subscription")
 public class SubscriptionAPI {
@@ -40,6 +46,7 @@ public class SubscriptionAPI {
       @JsonProperty("old") Subscription old,
       @JsonProperty("new") Subscription _new
   ) {
+
   }
 
 }
