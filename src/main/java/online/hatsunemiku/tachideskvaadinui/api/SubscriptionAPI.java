@@ -28,6 +28,7 @@ public class SubscriptionAPI {
 
   /**
    * Creates a new {@link SubscriptionAPI} instance.
+   *
    * @param webPushService The {@link WebPushService} used to update the subscription
    */
   public SubscriptionAPI(WebPushService webPushService) {
@@ -36,6 +37,7 @@ public class SubscriptionAPI {
 
   /**
    * Updates the web push subscription of the user.
+   *
    * @param request The request containing the old and new subscription
    */
   @PostMapping("update")
@@ -49,6 +51,14 @@ public class SubscriptionAPI {
     webPushService.updateSubscription(newSubscription);
   }
 
+  /**
+   * Request for updating the web push subscription.
+   *
+   * @param old  The old subscription
+   * @param _new The new subscription
+   * @version 1.12.0
+   * @since 1.12.0
+   */
   public record SubscriptionUpdateRequest(
       @JsonProperty("old") Subscription old,
       @JsonProperty("new") Subscription _new
