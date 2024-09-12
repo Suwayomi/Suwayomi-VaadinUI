@@ -77,9 +77,9 @@ public class SettingsView extends StandardLayout {
   /**
    * Creates a new instance of the {@link SettingsView} class.
    *
-   * @param settingsService         The service to retrieve settings from.
-   * @param eventPublisher          The event publisher to publish settings events with.
-   * @param sourceService           The service to retrieve sources from.
+   * @param settingsService The service to retrieve settings from.
+   * @param eventPublisher The event publisher to publish settings events with.
+   * @param sourceService The service to retrieve sources from.
    * @param suwayomiSettingsService The service to retrieve Suwayomi settings from.
    */
   public SettingsView(
@@ -139,8 +139,8 @@ public class SettingsView extends StandardLayout {
 
   private static void removeWindowsStartup() {
     if (!OSUtils.isWindows()) {
-      Notification notification = new Notification(
-          "Startup with Windows is only available on Windows", 3000);
+      Notification notification =
+          new Notification("Startup with Windows is only available on Windows", 3000);
       notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
       notification.open();
       return;
@@ -159,9 +159,11 @@ public class SettingsView extends StandardLayout {
       var startupShortcut = new File(startupFolder, STARTUP_CMD_NAME);
       startupShortcut.deleteOnExit();
 
-      Notification notification = new Notification(
-          "Failed to remove startup shortcut. Trying to remove shortcut after Application closes",
-          3000);
+      Notification notification =
+          new Notification(
+              "Failed to remove startup shortcut. Trying to remove shortcut after Application"
+                  + " closes",
+              3000);
       notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
       notification.open();
     }
@@ -226,7 +228,7 @@ public class SettingsView extends StandardLayout {
    * This method is used to create a section for the general settings.
    *
    * @param settingsService The service to retrieve settings from.
-   * @param sourceService   The service to retrieve sources from.
+   * @param sourceService The service to retrieve sources from.
    * @return A {@link Section} containing the general settings.
    */
   @NotNull
@@ -248,9 +250,7 @@ public class SettingsView extends StandardLayout {
     Div checkboxContainer = new Div();
     checkboxContainer.addClassName("checkbox-container");
 
-    SuperCheckbox checkbox = new SuperCheckbox()
-        .withLabel("Startup Popup")
-        .withId("start-popup");
+    SuperCheckbox checkbox = new SuperCheckbox().withLabel("Startup Popup").withId("start-popup");
 
     checkbox.addClassName("settings-checkbox");
     checkbox.setValue(settingsService.getSettings().isStartPopup());
@@ -271,29 +271,31 @@ public class SettingsView extends StandardLayout {
     return generalSettingsSection;
   }
 
-  private @NotNull SuperCheckbox getStartupWithWindowsCheckbox(SettingsService settingsService,
-      Binder<Settings> binder) {
-    SuperCheckbox startupWithWindowsCheckbox = new SuperCheckbox().withLabel("Start with Windows")
-        .withId("start-with-windows");
+  private @NotNull SuperCheckbox getStartupWithWindowsCheckbox(
+      SettingsService settingsService, Binder<Settings> binder) {
+    SuperCheckbox startupWithWindowsCheckbox =
+        new SuperCheckbox().withLabel("Start with Windows").withId("start-with-windows");
     startupWithWindowsCheckbox.setValue(settingsService.getSettings().isStartWithWindows());
     startupWithWindowsCheckbox.addClassName("settings-checkbox");
-    startupWithWindowsCheckbox.addValueChangeListener(e -> {
-      boolean startWithWindows = e.getValue();
-      if (startWithWindows) {
-        createWindowsStartup();
-      } else {
-        removeWindowsStartup();
-      }
-    });
-    binder.forField(startupWithWindowsCheckbox)
+    startupWithWindowsCheckbox.addValueChangeListener(
+        e -> {
+          boolean startWithWindows = e.getValue();
+          if (startWithWindows) {
+            createWindowsStartup();
+          } else {
+            removeWindowsStartup();
+          }
+        });
+    binder
+        .forField(startupWithWindowsCheckbox)
         .bind(Settings::isStartWithWindows, Settings::setStartWithWindows);
     return startupWithWindowsCheckbox;
   }
 
   private void createWindowsStartup() {
     if (!OSUtils.isWindows()) {
-      Notification notification = new Notification(
-          "Startup with Windows is only available on Windows", 3000);
+      Notification notification =
+          new Notification("Startup with Windows is only available on Windows", 3000);
       notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
       notification.open();
       return;
@@ -326,11 +328,13 @@ public class SettingsView extends StandardLayout {
       }
 
       File startupShortcut = new File(startupFolderFile, STARTUP_CMD_NAME);
-      String startupCommand = """
+      String startupCommand =
+          """
           @echo off
           chdir "%s"
           start "" "%s"
-          """.formatted(vaauiDir.getAbsolutePath(), exeFile.getAbsolutePath());
+          """
+              .formatted(vaauiDir.getAbsolutePath(), exeFile.getAbsolutePath());
 
       Files.deleteIfExists(startupShortcut.toPath());
       Files.createFile(startupShortcut.toPath());
@@ -357,8 +361,8 @@ public class SettingsView extends StandardLayout {
   }
 
   private @NotNull String getJarLocation() {
-    var jarLocation = this.getClass().getProtectionDomain().getCodeSource().getLocation()
-        .toString();
+    var jarLocation =
+        this.getClass().getProtectionDomain().getCodeSource().getLocation().toString();
     log.debug("Code location: {}", jarLocation);
     jarLocation = jarLocation.replace("jar:nested:/", "");
     jarLocation = jarLocation.replace("!BOOT-INF/classes/!/", "");
@@ -610,10 +614,9 @@ public class SettingsView extends StandardLayout {
    * default search language.
    *
    * @param sourceService The service to retrieve sources from.
-   * @param binder        The binder to bind the selected language to the defaultSearchLang
-   *                      property
+   * @param binder The binder to bind the selected language to the defaultSearchLang property
    * @return A {@link ComboBox} of available languages, or a read-only ComboBox with a warning
-   * message if the server is not running.
+   *     message if the server is not running.
    */
   private ComboBox<String> createSearchLangField(
       SourceService sourceService, Binder<Settings> binder) {
@@ -677,10 +680,10 @@ public class SettingsView extends StandardLayout {
    * default source language.
    *
    * @param sourceService The service to retrieve sources from.
-   * @param binder        The binder to bind the selected source to the defaultSourceLang property
-   *                      of the Settings object.
+   * @param binder The binder to bind the selected source to the defaultSourceLang property of the
+   *     Settings object.
    * @return A {@link ComboBox} of available languages, or a read-only ComboBox with a warning
-   * message if the server is not running.
+   *     message if the server is not running.
    */
   private ComboBox<String> getDefaultSourceField(
       SourceService sourceService, Binder<Settings> binder) {
@@ -715,7 +718,7 @@ public class SettingsView extends StandardLayout {
    *
    * @param sourceService The service to retrieve sources from.
    * @return A {@link ComboBox} of languages available from the sources, or a read-only ComboBox
-   * with a warning message if the server is not running.
+   *     with a warning message if the server is not running.
    */
   private ComboBox<String> getDefaultLangField(SourceService sourceService) {
 
@@ -771,7 +774,7 @@ public class SettingsView extends StandardLayout {
    * This method is used to create a TextField to set the URL of the FlareSolverr server.
    *
    * @param flareSolverrSettings The {@link FlareSolverrSettings FlareSolverr Settings} representing
-   *                             the initial state.
+   *     the initial state.
    * @return A {@link TextField} to set the URL of the FlareSolverr server.
    */
   private @NotNull TextField createFlareSolverrUrlField(FlareSolverrSettings flareSolverrSettings) {
@@ -816,7 +819,7 @@ public class SettingsView extends StandardLayout {
    * This method is used to create a ComboBox to enable or disable FlareSolverr.
    *
    * @param flareSolverrSettings The {@link FlareSolverrSettings FlareSolverr Settings} representing
-   *                             the initial state.
+   *     the initial state.
    * @return A {@link ComboBox} to enable or disable FlareSolverr.
    */
   private @NotNull ComboBox<Boolean> createFlareSolverrEnabledField(
