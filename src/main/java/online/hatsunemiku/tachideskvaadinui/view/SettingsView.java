@@ -255,10 +255,12 @@ public class SettingsView extends StandardLayout {
     checkbox.addClassName("settings-checkbox");
     checkbox.setValue(settingsService.getSettings().isStartPopup());
     binder.forField(checkbox).bind(Settings::isStartPopup, Settings::setStartPopup);
+    checkboxContainer.add(checkbox);
 
-    var startupWithWindowsCheckbox = getStartupWithWindowsCheckbox(settingsService, binder);
-
-    checkboxContainer.add(checkbox, startupWithWindowsCheckbox);
+    if (OSUtils.isWindows()) {
+      var startupWithWindowsCheckbox = getStartupWithWindowsCheckbox(settingsService, binder);
+      checkboxContainer.add(startupWithWindowsCheckbox);
+    }
 
     binder.setBean(settingsService.getSettings());
 
