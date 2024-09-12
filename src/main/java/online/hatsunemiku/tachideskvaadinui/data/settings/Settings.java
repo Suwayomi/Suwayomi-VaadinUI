@@ -54,6 +54,11 @@ public class Settings {
   @Setter
   private String defaultSourceLang;
 
+  @Getter
+  @Setter
+  @JsonProperty("startWithWindows")
+  private boolean startWithWindows;
+
   /**
    * Creates a new Settings object with the given parameters.
    *

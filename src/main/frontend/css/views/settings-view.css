@@ -18,15 +18,18 @@
 
 .settings-view .content .checkbox-container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
+    justify-content: center;
     border: 1px solid var(--miku-main-color);
     border-radius: 0.5rem;
-    padding: 1rem;
     width: 99% !important;
     margin-right: 10vw !important;
+}
+
+.settings-view .content .checkbox-container .settings-checkbox {
+    margin: 0.5rem;
+    padding: 0.25rem;
 }
 
 .settings-view .button-container vaadin-button {

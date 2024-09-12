@@ -29,6 +29,12 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.router.Route;
+import com.vaadin.open.OSUtils;
+import java.io.File;
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.data.settings.FlareSolverrSettings;
@@ -61,6 +67,7 @@ import org.vaadin.miki.superfields.text.SuperTextField;
 @CssImport("./css/views/settings-view.css")
 public class SettingsView extends StandardLayout {
 
+  public static final String STARTUP_CMD_NAME = "startupVaaUI.cmd";
   private static final Logger log = LoggerFactory.getLogger(SettingsView.class);
   private static final UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
   private final SettingsEventPublisher settingsEventPublisher;
@@ -70,9 +77,9 @@ public class SettingsView extends StandardLayout {
   /**
    * Creates a new instance of the {@link SettingsView} class.
    *
-   * @param settingsService The service to retrieve settings from.
-   * @param eventPublisher The event publisher to publish settings events with.
-   * @param sourceService The service to retrieve sources from.
+   * @param settingsService         The service to retrieve settings from.
+   * @param eventPublisher          The event publisher to publish settings events with.
+   * @param sourceService           The service to retrieve sources from.
    * @param suwayomiSettingsService The service to retrieve Suwayomi settings from.
    */
   public SettingsView(
@@ -97,7 +104,6 @@ public class SettingsView extends StandardLayout {
     Section extensionSettings = getExtensionSettingsSection();
     Div notificationSeparator = getSeparator();
     Section notificationSettings = createNotificationSettingsSection();
-    ;
     content.add(
         generalSettings,
         flareSeparator,
@@ -129,6 +135,42 @@ public class SettingsView extends StandardLayout {
           editor.cancel();
         });
     return cancelButton;
+  }
+
+  private static void removeWindowsStartup() {
+    if (!OSUtils.isWindows()) {
+      Notification notification = new Notification(
+          "Startup with Windows is only available on Windows", 3000);
+      notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+      notification.open();
+      return;
+    }
+
+    try {
+      var startupFolder = getStartupFolder();
+      var startupShortcut = new File(startupFolder, STARTUP_CMD_NAME);
+      Files.deleteIfExists(startupShortcut.toPath());
+      Notification notification = new Notification("Startup shortcut removed", 3000);
+      notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+      notification.open();
+    } catch (IOException ex) {
+      log.error("Failed to remove startup shortcut", ex);
+      var startupFolder = getStartupFolder();
+      var startupShortcut = new File(startupFolder, STARTUP_CMD_NAME);
+      startupShortcut.deleteOnExit();
+
+      Notification notification = new Notification(
+          "Failed to remove startup shortcut. Trying to remove shortcut after Application closes",
+          3000);
+      notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+      notification.open();
+    }
+  }
+
+  private static @NotNull String getStartupFolder() {
+    String appdata = System.getenv("APPDATA");
+    String startupShellPath = "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup";
+    return appdata + startupShellPath;
   }
 
   /**
@@ -184,7 +226,7 @@ public class SettingsView extends StandardLayout {
    * This method is used to create a section for the general settings.
    *
    * @param settingsService The service to retrieve settings from.
-   * @param sourceService The service to retrieve sources from.
+   * @param sourceService   The service to retrieve sources from.
    * @return A {@link Section} containing the general settings.
    */
   @NotNull
@@ -206,11 +248,17 @@ public class SettingsView extends StandardLayout {
     Div checkboxContainer = new Div();
     checkboxContainer.addClassName("checkbox-container");
 
-    SuperCheckbox checkbox = new SuperCheckbox().withLabel("Startup Popup").withId("start-popup");
+    SuperCheckbox checkbox = new SuperCheckbox()
+        .withLabel("Startup Popup")
+        .withId("start-popup");
+
+    checkbox.addClassName("settings-checkbox");
     checkbox.setValue(settingsService.getSettings().isStartPopup());
     binder.forField(checkbox).bind(Settings::isStartPopup, Settings::setStartPopup);
 
-    checkboxContainer.add(checkbox);
+    var startupWithWindowsCheckbox = getStartupWithWindowsCheckbox(settingsService, binder);
+
+    checkboxContainer.add(checkbox, startupWithWindowsCheckbox);
 
     binder.setBean(settingsService.getSettings());
 
@@ -219,6 +267,102 @@ public class SettingsView extends StandardLayout {
 
     generalSettingsSection.add(header, generalSettingsContent);
     return generalSettingsSection;
+  }
+
+  private @NotNull SuperCheckbox getStartupWithWindowsCheckbox(SettingsService settingsService,
+      Binder<Settings> binder) {
+    SuperCheckbox startupWithWindowsCheckbox = new SuperCheckbox().withLabel("Start with Windows")
+        .withId("start-with-windows");
+    startupWithWindowsCheckbox.setValue(settingsService.getSettings().isStartWithWindows());
+    startupWithWindowsCheckbox.addClassName("settings-checkbox");
+    startupWithWindowsCheckbox.addValueChangeListener(e -> {
+      boolean startWithWindows = e.getValue();
+      if (startWithWindows) {
+        createWindowsStartup();
+      } else {
+        removeWindowsStartup();
+      }
+    });
+    binder.forField(startupWithWindowsCheckbox)
+        .bind(Settings::isStartWithWindows, Settings::setStartWithWindows);
+    return startupWithWindowsCheckbox;
+  }
+
+  private void createWindowsStartup() {
+    if (!OSUtils.isWindows()) {
+      Notification notification = new Notification(
+          "Startup with Windows is only available on Windows", 3000);
+      notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+      notification.open();
+      return;
+    }
+
+    try {
+      var vaauiDir = getVaaUIDir();
+
+      var exeFile = new File(vaauiDir, "Tachidesk Vaadin UI.exe");
+      log.debug("Exe file: {}", exeFile);
+
+      if (!exeFile.exists()) {
+        log.error("Tachidesk Vaadin UI.exe not found");
+        Notification notification = new Notification("Tachidesk Vaadin UI.exe not found", 3000);
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.open();
+        return;
+      }
+
+      String startupFolder = getStartupFolder();
+      File startupFolderFile = new File(startupFolder);
+
+      if (!startupFolderFile.exists()) {
+        log.error("Startup folder not found");
+        log.info("startup folder: {}", startupFolder);
+        Notification notification = new Notification("Startup folder not found", 3000);
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.open();
+        return;
+      }
+
+      File startupShortcut = new File(startupFolderFile, STARTUP_CMD_NAME);
+      String startupCommand = """
+          @echo off
+          chdir "%s"
+          start "" "%s"
+          """.formatted(vaauiDir.getAbsolutePath(), exeFile.getAbsolutePath());
+
+      Files.deleteIfExists(startupShortcut.toPath());
+      Files.createFile(startupShortcut.toPath());
+      Files.writeString(startupShortcut.toPath(), startupCommand);
+
+      Notification notification = new Notification("Startup shortcut created", 3000);
+      notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+      notification.open();
+    } catch (IOException ex) {
+      log.error("Failed to create startup shortcut", ex);
+    }
+  }
+
+  private File getVaaUIDir() {
+    var jarLocation = getJarLocation();
+
+    String normalJarPath = URLDecoder.decode(jarLocation, StandardCharsets.UTF_8);
+
+    File jarFile = new File(normalJarPath);
+
+    var vaauiDir = jarFile.getParentFile().getParentFile();
+    log.debug("VaaUI dir: {}", vaauiDir);
+    return vaauiDir;
+  }
+
+  private @NotNull String getJarLocation() {
+    var jarLocation = this.getClass().getProtectionDomain().getCodeSource().getLocation()
+        .toString();
+    log.debug("Code location: {}", jarLocation);
+    jarLocation = jarLocation.replace("jar:nested:/", "");
+    jarLocation = jarLocation.replace("!BOOT-INF/classes/!/", "");
+
+    log.debug("Jar location: {}", jarLocation);
+    return jarLocation;
   }
 
   private Section getExtensionSettingsSection() {
@@ -464,9 +608,10 @@ public class SettingsView extends StandardLayout {
    * default search language.
    *
    * @param sourceService The service to retrieve sources from.
-   * @param binder The binder to bind the selected language to the defaultSearchLang property
+   * @param binder        The binder to bind the selected language to the defaultSearchLang
+   *                      property
    * @return A {@link ComboBox} of available languages, or a read-only ComboBox with a warning
-   *     message if the server is not running.
+   * message if the server is not running.
    */
   private ComboBox<String> createSearchLangField(
       SourceService sourceService, Binder<Settings> binder) {
@@ -530,10 +675,10 @@ public class SettingsView extends StandardLayout {
    * default source language.
    *
    * @param sourceService The service to retrieve sources from.
-   * @param binder The binder to bind the selected source to the defaultSourceLang property of the
-   *     Settings object.
+   * @param binder        The binder to bind the selected source to the defaultSourceLang property
+   *                      of the Settings object.
    * @return A {@link ComboBox} of available languages, or a read-only ComboBox with a warning
-   *     message if the server is not running.
+   * message if the server is not running.
    */
   private ComboBox<String> getDefaultSourceField(
       SourceService sourceService, Binder<Settings> binder) {
@@ -568,7 +713,7 @@ public class SettingsView extends StandardLayout {
    *
    * @param sourceService The service to retrieve sources from.
    * @return A {@link ComboBox} of languages available from the sources, or a read-only ComboBox
-   *     with a warning message if the server is not running.
+   * with a warning message if the server is not running.
    */
   private ComboBox<String> getDefaultLangField(SourceService sourceService) {
 
@@ -624,7 +769,7 @@ public class SettingsView extends StandardLayout {
    * This method is used to create a TextField to set the URL of the FlareSolverr server.
    *
    * @param flareSolverrSettings The {@link FlareSolverrSettings FlareSolverr Settings} representing
-   *     the initial state.
+   *                             the initial state.
    * @return A {@link TextField} to set the URL of the FlareSolverr server.
    */
   private @NotNull TextField createFlareSolverrUrlField(FlareSolverrSettings flareSolverrSettings) {
@@ -669,7 +814,7 @@ public class SettingsView extends StandardLayout {
    * This method is used to create a ComboBox to enable or disable FlareSolverr.
    *
    * @param flareSolverrSettings The {@link FlareSolverrSettings FlareSolverr Settings} representing
-   *     the initial state.
+   *                             the initial state.
    * @return A {@link ComboBox} to enable or disable FlareSolverr.
    */
   private @NotNull ComboBox<Boolean> createFlareSolverrEnabledField(
