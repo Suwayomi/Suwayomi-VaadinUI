@@ -137,9 +137,7 @@ public class SettingsView extends StandardLayout {
     return cancelButton;
   }
 
-  /**
-   * Removes the batch file in the Windows startup folder that starts the Vaadin UI on startup.
-   */
+  /** Removes the batch file in the Windows startup folder that starts the Vaadin UI on startup. */
   private static void removeWindowsStartup() {
     if (!OSUtils.isWindows()) {
       Notification notification =
@@ -174,6 +172,7 @@ public class SettingsView extends StandardLayout {
 
   /**
    * Gets the Windows startup folder.
+   *
    * @return The path to the Windows startup folder as a String.
    */
   private static @NotNull String getStartupFolder() {
@@ -281,8 +280,10 @@ public class SettingsView extends StandardLayout {
   /**
    * This method creates the checkbox to let the user choose whether to start the application with
    * Windows.
+   *
    * @param settingsService The service to retrieve settings from.
-   * @param binder The binder to bind the checkbox to the startWithWindows property of the Settings object.
+   * @param binder The binder to bind the checkbox to the startWithWindows property of the Settings
+   *     object.
    * @return The configured {@link SuperCheckbox} element.
    */
   private @NotNull SuperCheckbox getStartupWithWindowsCheckbox(
@@ -306,9 +307,7 @@ public class SettingsView extends StandardLayout {
     return startupWithWindowsCheckbox;
   }
 
-  /**
-   * Creates a batch file in the Windows startup folder to start the Vaadin UI on startup.
-   */
+  /** Creates a batch file in the Windows startup folder to start the Vaadin UI on startup. */
   private void createWindowsStartup() {
     if (!OSUtils.isWindows()) {
       Notification notification =
