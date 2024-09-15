@@ -29,6 +29,12 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.router.Route;
+import com.vaadin.open.OSUtils;
+import java.io.File;
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.data.settings.FlareSolverrSettings;
@@ -61,6 +67,7 @@ import org.vaadin.miki.superfields.text.SuperTextField;
 @CssImport("./css/views/settings-view.css")
 public class SettingsView extends StandardLayout {
 
+  public static final String STARTUP_CMD_NAME = "startupVaaUI.cmd";
   private static final Logger log = LoggerFactory.getLogger(SettingsView.class);
   private static final UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
   private final SettingsEventPublisher settingsEventPublisher;
@@ -97,7 +104,6 @@ public class SettingsView extends StandardLayout {
     Section extensionSettings = getExtensionSettingsSection();
     Div notificationSeparator = getSeparator();
     Section notificationSettings = createNotificationSettingsSection();
-    ;
     content.add(
         generalSettings,
         flareSeparator,
@@ -129,6 +135,50 @@ public class SettingsView extends StandardLayout {
           editor.cancel();
         });
     return cancelButton;
+  }
+
+  /** Removes the batch file in the Windows startup folder that starts the Vaadin UI on startup. */
+  private static void removeWindowsStartup() {
+    if (!OSUtils.isWindows()) {
+      Notification notification =
+          new Notification("Startup with Windows is only available on Windows", 3000);
+      notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+      notification.open();
+      return;
+    }
+
+    try {
+      var startupFolder = getStartupFolder();
+      var startupShortcut = new File(startupFolder, STARTUP_CMD_NAME);
+      Files.deleteIfExists(startupShortcut.toPath());
+      Notification notification = new Notification("Startup shortcut removed", 3000);
+      notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+      notification.open();
+    } catch (IOException ex) {
+      log.error("Failed to remove startup shortcut", ex);
+      var startupFolder = getStartupFolder();
+      var startupShortcut = new File(startupFolder, STARTUP_CMD_NAME);
+      startupShortcut.deleteOnExit();
+
+      Notification notification =
+          new Notification(
+              "Failed to remove startup shortcut. Trying to remove shortcut after Application"
+                  + " closes",
+              3000);
+      notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+      notification.open();
+    }
+  }
+
+  /**
+   * Gets the Windows startup folder.
+   *
+   * @return The path to the Windows startup folder as a String.
+   */
+  private static @NotNull String getStartupFolder() {
+    String appdata = System.getenv("APPDATA");
+    String startupShellPath = "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup";
+    return appdata + startupShellPath;
   }
 
   /**
@@ -207,10 +257,16 @@ public class SettingsView extends StandardLayout {
     checkboxContainer.addClassName("checkbox-container");
 
     SuperCheckbox checkbox = new SuperCheckbox().withLabel("Startup Popup").withId("start-popup");
+
+    checkbox.addClassName("settings-checkbox");
     checkbox.setValue(settingsService.getSettings().isStartPopup());
     binder.forField(checkbox).bind(Settings::isStartPopup, Settings::setStartPopup);
-
     checkboxContainer.add(checkbox);
+
+    if (OSUtils.isWindows()) {
+      var startupWithWindowsCheckbox = getStartupWithWindowsCheckbox(settingsService, binder);
+      checkboxContainer.add(startupWithWindowsCheckbox);
+    }
 
     binder.setBean(settingsService.getSettings());
 
@@ -219,6 +275,135 @@ public class SettingsView extends StandardLayout {
 
     generalSettingsSection.add(header, generalSettingsContent);
     return generalSettingsSection;
+  }
+
+  /**
+   * This method creates the checkbox to let the user choose whether to start the application with
+   * Windows.
+   *
+   * @param settingsService The service to retrieve settings from.
+   * @param binder The binder to bind the checkbox to the startWithWindows property of the Settings
+   *     object.
+   * @return The configured {@link SuperCheckbox} element.
+   */
+  private @NotNull SuperCheckbox getStartupWithWindowsCheckbox(
+      SettingsService settingsService, Binder<Settings> binder) {
+    SuperCheckbox startupWithWindowsCheckbox =
+        new SuperCheckbox().withLabel("Start with Windows").withId("start-with-windows");
+    startupWithWindowsCheckbox.setValue(settingsService.getSettings().isStartWithWindows());
+    startupWithWindowsCheckbox.addClassName("settings-checkbox");
+    startupWithWindowsCheckbox.addValueChangeListener(
+        e -> {
+          boolean startWithWindows = e.getValue();
+          if (startWithWindows) {
+            createWindowsStartup();
+          } else {
+            removeWindowsStartup();
+          }
+        });
+    binder
+        .forField(startupWithWindowsCheckbox)
+        .bind(Settings::isStartWithWindows, Settings::setStartWithWindows);
+    return startupWithWindowsCheckbox;
+  }
+
+  /** Creates a batch file in the Windows startup folder to start the Vaadin UI on startup. */
+  private void createWindowsStartup() {
+    if (!OSUtils.isWindows()) {
+      Notification notification =
+          new Notification("Startup with Windows is only available on Windows", 3000);
+      notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+      notification.open();
+      return;
+    }
+
+    try {
+      var vaauiDir = getVaaUIDir();
+
+      var exeFile = new File(vaauiDir, "Tachidesk Vaadin UI.exe");
+      log.debug("Exe file: {}", exeFile);
+
+      if (!exeFile.exists()) {
+        log.error("Tachidesk Vaadin UI.exe not found");
+        Notification notification = new Notification("Tachidesk Vaadin UI.exe not found", 3000);
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.open();
+        return;
+      }
+
+      String startupFolder = getStartupFolder();
+      File startupFolderFile = new File(startupFolder);
+
+      if (!startupFolderFile.exists()) {
+        log.error("Startup folder not found");
+        log.info("startup folder: {}", startupFolder);
+        Notification notification = new Notification("Startup folder not found", 3000);
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.open();
+        return;
+      }
+
+      File startupShortcut = new File(startupFolderFile, STARTUP_CMD_NAME);
+      String startupCommand =
+          """
+          @echo off
+          chdir "%s"
+          start "" "%s"
+          """
+              .formatted(vaauiDir.getAbsolutePath(), exeFile.getAbsolutePath());
+
+      Files.deleteIfExists(startupShortcut.toPath());
+      Files.createFile(startupShortcut.toPath());
+      Files.writeString(startupShortcut.toPath(), startupCommand);
+
+      Notification notification = new Notification("Startup shortcut created", 3000);
+      notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+      notification.open();
+    } catch (IOException ex) {
+      log.error("Failed to create startup shortcut", ex);
+    } catch (RuntimeException ex) {
+      log.error("Failed to create startup shortcut. Reason: {}", ex.getMessage());
+    }
+  }
+
+  /**
+   * Gets the directory where the VaadinUI installation is located.
+   *
+   * @return The directory where the VaadinUI installation is located.
+   */
+  private File getVaaUIDir() {
+    var jarLocation = getJarLocation();
+
+    String normalJarPath = URLDecoder.decode(jarLocation, StandardCharsets.UTF_8);
+
+    File jarFile = new File(normalJarPath);
+
+    var vaauiDir = jarFile.getParentFile().getParentFile();
+    log.debug("VaaUI dir: {}", vaauiDir);
+    return vaauiDir;
+  }
+
+  /**
+   * Gets the location of the running jar file. Throws an exception if there's no jar file.
+   *
+   * @return The path of the running jar file as a String.
+   */
+  private @NotNull String getJarLocation() {
+    var jarLocation =
+        this.getClass().getProtectionDomain().getCodeSource().getLocation().toString();
+
+    if (!jarLocation.startsWith("jar")) {
+      Notification notification = new Notification("Not running from a jar file", 3000);
+      notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+      notification.open();
+      throw new IllegalStateException("Not running from a jar file");
+    }
+    log.debug("Code location: {}", jarLocation);
+    jarLocation = jarLocation.replace("jar:nested:/", "");
+    jarLocation = jarLocation.replace("!BOOT-INF/classes/!/", "");
+
+    log.debug("Jar location: {}", jarLocation);
+    return jarLocation;
   }
 
   private Section getExtensionSettingsSection() {
