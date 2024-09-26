@@ -61,3 +61,7 @@
     margin-bottom: 1rem;
     width: 100%;
 }
+
+html {
+    scrollbar-color: var(--miku-main-color) var(--miku-background-color-p2);
+}
