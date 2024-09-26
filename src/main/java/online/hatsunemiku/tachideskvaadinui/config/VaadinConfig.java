@@ -8,6 +8,7 @@ package online.hatsunemiku.tachideskvaadinui.config;
 
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
+import com.vaadin.flow.server.AppShellSettings;
 import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 import org.springframework.context.annotation.Configuration;
@@ -23,4 +24,13 @@ import org.springframework.context.annotation.Configuration;
 @Push
 @Theme("miku")
 @PWA(name = "Suwayomi VaadinUI", shortName = "VaadinUI")
-public class VaadinConfig implements AppShellConfigurator {}
+public class VaadinConfig implements AppShellConfigurator {
+
+  @Override
+  public void configurePage(AppShellSettings settings) {
+    AppShellConfigurator.super.configurePage(settings);
+    settings.addFavIcon("icon", "icons/favicon-32x32.png", "32x32");
+    settings.addFavIcon("icon", "icons/favicon-144x144.png", "144x144");
+    settings.addFavIcon("shortcut icon", "icons/favicon.ico", "256x256");
+  }
+}
