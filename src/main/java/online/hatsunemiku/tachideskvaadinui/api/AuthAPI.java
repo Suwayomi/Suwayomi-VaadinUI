@@ -165,7 +165,7 @@ public class AuthAPI {
     return new RedirectView("/");
   }
 
-  // mal = http://localhost:8080/validate/mal?code={code}
+  // mal = http://localhost:3901/validate/mal?code={code}
   @GetMapping("mal")
   public RedirectView validateMALToken(
       @RequestParam("code") String code, @RequestParam("state") MALTokenState state) {
