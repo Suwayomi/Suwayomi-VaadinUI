@@ -141,4 +141,3 @@ public class TrayHandler {
     thread.start();
   }
 }
-;
