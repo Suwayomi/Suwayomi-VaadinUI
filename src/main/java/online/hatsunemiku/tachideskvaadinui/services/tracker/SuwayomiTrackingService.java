@@ -175,7 +175,7 @@ public class SuwayomiTrackingService {
     String jsonTemplate =
         """
             {\
-            "redirectUrl":"http://localhost:8080/validate/suwayomi",\
+            "redirectUrl":"http://localhost:3901/validate/suwayomi",\
             "trackerId":%d,\
             "anyOtherInfo":"%s"\
             }\

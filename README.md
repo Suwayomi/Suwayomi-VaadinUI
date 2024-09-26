@@ -46,7 +46,7 @@ flatpak run online.hatsune_miku.tachidesk-vaadinui
 
 ## I started the Application, but it doesn't open in my browser
 
-You can manually open the Application by going to http://localhost:8080 or go in the task tray and
+You can manually open the Application by going to http://localhost:3901 or go in the task tray and
 double click the icon there.
 
 # Support and Help
