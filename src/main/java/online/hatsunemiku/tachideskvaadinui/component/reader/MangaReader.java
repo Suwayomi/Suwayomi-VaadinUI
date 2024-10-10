@@ -263,6 +263,12 @@ public class MangaReader extends Div {
       return rightBtn;
     }
 
+    /**
+     * Creates the chapter selection component for the sidebar.
+     * @param chapter The current chapter.
+     * @param chapters The list of chapters.
+     * @return The chapter selection component.
+     */
     @NotNull
     private Select<Chapter> getChapterSelector(Chapter chapter, List<Chapter> chapters) {
       Select<Chapter> chapterSelector = new Select<>();
@@ -334,6 +340,10 @@ public class MangaReader extends Div {
       return leftBtn;
     }
 
+    /**
+     * Creates a renderer for the chapter selector.
+     * @return The renderer for the chapter selector.
+     */
     private ComponentRenderer<? extends Component, Chapter> createRenderer() {
       return new ComponentRenderer<Component, Chapter>(chapter -> {
         var div = new Div();
