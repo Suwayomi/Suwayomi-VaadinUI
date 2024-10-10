@@ -6,20 +6,20 @@
 
 package online.hatsunemiku.tachideskvaadinui.component.reader;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.renderer.LitRenderer;
-import com.vaadin.flow.data.renderer.Renderer;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.shared.Registration;
 import java.util.List;
 import java.util.Objects;
@@ -184,11 +184,11 @@ public class MangaReader extends Div {
 
       Button leftBtn = getChapterLeftBtn(reader, chapter);
 
-      ComboBox<Chapter> chapterComboBox = getChapterComboBox(chapter, chapters);
+      Select<Chapter> chapterSelector = getChapterSelector(chapter, chapters);
 
       Button rightBtn = getChapterRightBtn(reader, chapter);
 
-      chapterSelect.add(leftBtn, chapterComboBox, rightBtn);
+      chapterSelect.add(leftBtn, chapterSelector, rightBtn);
 
       Button settingsBtn = new Button(VaadinIcon.COG.create());
       settingsBtn.setId("settings-btn");
@@ -264,13 +264,17 @@ public class MangaReader extends Div {
     }
 
     @NotNull
-    private ComboBox<Chapter> getChapterComboBox(Chapter chapter, List<Chapter> chapters) {
-      ComboBox<Chapter> chapterComboBox = new ComboBox<>();
-      chapterComboBox.setRenderer(createRenderer());
-      chapterComboBox.setItems(chapters);
-      chapterComboBox.setValue(chapter);
-      chapterComboBox.setAllowCustomValue(false);
-      chapterComboBox.addValueChangeListener(
+    private Select<Chapter> getChapterSelector(Chapter chapter, List<Chapter> chapters) {
+      Select<Chapter> chapterSelector = new Select<>();
+      chapterSelector.setId("chapter-selector");
+      chapterSelector.setOverlayClassName("chapter-select-overlay");
+      chapterSelector.setRenderer(createRenderer());
+      chapterSelector.setItems(chapters);
+
+      //Doesn't show the chapter correctly if it's not the same instance as in the list.
+      Chapter thisChapter = chapters.stream().filter(c -> c.getId() == chapter.getId()).findFirst().orElse(null);
+      chapterSelector.setValue(thisChapter);
+      chapterSelector.addValueChangeListener(
           e -> {
             if (!e.isFromClient()) {
               return;
@@ -294,7 +298,7 @@ public class MangaReader extends Div {
 
             MangaReader.this.fireEvent(event);
           });
-      return chapterComboBox;
+      return chapterSelector;
     }
 
     @NotNull
@@ -330,12 +334,12 @@ public class MangaReader extends Div {
       return leftBtn;
     }
 
-    private Renderer<Chapter> createRenderer() {
-      String template = """
-          <div>${item.name}</div>
-          """;
-
-      return LitRenderer.<Chapter>of(template).withProperty("name", Chapter::getName);
+    private ComponentRenderer<? extends Component, Chapter> createRenderer() {
+      return new ComponentRenderer<Component, Chapter>(chapter -> {
+        var div = new Div();
+        div.setText(chapter.getName());
+        return div;
+      });
     }
 
     @NotNull

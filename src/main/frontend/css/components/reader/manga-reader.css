@@ -115,7 +115,7 @@
     gap: 0.5rem;
 }
 
-.chapter-select vaadin-combo-box {
+.chapter-select vaadin-select {
     /*make it go smaller when no space is available*/
     flex-shrink: 1;
     flex-grow: 1;
@@ -123,8 +123,47 @@
     min-width: 10%;
 }
 
-.chapter-select vaadin-combo-box-overlay::part(overlay) {
+.chapter-select vaadin-select-item {
     color: var(--miku-main-color);
+}
+
+.chapter-select vaadin-select::part(toggle-button) {
+    color: var(--miku-main-color);
+}
+
+.chapter-select-overlay vaadin-select-list-box {
+    background-color: var(--miku-background-color-p2);
+    color: var(--miku-main-color);
+    padding: .5rem;
+}
+
+.chapter-select-overlay vaadin-select-item {
+    color: var(--miku-main-color);
+    border: 1px solid var(--miku-main-color);
+    border-radius: 5px;
+    /*Gap between items*/
+    margin: .25rem;
+}
+
+.chapter-select-overlay vaadin-select-item:hover {
+    background-color: var(--miku-background-color-p3);
+    color: var(--miku-background-color-p2);
+    border: 1px solid var(--miku-background-color-p2);
+}
+
+.chapter-select-overlay vaadin-select-item[selected] {
+    background-color: var(--miku-background-color-p3);
+    color: var(--miku-background-color-p2);
+    border: 1px solid var(--miku-background-color-p2);
+    box-shadow: none;
+}
+
+.chapter-select-overlay vaadin-select-item::part(checkmark)::before {
+    color: var(--miku-background-color-p2);
+}
+
+.chapter-select-overlay::part(content) {
+    padding: 0;
 }
 
 .sidebar #settings-btn {
