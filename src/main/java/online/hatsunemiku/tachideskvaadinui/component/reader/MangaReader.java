@@ -277,8 +277,9 @@ public class MangaReader extends Div {
       chapterSelector.setRenderer(createRenderer());
       chapterSelector.setItems(chapters);
 
-      //Doesn't show the chapter correctly if it's not the same instance as in the list.
-      Chapter thisChapter = chapters.stream().filter(c -> c.getId() == chapter.getId()).findFirst().orElse(null);
+      // Doesn't show the chapter correctly if it's not the same instance as in the list.
+      Chapter thisChapter =
+          chapters.stream().filter(c -> c.getId() == chapter.getId()).findFirst().orElse(null);
       chapterSelector.setValue(thisChapter);
       chapterSelector.addValueChangeListener(
           e -> {
@@ -345,11 +346,12 @@ public class MangaReader extends Div {
      * @return The renderer for the chapter selector.
      */
     private ComponentRenderer<? extends Component, Chapter> createRenderer() {
-      return new ComponentRenderer<Component, Chapter>(chapter -> {
-        var div = new Div();
-        div.setText(chapter.getName());
-        return div;
-      });
+      return new ComponentRenderer<Component, Chapter>(
+          chapter -> {
+            var div = new Div();
+            div.setText(chapter.getName());
+            return div;
+          });
     }
 
     @NotNull
