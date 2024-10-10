@@ -265,6 +265,7 @@ public class MangaReader extends Div {
 
     /**
      * Creates the chapter selection component for the sidebar.
+     *
      * @param chapter The current chapter.
      * @param chapters The list of chapters.
      * @return The chapter selection component.
@@ -343,6 +344,7 @@ public class MangaReader extends Div {
 
     /**
      * Creates a renderer for the chapter selector.
+     *
      * @return The renderer for the chapter selector.
      */
     private ComponentRenderer<? extends Component, Chapter> createRenderer() {
