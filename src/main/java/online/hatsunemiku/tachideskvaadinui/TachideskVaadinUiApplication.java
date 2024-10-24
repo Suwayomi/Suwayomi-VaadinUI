@@ -14,6 +14,9 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+/**
+ * The main class of the application. This class is responsible for starting the Spring Boot application.
+ */
 @Slf4j
 @SpringBootApplication
 @EnableAsync

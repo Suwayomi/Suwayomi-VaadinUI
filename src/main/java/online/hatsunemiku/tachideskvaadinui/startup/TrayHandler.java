@@ -27,6 +27,9 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
+/**
+ * Handles the system tray icon and the popup that asks the user if they want to open the UI in the browser.
+ */
 @Service
 @Slf4j
 public class TrayHandler {
@@ -34,6 +37,11 @@ public class TrayHandler {
   private final SettingsService settingsService;
   private final boolean headless;
 
+  /**
+   * Creates a new TrayHandler instance. Should be done by Spring.
+   * @param settingsService The {@link SettingsService} to use
+   * @param headless Whether the application is running in headless mode - This is controlled by the {@code vaaui.headless} property
+   */
   public TrayHandler(
       SettingsService settingsService,
       @Value("#{new Boolean('${vaaui.headless}')}") boolean headless) {
