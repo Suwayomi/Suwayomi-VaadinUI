@@ -6,6 +6,7 @@
 
 package online.hatsunemiku.tachideskvaadinui;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -13,6 +14,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+@Slf4j
 @SpringBootApplication
 @EnableAsync
 @EnableCaching
@@ -21,6 +23,8 @@ public class TachideskVaadinUiApplication {
 
   public static void main(String[] args) {
     boolean headless = Boolean.parseBoolean(System.getProperty("vaaui.headless"));
+
+    log.info("Is headless: {}", headless);
 
     SpringApplication app =
         new SpringApplicationBuilder(TachideskVaadinUiApplication.class).headless(headless).build();
