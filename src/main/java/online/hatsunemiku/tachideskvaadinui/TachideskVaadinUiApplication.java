@@ -20,8 +20,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class TachideskVaadinUiApplication {
 
   public static void main(String[] args) {
+    boolean headless = Boolean.parseBoolean(System.getProperty("vaaui.headless"));
+
     SpringApplication app =
-        new SpringApplicationBuilder(TachideskVaadinUiApplication.class).headless(false).build();
+        new SpringApplicationBuilder(TachideskVaadinUiApplication.class).headless(headless).build();
 
     app.run(args);
   }

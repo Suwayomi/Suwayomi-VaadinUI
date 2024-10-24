@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.utils.BrowserUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -31,13 +32,21 @@ import org.springframework.util.ResourceUtils;
 public class TrayHandler {
 
   private final SettingsService settingsService;
+  private final boolean headless;
 
-  public TrayHandler(SettingsService settingsService) {
+  public TrayHandler(SettingsService settingsService, @Value("#{new Boolean('${vaaui.headless}')}") boolean headless) {
     this.settingsService = settingsService;
+    this.headless = headless;
   }
 
   @EventListener(ApplicationStartedEvent.class)
   public void registerTray() {
+
+    if (headless) {
+      log.info("Headless mode, not registering tray");
+      return;
+    }
+
     if (SystemTray.isSupported()) {
       SystemTray tray = SystemTray.getSystemTray();
 
