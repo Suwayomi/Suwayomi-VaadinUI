@@ -15,7 +15,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * The main class of the application. This class is responsible for starting the Spring Boot application.
+ * The main class of the application. This class is responsible for starting the Spring Boot
+ * application.
  */
 @Slf4j
 @SpringBootApplication
@@ -24,6 +25,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class TachideskVaadinUiApplication {
 
+  /**
+   * The main method of the application. This method is responsible for starting the Spring Boot
+   * application.
+   *
+   * @param args The command line arguments
+   */
   public static void main(String[] args) {
     boolean headless = Boolean.parseBoolean(System.getProperty("vaaui.headless"));
 

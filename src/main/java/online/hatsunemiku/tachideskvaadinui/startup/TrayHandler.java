@@ -28,7 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
 /**
- * Handles the system tray icon and the popup that asks the user if they want to open the UI in the browser.
+ * Handles the system tray icon and the popup that asks the user if they want to open the UI in the
+ * browser.
  */
 @Service
 @Slf4j
@@ -39,8 +40,10 @@ public class TrayHandler {
 
   /**
    * Creates a new TrayHandler instance. Should be done by Spring.
+   *
    * @param settingsService The {@link SettingsService} to use
-   * @param headless Whether the application is running in headless mode - This is controlled by the {@code vaaui.headless} property
+   * @param headless        Whether the application is running in headless mode - This is controlled
+   *                        by the {@code vaaui.headless} property
    */
   public TrayHandler(
       SettingsService settingsService,
@@ -49,6 +52,10 @@ public class TrayHandler {
     this.headless = headless;
   }
 
+  /**
+   * Registers the system tray icon and the popup that asks the user if they want to open the UI in
+   * the browser.
+   */
   @EventListener(ApplicationStartedEvent.class)
   public void registerTray() {
 
@@ -75,8 +82,8 @@ public class TrayHandler {
         String caption = "Tachidesk Vaadin UI";
         String text =
             """
-            Click here or open the browser and enter localhost:3901 - You can also click the icon in the system tray with the right mouse button and select "Open in browser"
-            """;
+                Click here or open the browser and enter localhost:3901 - You can also click the icon in the system tray with the right mouse button and select "Open in browser"
+                """;
         trayIcon.displayMessage(caption, text, MessageType.INFO);
 
         trayIcon.addActionListener(
@@ -135,10 +142,10 @@ public class TrayHandler {
     String title = "Tachidesk VaadinUI started";
     String message =
         """
-      Please visit http://localhost:3901 to use the UI.
-      If you have a System Tray, you can also click the tray icon there to open the UI.
-      Do you want to open the UI in your browser now?
-      """;
+            Please visit http://localhost:3901 to use the UI.
+            If you have a System Tray, you can also click the tray icon there to open the UI.
+            Do you want to open the UI in your browser now?
+            """;
 
     Thread thread =
         new Thread(
