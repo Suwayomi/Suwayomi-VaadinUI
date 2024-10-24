@@ -34,7 +34,9 @@ public class TrayHandler {
   private final SettingsService settingsService;
   private final boolean headless;
 
-  public TrayHandler(SettingsService settingsService, @Value("#{new Boolean('${vaaui.headless}')}") boolean headless) {
+  public TrayHandler(
+      SettingsService settingsService,
+      @Value("#{new Boolean('${vaaui.headless}')}") boolean headless) {
     this.settingsService = settingsService;
     this.headless = headless;
   }
