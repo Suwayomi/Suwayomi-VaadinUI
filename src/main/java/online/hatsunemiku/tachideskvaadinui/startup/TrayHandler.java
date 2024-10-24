@@ -42,8 +42,8 @@ public class TrayHandler {
    * Creates a new TrayHandler instance. Should be done by Spring.
    *
    * @param settingsService The {@link SettingsService} to use
-   * @param headless        Whether the application is running in headless mode - This is controlled
-   *                        by the {@code vaaui.headless} property
+   * @param headless Whether the application is running in headless mode - This is controlled by the
+   *     {@code vaaui.headless} property
    */
   public TrayHandler(
       SettingsService settingsService,
