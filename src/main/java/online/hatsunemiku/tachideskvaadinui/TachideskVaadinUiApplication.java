@@ -51,6 +51,10 @@ public class TachideskVaadinUiApplication {
     app.run(args);
   }
 
+  /**
+   * Runs the tasks that should be run when the application is already running.
+   * @param headless Whether the application is running in headless mode
+   */
   private static void runAlreadyRunningTasks(boolean headless) {
     if (!headless) {
       log.info("Opening browser...");
@@ -63,9 +67,13 @@ public class TachideskVaadinUiApplication {
     }
   }
 
+  /**
+   * Checks if the application is already running.
+   * @return {@code true} if the application is already running, {@code false} otherwise
+   */
   private static boolean isRunningAlready() {
     int port = 3901;
-    try (ServerSocket ignored = new ServerSocket(port)) {
+    try (ServerSocket ignored = new ServerSocket(port)) { // skipcq: JAVA-S1011 - Not a security risk, because the socket is closed immediately.
       return false;
     } catch (IOException e) {
       return true;
