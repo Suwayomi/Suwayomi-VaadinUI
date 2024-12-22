@@ -68,8 +68,8 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   /**
    * Constructs a SearchView object.
    *
-   * @param sourceService the {@link SourceService} used for retrieving manga sources
-   * @param searchService the {@link SearchService} used for performing search operations
+   * @param sourceService   the {@link SourceService} used for retrieving manga sources
+   * @param searchService   the {@link SearchService} used for performing search operations
    * @param settingsService the {@link SettingsService} used for accessing search settings
    */
   public SearchView(
@@ -107,7 +107,8 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   }
 
   /**
-   * Retrieves the "Import from MAL" button. This button is used to navigate to the {@link MALView}.
+   * Retrieves the "Import from MAL" button. This button is used to navigate to the
+   * {@link MALView}.
    *
    * @return the button that navigates to the {@link MALView}
    */
@@ -129,8 +130,8 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   }
 
   /**
-   * Retrieves the "Import from AniList" button. This button is used to navigate to the {@link
-   * AniListView}.
+   * Retrieves the "Import from AniList" button. This button is used to navigate to the
+   * {@link AniListView}.
    *
    * @return The button that navigates to the {@link AniListView}
    */
@@ -155,6 +156,13 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     return importBtn;
   }
 
+  /**
+   * Creates a language filter combo box to filter the search results by language. When a language
+   * is picked here, sources not matching the language will not be searched at all.
+   *
+   * @param sourceService the {@link SourceService} used for retrieving manga sources
+   * @return the {@link ComboBox} used for filtering by language
+   */
   @NotNull
   private ComboBox<String> createLanguageComboBox(SourceService sourceService) {
     ComboBox<String> langFilter = new LangComboBox();
@@ -194,6 +202,11 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     return langFilter;
   }
 
+  /**
+   * Creates a search field to search for manga in the sources.
+   *
+   * @return the {@link SuperTextField} used for searching
+   */
   @NotNull
   private SuperTextField createSearchField() {
     SuperTextField searchField = new SuperTextField("Search");
@@ -206,6 +219,12 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     return searchField;
   }
 
+  /**
+   * Starts a search operation with the specified search field. This will also update the UI to show
+   * a loading indicator and disable the inputs.
+   *
+   * @param searchField the {@link SuperTextField} used for searching
+   */
   private void runSearch(SuperTextField searchField) {
     if (searchField.isEmpty()) {
       searchResults.removeAll();
@@ -279,7 +298,7 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   /**
    * Adds a search result to the user interface.
    *
-   * @param source the source of the search result
+   * @param source    the source of the search result
    * @param mangaList the list of manga from the search result
    * @return true if the search result was successfully added, otherwise false
    */
@@ -343,7 +362,7 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   /**
    * Searches for manga in the specified sources
    *
-   * @param query the search query
+   * @param query              the search query
    * @param langGroupedSources the sources grouped by language
    */
   private void searchSources(String query, Map<String, List<Source>> langGroupedSources) {
