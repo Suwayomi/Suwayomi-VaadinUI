@@ -68,8 +68,8 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   /**
    * Constructs a SearchView object.
    *
-   * @param sourceService   the {@link SourceService} used for retrieving manga sources
-   * @param searchService   the {@link SearchService} used for performing search operations
+   * @param sourceService the {@link SourceService} used for retrieving manga sources
+   * @param searchService the {@link SearchService} used for performing search operations
    * @param settingsService the {@link SettingsService} used for accessing search settings
    */
   public SearchView(
@@ -107,8 +107,7 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   }
 
   /**
-   * Retrieves the "Import from MAL" button. This button is used to navigate to the
-   * {@link MALView}.
+   * Retrieves the "Import from MAL" button. This button is used to navigate to the {@link MALView}.
    *
    * @return the button that navigates to the {@link MALView}
    */
@@ -130,8 +129,8 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   }
 
   /**
-   * Retrieves the "Import from AniList" button. This button is used to navigate to the
-   * {@link AniListView}.
+   * Retrieves the "Import from AniList" button. This button is used to navigate to the {@link
+   * AniListView}.
    *
    * @return The button that navigates to the {@link AniListView}
    */
@@ -298,7 +297,7 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   /**
    * Adds a search result to the user interface.
    *
-   * @param source    the source of the search result
+   * @param source the source of the search result
    * @param mangaList the list of manga from the search result
    * @return true if the search result was successfully added, otherwise false
    */
@@ -362,7 +361,7 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   /**
    * Searches for manga in the specified sources
    *
-   * @param query              the search query
+   * @param query the search query
    * @param langGroupedSources the sources grouped by language
    */
   private void searchSources(String query, Map<String, List<Source>> langGroupedSources) {
