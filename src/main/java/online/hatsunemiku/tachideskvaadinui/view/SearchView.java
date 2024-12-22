@@ -6,7 +6,6 @@
 
 package online.hatsunemiku.tachideskvaadinui.view;
 
-import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Svg;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -46,6 +45,7 @@ import online.hatsunemiku.tachideskvaadinui.view.trackers.MALView;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.web.client.ResourceAccessException;
 import org.vaadin.miki.shared.text.TextInputMode;
 import org.vaadin.miki.superfields.text.SuperTextField;
 
@@ -190,7 +190,6 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     searchField.setAutoselect(true);
     searchField.addClassName("search-field");
     searchField.addValueChangeListener(e -> runSearch(searchField));
-    searchField.addKeyDownListener(Key.ENTER, e -> runSearch(searchField));
 
     return searchField;
   }
@@ -200,6 +199,8 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
       searchResults.removeAll();
       return;
     }
+
+    log.info("Searching for {}", searchField.getValue());
 
     searchField.setSuffixComponent(getLoadingDiv());
     searchField.setReadOnly(true);
@@ -335,7 +336,6 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
    */
   private void searchSources(String query, Map<String, List<Source>> langGroupedSources) {
     for (var langSet : langGroupedSources.entrySet()) {
-
       var lang = langSet.getKey();
 
       if (!langFilter.isEmpty() && !langFilter.getValue().equals(lang)) {
