@@ -160,7 +160,19 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     ComboBox<String> langFilter = new LangComboBox();
     langFilter.addClassName("search-lang-filter");
 
-    var sources = sourceService.getSources();
+    List<Source> sources;
+    try {
+      sources = sourceService.getSources();
+    } catch (ResourceAccessException e) {
+      UI ui = getUI().orElse(UI.getCurrent());
+
+      if (ui == null) {
+        throw new IllegalStateException("UI is not present", e);
+      }
+
+      ui.access(() -> ui.navigate(ServerStartView.class));
+      return langFilter;
+    }
     var langs = sources.stream().map(Source::getLang).distinct().toList();
     if (!langs.isEmpty()) {
       langFilter.setItems(langs);
