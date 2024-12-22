@@ -6,7 +6,6 @@
 
 package online.hatsunemiku.tachideskvaadinui.view;
 
-import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Svg;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -46,6 +45,7 @@ import online.hatsunemiku.tachideskvaadinui.view.trackers.MALView;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.web.client.ResourceAccessException;
 import org.vaadin.miki.shared.text.TextInputMode;
 import org.vaadin.miki.superfields.text.SuperTextField;
 
@@ -155,12 +155,31 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     return importBtn;
   }
 
+  /**
+   * Creates a language filter combo box to filter the search results by language. When a language
+   * is picked here, sources not matching the language will not be searched at all.
+   *
+   * @param sourceService the {@link SourceService} used for retrieving manga sources
+   * @return the {@link ComboBox} used for filtering by language
+   */
   @NotNull
   private ComboBox<String> createLanguageComboBox(SourceService sourceService) {
     ComboBox<String> langFilter = new LangComboBox();
     langFilter.addClassName("search-lang-filter");
 
-    var sources = sourceService.getSources();
+    List<Source> sources;
+    try {
+      sources = sourceService.getSources();
+    } catch (ResourceAccessException e) {
+      UI ui = getUI().orElse(UI.getCurrent());
+
+      if (ui == null) {
+        throw new IllegalStateException("UI is not present", e);
+      }
+
+      ui.access(() -> ui.navigate(ServerStartView.class));
+      return langFilter;
+    }
     var langs = sources.stream().map(Source::getLang).distinct().toList();
     if (!langs.isEmpty()) {
       langFilter.setItems(langs);
@@ -182,6 +201,11 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     return langFilter;
   }
 
+  /**
+   * Creates a search field to search for manga in the sources.
+   *
+   * @return the {@link SuperTextField} used for searching
+   */
   @NotNull
   private SuperTextField createSearchField() {
     SuperTextField searchField = new SuperTextField("Search");
@@ -190,16 +214,23 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     searchField.setAutoselect(true);
     searchField.addClassName("search-field");
     searchField.addValueChangeListener(e -> runSearch(searchField));
-    searchField.addKeyDownListener(Key.ENTER, e -> runSearch(searchField));
 
     return searchField;
   }
 
+  /**
+   * Starts a search operation with the specified search field. This will also update the UI to show
+   * a loading indicator and disable the inputs.
+   *
+   * @param searchField the {@link SuperTextField} used for searching
+   */
   private void runSearch(SuperTextField searchField) {
     if (searchField.isEmpty()) {
       searchResults.removeAll();
       return;
     }
+
+    log.info("Searching for {}", searchField.getValue());
 
     searchField.setSuffixComponent(getLoadingDiv());
     searchField.setReadOnly(true);
@@ -335,7 +366,6 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
    */
   private void searchSources(String query, Map<String, List<Source>> langGroupedSources) {
     for (var langSet : langGroupedSources.entrySet()) {
-
       var lang = langSet.getKey();
 
       if (!langFilter.isEmpty() && !langFilter.getValue().equals(lang)) {
