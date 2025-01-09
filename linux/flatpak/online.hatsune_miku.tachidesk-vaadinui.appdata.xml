@@ -42,10 +42,10 @@
         </screenshot>
     </screenshots>
     <releases>
-        <release version="1.13.0" date="2024-10-11">
+        <release version="1.13.2" date="2024-1-9">
             <description>
-                <p>Changed port to 3901</p>
-                <p>Polished designs</p>
+                <p>Opens the browser on localhost in case the reader is already running</p>
+                <p>Fixes an issue where sometimes sources would be searched and displayed twice</p>
             </description>
         </release>
     </releases>
