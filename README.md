@@ -118,6 +118,9 @@ public String getMangaTitle(String mangaId) {
 }
 ```
 
+## Building
+To build the project you'll need to use the gradle tasks provided by the project. Note that you will have to use BellSoft Liberica as JDK provider for building the project. This application should always use the newest LTS Java Version unless stated otherwise.
+
 # Credit
 
 The `Tachidesk-Server` project is developed by [AriaMoradi](https://github.com/AriaMoradi) and other
