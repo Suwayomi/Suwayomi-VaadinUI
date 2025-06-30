@@ -42,10 +42,10 @@
         </screenshot>
     </screenshots>
     <releases>
-        <release version="1.13.2" date="2024-1-9">
+        <release version="1.13.3" date="2025-6-30">
             <description>
-                <p>Opens the browser on localhost in case the reader is already running</p>
-                <p>Fixes an issue where sometimes sources would be searched and displayed twice</p>
+                <p>Updated to new UI Version</p>
+                <p>Fix an issue that would fail to download newer Server versions</p>
             </description>
         </release>
     </releases>
