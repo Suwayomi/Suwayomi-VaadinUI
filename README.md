@@ -30,6 +30,11 @@ Here's a list of features that are currently implemented:
 
 Just download your applicable installer from the releases tab and install it on your device.
 
+## Winget
+```powershell
+winget install Suwayomi.Tachidesk-VaadinUI
+```
+
 ## Flathub/Flatpak
 
 You can also install this Application on Linux by using Flatpak with the Flathub repo, all you have to do is paste the following command into your terminal (with the flathub repo already added).
