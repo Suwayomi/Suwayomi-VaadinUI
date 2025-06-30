@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.extern.slf4j.Slf4j;
-import nl.martijndwars.webpush.Subscription;
 import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;

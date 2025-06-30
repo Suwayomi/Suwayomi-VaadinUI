@@ -21,7 +21,7 @@ public class TachideskUtils {
   private static final Logger logger = LoggerFactory.getLogger(TachideskUtils.class);
   private static final Pattern JAR_PATTERN =
       Pattern.compile(
-              "https://github\\.com/Suwayomi/Suwayomi-Server/releases/download/(v\\d+\\.\\d+\\.\\d+(-r\\d+)?)/(Suwayomi-Server-v\\d+\\.\\d+\\.(\\d+)\\.jar)");
+          "https://github\\.com/Suwayomi/Suwayomi-Server/releases/download/(v\\d+\\.\\d+\\.\\d+(-r\\d+)?)/(Suwayomi-Server-v\\d+\\.\\d+\\.(\\d+)\\.jar)");
 
   public static String getNewestJarUrl(RestTemplate client) {
     String githubApi = "https://api.github.com/repos/Suwayomi/Suwayomi-Server/releases/latest";
