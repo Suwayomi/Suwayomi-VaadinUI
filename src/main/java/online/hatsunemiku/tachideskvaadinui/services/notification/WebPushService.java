@@ -10,12 +10,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.webpush.WebPush;
 import com.vaadin.flow.server.webpush.WebPushMessage;
+import com.vaadin.flow.server.webpush.WebPushSubscription;
 import jakarta.annotation.PreDestroy;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.extern.slf4j.Slf4j;
-import nl.martijndwars.webpush.Subscription;
 import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -43,7 +43,7 @@ public class WebPushService {
   @Value("${vaadin.webpush.subject}")
   private String subject;
 
-  private Subscription subscription;
+  private WebPushSubscription subscription;
   private WebPush webPush;
 
   /**
@@ -65,7 +65,7 @@ public class WebPushService {
     }
 
     try (var in = Files.newInputStream(subscriptionFile)) {
-      subscription = mapper.readValue(in, Subscription.class);
+      subscription = mapper.readValue(in, WebPushSubscription.class);
     } catch (IOException e) {
       log.error("Could not read subscription file", e);
       throw new RuntimeException(e);
@@ -107,7 +107,7 @@ public class WebPushService {
     getWebPush().sendNotification(subscription, pushMessage);
   }
 
-  private void setSubscription(Subscription subscription) {
+  private void setSubscription(WebPushSubscription subscription) {
     log.info("Adding subscription: {}", subscription.endpoint());
     this.subscription = subscription;
   }
@@ -123,7 +123,7 @@ public class WebPushService {
    *
    * @param subscription The new subscription to update to
    */
-  public void updateSubscription(Subscription subscription) {
+  public void updateSubscription(WebPushSubscription subscription) {
     this.subscription = subscription;
   }
 
