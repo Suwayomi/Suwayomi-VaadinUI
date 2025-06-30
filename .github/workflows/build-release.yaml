@@ -61,7 +61,7 @@ jobs:
       - name: List files
         run: ls -R ${{ github.workspace }}/build/installer
       - name: Upload Release
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.OS }}-${{ matrix.INSTALLER }}
           path: ${{ github.workspace }}/build/installer/*
