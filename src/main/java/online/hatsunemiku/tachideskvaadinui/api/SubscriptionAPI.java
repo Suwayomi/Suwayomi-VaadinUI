@@ -7,6 +7,7 @@
 package online.hatsunemiku.tachideskvaadinui.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.vaadin.flow.server.webpush.WebPushSubscription;
 import lombok.extern.slf4j.Slf4j;
 import nl.martijndwars.webpush.Subscription;
 import online.hatsunemiku.tachideskvaadinui.services.notification.WebPushService;
@@ -44,7 +45,7 @@ public class SubscriptionAPI {
   public void updateSubscription(@RequestBody SubscriptionUpdateRequest request) {
     log.info("Updating subscription");
 
-    Subscription newSubscription = request._new();
+    var newSubscription = request._new();
 
     log.info("replacing old subscription with new subscription");
 
@@ -60,5 +61,5 @@ public class SubscriptionAPI {
    * @since 1.12.0
    */
   public record SubscriptionUpdateRequest(
-      @JsonProperty("old") Subscription old, @JsonProperty("new") Subscription _new) {}
+      @JsonProperty("old") Subscription old, @JsonProperty("new") WebPushSubscription _new) {}
 }
