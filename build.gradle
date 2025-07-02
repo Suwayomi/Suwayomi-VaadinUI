@@ -168,6 +168,16 @@ tasks.register('buildMacPkg', MacInstallTask) {
     type = ImageType.PKG
 }
 
+//not technically necessary, but easier for Actions script.
+tasks.register('buildMacIntelDmg', MacInstallTask) {
+    type = ImageType.DMG;
+}
+
+//not technically necessary, but easier for Actions script.
+tasks.register('buildMacIntelPkg', MacInstallTask) {
+    type = ImageType.PKG
+}
+
 class InstallTask extends JPackageTask {
     InstallTask() {
         super()
