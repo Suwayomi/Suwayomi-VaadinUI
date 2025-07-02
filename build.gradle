@@ -169,12 +169,12 @@ tasks.register('buildMacPkg', MacInstallTask) {
 }
 
 //not technically necessary, but easier for Actions script.
-tasks.register('buildMacIntelDmg', MacInstallTask) {
+tasks.register('buildMacIntelDmg', MacInstallIntelTask) {
     type = ImageType.DMG;
 }
 
 //not technically necessary, but easier for Actions script.
-tasks.register('buildMacIntelPkg', MacInstallTask) {
+tasks.register('buildMacIntelPkg', MacInstallIntelTask) {
     type = ImageType.PKG
 }
 
@@ -243,5 +243,12 @@ class MacInstallTask extends InstallTask {
         macAppStore = false
         macPackageIdentifier = "online.hatsunemiku.tachideskvaadinui"
         macPackageName = "Tachidesk-VaadinUI"
+    }
+}
+
+class MacInstallIntelTask extends MacInstallTask {
+    MacInstallIntelTask() {
+        super()
+        appVersion = appVersion + "-intel"
     }
 }
