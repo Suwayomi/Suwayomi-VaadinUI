@@ -17,7 +17,7 @@ jobs:
   BuildRelease:
     strategy:
       matrix:
-        TASK: [ buildWindowsExe, buildWindowsMsi, buildLinuxDeb, buildLinuxRpm, buildMacPkg, buildMacDmg ]
+        TASK: [ buildWindowsExe, buildWindowsMsi, buildLinuxDeb, buildLinuxRpm, buildMacPkg, buildMacDmg, buildMacIntelDmg, buildMacIntelPkg ]
         include:
           - TASK: buildWindowsExe
             OS: Windows
@@ -36,13 +36,21 @@ jobs:
             INSTALLER: Rpm
             RUNTIME: ubuntu-latest
           - TASK: buildMacPkg
-            OS: MacOs
+            OS: MacOS-ARM
             INSTALLER: Pkg
             RUNTIME: macos-latest
           - TASK: buildMacDmg
-            OS: MacOs
+            OS: MacOS-ARM
             INSTALLER: Dmg
             RUNTIME: macos-latest
+          - TASK: buildMacIntelDmg
+            OS: MacOS-Intel
+            INSTALLER: Dmg
+            RUNTIME: macos-13
+          - TASK: buildMacIntelPkg
+            OS: MacOS-Intel
+            INSTALLER: Pkg
+            RUNTIME: macos-13 # macos-13 = Intel Mac
     runs-on: ${{ matrix.RUNTIME }}
     name: Build ${{ matrix.INSTALLER }} for ${{ matrix.OS }}
     steps:
