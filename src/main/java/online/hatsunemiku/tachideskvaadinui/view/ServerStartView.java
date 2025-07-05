@@ -6,25 +6,34 @@
 
 package online.hatsunemiku.tachideskvaadinui.view;
 
+import static com.vaadin.flow.component.notification.NotificationVariant.LUMO_ERROR;
+import static com.vaadin.flow.component.notification.NotificationVariant.LUMO_WARNING;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.router.Route;
+
+import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
+import online.hatsunemiku.tachideskvaadinui.services.notification.NotificationService;
 import online.hatsunemiku.tachideskvaadinui.startup.TachideskMaintainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StopWatch;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.vaadin.firitin.components.progressbar.VProgressBar;
@@ -41,6 +50,8 @@ public class ServerStartView extends VerticalLayout {
   private final Div updateNotice;
   private final ProgressBar progress;
   private final Div downloadText;
+  private Instant countdown;
+  private boolean hasSentNotification = false;
 
   public ServerStartView(
       RestTemplate client, TachideskMaintainer maintainer, SettingsService settingsService) {
@@ -110,6 +121,7 @@ public class ServerStartView extends VerticalLayout {
       double progressPercent = maintainer.getProgress() * 100;
 
       String updateText = "%.2f%%".formatted(progressPercent);
+      countdown = null;
       ui.access(
           () -> {
             updateNotice.setVisible(true);
@@ -118,11 +130,31 @@ public class ServerStartView extends VerticalLayout {
             progress.setIndeterminate(false);
           });
     } else {
+      if (countdown == null && !hasSentNotification) {
+        countdown = Instant.now().plusSeconds(60);
+      }
       ui.access(
           () -> {
             updateNotice.setVisible(false);
             downloadText.setVisible(false);
             progress.setIndeterminate(true);
+            if (countdown != null && countdown.isBefore(Instant.now())) {
+              Notification notification = new Notification();
+              Div text = new Div("Server didn't start up in time or hasn't started downloading at all, please submit an issue on GitHub if you see this.");
+              Anchor anchor = new Anchor("https://github.com/Suwayomi/Suwayomi-VaadinUI/issues", "Submit Issue");
+              anchor.getStyle().set("color", "#7FFFD4");
+              anchor.getStyle().set("textDecoration", "underline");
+              anchor.getStyle().set("background-color", "#80808080");
+              anchor.getStyle().set("border-radius", "5px");
+              text.getStyle().set("textAlign", "center");
+              anchor.getStyle().set("textAlign", "center");
+
+              notification.add(text, anchor);
+              notification.addThemeVariants(LUMO_ERROR);
+              notification.open();
+              hasSentNotification = true;
+              countdown = null;
+            }
           });
     }
   }
