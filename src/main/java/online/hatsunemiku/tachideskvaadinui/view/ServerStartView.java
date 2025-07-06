@@ -21,7 +21,6 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.router.Route;
-
 import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -146,7 +145,8 @@ public class ServerStartView extends VerticalLayout {
             if (countdown != null && countdown.isBefore(Instant.now())) {
               Notification notification = new Notification();
               Div text = new Div(
-                  "Server didn't start up in time or hasn't started downloading at all, please submit an issue on GitHub if you see this.");
+                  "Server didn't start up in time or hasn't started downloading at all, please"
+                          + " submit an issue on GitHub if you see this.");
               Anchor anchor = new Anchor("https://github.com/Suwayomi/Suwayomi-VaadinUI/issues",
                   "Submit Issue");
               anchor.getStyle().set("color", "#7FFFD4");
