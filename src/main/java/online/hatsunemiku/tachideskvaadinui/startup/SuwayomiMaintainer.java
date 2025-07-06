@@ -162,7 +162,7 @@ public class SuwayomiMaintainer {
 
     Meta newServerMeta = newMeta.get();
 
-    if (checkMeta(oldServer, newServerMeta) && checkServer(oldServer)) {
+    if (checkMeta(oldServer, newServerMeta) && checkServerFile(oldServer)) {
       logger.info("No new version found");
       return;
     }
@@ -215,6 +215,18 @@ public class SuwayomiMaintainer {
     return true;
   }
 
+  /**
+   * Validates and ensures the server configuration file exists and is properly set up.
+   * <p>
+   * This method performs the following steps:
+   * 1. Checks whether a "data" directory exists within the project directory. If it does not exist,
+   *    attempts to create it.
+   * 2. Checks if the "server.conf" configuration file exists inside the "data" directory.
+   *    - If the file does not exist, it copies a default configuration file from the classpath to the "data" directory.
+   *
+   * @throws RuntimeException if the "data" directory cannot be created, if the default configuration
+   *                          file cannot be loaded or copied, or in the case of other I/O errors.
+   */
   private void checkServerConfig() {
     log.info("Checking for config File...");
 
@@ -290,6 +302,14 @@ public class SuwayomiMaintainer {
     return true;
   }
 
+  /**
+   * Compares the metadata of an old server and a new server to determine if both
+   * the version and revision match. Logs new version or revision details if differences are found.
+   *
+   * @param oldServer The {@link Meta} object representing the current server metadata.
+   * @param newServer The {@link Meta} object representing the updated server metadata.
+   * @return {@code true} if both the version and revision match; {@code false} otherwise.
+   */
   private boolean checkMeta(Meta oldServer, Meta newServer) {
 
     boolean matchingVersion = oldServer.getJarVersion().equals(newServer.getJarVersion());
@@ -301,25 +321,35 @@ public class SuwayomiMaintainer {
     boolean matchingRevision = oldServer.getJarRevision().equals(newServer.getJarRevision());
 
     if (!matchingRevision) {
-      logger.info("New revision {}", newServer.getJarRevision());
+      logger.info("New revision {} found", newServer.getJarRevision());
     }
 
     return matchingVersion && matchingRevision;
   }
 
-  private boolean checkServer(Meta existing) {
+  /**
+   * Checks if the server file exists in the server directory based on the provided {@link Meta} instance.
+   * Logs a message if the server file was not found.
+   *
+   * @param existing The {@link Meta} object containing the server file information, including its name.
+   * @return {@code true} if the server file exists in the server directory; {@code false} otherwise.
+   */
+  private boolean checkServerFile(Meta existing) {
 
     var serverDir = new File(projectDir, "server");
     File serverFile = new File(serverDir, existing.getJarName());
 
     if (!serverFile.exists()) {
-      logger.info("Server file not found");
+      logger.warn("Server file not found");
       return false;
     }
 
     return true;
   }
 
+  /**
+   * Begins the startup procedure to get the server Jar running if needed.
+   */
   private void startup() {
     starter.startJar(projectDir);
   }
