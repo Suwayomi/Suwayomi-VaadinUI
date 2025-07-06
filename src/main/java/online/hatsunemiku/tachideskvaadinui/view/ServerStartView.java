@@ -7,7 +7,6 @@
 package online.hatsunemiku.tachideskvaadinui.view;
 
 import static com.vaadin.flow.component.notification.NotificationVariant.LUMO_ERROR;
-import static com.vaadin.flow.component.notification.NotificationVariant.LUMO_WARNING;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import com.vaadin.flow.component.UI;
@@ -19,7 +18,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.router.Route;
@@ -28,33 +26,37 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
-import online.hatsunemiku.tachideskvaadinui.services.notification.NotificationService;
-import online.hatsunemiku.tachideskvaadinui.startup.TachideskMaintainer;
+import online.hatsunemiku.tachideskvaadinui.startup.SuwayomiMaintainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StopWatch;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.vaadin.firitin.components.progressbar.VProgressBar;
 
+/**
+ * The {@code ServerStartView} class represents the UI displayed while waiting for the server to
+ * start. This view includes progress indicators, update notifications, and a settings button for
+ * navigation to the {@link SettingsView}.
+ */
 @Route
 @CssImport("./css/serverstart.css")
 public class ServerStartView extends VerticalLayout {
 
   private static final Logger logger = LoggerFactory.getLogger(ServerStartView.class);
-  ScheduledExecutorService executor;
   private final RestTemplate client;
-  private final TachideskMaintainer maintainer;
+  private final SuwayomiMaintainer maintainer;
   private final SettingsService settingsService;
   private final Div updateNotice;
   private final ProgressBar progress;
   private final Div downloadText;
+  private final ScheduledExecutorService executor;
   private Instant countdown;
   private boolean hasSentNotification = false;
 
   public ServerStartView(
-      RestTemplate client, TachideskMaintainer maintainer, SettingsService settingsService) {
+      RestTemplate client, SuwayomiMaintainer maintainer, SettingsService settingsService) {
 
     this.client = client;
     this.settingsService = settingsService;
@@ -106,6 +108,9 @@ public class ServerStartView extends VerticalLayout {
     updateUi();
   }
 
+  /**
+   * Updates the UI based on the status of the {@link SuwayomiMaintainer}.
+   */
   private void updateUi() {
     boolean updating = maintainer.isUpdating();
 
@@ -140,8 +145,10 @@ public class ServerStartView extends VerticalLayout {
             progress.setIndeterminate(true);
             if (countdown != null && countdown.isBefore(Instant.now())) {
               Notification notification = new Notification();
-              Div text = new Div("Server didn't start up in time or hasn't started downloading at all, please submit an issue on GitHub if you see this.");
-              Anchor anchor = new Anchor("https://github.com/Suwayomi/Suwayomi-VaadinUI/issues", "Submit Issue");
+              Div text = new Div(
+                  "Server didn't start up in time or hasn't started downloading at all, please submit an issue on GitHub if you see this.");
+              Anchor anchor = new Anchor("https://github.com/Suwayomi/Suwayomi-VaadinUI/issues",
+                  "Submit Issue");
               anchor.getStyle().set("color", "#7FFFD4");
               anchor.getStyle().set("textDecoration", "underline");
               anchor.getStyle().set("background-color", "#80808080");
