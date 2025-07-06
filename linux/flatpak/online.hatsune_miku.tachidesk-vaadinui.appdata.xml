@@ -42,10 +42,9 @@
         </screenshot>
     </screenshots>
     <releases>
-        <release version="1.13.3" date="2025-6-30">
+        <release version="1.14.0" date="2025-7-6">
             <description>
-                <p>Updated to new UI Version</p>
-                <p>Fix an issue that would fail to download newer Server versions</p>
+                <p>Added new notification when Server Download fails.</p>
             </description>
         </release>
     </releases>
