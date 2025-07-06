@@ -105,7 +105,7 @@ public class SuwayomiStarter {
         log.error("Failed to open browser", e);
       }
       System.exit(
-          -1); //skipcq JAVA-W0060 - Controlled exit, application can't run if Java isn't installed.
+          -1); // skipcq JAVA-W0060 - Controlled exit, application can't run if Java isn't installed.
       return;
     }
 
