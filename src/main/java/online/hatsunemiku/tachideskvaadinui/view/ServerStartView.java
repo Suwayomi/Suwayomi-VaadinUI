@@ -25,7 +25,6 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.startup.SuwayomiMaintainer;
 import org.slf4j.Logger;
@@ -107,9 +106,7 @@ public class ServerStartView extends VerticalLayout {
     updateUi();
   }
 
-  /**
-   * Updates the UI based on the status of the {@link SuwayomiMaintainer}.
-   */
+  /** Updates the UI based on the status of the {@link SuwayomiMaintainer}. */
   private void updateUi() {
     boolean updating = maintainer.isUpdating();
 
@@ -144,11 +141,13 @@ public class ServerStartView extends VerticalLayout {
             progress.setIndeterminate(true);
             if (countdown != null && countdown.isBefore(Instant.now())) {
               Notification notification = new Notification();
-              Div text = new Div(
-                  "Server didn't start up in time or hasn't started downloading at all, please"
+              Div text =
+                  new Div(
+                      "Server didn't start up in time or hasn't started downloading at all, please"
                           + " submit an issue on GitHub if you see this.");
-              Anchor anchor = new Anchor("https://github.com/Suwayomi/Suwayomi-VaadinUI/issues",
-                  "Submit Issue");
+              Anchor anchor =
+                  new Anchor(
+                      "https://github.com/Suwayomi/Suwayomi-VaadinUI/issues", "Submit Issue");
               anchor.getStyle().set("color", "#7FFFD4");
               anchor.getStyle().set("textDecoration", "underline");
               anchor.getStyle().set("background-color", "#80808080");

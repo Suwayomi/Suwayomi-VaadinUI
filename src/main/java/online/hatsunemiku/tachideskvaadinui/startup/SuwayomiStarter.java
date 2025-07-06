@@ -27,8 +27,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 /**
- * Is responsible for starting the Suwayomi server. Additionally, it checks
- * if the server is running and publishes an event if it is.
+ * Is responsible for starting the Suwayomi server. Additionally, it checks if the server is running
+ * and publishes an event if it is.
  */
 @Service
 @Slf4j
