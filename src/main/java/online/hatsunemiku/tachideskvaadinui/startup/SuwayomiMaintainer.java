@@ -40,33 +40,33 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * This class is responsible for keeping the Tachidesk/Suwayomi Server up to date and running. It
- * checks for updates and downloads them if necessary.
+ * This class is responsible for keeping the Suwayomi Server up to date and running. It checks for
+ * updates and downloads them if necessary.
  */
 @Component
 @Slf4j
-public class TachideskMaintainer {
+public class SuwayomiMaintainer {
 
-  private static final Logger logger = LoggerFactory.getLogger(TachideskMaintainer.class);
+  private static final Logger logger = LoggerFactory.getLogger(SuwayomiMaintainer.class);
   private static File serverDir;
   private final RestTemplate client;
-  private final TachideskStarter starter;
+  private final SuwayomiStarter starter;
   private final SettingsService settingsService;
   private final File projectDir;
   @Getter private boolean updating = false;
   @Getter private double progress = 0;
 
   /**
-   * Creates a new {@link TachideskMaintainer} instance.
+   * Creates a new {@link SuwayomiMaintainer} instance.
    *
    * @param client The {@link RestTemplate} used for making HTTP requests.
-   * @param starter The {@link TachideskStarter} used for starting and stopping the server.
+   * @param starter The {@link SuwayomiStarter} used for starting and stopping the server.
    * @param settingsService The {@link SettingsService} used for getting the current settings.
    * @param env The {@link Environment} used for getting the project directory.
    */
-  public TachideskMaintainer(
+  public SuwayomiMaintainer(
       RestTemplate client,
-      TachideskStarter starter,
+      SuwayomiStarter starter,
       SettingsService settingsService,
       Environment env) {
     this.client = client;
@@ -162,7 +162,7 @@ public class TachideskMaintainer {
 
     Meta newServerMeta = newMeta.get();
 
-    if (checkMeta(oldServer, newServerMeta) && checkServer(oldServer)) {
+    if (checkMeta(oldServer, newServerMeta) && checkServerFile(oldServer)) {
       logger.info("No new version found");
       return;
     }
@@ -215,6 +215,17 @@ public class TachideskMaintainer {
     return true;
   }
 
+  /**
+   * Validates and ensures the server configuration file exists and is properly set up.
+   *
+   * <p>This method performs the following steps: 1. Checks whether a "data" directory exists within
+   * the project directory. If it does not exist, attempts to create it. 2. Checks if the
+   * "server.conf" configuration file exists inside the "data" directory. - If the file does not
+   * exist, it copies a default configuration file from the classpath to the "data" directory.
+   *
+   * @throws RuntimeException if the "data" directory cannot be created, if the default
+   *     configuration file cannot be loaded or copied, or in the case of other I/O errors.
+   */
   private void checkServerConfig() {
     log.info("Checking for config File...");
 
@@ -290,6 +301,14 @@ public class TachideskMaintainer {
     return true;
   }
 
+  /**
+   * Compares the metadata of an old server and a new server to determine if both the version and
+   * revision match. Logs new version or revision details if differences are found.
+   *
+   * @param oldServer The {@link Meta} object representing the current server metadata.
+   * @param newServer The {@link Meta} object representing the updated server metadata.
+   * @return {@code true} if both the version and revision match; {@code false} otherwise.
+   */
   private boolean checkMeta(Meta oldServer, Meta newServer) {
 
     boolean matchingVersion = oldServer.getJarVersion().equals(newServer.getJarVersion());
@@ -301,25 +320,35 @@ public class TachideskMaintainer {
     boolean matchingRevision = oldServer.getJarRevision().equals(newServer.getJarRevision());
 
     if (!matchingRevision) {
-      logger.info("New revision {}", newServer.getJarRevision());
+      logger.info("New revision {} found", newServer.getJarRevision());
     }
 
     return matchingVersion && matchingRevision;
   }
 
-  private boolean checkServer(Meta existing) {
+  /**
+   * Checks if the server file exists in the server directory based on the provided {@link Meta}
+   * instance. Logs a message if the server file was not found.
+   *
+   * @param existing The {@link Meta} object containing the server file information, including its
+   *     name.
+   * @return {@code true} if the server file exists in the server directory; {@code false}
+   *     otherwise.
+   */
+  private boolean checkServerFile(Meta existing) {
 
     var serverDir = new File(projectDir, "server");
     File serverFile = new File(serverDir, existing.getJarName());
 
     if (!serverFile.exists()) {
-      logger.info("Server file not found");
+      logger.warn("Server file not found");
       return false;
     }
 
     return true;
   }
 
+  /** Begins the startup procedure to get the server Jar running if needed. */
   private void startup() {
     starter.startJar(projectDir);
   }
