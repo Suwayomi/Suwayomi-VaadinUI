@@ -40,33 +40,33 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * This class is responsible for keeping the Tachidesk/Suwayomi Server up to date and running. It
+ * This class is responsible for keeping the Suwayomi Server up to date and running. It
  * checks for updates and downloads them if necessary.
  */
 @Component
 @Slf4j
-public class TachideskMaintainer {
+public class SuwayomiMaintainer {
 
-  private static final Logger logger = LoggerFactory.getLogger(TachideskMaintainer.class);
+  private static final Logger logger = LoggerFactory.getLogger(SuwayomiMaintainer.class);
   private static File serverDir;
   private final RestTemplate client;
-  private final TachideskStarter starter;
+  private final SuwayomiStarter starter;
   private final SettingsService settingsService;
   private final File projectDir;
   @Getter private boolean updating = false;
   @Getter private double progress = 0;
 
   /**
-   * Creates a new {@link TachideskMaintainer} instance.
+   * Creates a new {@link SuwayomiMaintainer} instance.
    *
    * @param client The {@link RestTemplate} used for making HTTP requests.
-   * @param starter The {@link TachideskStarter} used for starting and stopping the server.
+   * @param starter The {@link SuwayomiStarter} used for starting and stopping the server.
    * @param settingsService The {@link SettingsService} used for getting the current settings.
    * @param env The {@link Environment} used for getting the project directory.
    */
-  public TachideskMaintainer(
+  public SuwayomiMaintainer(
       RestTemplate client,
-      TachideskStarter starter,
+      SuwayomiStarter starter,
       SettingsService settingsService,
       Environment env) {
     this.client = client;

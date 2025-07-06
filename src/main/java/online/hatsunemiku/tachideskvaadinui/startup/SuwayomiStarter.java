@@ -27,14 +27,14 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 /**
- * Is responsible for starting the Suwayomi (previously Tachidesk) server. Additionally, it checks
+ * Is responsible for starting the Suwayomi server. Additionally, it checks
  * if the server is running and publishes an event if it is.
  */
 @Service
 @Slf4j
-public class TachideskStarter {
+public class SuwayomiStarter {
 
-  private static final Logger logger = LoggerFactory.getLogger(TachideskStarter.class);
+  private static final Logger logger = LoggerFactory.getLogger(SuwayomiStarter.class);
   private Process serverProcess;
   private ScheduledExecutorService serverChecker;
   private ScheduledExecutorService startChecker;
@@ -43,14 +43,14 @@ public class TachideskStarter {
   private final SuwayomiService suwayomiApi;
 
   /**
-   * Creates a new instance of the {@link TachideskStarter} class.
+   * Creates a new instance of the {@link SuwayomiStarter} class.
    *
    * @param settingsService The {@link SettingsService} used for retrieving settings.
    * @param serverEventPublisher The {@link ServerEventPublisher} used for publishing server events
    *     to the application.
    * @param suwayomiApi The {@link SuwayomiService} used for checking if the server is running.
    */
-  public TachideskStarter(
+  public SuwayomiStarter(
       SettingsService settingsService,
       ServerEventPublisher serverEventPublisher,
       SuwayomiService suwayomiApi) {
