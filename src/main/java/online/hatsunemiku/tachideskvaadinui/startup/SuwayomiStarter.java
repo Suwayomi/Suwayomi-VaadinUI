@@ -46,11 +46,10 @@ public class SuwayomiStarter {
   /**
    * Creates a new instance of the {@link SuwayomiStarter} class.
    *
-   * @param settingsService      The {@link SettingsService} used for retrieving settings.
+   * @param settingsService The {@link SettingsService} used for retrieving settings.
    * @param serverEventPublisher The {@link ServerEventPublisher} used for publishing server events
-   *                             to the application.
-   * @param suwayomiApi          The {@link SuwayomiService} used for checking if the server is
-   *                             running.
+   *     to the application.
+   * @param suwayomiApi The {@link SuwayomiService} used for checking if the server is running.
    */
   public SuwayomiStarter(
       SettingsService settingsService,
@@ -62,12 +61,12 @@ public class SuwayomiStarter {
   }
 
   /**
-   * Starts the Tachidesk server jar file within the specified project directory.
-   * Configures the required data directory and Java version,
-   * and initiates the execution of the server jar file.
+   * Starts the Tachidesk server jar file within the specified project directory. Configures the
+   * required data directory and Java version, and initiates the execution of the server jar file.
    *
    * @param projectDir The base directory of the project containing the jar file and configuration.
-   * @see online.hatsunemiku.tachideskvaadinui.utils.PathUtils#getResolvedProjectPath(Environment) getResolvedProjectPath
+   * @see online.hatsunemiku.tachideskvaadinui.utils.PathUtils#getResolvedProjectPath(Environment)
+   *     getResolvedProjectPath
    */
   public void startJar(File projectDir) {
     log.info("Starting Tachidesk Server Jar...");
@@ -89,7 +88,7 @@ public class SuwayomiStarter {
     log.info("Checking for java installation...");
     boolean isJavaInstalled;
     try {
-      Process process = Runtime.getRuntime().exec(new String[]{"java", "-version"});
+      Process process = Runtime.getRuntime().exec(new String[] {"java", "-version"});
       isJavaInstalled = process.waitFor() == 0;
     } catch (IOException | InterruptedException e) {
       log.error("Failed to check if java is installed");
@@ -104,8 +103,8 @@ public class SuwayomiStarter {
       } catch (IOException e) {
         log.error("Failed to open browser", e);
       }
-      System.exit(
-          -1); // skipcq JAVA-W0060 - Controlled exit, application can't run if Java isn't installed.
+      System.exit(-1); // skipcq JAVA-W0060 - Controlled exit, application can't run if Java isn't
+      // installed.
       return;
     }
 
@@ -127,13 +126,12 @@ public class SuwayomiStarter {
   }
 
   /**
-   * Initializes the server checking mechanism and starts periodic tasks to monitor
-   * the server's status.
-   * <p>
-   * The `startChecker` service executes the {@code checkIfServerIsRunning} method every
-   * 5 seconds starting immediately. This approach ensures that the server's running
-   * status is checked frequently and events are published promptly when the server
-   * is detected to be operational.
+   * Initializes the server checking mechanism and starts periodic tasks to monitor the server's
+   * status.
+   *
+   * <p>The `startChecker` service executes the {@code checkIfServerIsRunning} method every 5
+   * seconds starting immediately. This approach ensures that the server's running status is checked
+   * frequently and events are published promptly when the server is detected to be operational.
    */
   private void startServerCheck() {
     serverChecker = Executors.newSingleThreadScheduledExecutor();
@@ -143,16 +141,16 @@ public class SuwayomiStarter {
     startChecker.scheduleAtFixedRate(this::checkIfServerIsRunning, 0, 5, TimeUnit.SECONDS);
   }
 
-
   /**
    * Stops the currently running server process if it exists and shuts down any associated scheduled
    * tasks. This method is executed automatically when the application is shutting down due to the
    * {@link PreDestroy} annotation.
-   * <p>
-   * If a server process was started by the application, it will attempt to terminate it gracefully.
-   * If the server process does not support normal termination, it will be forcibly terminated.
-   * <p>
-   * Also ensures that any active server health-checking thread pools are properly shut down.
+   *
+   * <p>If a server process was started by the application, it will attempt to terminate it
+   * gracefully. If the server process does not support normal termination, it will be forcibly
+   * terminated.
+   *
+   * <p>Also ensures that any active server health-checking thread pools are properly shut down.
    */
   @PreDestroy
   public void stopJar() {
@@ -194,10 +192,9 @@ public class SuwayomiStarter {
   }
 
   /**
-   * Checks if the Server is running, if so publishes a
-   * {@link online.hatsunemiku.tachideskvaadinui.data.server.event.ServerStartedEvent
-   * ServerStartedEvent}, shuts down the current {@link #startChecker} instance and sets it to
-   * {@code null}.
+   * Checks if the Server is running, if so publishes a {@link
+   * online.hatsunemiku.tachideskvaadinui.data.server.event.ServerStartedEvent ServerStartedEvent},
+   * shuts down the current {@link #startChecker} instance and sets it to {@code null}.
    */
   private void checkIfServerIsRunning() {
     if (Thread.interrupted()) {
