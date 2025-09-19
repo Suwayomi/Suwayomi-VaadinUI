@@ -9,6 +9,7 @@ package online.hatsunemiku.tachideskvaadinui.component.scroller.source;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.dom.DomEvent;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -20,10 +21,9 @@ import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.SourceService;
-import org.vaadin.firitin.components.orderedlayout.VScroller;
 
 @CssImport("./css/components/scroller/source-explore-scroller.css")
-public class SourceExploreScroller extends VScroller {
+public class SourceExploreScroller extends Scroller {
 
   private final SourceService sourceService;
   private int currentPage;
