@@ -6,8 +6,14 @@
 
 package online.hatsunemiku.tachideskvaadinui.component.scroller;
 
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.ComponentEvent;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.orderedlayout.Scroller;
+import com.vaadin.flow.shared.Registration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -16,11 +22,10 @@ import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Extension;
 import online.hatsunemiku.tachideskvaadinui.services.ExtensionService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
-import org.vaadin.firitin.components.html.VDiv;
-import org.vaadin.firitin.components.orderedlayout.VScroller;
+import org.intellij.lang.annotations.Language;
 
 @CssImport("./css/components/extension-scroller.css")
-public class ExtensionScroller extends VScroller {
+public class ExtensionScroller extends Scroller {
 
   public static final int LIST_SIZE = 15;
   private final ExtensionService service;
@@ -34,7 +39,7 @@ public class ExtensionScroller extends VScroller {
     super();
     this.service = service;
     this.settingsService = settingsService;
-    this.content = new VDiv();
+    this.content = new Div();
 
     setClassName("extension-scroller");
 
@@ -53,6 +58,23 @@ public class ExtensionScroller extends VScroller {
             addExtensions(extensions, settings);
           }
         });
+  }
+
+  @Override
+  protected void onAttach(AttachEvent attachEvent) {
+    super.onAttach(attachEvent);
+    @Language("JavaScript")
+    String scrollToEndCheck = """
+        var self = this;
+        this.addEventListener("scroll", function(event) {
+          if (self.scrollTop + self.clientHeight > (self.scrollHeight - self.clientHeight/4)) {
+            var e = new Event("scroll-to-end");
+            self.dispatchEvent(e);
+          }
+        })
+        """;
+
+    getElement().executeJs(scrollToEndCheck);
   }
 
   private void addExtensions(List<Extension> extensions, Settings settings) {
@@ -123,5 +145,16 @@ public class ExtensionScroller extends VScroller {
     comparator = comparator.thenComparing(Extension::getPkgName);
 
     return comparator;
+  }
+
+  public Registration addScrollToEndListener(ComponentEventListener<ScrollToEndEvent> listener) {
+    return addListener(ScrollToEndEvent.class, listener);
+  }
+
+  @DomEvent("scroll-to-end")
+  public static class ScrollToEndEvent extends ComponentEvent<Scroller> {
+    public ScrollToEndEvent(Scroller source, boolean isFromClient) {
+      super(source, isFromClient);
+    }
   }
 }
