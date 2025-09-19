@@ -6,17 +6,27 @@
 
 package online.hatsunemiku.tachideskvaadinui.services.client.suwayomi;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.settings.FlareSolverrSettings;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
 import org.intellij.lang.annotations.Language;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
 
 /**
  * The SuwayomiSettingsClient class is responsible for making API requests to the Suwayomi Server
  * for updating and retrieving server settings.
  */
+@Slf4j
 @Component
 public class SuwayomiSettingsClient {
 
@@ -202,5 +212,100 @@ public class SuwayomiSettingsClient {
         response.extractValueAsObject("setSettings.settings.flareSolverrEnabled", Boolean.class);
 
     return flareSolverrEnabled.equals(enabled);
+  }
+
+  /**
+   * Creates a backup on the Suwayomi Server, including categories and chapters.
+   *
+   * @return a String containing the relative API URL for the server API to download the created
+   *     backup.
+   */
+  public String createBackup() {
+    @Language("graphql")
+    String query =
+        """
+        mutation createBackup {
+          createBackup(input: {includeCategories: true, includeChapters: true}) {
+            url
+          }
+        }
+        """;
+
+    var graphClient = clientService.getGraphQlClient();
+    return graphClient.document(query).retrieve("createBackup.url").toEntity(String.class).block();
+  }
+
+  /**
+   * Restores a backup to the Suwayomi server from the specified backup file.
+   *
+   * @param backupFile the {@link Path} to the backup file to be restored
+   * @throws RuntimeException if the backup file does not exist, or if there is an error during the
+   *     restoration process
+   */
+  public void restoreBackup(Path backupFile) {
+
+    if (!Files.exists(backupFile)) {
+      throw new RuntimeException("Backup file does not exist");
+    }
+
+    @Language("graphql")
+    String query =
+        """
+        mutation RestoreBackup($backup: Upload!) {
+          restoreBackup(input: {backup: $backup}) {
+            status {
+              totalManga
+              state
+              mangaProgress
+            }
+          }
+        }
+        """;
+
+    query = query.replace("\n", "").strip();
+
+    @Language("json")
+    String operations =
+        """
+        {
+          "query": "%s",
+          "variables": {"backup":  null}
+        }
+        """;
+
+    String operationBody = String.format(operations, query);
+
+    @Language("json")
+    String map = """
+        {
+          "0": ["variables.backup"]
+        }
+        """;
+
+    File file = backupFile.toFile();
+    FileSystemResource uploadFile = new FileSystemResource(file);
+
+    MultiValueMap<String, Object> requestBody = new LinkedMultiValueMap<>();
+    requestBody.add("operations", operationBody);
+    requestBody.add("map", map);
+    requestBody.add("0", uploadFile);
+
+    var webClient = clientService.getWebClient();
+
+    String response =
+        webClient
+            .post()
+            .uri("api/graphql")
+            .contentType(MediaType.MULTIPART_FORM_DATA)
+            .body(BodyInserters.fromMultipartData(requestBody))
+            .retrieve()
+            .bodyToMono(String.class)
+            .block();
+
+    if (response == null) {
+      throw new RuntimeException("Error while restoring backup");
+    }
+
+    log.debug("Restored backup: {}", response);
   }
 }

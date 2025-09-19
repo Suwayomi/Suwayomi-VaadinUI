@@ -7,6 +7,7 @@
 package online.hatsunemiku.tachideskvaadinui.services;
 
 import com.helger.commons.url.URLValidator;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.data.settings.FlareSolverrSettings;
@@ -89,6 +90,33 @@ public class SuwayomiSettingsService {
     }
 
     return client.updateFlareSolverrUrl(url);
+  }
+
+  /**
+   * Creates a backup of the Suwayomi Server content.
+   *
+   * @return The URL to the backup file download
+   */
+  public String createBackup(String url) {
+    String apiUrl = client.createBackup();
+    return url + apiUrl;
+  }
+
+  /**
+   * Restores a backup of the Suwayomi Server from the specified file path.
+   *
+   * @param path the path to the backup file to be restored
+   * @return {@code true} if the backup was restored successfully, {@code false} otherwise
+   * @throws RuntimeException if the backup file does not exist or an error occurs during
+   *     restoration
+   */
+  public boolean restoreBackup(Path path) {
+    try {
+      client.restoreBackup(path);
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
   }
 
   /**

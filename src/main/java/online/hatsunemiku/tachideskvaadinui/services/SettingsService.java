@@ -40,7 +40,7 @@ public class SettingsService {
 
   private static final Logger logger = LoggerFactory.getLogger(SettingsService.class);
 
-  @Getter private final Settings settings;
+  @Getter @NotNull private final Settings settings;
 
   @Getter(AccessLevel.NONE)
   private final ObjectMapper mapper;
@@ -97,11 +97,6 @@ public class SettingsService {
     Path projectDirPath = PathUtils.getResolvedProjectPath(env);
 
     Path settingsFile = projectDirPath.resolve("settings.json");
-
-    if (settings == null) {
-      logger.error("Settings are null");
-      return;
-    }
 
     try (var out = Files.newOutputStream(settingsFile, CREATE, WRITE)) {
       mapper.writeValue(out, settings);

@@ -26,17 +26,22 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.streams.TemporaryFileUploadHandler;
+import com.vaadin.flow.server.streams.UploadHandler;
 import com.vaadin.open.OSUtils;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import online.hatsunemiku.tachideskvaadinui.data.settings.FlareSolverrSettings;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.settings.event.SettingsEventPublisher;
@@ -98,20 +103,21 @@ public class SettingsView extends StandardLayout {
     content.setClassName("settings-content");
 
     Section generalSettings = getGeneralSettingsSection(settingsService, sourceService);
-    Div flareSeparator = getSeparator();
     Section flareSolverrSettings = createFlareSolverrSection();
     Div separator = getSeparator();
     Section extensionSettings = getExtensionSettingsSection();
-    Div notificationSeparator = getSeparator();
     Section notificationSettings = createNotificationSettingsSection();
+    Section backupSection = getBackupSection(settingsService);
     content.add(
         generalSettings,
-        flareSeparator,
+        getSeparator(),
         flareSolverrSettings,
         separator,
         extensionSettings,
-        notificationSeparator,
-        notificationSettings);
+        getSeparator(),
+        notificationSettings,
+        getSeparator(),
+        backupSection);
 
     setContent(content);
     this.webPushService = webPushService;
@@ -884,5 +890,91 @@ public class SettingsView extends StandardLayout {
           notification.open();
         });
     return enabledChoiceBox;
+  }
+
+  /**
+   * Creates a section of the user interface for managing backup operations, including creating and
+   * restoring backups.
+   *
+   * @param service The {@link SettingsService} instance used to retrieve and interact with
+   *     settings.
+   * @return A {@link Section} containing the backup settings.
+   */
+  private @NotNull Section getBackupSection(SettingsService service) {
+    Section section = new Section();
+    section.addClassName("backup-settings");
+
+    Div content = new Div();
+    content.setId("backup-settings-content");
+    var header = new H2("Backup");
+    header.setId("backup-settings-header");
+
+    Div buttons = new Div();
+    buttons.setId("backup-settings-buttons");
+
+    var settings = service.getSettings();
+    Button backupButton = new Button("Create Backup");
+    backupButton.addClickListener(
+        event -> {
+          try {
+            var downloadUrl = suwayomiSettingsService.createBackup(settings.getUrl());
+            UI.getCurrent().getPage().open(downloadUrl, "_blank");
+            Notification notification = new Notification("Backup created", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            notification.open();
+          } catch (Exception e) {
+            log.error("Failed to backup", e);
+            Notification notification = new Notification("Failed to backup", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.open();
+          }
+        });
+
+    AtomicReference<Path> backupFile = new AtomicReference<>();
+    UploadHandler uploadHandler =
+        new TemporaryFileUploadHandler(
+            (metadata, file) -> {
+              backupFile.set(file.toPath());
+            });
+
+    Upload upload = new Upload(uploadHandler);
+    upload.setAutoUpload(true);
+    upload.setMaxFiles(1);
+
+    Button restore = new Button("Restore Backup");
+    restore.addClickListener(
+        e -> {
+          log.info("Restoring backup");
+          if (backupFile.get() == null) {
+            Notification notification = new Notification("No backup file selected", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.open();
+            return;
+          }
+
+          boolean restoredBackup = suwayomiSettingsService.restoreBackup(backupFile.get());
+
+          Notification notification;
+          if (restoredBackup) {
+            notification = new Notification("Backup restored", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+          } else {
+            notification = new Notification("Failed to restore backup", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+          }
+          notification.open();
+        });
+
+    Div restorePart = new Div();
+    restorePart.setId("backup-restore");
+    restorePart.add(upload, restore);
+
+    buttons.add(backupButton, restorePart);
+
+    content.add(header, buttons);
+
+    section.add(content);
+
+    return section;
   }
 }
