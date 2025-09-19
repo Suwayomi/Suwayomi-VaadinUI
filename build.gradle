@@ -76,9 +76,6 @@ dependencies {
 
     //vaadin official addons
     implementation 'com.vaadin:flow-webpush'
-
-    //vaadin directory plugins
-    implementation 'in.virit:viritin:2.19.3'
     implementation 'pl.unforgiven:superfields:0.19.4'
     implementation 'org.vaadin.addons.online.hatsunemiku.diamond:FlowSwiper:1.4.0'
 }
