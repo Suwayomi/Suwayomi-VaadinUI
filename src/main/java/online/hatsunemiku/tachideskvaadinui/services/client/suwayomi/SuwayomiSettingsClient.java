@@ -249,7 +249,9 @@ public class SuwayomiSettingsClient {
             }
           }
         }
-        """.replace("\n", "").strip();
+        """;
+
+    query = query.replace("\n", "").strip();
 
     @Language("json")
     String operations = """
