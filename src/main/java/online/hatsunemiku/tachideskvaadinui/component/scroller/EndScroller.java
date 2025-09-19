@@ -13,7 +13,17 @@ import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.shared.Registration;
 import org.intellij.lang.annotations.Language;
+import org.jetbrains.annotations.NotNull;
 
+/**
+ * The {@code EndScroller} class is an extension of the {@link Scroller} component
+ * which provides functionality to detect when the user scrolls near the bottom
+ * of the scrollable area.
+ * <p>
+ * This class is primarily designed to enhance scrolling behavior by enabling
+ * features such as "infinite scrolling" or dynamically loading additional content
+ * as the user approaches the end of the scrolling content.
+ */
 public class EndScroller extends Scroller {
   @Override
   protected void onAttach(AttachEvent attachEvent) {
@@ -33,13 +43,38 @@ public class EndScroller extends Scroller {
     getElement().executeJs(scrollToEndCheck);
   }
 
+  /**
+   * Adds a listener to be notified when a {@link ScrollToEndEvent} is fired.
+   * The event is triggered when the user scrolls near the bottom of the scrollable
+   * content in the {@link EndScroller} component.
+   *
+   * @param listener the listener to be notified when a {@link ScrollToEndEvent} occurs
+   * @return a {@link Registration} object that can be used to remove the listener
+   */
   public Registration addScrollToEndListener(ComponentEventListener<ScrollToEndEvent> listener) {
     return addListener(ScrollToEndEvent.class, listener);
   }
 
+  /**
+   * Represents a custom event fired when the user scrolls near the bottom of a
+   * {@link EndScroller} component.
+   * <p>
+   * The event is triggered when the vertical scroll position approaches the end
+   * of the scrollable area. Designed to help in implementing "infinite scrolling"
+   * functionality or dynamically loading additional content.
+   * <p>
+   * This event can be listened for using the {@link EndScroller#addScrollToEndListener} method.
+   */
   @DomEvent("scroll-to-end")
   public static class ScrollToEndEvent extends ComponentEvent<Scroller> {
-    public ScrollToEndEvent(Scroller source, boolean isFromClient) {
+
+    /**
+     * Constructs a new {@code ScrollToEndEvent}.
+     *
+     * @param source the source component from which the event originated, must not be null
+     * @param isFromClient {@code true} if the client triggered the event, {@code false} if triggered by the server
+     */
+    public ScrollToEndEvent(@NotNull Scroller source, boolean isFromClient) {
       super(source, isFromClient);
     }
   }
