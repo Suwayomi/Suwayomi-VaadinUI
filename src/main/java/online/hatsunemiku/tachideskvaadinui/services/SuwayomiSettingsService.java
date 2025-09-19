@@ -107,7 +107,8 @@ public class SuwayomiSettingsService {
    *
    * @param path the path to the backup file to be restored
    * @return {@code true} if the backup was restored successfully, {@code false} otherwise
-   * @throws RuntimeException if the backup file does not exist or an error occurs during restoration
+   * @throws RuntimeException if the backup file does not exist or an error occurs during
+   *     restoration
    */
   public boolean restoreBackup(Path path) {
     try {

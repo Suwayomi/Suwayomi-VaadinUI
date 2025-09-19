@@ -218,7 +218,7 @@ public class SuwayomiSettingsClient {
    * Creates a backup on the Suwayomi Server, including categories and chapters.
    *
    * @return a String containing the relative API URL for the server API to download the created
-   * backup.
+   *     backup.
    */
   public String createBackup() {
     @Language("graphql")
@@ -240,7 +240,7 @@ public class SuwayomiSettingsClient {
    *
    * @param backupFile the {@link Path} to the backup file to be restored
    * @throws RuntimeException if the backup file does not exist, or if there is an error during the
-   *                          restoration process
+   *     restoration process
    */
   public void restoreBackup(Path backupFile) {
 
