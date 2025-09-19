@@ -19,7 +19,8 @@ public class EndScroller extends Scroller {
   protected void onAttach(AttachEvent attachEvent) {
     super.onAttach(attachEvent);
     @Language("JavaScript")
-    String scrollToEndCheck = """
+    String scrollToEndCheck =
+        """
         var self = this;
         this.addEventListener("scroll", function(event) {
           if (self.scrollTop + self.clientHeight > (self.scrollHeight - self.clientHeight/4)) {
@@ -42,5 +43,4 @@ public class EndScroller extends Scroller {
       super(source, isFromClient);
     }
   }
-
 }
