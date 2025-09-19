@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
-import org.vaadin.firitin.components.progressbar.VProgressBar;
 
 /**
  * The {@code ServerStartView} class represents the UI displayed while waiting for the server to
@@ -67,7 +66,7 @@ public class ServerStartView extends VerticalLayout {
     Div progressContainer = new Div();
     progressContainer.setClassName("waiting-progress-container");
 
-    progress = new VProgressBar();
+    progress = new ProgressBar();
     progress.setClassName("waiting-bar");
 
     downloadText = new Div();
