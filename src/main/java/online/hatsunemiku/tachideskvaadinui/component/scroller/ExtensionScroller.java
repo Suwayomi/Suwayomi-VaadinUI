@@ -16,11 +16,9 @@ import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Extension;
 import online.hatsunemiku.tachideskvaadinui.services.ExtensionService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
-import org.vaadin.firitin.components.html.VDiv;
-import org.vaadin.firitin.components.orderedlayout.VScroller;
 
 @CssImport("./css/components/extension-scroller.css")
-public class ExtensionScroller extends VScroller {
+public class ExtensionScroller extends EndScroller {
 
   public static final int LIST_SIZE = 15;
   private final ExtensionService service;
@@ -34,7 +32,7 @@ public class ExtensionScroller extends VScroller {
     super();
     this.service = service;
     this.settingsService = settingsService;
-    this.content = new VDiv();
+    this.content = new Div();
 
     setClassName("extension-scroller");
 

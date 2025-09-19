@@ -20,15 +20,15 @@ import online.hatsunemiku.tachideskvaadinui.component.events.source.SourceLangFi
 import online.hatsunemiku.tachideskvaadinui.component.items.BlurryItem;
 import online.hatsunemiku.tachideskvaadinui.component.items.LangItem;
 import online.hatsunemiku.tachideskvaadinui.component.items.SourceItem;
+import online.hatsunemiku.tachideskvaadinui.component.scroller.EndScroller;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Source;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.SourceService;
 import online.hatsunemiku.tachideskvaadinui.view.ServerStartView;
-import org.vaadin.firitin.components.orderedlayout.VScroller;
 
 @CssImport("./css/components/source-scroller.css")
-public class SourceScroller extends VScroller {
+public class SourceScroller extends EndScroller {
 
   private final SourceService service;
   private final List<List<Source>> filteredSources;
