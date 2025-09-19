@@ -214,6 +214,12 @@ public class SuwayomiSettingsClient {
     return flareSolverrEnabled.equals(enabled);
   }
 
+  /**
+   * Creates a backup on the Suwayomi Server, including categories and chapters.
+   *
+   * @return a String containing the relative API URL for the server API to download the created
+   * backup.
+   */
   public String createBackup() {
     @Language("graphql")
     String query =
@@ -229,7 +235,14 @@ public class SuwayomiSettingsClient {
     return graphClient.document(query).retrieve("createBackup.url").toEntity(String.class).block();
   }
 
-  public boolean restoreBackup(Path backupFile) {
+  /**
+   * Restores a backup to the Suwayomi server from the specified backup file.
+   *
+   * @param backupFile the {@link Path} to the backup file to be restored
+   * @throws RuntimeException if the backup file does not exist, or if there is an error during the
+   *                          restoration process
+   */
+  public void restoreBackup(Path backupFile) {
 
     if (!Files.exists(backupFile)) {
       throw new RuntimeException("Backup file does not exist");
@@ -294,7 +307,5 @@ public class SuwayomiSettingsClient {
     }
 
     log.debug("Restored backup: {}", response);
-
-    return true;
   }
 }

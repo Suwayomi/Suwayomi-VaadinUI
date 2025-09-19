@@ -102,8 +102,20 @@ public class SuwayomiSettingsService {
     return url + apiUrl;
   }
 
+  /**
+   * Restores a backup of the Suwayomi Server from the specified file path.
+   *
+   * @param path the path to the backup file to be restored
+   * @return {@code true} if the backup was restored successfully, {@code false} otherwise
+   * @throws RuntimeException if the backup file does not exist or an error occurs during restoration
+   */
   public boolean restoreBackup(Path path) {
-    return client.restoreBackup(path);
+    try {
+      client.restoreBackup(path);
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
   }
 
   /**

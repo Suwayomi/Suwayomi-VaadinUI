@@ -892,6 +892,13 @@ public class SettingsView extends StandardLayout {
     return enabledChoiceBox;
   }
 
+  /**
+   * Creates a section of the user interface for managing backup operations, including creating
+   * and restoring backups.
+   *
+   * @param service The {@link SettingsService} instance used to retrieve and interact with settings.
+   * @return A {@link Section} containing the backup settings.
+   */
   private @NotNull Section getBackupSection(SettingsService service) {
     Section section = new Section();
     section.addClassName("backup-settings");
