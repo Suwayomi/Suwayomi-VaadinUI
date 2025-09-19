@@ -6,17 +6,27 @@
 
 package online.hatsunemiku.tachideskvaadinui.services.client.suwayomi;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.settings.FlareSolverrSettings;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
 import org.intellij.lang.annotations.Language;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
 
 /**
  * The SuwayomiSettingsClient class is responsible for making API requests to the Suwayomi Server
  * for updating and retrieving server settings.
  */
+@Slf4j
 @Component
 public class SuwayomiSettingsClient {
 
@@ -26,7 +36,7 @@ public class SuwayomiSettingsClient {
    * Creates a new instance of the {@link SuwayomiSettingsClient} class.
    *
    * @param clientService the {@link WebClientService} used for making API requests to the Suwayomi
-   *     Server.
+   *                      Server.
    */
   public SuwayomiSettingsClient(WebClientService clientService) {
     this.clientService = clientService;
@@ -172,7 +182,7 @@ public class SuwayomiSettingsClient {
    *
    * @param enabled the new enabled status
    * @return {@code true} if the FlareSolverr enabled status was updated successfully, {@code false}
-   *     otherwise
+   * otherwise
    */
   public boolean updateFlareSolverrEnabledStatus(boolean enabled) {
     @Language("graphql")
@@ -202,5 +212,87 @@ public class SuwayomiSettingsClient {
         response.extractValueAsObject("setSettings.settings.flareSolverrEnabled", Boolean.class);
 
     return flareSolverrEnabled.equals(enabled);
+  }
+
+  public String createBackup() {
+    @Language("graphql")
+    String query = """
+        mutation createBackup {
+          createBackup(input: {includeCategories: true, includeChapters: true}) {
+            url
+          }
+        }
+        """;
+
+    var graphClient = clientService.getGraphQlClient();
+    return graphClient.document(query)
+        .retrieve("createBackup.url")
+        .toEntity(String.class)
+        .block();
+  }
+
+  public boolean restoreBackup(Path backupFile) {
+
+    if (!Files.exists(backupFile)) {
+      throw new RuntimeException("Backup file does not exist");
+    }
+
+
+    @Language("graphql")
+    String query = """
+        mutation RestoreBackup($backup: Upload!) {
+          restoreBackup(input: {backup: $backup}) {
+            status {
+              totalManga
+              state
+              mangaProgress
+            }
+          }
+        }
+        """.replace("\n", "").strip();
+
+    @Language("json")
+    String operations = """
+        {
+          "query": "%s",
+          "variables": {"backup":  null}
+        }
+        """;
+
+    String operationBody = String.format(operations, query);
+
+    @Language("json")
+    String map = """
+        {
+          "0": ["variables.backup"]
+        }
+        """;
+
+    File file = backupFile.toFile();
+    FileSystemResource uploadFile = new FileSystemResource(file);
+
+
+    MultiValueMap<String, Object> requestBody = new LinkedMultiValueMap<>();
+    requestBody.add("operations", operationBody);
+    requestBody.add("map", map);
+    requestBody.add("0", uploadFile);
+
+    var webClient = clientService.getWebClient();
+
+    String response = webClient.post()
+        .uri("api/graphql")
+        .contentType(MediaType.MULTIPART_FORM_DATA)
+        .body(BodyInserters.fromMultipartData(requestBody))
+        .retrieve()
+        .bodyToMono(String.class)
+        .block();
+
+    if (response == null) {
+      throw new RuntimeException("Error while restoring backup");
+    }
+
+    log.debug("Restored backup: {}", response);
+
+    return true;
   }
 }

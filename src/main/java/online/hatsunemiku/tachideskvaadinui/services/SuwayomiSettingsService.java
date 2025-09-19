@@ -7,6 +7,7 @@
 package online.hatsunemiku.tachideskvaadinui.services;
 
 import com.helger.commons.url.URLValidator;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.data.settings.FlareSolverrSettings;
@@ -89,6 +90,19 @@ public class SuwayomiSettingsService {
     }
 
     return client.updateFlareSolverrUrl(url);
+  }
+
+  /**
+   * Creates a backup of the Suwayomi Server content.
+   * @return The URL to the backup file download
+   */
+  public String createBackup(String url) {
+    String apiUrl = client.createBackup();
+    return url + apiUrl;
+  }
+
+  public boolean restoreBackup(Path path) {
+    return client.restoreBackup(path);
   }
 
   /**
