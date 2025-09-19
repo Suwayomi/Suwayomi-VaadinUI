@@ -36,7 +36,7 @@ public class SuwayomiSettingsClient {
    * Creates a new instance of the {@link SuwayomiSettingsClient} class.
    *
    * @param clientService the {@link WebClientService} used for making API requests to the Suwayomi
-   *                      Server.
+   *     Server.
    */
   public SuwayomiSettingsClient(WebClientService clientService) {
     this.clientService = clientService;
@@ -182,7 +182,7 @@ public class SuwayomiSettingsClient {
    *
    * @param enabled the new enabled status
    * @return {@code true} if the FlareSolverr enabled status was updated successfully, {@code false}
-   * otherwise
+   *     otherwise
    */
   public boolean updateFlareSolverrEnabledStatus(boolean enabled) {
     @Language("graphql")
@@ -216,7 +216,8 @@ public class SuwayomiSettingsClient {
 
   public String createBackup() {
     @Language("graphql")
-    String query = """
+    String query =
+        """
         mutation createBackup {
           createBackup(input: {includeCategories: true, includeChapters: true}) {
             url
@@ -225,10 +226,7 @@ public class SuwayomiSettingsClient {
         """;
 
     var graphClient = clientService.getGraphQlClient();
-    return graphClient.document(query)
-        .retrieve("createBackup.url")
-        .toEntity(String.class)
-        .block();
+    return graphClient.document(query).retrieve("createBackup.url").toEntity(String.class).block();
   }
 
   public boolean restoreBackup(Path backupFile) {
@@ -237,9 +235,9 @@ public class SuwayomiSettingsClient {
       throw new RuntimeException("Backup file does not exist");
     }
 
-
     @Language("graphql")
-    String query = """
+    String query =
+        """
         mutation RestoreBackup($backup: Upload!) {
           restoreBackup(input: {backup: $backup}) {
             status {
@@ -254,7 +252,8 @@ public class SuwayomiSettingsClient {
     query = query.replace("\n", "").strip();
 
     @Language("json")
-    String operations = """
+    String operations =
+        """
         {
           "query": "%s",
           "variables": {"backup":  null}
@@ -273,7 +272,6 @@ public class SuwayomiSettingsClient {
     File file = backupFile.toFile();
     FileSystemResource uploadFile = new FileSystemResource(file);
 
-
     MultiValueMap<String, Object> requestBody = new LinkedMultiValueMap<>();
     requestBody.add("operations", operationBody);
     requestBody.add("map", map);
@@ -281,13 +279,15 @@ public class SuwayomiSettingsClient {
 
     var webClient = clientService.getWebClient();
 
-    String response = webClient.post()
-        .uri("api/graphql")
-        .contentType(MediaType.MULTIPART_FORM_DATA)
-        .body(BodyInserters.fromMultipartData(requestBody))
-        .retrieve()
-        .bodyToMono(String.class)
-        .block();
+    String response =
+        webClient
+            .post()
+            .uri("api/graphql")
+            .contentType(MediaType.MULTIPART_FORM_DATA)
+            .body(BodyInserters.fromMultipartData(requestBody))
+            .retrieve()
+            .bodyToMono(String.class)
+            .block();
 
     if (response == null) {
       throw new RuntimeException("Error while restoring backup");

@@ -94,6 +94,7 @@ public class SuwayomiSettingsService {
 
   /**
    * Creates a backup of the Suwayomi Server content.
+   *
    * @return The URL to the backup file download
    */
   public String createBackup(String url) {

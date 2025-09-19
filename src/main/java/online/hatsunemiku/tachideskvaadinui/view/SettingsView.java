@@ -117,8 +117,7 @@ public class SettingsView extends StandardLayout {
         getSeparator(),
         notificationSettings,
         getSeparator(),
-        backupSection
-        );
+        backupSection);
 
     setContent(content);
     this.webPushService = webPushService;
@@ -921,40 +920,42 @@ public class SettingsView extends StandardLayout {
             notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
             notification.open();
           }
-        }
-    );
+        });
 
     AtomicReference<Path> backupFile = new AtomicReference<>();
-    UploadHandler uploadHandler = new TemporaryFileUploadHandler((metadata, file) -> {
-      backupFile.set(file.toPath());
-    });
+    UploadHandler uploadHandler =
+        new TemporaryFileUploadHandler(
+            (metadata, file) -> {
+              backupFile.set(file.toPath());
+            });
 
     Upload upload = new Upload(uploadHandler);
     upload.setAutoUpload(true);
     upload.setMaxFiles(1);
 
     Button restore = new Button("Restore Backup");
-    restore.addClickListener(e -> {
-      log.info("Restoring backup");
-      if (backupFile.get() == null) {
-        Notification notification = new Notification("No backup file selected", 3000);
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        notification.open();
-        return;
-      }
+    restore.addClickListener(
+        e -> {
+          log.info("Restoring backup");
+          if (backupFile.get() == null) {
+            Notification notification = new Notification("No backup file selected", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.open();
+            return;
+          }
 
-      boolean restoredBackup = suwayomiSettingsService.restoreBackup(backupFile.get());
+          boolean restoredBackup = suwayomiSettingsService.restoreBackup(backupFile.get());
 
-      Notification notification;
-      if (restoredBackup) {
-        notification = new Notification("Backup restored", 3000);
-        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-      } else {
-        notification = new Notification("Failed to restore backup", 3000);
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-      }
-      notification.open();
-    });
+          Notification notification;
+          if (restoredBackup) {
+            notification = new Notification("Backup restored", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+          } else {
+            notification = new Notification("Failed to restore backup", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+          }
+          notification.open();
+        });
 
     Div restorePart = new Div();
     restorePart.setId("backup-restore");
