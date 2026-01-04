@@ -9,7 +9,6 @@ plugins {
     id 'org.springframework.boot' version '3.5.6'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.vaadin' version "$vaadinVersion"
-
     //Jpackage for building native installers
     id("org.panteleyev.jpackageplugin") version "1.6.0"
 }
@@ -23,7 +22,6 @@ java {
 
 group = 'online.hatsunemiku'
 version = '1.14.0'
-sourceCompatibility = JavaVersion.VERSION_21
 targetCompatibility = JavaVersion.VERSION_21
 
 configurations {
