@@ -58,9 +58,9 @@ public class SourceExploreScroller extends Scroller {
                     return;
                   }
 
-                  double scrollTop = e.getEventData().getNumber("event.target.scrollTop");
-                  double scrollHeight = e.getEventData().getNumber("event.target.scrollHeight");
-                  double offsetHeight = e.getEventData().getNumber("event.target.offsetHeight");
+                  double scrollTop = e.getEventData().get("event.target.scrollTop").asDouble();
+                  double scrollHeight = e.getEventData().get("event.target.scrollHeight").asDouble();
+                  double offsetHeight = e.getEventData().get("event.target.offsetHeight").asDouble();
 
                   if (scrollHeight == 0 || scrollTop == 0) {
                     return;

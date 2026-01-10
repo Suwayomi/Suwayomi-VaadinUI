@@ -6,11 +6,6 @@
 
 package online.hatsunemiku.tachideskvaadinui.services;
 
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.core.exc.StreamWriteException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DatabindException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PreDestroy;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,6 +18,11 @@ import online.hatsunemiku.tachideskvaadinui.data.tracking.TrackerTokens;
 import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.exc.StreamWriteException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * This class is responsible for managing tracking data. It handles the serialization and

@@ -1,0 +1,53 @@
+mutation updateMangaProgress ($mangaId: Int, $progress: Int) {
+    SaveMediaListEntry (mediaId: $mangaId, progress: $progress) {
+        id
+        progress
+    }
+}
+
+mutation updateMangaStatus ($mangaId: Int, $status: MediaListStatus) {
+    SaveMediaListEntry (mediaId: $mangaId, status: $status) {
+        id
+        status
+    }
+}
+
+mutation updateMangaScore ($mangaId: Int, $score: Float) {
+    SaveMediaListEntry (mediaId: $mangaId, score: $score) {
+        id
+        score
+    }
+}
+
+mutation updateMangaEndDate ($mangaId: Int, $endDate: FuzzyDateInput) {
+    SaveMediaListEntry (mediaId: $mangaId, completedAt: $endDate) {
+        id
+        completedAt {
+            year
+            month
+            day
+        }
+    }
+}
+
+mutation updateMangaPrivacyStatus ($mangaId: Int, $private: Boolean) {
+    SaveMediaListEntry(mediaId: $mangaId, private: $private) {
+        id
+        private
+    }
+}
+
+mutation removeMangaFromList ($entryId: Int) {
+    DeleteMediaListEntry(id: $entryId) {
+        deleted
+    }
+}
+
+mutation addMangaToList($mangaId: Int, $status: MediaListStatus, $private: Boolean){
+    SaveMediaListEntry(mediaId: $mangaId, status: $status, private: $private) {
+        id
+        status
+        private
+    }
+}
+

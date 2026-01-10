@@ -7,7 +7,9 @@
 package online.hatsunemiku.tachideskvaadinui.component.reader.strip;
 
 import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.ScrollOptions;
+import com.vaadin.flow.component.ScrollIntoViewOption.Behavior;
+import com.vaadin.flow.component.ScrollIntoViewOption.Block;
+import com.vaadin.flow.component.ScrollIntoViewOption.Inline;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
@@ -189,18 +191,17 @@ public class StripReader extends Reader {
     return currentPageIndex;
   }
 
+  /**
+   * Scrolls specified page index into view
+   * @param index page index to scroll into view
+   */
   @Override
   protected void moveToPage(int index) {
 
     if (index < 0 || index >= pages.size()) {
       return;
     }
-
-    ScrollOptions options = new ScrollOptions();
-    options.setBehavior(ScrollOptions.Behavior.SMOOTH);
-    options.setBlock(ScrollOptions.Alignment.START);
-
-    pages.get(index).getElement().scrollIntoView(options);
+    pages.get(index).getElement().scrollIntoView(Block.START, Behavior.SMOOTH, Inline.CENTER);
   }
 
   @Override

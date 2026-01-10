@@ -8,22 +8,30 @@ package online.hatsunemiku.tachideskvaadinui.data.tracking.anilist;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDate;
+import online.hatsunemiku.tachideskvaadinui.graphql.anilist.GetMangaListOfUserQuery.Entry;
+import online.hatsunemiku.tachideskvaadinui.graphql.anilist.GetMangaListOfUserQuery.Title;
+import online.hatsunemiku.tachideskvaadinui.graphql.anilist.type.MediaTitle;
 
 public record AniListMedia(
-    int id,
     MediaTitle title,
-    MediaCoverImage coverImage,
-    String format,
-    String status,
-    int chapters,
-    String description,
-    @JsonProperty("startDate") MediaDate date) {
+    String image,
+    AniListStatus status) {
 
   public record MediaTitle(
       String userPreferred,
       String romaji,
       String enlgish,
-      @JsonProperty("native") String native_) {}
+      @JsonProperty("native") String native_) {
+
+    public MediaTitle(Title dto) {
+      this(dto.userPreferred, dto.romaji, dto.english, dto.native_);
+    }
+  }
+
+  public AniListMedia(Entry entry) {
+    this(new MediaTitle(entry.media.title), entry.media.coverImage.large,
+        AniListStatus.valueOf(entry.status.rawValue));
+  }
 
   public record MediaCoverImage(String large) {}
 }

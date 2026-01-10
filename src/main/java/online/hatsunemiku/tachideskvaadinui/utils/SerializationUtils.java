@@ -6,16 +6,16 @@
 
 package online.hatsunemiku.tachideskvaadinui.utils;
 
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.DatabindException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import online.hatsunemiku.tachideskvaadinui.data.Meta;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.ObjectMapper;
 
 public class SerializationUtils {
 
@@ -33,7 +33,7 @@ public class SerializationUtils {
     try {
       Path metaPath = projectDir.resolve("meta.json");
       mapper.writeValue(metaPath.toFile(), meta);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new RuntimeException(e);
     }
   }
@@ -62,7 +62,7 @@ public class SerializationUtils {
     } catch (DatabindException e) {
       logger.error("Content of Json file doesn't match expected json layout", e);
       throw new RuntimeException(e);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       logger.error("Settings file couldn't be read", e);
       throw new RuntimeException(e);
     }

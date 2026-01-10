@@ -12,17 +12,16 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Source;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.SourceMangaList;
 import online.hatsunemiku.tachideskvaadinui.services.client.SourceClient;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 @Service
 public class SourceService {
 
-  private final RestTemplate client;
+  private final RestClient client;
   private final SourceClient sourceClient;
   private final SettingsService settingsService;
 
-  public SourceService(
-      RestTemplate client, SourceClient sourceClient, SettingsService settingsService) {
+  public SourceService(RestClient client, SourceClient sourceClient, SettingsService settingsService) {
     this.client = client;
     this.sourceClient = sourceClient;
     this.settingsService = settingsService;
@@ -34,7 +33,10 @@ public class SourceService {
 
     String url = settings.getUrl() + "/api/v1/source/list";
 
-    Source[] sources = client.getForObject(url, Source[].class);
+    Source[] sources = client.get()
+        .uri(url)
+        .retrieve()
+        .body(Source[].class);
 
     if (sources == null) {
       return List.of();

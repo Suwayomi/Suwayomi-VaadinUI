@@ -6,8 +6,6 @@
 
 package online.hatsunemiku.tachideskvaadinui.api;
 
-import elemental.json.Json;
-import elemental.json.JsonObject;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.OAuthResponse;
@@ -23,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 /** Handles authentication and token validation for various services. */
 @RestController
@@ -33,6 +33,7 @@ public class AuthAPI {
   private final TrackingDataService dataService;
   private final SuwayomiTrackingService suwayomiTrackingService;
   private final MyAnimeListAPIService malAPI;
+  private final ObjectMapper objectMapper;
 
   /**
    * Creates a new instance of the {@link AuthAPI} class.
@@ -45,10 +46,11 @@ public class AuthAPI {
   public AuthAPI(
       TrackingDataService dataService,
       SuwayomiTrackingService suwayomiTrackingService,
-      MyAnimeListAPIService malAPI) {
+      MyAnimeListAPIService malAPI, ObjectMapper objectMapper) {
     this.dataService = dataService;
     this.suwayomiTrackingService = suwayomiTrackingService;
     this.malAPI = malAPI;
+    this.objectMapper = objectMapper;
   }
 
   /**
@@ -130,9 +132,14 @@ public class AuthAPI {
       HttpServletRequest request, @RequestParam("state") String json) {
     String url = request.getRequestURL() + "?" + request.getQueryString();
 
-    JsonObject state = Json.parse(json);
+    int trackerId;
+    try {
+      trackerId = objectMapper.readTree(json).path("trackerId").asInt();
+    } catch (JacksonException e) {
+      log.error("Error Parsing JSON: {}", json, e);
+      return new RedirectView("/");
+    }
 
-    int trackerId = (int) state.getNumber("trackerId");
 
     suwayomiTrackingService.loginSuwayomi(url, trackerId);
 

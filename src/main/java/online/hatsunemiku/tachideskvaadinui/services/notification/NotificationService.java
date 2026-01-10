@@ -6,7 +6,6 @@
 
 package online.hatsunemiku.tachideskvaadinui.services.notification;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.flow.server.VaadinService;
 import jakarta.annotation.PreDestroy;
 import java.nio.file.Files;
@@ -21,6 +20,7 @@ import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Service responsible for processing events that might require a notification to be sent.

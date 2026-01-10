@@ -9,13 +9,14 @@ package online.hatsunemiku.tachideskvaadinui.data.tracking.statistics;
 import java.util.Objects;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListStatus;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDate;
+import online.hatsunemiku.tachideskvaadinui.graphql.anilist.GetMangaFromUserQuery.MediaList;
 
 /** Represents the statistics for a manga on AniList. E.g. the score or the number of chapters. */
 public class AniListMangaStatistics implements MangaStatistics {
 
   private final AniListStatus status;
   private final int progress;
-  private final int score;
+  private final double score;
   private final MediaDate startedAt;
   private final MediaDate completedAt;
 
@@ -29,12 +30,27 @@ public class AniListMangaStatistics implements MangaStatistics {
    * @param completedAt The date the user completed the manga.
    */
   public AniListMangaStatistics(
-      AniListStatus status, int progress, int score, MediaDate startedAt, MediaDate completedAt) {
+      AniListStatus status, int progress, double score, MediaDate startedAt, MediaDate completedAt) {
     this.status = status;
     this.progress = progress;
     this.score = score;
     this.startedAt = startedAt;
     this.completedAt = completedAt;
+  }
+
+  /**
+   * Constructs a new {@code AniListMangaStatistics} instance using the provided {@code MediaList}.
+   *
+   * @param mediaList The {@code MediaList} object containing the status, progress, score, start date,
+   *                  and completion date of the manga. It provides the necessary data to initialize
+   *                  the statistics for the manga entry on AniList.
+   */
+  public AniListMangaStatistics(MediaList mediaList) {
+    this.status = AniListStatus.valueOf(mediaList.status.rawValue);
+    this.progress = mediaList.progress;
+    this.score = mediaList.score;
+    this.startedAt = new MediaDate(mediaList.startedAt.year, mediaList.startedAt.month, mediaList.startedAt.day);
+    this.completedAt = new MediaDate(mediaList.completedAt.year, mediaList.completedAt.month, mediaList.completedAt.day);
   }
 
   /**

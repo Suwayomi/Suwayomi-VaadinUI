@@ -11,7 +11,7 @@ import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListMedia;
 public class AniListMediaCard extends Card {
 
   public AniListMediaCard(AniListMedia media) {
-    super(getTitle(media), media.coverImage().large());
+    super(getTitle(media), media.image());
 
     setHref("/search/" + getTitle(media));
   }

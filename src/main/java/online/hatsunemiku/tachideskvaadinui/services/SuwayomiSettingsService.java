@@ -6,13 +6,13 @@
 
 package online.hatsunemiku.tachideskvaadinui.services;
 
-import com.helger.commons.url.URLValidator;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.data.settings.FlareSolverrSettings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.ExtensionRepo;
 import online.hatsunemiku.tachideskvaadinui.services.client.suwayomi.SuwayomiSettingsClient;
+import org.apache.commons.validator.routines.UrlValidator;
 import org.springframework.stereotype.Service;
 
 /**
@@ -83,7 +83,7 @@ public class SuwayomiSettingsService {
    */
   public boolean updateFlareSolverrUrl(String url) throws IllegalArgumentException {
     // check if url is valid
-    boolean valid = URLValidator.isValid(url);
+    boolean valid = UrlValidator.getInstance().isValid(url);
 
     if (!valid) {
       throw new IllegalArgumentException("Invalid URL");

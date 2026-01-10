@@ -27,11 +27,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nullable;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.OAuthData;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDate;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -53,7 +53,8 @@ public class MyAnimeListAPIService {
   private final TrackingDataService tds;
   private final WebClient webClient;
   private final Cache<UUID, String> pkceCache;
-  @Nullable private MyAnimeList mal;
+  @Nullable
+  private MyAnimeList mal;
 
   /**
    * Initializes an instance of the MyAnimeListAPIService class.

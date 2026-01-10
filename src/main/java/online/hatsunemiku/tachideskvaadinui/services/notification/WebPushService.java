@@ -6,7 +6,6 @@
 
 package online.hatsunemiku.tachideskvaadinui.services.notification;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.webpush.WebPush;
 import com.vaadin.flow.server.webpush.WebPushMessage;
@@ -20,6 +19,7 @@ import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Service for sending web push notifications via the WebPush API.

@@ -13,8 +13,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.katsute.mal4j.AccessToken;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import javax.annotation.Nullable;
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a data object that contains the necessary information for OAuth authentication.

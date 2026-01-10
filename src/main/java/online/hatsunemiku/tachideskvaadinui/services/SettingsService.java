@@ -9,7 +9,6 @@ package online.hatsunemiku.tachideskvaadinui.services;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.WRITE;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.EOFException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,6 +25,7 @@ import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Service for managing the application settings. <br>

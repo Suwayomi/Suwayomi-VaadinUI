@@ -6,8 +6,6 @@
 
 package online.hatsunemiku.tachideskvaadinui.startup;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import online.hatsunemiku.tachideskvaadinui.data.InitData;
@@ -19,13 +17,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Service that initializes the application on the first start. Mainly used for setting up the
  * Suwayomi settings.
  *
- * @since 1.1.0
  * @version 1.12.0
+ * @since 1.1.0
  */
 @Service
 public class FirstInitService {
@@ -38,11 +38,11 @@ public class FirstInitService {
   /**
    * Creates a {@link FirstInitService} instance.
    *
-   * @param env The {@link Environment} used to get the project directory
-   * @param objectMapper The {@link ObjectMapper} used to read and write the initialization check
-   *     file
+   * @param env                     The {@link Environment} used to get the project directory
+   * @param objectMapper            The {@link ObjectMapper} used to read and write the
+   *                                initialization check file
    * @param suwayomiSettingsService The {@link SuwayomiSettingsService} to change the Suwayomi
-   *     settings
+   *                                settings
    */
   public FirstInitService(
       Environment env, ObjectMapper objectMapper, SuwayomiSettingsService suwayomiSettingsService) {
@@ -66,22 +66,18 @@ public class FirstInitService {
       }
     }
 
+    InitData initData = objectMapper.readValue(checkFile.toFile(), InitData.class);
+
+    if (!initData.isSuwayomiSettings()) {
+      initSuwayomiSettings(initData);
+    }
+
     try {
-      InitData initData = objectMapper.readValue(checkFile.toFile(), InitData.class);
-
-      if (!initData.isSuwayomiSettings()) {
-        initSuwayomiSettings(initData);
-      }
-
-      try {
-        objectMapper.writeValue(checkFile.toFile(), initData);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-
-    } catch (IOException e) {
+      objectMapper.writeValue(checkFile.toFile(), initData);
+    } catch (JacksonException e) {
       throw new RuntimeException(e);
     }
+
   }
 
   private void initSuwayomiSettings(InitData initData) {

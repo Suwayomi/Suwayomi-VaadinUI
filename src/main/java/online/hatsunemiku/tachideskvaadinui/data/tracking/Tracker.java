@@ -7,6 +7,7 @@
 package online.hatsunemiku.tachideskvaadinui.data.tracking;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.Setter;
 
@@ -30,6 +31,7 @@ public class Tracker {
    * Represents whether the tracker should be treated as private. If true, the tracked manga should
    * if possible be marked as private on external trackers.
    */
+  @JsonProperty("private")
   private boolean isPrivate;
 
   /**

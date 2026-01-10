@@ -274,7 +274,6 @@ public class MangaReader extends Div {
     private Select<Chapter> getChapterSelector(Chapter chapter, List<Chapter> chapters) {
       Select<Chapter> chapterSelector = new Select<>();
       chapterSelector.setId("chapter-selector");
-      chapterSelector.setOverlayClassName("chapter-select-overlay");
       chapterSelector.setRenderer(createRenderer());
       chapterSelector.setItems(chapters);
 

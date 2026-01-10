@@ -6,11 +6,13 @@ import org.springframework.boot.gradle.tasks.run.BootRun
 plugins {
     id 'java'
     id 'idea'
-    id 'org.springframework.boot' version '3.5.6'
+    id 'application'
+    id 'org.springframework.boot' version '4.0.1'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.vaadin' version "$vaadinVersion"
     //Jpackage for building native installers
     id("org.panteleyev.jpackageplugin") version "1.6.0"
+    id 'com.apollographql.apollo' version '4.3.3'
 }
 
 java {
@@ -44,26 +46,26 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-graphql'
     implementation('com.vaadin:vaadin-spring-boot-starter')
-    //databind
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.20.0'
-    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.20.0'
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.20.0'
+    developmentOnly('com.vaadin:vaadin-dev')
 
     implementation 'org.jetbrains:annotations:24.0.0'
     implementation 'com.github.ben-manes.caffeine:caffeine:3.1.5'
+    //json processing
+    implementation 'org.springframework.boot:spring-boot-starter-jackson:4.0.1'
 
     //MAL API
     implementation 'dev.katsute:mal4j:3.4.2'
 
     //GraphQL
-    implementation "com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter"
+    implementation "com.netflix.graphql.dgs:graphql-dgs-spring-graphql-starter"
 
-    //Apache Commons codec -> used for URL encoding
+    //Apache Commons
     implementation 'commons-codec:commons-codec:1.16.1'
+    implementation 'commons-validator:commons-validator:1.10.1'
 
 
     implementation 'com.squareup.okhttp3:okhttp:4.11.0'
-    implementation 'commons-validator:commons-validator:1.7'
+    implementation("com.apollographql.java:rx3:0.0.2")
 
 
     compileOnly 'org.projectlombok:lombok'
@@ -81,12 +83,26 @@ dependencies {
 dependencyManagement {
     imports {
         mavenBom "com.vaadin:vaadin-bom:$vaadinVersion"
-        mavenBom "com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:9.0.0"
+        mavenBom "com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:11.0.0"
     }
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+apollo {
+    service("anilist") {
+        generateKotlinModels.set(false)
+        srcDir("src/main/graphql/anilist")
+        schemaFile.set(file("src/main/graphql/anilist/anilist.graphqls"))
+        packageName.set("online.hatsunemiku.tachideskvaadinui.graphql.anilist")
+    }
+    service("suwayomi") {
+        generateKotlinModels.set(false)
+        srcDir("src/main/graphql/suwayomi")
+        packageName.set("online.hatsunemiku.tachideskvaadinui.graphql.suwayomi")
+    }
 }
 
 tasks.register('runDebug', BootRun) {
@@ -113,8 +129,6 @@ tasks.register('buildReleaseJar', BootJar) {
 
     //fat jar
     classpath(sourceSets.main.runtimeClasspath)
-
-    launchScript()
 }
 
 tasks.register('buildWindowsMsi', WindowsInstallTask) {

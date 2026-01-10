@@ -9,6 +9,7 @@ package online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import online.hatsunemiku.tachideskvaadinui.graphql.anilist.type.FuzzyDateInput;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,5 +42,19 @@ public record MediaDate(Integer year, Integer month, Integer day) {
     LocalDate date = LocalDate.of(year(), month(), day());
 
     return date.atStartOfDay().toInstant(ZoneOffset.UTC);
+  }
+
+  /**
+   * Converts the current {@link MediaDate} instance into a {@link FuzzyDateInput} object.
+   *
+   * @return a {@link FuzzyDateInput} instance built using the year, month, and day values
+   *         of the current {@link MediaDate}, allowing for incomplete or optional date values.
+   */
+  public FuzzyDateInput toFuzzyDateInput() {
+    return FuzzyDateInput.builder()
+        .year(year())
+        .month(month())
+        .day(day())
+        .build();
   }
 }

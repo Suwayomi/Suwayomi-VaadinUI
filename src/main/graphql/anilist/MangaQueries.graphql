@@ -1,0 +1,45 @@
+query getMangaFromUser ($mangaId: Int, $userId: Int) {
+    MediaList(mediaId: $mangaId, userId: $userId) {
+        status
+        progress
+        score
+        startedAt {
+            year
+            month
+            day
+        }
+        completedAt {
+            year
+            month
+            day
+        }
+    }
+}
+
+query getMangaListOfUser ($userId: Int) {
+    MediaListCollection(userId: $userId, type: MANGA) {
+        lists {
+            entries {
+                status
+                media {
+                    title {
+                        userPreferred
+                        romaji
+                        english
+                        native
+                    }
+                    coverImage {
+                        large
+                    }
+                }
+            }
+        }
+    }
+}
+
+query getMangaListEntryId ($mangaId: Int, $userId: Int) {
+    MediaList(mediaId: $mangaId, userId: $userId) {
+        id
+    }
+}
+

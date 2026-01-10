@@ -37,6 +37,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -49,7 +50,7 @@ public class SuwayomiMaintainer {
 
   private static final Logger logger = LoggerFactory.getLogger(SuwayomiMaintainer.class);
   private static File serverDir;
-  private final RestTemplate client;
+  private final RestClient client;
   private final SuwayomiStarter starter;
   private final SettingsService settingsService;
   private final File projectDir;
@@ -65,7 +66,7 @@ public class SuwayomiMaintainer {
    * @param env The {@link Environment} used for getting the project directory.
    */
   public SuwayomiMaintainer(
-      RestTemplate client,
+      RestClient client,
       SuwayomiStarter starter,
       SettingsService settingsService,
       Environment env) {
