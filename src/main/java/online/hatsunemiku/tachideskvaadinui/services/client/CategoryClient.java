@@ -1,17 +1,23 @@
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */
-
 package online.hatsunemiku.tachideskvaadinui.services.client;
 
+import com.apollographql.apollo.api.ApolloResponse;
+import com.apollographql.apollo.api.Optional;
+import com.apollographql.apollo.exception.ApolloException;
+import com.apollographql.apollo.runtime.java.ApolloCall;
+import com.apollographql.apollo.runtime.java.ApolloCallback;
+import com.apollographql.apollo.runtime.java.ApolloClient;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Category;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.CreateCategoryMutation;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.DeleteCategoryMutation;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetCategoriesQuery;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetCategoryMangaQuery;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
-import org.springframework.graphql.client.FieldAccessException;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -31,37 +37,31 @@ public class CategoryClient {
    * @throws RuntimeException if there was an error while creating the category
    */
   public boolean createCategory(String name) {
-    String query =
-        """
-        mutation CreateCategory($name: String!) {
-          createCategory(input: {name: $name}) {
-            category {
-              id
-            }
-          }
-        }
-        """;
+    var apolloClient = clientService.getApolloClient();
 
-    var graphClient = clientService.getGraphQlClient();
+    CompletableFuture<ApolloResponse<CreateCategoryMutation.Data>> future = new CompletableFuture<>();
+    apolloClient.mutation(new CreateCategoryMutation(name)).enqueue(new ApolloCallback<CreateCategoryMutation.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<CreateCategoryMutation.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    Integer id;
     try {
-      id =
-          graphClient
-              .document(query)
-              .variable("name", name)
-              .retrieve("createCategory.category.id")
-              .toEntity(Integer.class)
-              .block();
-    } catch (FieldAccessException e) {
-      return false;
-    }
+      var response = future.join();
+      if (response.hasErrors()) {
+        return false;
+      }
 
-    if (id == null) {
-      throw new RuntimeException("Error while creating category");
-    }
+      var data = response.data;
+      if (data == null || data.createCategory == null || data.createCategory.category == null) {
+        throw new RuntimeException("Error while creating category");
+      }
 
-    return true;
+      return true;
+    } catch (Exception e) {
+      throw new RuntimeException("Error while creating category", e);
+    }
   }
 
   /**
@@ -72,30 +72,28 @@ public class CategoryClient {
    * @throws RuntimeException if there was an error while deleting the category
    */
   public boolean deleteCategory(int categoryId) {
-    String query =
-        """
-        mutation DeleteCategory($categoryId: Int!) {
-          deleteCategory(input: {categoryId: $categoryId}) {
-            category {
-              id
-            }
-          }
-        }
-        """;
+    var apolloClient = clientService.getApolloClient();
 
-    var graphClient = clientService.getGraphQlClient();
+    CompletableFuture<ApolloResponse<DeleteCategoryMutation.Data>> future = new CompletableFuture<>();
+    apolloClient.mutation(new DeleteCategoryMutation(categoryId)).enqueue(new ApolloCallback<DeleteCategoryMutation.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<DeleteCategoryMutation.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    Integer id =
-        graphClient
-            .document(query)
-            .variable("categoryId", categoryId)
-            .retrieve("deleteCategory.category.id")
-            .toEntity(Integer.class)
-            .block();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        return false;
+      }
 
-    // deleteCategory returns null if the category doesn't exist, meaning there was nothing to
-    // delete
-    return id != null;
+      var data = response.data;
+      // deleteCategory returns null if the category doesn't exist, meaning there was nothing to delete
+      return data != null && data.deleteCategory != null && data.deleteCategory.category != null;
+    } catch (Exception e) {
+      throw new RuntimeException("Error while deleting category", e);
+    }
   }
 
   /**
@@ -105,36 +103,44 @@ public class CategoryClient {
    * @throws RuntimeException if there was an error while retrieving the categories
    */
   public List<Category> getCategories() {
-    String query =
-        """
-        query GetCategories {
-          categories {
-            nodes {
-              default
-              id
-              name
-              order
-            }
-          }
-        }
-        """;
+    var apolloClient = clientService.getApolloClient();
 
-    var graphClient = clientService.getGraphQlClient();
+    CompletableFuture<ApolloResponse<GetCategoriesQuery.Data>> future = new CompletableFuture<>();
+    apolloClient.query(new GetCategoriesQuery()).enqueue(new ApolloCallback<GetCategoriesQuery.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<GetCategoriesQuery.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    var categories =
-        graphClient
-            .document(query)
-            .retrieve("categories.nodes")
-            .toEntityList(Category.class)
-            .block();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while getting categories: " + response.errors);
+      }
 
-    if (categories == null) {
-      throw new RuntimeException("Error while getting categories");
+      var data = response.data;
+      if (data == null || data.categories == null) {
+        throw new RuntimeException("Error while getting categories");
+      }
+
+      var categories = data.categories.nodes.stream()
+          .map(node -> {
+            Category category = new Category();
+            category.setDef(Boolean.TRUE.equals(node.default_));
+            category.setId(node.id);
+            category.setName(node.name);
+            category.setOrder(node.order);
+            return category;
+          })
+          .collect(Collectors.toList());
+
+      categories.sort(Comparator.comparingInt(Category::getOrder));
+
+      return categories;
+    } catch (Exception e) {
+      throw new RuntimeException("Error while getting categories", e);
     }
-
-    categories.sort(Comparator.comparingInt(Category::getOrder));
-
-    return categories;
   }
 
   /**
@@ -145,39 +151,39 @@ public class CategoryClient {
    * @throws RuntimeException if there was an error while retrieving the category manga
    */
   public List<Manga> getCategoryManga(int categoryId) {
-    String query =
-        """
-        query GetCategoryManga($categoryId: Int = 10) {
-          category(id: $categoryId) {
-            mangas {
-              nodes {
-                thumbnailUrl
-                title
-                inLibrary
-                id
-                lastReadChapter {
-                  id
-                }
-              }
-            }
-          }
-        }
-        """;
+    var apolloClient = clientService.getApolloClient();
 
-    var graphClient = clientService.getGraphQlClient();
+    CompletableFuture<ApolloResponse<GetCategoryMangaQuery.Data>> future = new CompletableFuture<>();
+    apolloClient.query(new GetCategoryMangaQuery(new Optional.Present<>(categoryId))).enqueue(new ApolloCallback<GetCategoryMangaQuery.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<GetCategoryMangaQuery.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    var categoryManga =
-        graphClient
-            .document(query)
-            .variable("categoryId", categoryId)
-            .retrieve("category.mangas.nodes")
-            .toEntityList(Manga.class)
-            .block();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while getting category manga: " + response.errors);
+      }
 
-    if (categoryManga == null) {
-      throw new RuntimeException("Error while getting category manga");
+      var data = response.data;
+      if (data == null || data.category == null || data.category.mangas == null) {
+        throw new RuntimeException("Error while getting category manga");
+      }
+
+      return data.category.mangas.nodes.stream()
+          .map(node -> {
+            Manga manga = new Manga();
+            manga.setThumbnailUrl(node.thumbnailUrl);
+            manga.setTitle(node.title);
+            manga.setInLibrary(Boolean.TRUE.equals(node.inLibrary));
+            manga.setId(node.id);
+            return manga;
+          })
+          .collect(Collectors.toList());
+    } catch (Exception e) {
+      throw new RuntimeException("Error while getting category manga", e);
     }
-
-    return categoryManga;
   }
 }

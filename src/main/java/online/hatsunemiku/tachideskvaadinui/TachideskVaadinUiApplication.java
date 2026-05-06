@@ -8,7 +8,11 @@ package online.hatsunemiku.tachideskvaadinui;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.OkHttpClient;
 import online.hatsunemiku.tachideskvaadinui.utils.BrowserUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -36,7 +40,6 @@ public class TachideskVaadinUiApplication {
    */
   public static void main(String[] args) {
     boolean headless = Boolean.parseBoolean(System.getProperty("vaaui.headless"));
-
     if (isRunningAlready()) {
       log.warn("Application is already running.");
       runAlreadyRunningTasks(headless);

@@ -1,18 +1,23 @@
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */
-
 package online.hatsunemiku.tachideskvaadinui.services.client;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.apollographql.apollo.api.ApolloResponse;
+import com.apollographql.apollo.exception.ApolloException;
+import com.apollographql.apollo.runtime.java.ApolloCallback;
+import com.apollographql.apollo.runtime.java.ApolloClient;
+import com.apollographql.apollo.runtime.java.ApolloDisposable;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.event.MangaUpdateEvent;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.HasSkippedQuery;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.TrackMangaUpdateSubscription;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.UpdateLibraryMangaMutation;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
-import org.intellij.lang.annotations.Language;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 
 /**
  * Client responsible for any server communication related to manga library updates.
@@ -44,109 +49,86 @@ public class LibUpdateClient {
    * @return {@code true} if the update process has started running, {@code false} otherwise
    */
   public boolean fetchUpdate() {
-    // language=GraphQL
-    String runningQuery =
-        """
-            mutation updateLibraryManga {
-              updateLibraryManga(input: {}) {
-                updateStatus {
-                  isRunning
-                }
-              }
-            }
-            """;
+    var apolloClient = webClientService.getApolloClient();
 
-    var graphClient = webClientService.getGraphQlClient();
+    CompletableFuture<ApolloResponse<UpdateLibraryMangaMutation.Data>> future = new CompletableFuture<>();
+    apolloClient.mutation(new UpdateLibraryMangaMutation()).enqueue(new ApolloCallback<UpdateLibraryMangaMutation.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<UpdateLibraryMangaMutation.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    Boolean isRunning =
-        graphClient
-            .document(runningQuery)
-            .retrieve("updateLibraryManga.updateStatus.isRunning")
-            .toEntity(Boolean.class)
-            .block();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while updating library: " + response.errors);
+      }
 
-    if (isRunning == null) {
-      throw new RuntimeException("Error while updating library");
-    }
-
-    if (!isRunning) {
-      // language=GraphQL
-      String hasSkippedQuery =
-          """
-              query hasSkipped {
-                updateStatus {
-                  skippedJobs {
-                    mangas {
-                      nodes {
-                        id
-                      }
-                    }
-                  }
-                }
-              }
-              """;
-
-      var skippedManga =
-          graphClient
-              .document(hasSkippedQuery)
-              .retrieve("updateStatus.skippedJobs.mangas.nodes")
-              .toEntityList(SkippedManga.class)
-              .block();
-
-      if (skippedManga == null) {
+      var data = response.data;
+      if (data == null || data.updateLibraryManga == null || data.updateLibraryManga.updateStatus == null) {
         throw new RuntimeException("Error while updating library");
       }
 
-      isRunning = !skippedManga.isEmpty();
-    }
+      Boolean isRunning = data.updateLibraryManga.updateStatus.isRunning;
 
-    return isRunning;
+      if (!Boolean.TRUE.equals(isRunning)) {
+        CompletableFuture<ApolloResponse<HasSkippedQuery.Data>> skippedFuture = new CompletableFuture<>();
+        apolloClient.query(new HasSkippedQuery()).enqueue(new ApolloCallback<HasSkippedQuery.Data>() {
+          @Override
+          public void onResponse(@NotNull ApolloResponse<HasSkippedQuery.Data> response) {
+            skippedFuture.complete(response);
+          }
+        });
+
+        var skippedResponse = skippedFuture.join();
+        if (skippedResponse.hasErrors()) {
+            throw new RuntimeException("Error while checking skipped jobs: " + skippedResponse.errors);
+        }
+        var skippedData = skippedResponse.data;
+        if (skippedData == null || skippedData.updateStatus == null || skippedData.updateStatus.skippedJobs == null) {
+            throw new RuntimeException("Error while updating library");
+        }
+        isRunning = !skippedData.updateStatus.skippedJobs.mangas.nodes.isEmpty();
+      }
+
+      return isRunning;
+    } catch (Exception e) {
+      throw new RuntimeException("Error while updating library", e);
+    }
   }
 
   /** Opens a WebSocket connection to the server to track the update status of the manga library. */
   public void startUpdateTracking() {
-    @Language("GraphQL")
-    String query =
-        """
-            subscription TrackMangaUpdate {
-              updateStatusChanged {
-                completeJobs {
-                  mangas {
-                    nodes {
-                      title
-                      chapters {
-                        totalCount
-                      }
-                      id
-                    }
-                  }
+    var apolloClient = webClientService.getApolloClient();
+
+    Flux.<MangaUpdateEvent>create(sink -> {
+        ApolloDisposable disposable = apolloClient.subscription(new TrackMangaUpdateSubscription()).enqueue(new ApolloCallback<TrackMangaUpdateSubscription.Data>() {
+            @Override
+            public void onResponse(@NotNull ApolloResponse<TrackMangaUpdateSubscription.Data> response) {
+                if (response.hasErrors()) {
+                    sink.error(new RuntimeException("Error in update tracking subscription: " + response.errors));
+                    return;
                 }
-                isRunning
-              }
+                var data = response.data;
+                if (data == null || data.updateStatusChanged == null) {
+                    sink.error(new RuntimeException("Couldn't retrieve update run status"));
+                    return;
+                }
+
+                var completedManga = data.updateStatusChanged.completeJobs.mangas.nodes.stream()
+                    .map(node -> {
+                        Manga manga = new Manga();
+                        manga.setId(node.id);
+                        manga.setTitle(node.title);
+                        return manga;
+                    }).collect(Collectors.toList());
+
+                sink.next(new MangaUpdateEvent(Boolean.TRUE.equals(data.updateStatusChanged.isRunning), completedManga));
             }
-            """;
-
-    var graphClient = webClientService.getWebSocketGraphQlClient();
-
-    graphClient
-        .document(query)
-        .executeSubscription()
-        .<MangaUpdateEvent>handle(
-            (data, sink) -> {
-              var completedManga =
-                  data.field("updateStatusChanged.completeJobs.mangas.nodes")
-                      .toEntityList(Manga.class);
-
-              Boolean isRunning =
-                  data.field("updateStatusChanged.isRunning").toEntity(Boolean.class);
-
-              if (isRunning == null) {
-                sink.error(new RuntimeException("Couldn't retrieve update run status"));
-                return;
-              }
-
-              sink.next(new MangaUpdateEvent(isRunning, completedManga));
-            })
+        });
+        sink.onDispose(disposable::dispose);
+    })
         .doOnNext(
             event -> {
               if (event.isRunning()) {
@@ -177,12 +159,5 @@ public class LibUpdateClient {
     }
 
     startUpdateTracking();
-  }
-
-  /** Represents a manga that has been skipped during the update process. */
-  private static class SkippedManga {
-
-    @JsonProperty("id")
-    private Long id;
   }
 }

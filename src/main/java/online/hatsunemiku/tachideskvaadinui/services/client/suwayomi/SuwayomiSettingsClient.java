@@ -1,26 +1,28 @@
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */
-
 package online.hatsunemiku.tachideskvaadinui.services.client.suwayomi;
 
-import java.io.File;
+import com.apollographql.apollo.api.ApolloResponse;
+import com.apollographql.apollo.api.Optional;
+import com.apollographql.apollo.api.DefaultUpload;
+import com.apollographql.apollo.api.Upload;
+import com.apollographql.apollo.exception.ApolloException;
+import com.apollographql.apollo.runtime.java.ApolloCallback;
+import com.apollographql.apollo.runtime.java.ApolloClient;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.settings.FlareSolverrSettings;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.CreateBackupMutation;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetExtensionReposQuery;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetFlareSolverrSettingsQuery;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.RestoreBackupMutation;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.UpdateExtensionReposMutation;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.UpdateFlareSolverrEnabledStatusMutation;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.UpdateFlareSolverrUrlMutation;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
-import org.intellij.lang.annotations.Language;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.MediaType;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.reactive.function.BodyInserters;
 
 /**
  * The SuwayomiSettingsClient class is responsible for making API requests to the Suwayomi Server
@@ -49,34 +51,31 @@ public class SuwayomiSettingsClient {
    * @return {@code true} if the extension repositories were updated successfully, {@code false}
    */
   public boolean updateExtensionRepos(List<String> extensionRepoUrls) {
-    // language=GraphQL
-    String query =
-        """
-            mutation UpdateExtensionRepos($extensionRepoUrls: [String!]) {
-              setSettings(input: {settings: {extensionRepos: $extensionRepoUrls}}) {
-                settings {
-                  extensionRepos
-                }
-              }
-            }
-            """;
+    var apolloClient = clientService.getApolloClient();
 
-    var graphClient = clientService.getGraphQlClient();
+    CompletableFuture<ApolloResponse<UpdateExtensionReposMutation.Data>> future = new CompletableFuture<>();
+    apolloClient.mutation(new UpdateExtensionReposMutation(new Optional.Present<List<String>>(extensionRepoUrls))).enqueue(new ApolloCallback<UpdateExtensionReposMutation.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<UpdateExtensionReposMutation.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    var extensionRepos =
-        graphClient
-            .document(query)
-            .variable("extensionRepoUrls", extensionRepoUrls)
-            .retrieve("setSettings.settings.extensionRepos")
-            .toEntityList(String.class)
-            .block();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while updating extensionRepos: " + response.errors);
+      }
 
-    // check if the extensionRepos are the same
-    if (extensionRepos == null) {
-      throw new RuntimeException("Error while updating extensionRepos");
+      var data = response.data;
+      if (data == null || data.setSettings == null || data.setSettings.settings == null) {
+        throw new RuntimeException("Error while updating extensionRepos");
+      }
+
+      return data.setSettings.settings.extensionRepos.equals(extensionRepoUrls);
+    } catch (Exception e) {
+      throw new RuntimeException("Error while updating extensionRepos", e);
     }
-
-    return extensionRepos.equals(extensionRepoUrls);
   }
 
   /**
@@ -85,30 +84,31 @@ public class SuwayomiSettingsClient {
    * @return a list of extension repository URLs as strings.
    */
   public List<String> getExtensionRepos() {
-    // language=GraphQL
-    String query =
-        """
-            query GetExtensionRepos {
-              settings {
-                extensionRepos
-              }
-            }
-            """;
+    var apolloClient = clientService.getApolloClient();
 
-    var graphClient = clientService.getGraphQlClient();
+    CompletableFuture<ApolloResponse<GetExtensionReposQuery.Data>> future = new CompletableFuture<>();
+    apolloClient.query(new GetExtensionReposQuery()).enqueue(new ApolloCallback<GetExtensionReposQuery.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<GetExtensionReposQuery.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    var extensionRepos =
-        graphClient
-            .document(query)
-            .retrieve("settings.extensionRepos")
-            .toEntityList(String.class)
-            .block();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while getting extensionRepos: " + response.errors);
+      }
 
-    if (extensionRepos == null) {
-      throw new RuntimeException("Error while getting extensionRepos");
+      var data = response.data;
+      if (data == null || data.settings == null) {
+        throw new RuntimeException("Error while getting extensionRepos");
+      }
+
+      return data.settings.extensionRepos;
+    } catch (Exception e) {
+      throw new RuntimeException("Error while getting extensionRepos", e);
     }
-
-    return extensionRepos;
   }
 
   /**
@@ -117,29 +117,37 @@ public class SuwayomiSettingsClient {
    * @return the FlareSolverr settings from the server as a {@link FlareSolverrSettings} object.
    */
   public FlareSolverrSettings getFlareSolverrSettings() {
-    @Language("graphql")
-    String query =
-        """
-            query GetFlareSolverrSettings {
-              settings {
-                flareSolverrEnabled
-                flareSolverrSessionName
-                flareSolverrSessionTtl
-                flareSolverrTimeout
-                flareSolverrUrl
-              }
-            }
-            """;
+    var apolloClient = clientService.getApolloClient();
 
-    var graphClient = clientService.getDgsGraphQlClient();
+    CompletableFuture<ApolloResponse<GetFlareSolverrSettingsQuery.Data>> future = new CompletableFuture<>();
+    apolloClient.query(new GetFlareSolverrSettingsQuery()).enqueue(new ApolloCallback<GetFlareSolverrSettingsQuery.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<GetFlareSolverrSettingsQuery.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    var response = graphClient.reactiveExecuteQuery(query).block();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while getting FlareSolverrSettings: " + response.errors);
+      }
 
-    if (response == null) {
-      throw new RuntimeException("Error while getting FlareSolverrSettings - response is null");
+      var data = response.data;
+      if (data == null || data.settings == null) {
+        throw new RuntimeException("Error while getting FlareSolverrSettings - data is null");
+      }
+
+      FlareSolverrSettings settings = new FlareSolverrSettings();
+      settings.setEnabled(Boolean.TRUE.equals(data.settings.flareSolverrEnabled));
+      settings.setSessionName(data.settings.flareSolverrSessionName);
+      settings.setSessionTTL(data.settings.flareSolverrSessionTtl != null ? data.settings.flareSolverrSessionTtl.intValue() : 0);
+      settings.setTimeout(data.settings.flareSolverrTimeout != null ? data.settings.flareSolverrTimeout.intValue() : 0);
+      settings.setUrl(data.settings.flareSolverrUrl);
+      return settings;
+    } catch (Exception e) {
+      throw new RuntimeException("Error while getting FlareSolverrSettings", e);
     }
-
-    return response.extractValueAsObject("settings", FlareSolverrSettings.class);
   }
 
   /**
@@ -149,32 +157,31 @@ public class SuwayomiSettingsClient {
    * @return {@code true} if the FlareSolverr URL was updated successfully, {@code false} otherwise
    */
   public boolean updateFlareSolverrUrl(String url) {
-    @Language("graphql")
-    String query =
-        """
-            mutation UpdateFlareSolverrUrl($url: String!) {
-              setSettings(input: {settings: {flareSolverrUrl: $url}}) {
-                settings {
-                  flareSolverrUrl
-                }
-              }
-            }
-            """;
+    var apolloClient = clientService.getApolloClient();
 
-    var variables = Map.of("url", url);
+    CompletableFuture<ApolloResponse<UpdateFlareSolverrUrlMutation.Data>> future = new CompletableFuture<>();
+    apolloClient.mutation(new UpdateFlareSolverrUrlMutation(url)).enqueue(new ApolloCallback<UpdateFlareSolverrUrlMutation.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<UpdateFlareSolverrUrlMutation.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    var graphClient = clientService.getDgsGraphQlClient();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while updating FlareSolverr URL: " + response.errors);
+      }
 
-    var response = graphClient.reactiveExecuteQuery(query, variables).block();
+      var data = response.data;
+      if (data == null || data.setSettings == null || data.setSettings.settings == null) {
+        throw new RuntimeException("Error while updating FlareSolverr URL - data is null");
+      }
 
-    if (response == null) {
-      throw new RuntimeException("Error while updating FlareSolverr URL - response is null");
+      return data.setSettings.settings.flareSolverrUrl.equals(url);
+    } catch (Exception e) {
+      throw new RuntimeException("Error while updating FlareSolverr URL", e);
     }
-
-    var flareSolverrUrl =
-        response.extractValueAsObject("setSettings.settings.flareSolverrUrl", String.class);
-
-    return flareSolverrUrl.equals(url);
   }
 
   /**
@@ -185,33 +192,31 @@ public class SuwayomiSettingsClient {
    *     otherwise
    */
   public boolean updateFlareSolverrEnabledStatus(boolean enabled) {
-    @Language("graphql")
-    String query =
-        """
-            mutation UpdateFlareSolverrEnabledStatus($enabled: Boolean!) {
-              setSettings(input: {settings: {flareSolverrEnabled: $enabled}}) {
-                settings {
-                  flareSolverrEnabled
-                }
-              }
-            }
-            """;
+    var apolloClient = clientService.getApolloClient();
 
-    var graphClient = clientService.getDgsGraphQlClient();
+    CompletableFuture<ApolloResponse<UpdateFlareSolverrEnabledStatusMutation.Data>> future = new CompletableFuture<>();
+    apolloClient.mutation(new UpdateFlareSolverrEnabledStatusMutation(enabled)).enqueue(new ApolloCallback<UpdateFlareSolverrEnabledStatusMutation.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<UpdateFlareSolverrEnabledStatusMutation.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    var variables = Map.of("enabled", enabled);
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while updating FlareSolverr enabled status: " + response.errors);
+      }
 
-    var response = graphClient.reactiveExecuteQuery(query, variables).block();
+      var data = response.data;
+      if (data == null || data.setSettings == null || data.setSettings.settings == null) {
+        throw new RuntimeException("Error while updating FlareSolverr enabled status - data is null");
+      }
 
-    if (response == null) {
-      throw new RuntimeException(
-          "Error while updating FlareSolverr enabled status - response is null");
+      return Boolean.TRUE.equals(data.setSettings.settings.flareSolverrEnabled) == enabled;
+    } catch (Exception e) {
+      throw new RuntimeException("Error while updating FlareSolverr enabled status", e);
     }
-
-    var flareSolverrEnabled =
-        response.extractValueAsObject("setSettings.settings.flareSolverrEnabled", Boolean.class);
-
-    return flareSolverrEnabled.equals(enabled);
   }
 
   /**
@@ -221,18 +226,31 @@ public class SuwayomiSettingsClient {
    *     backup.
    */
   public String createBackup() {
-    @Language("graphql")
-    String query =
-        """
-        mutation createBackup {
-          createBackup(input: {includeCategories: true, includeChapters: true}) {
-            url
-          }
-        }
-        """;
+    var apolloClient = clientService.getApolloClient();
 
-    var graphClient = clientService.getGraphQlClient();
-    return graphClient.document(query).retrieve("createBackup.url").toEntity(String.class).block();
+    CompletableFuture<ApolloResponse<CreateBackupMutation.Data>> future = new CompletableFuture<>();
+    apolloClient.mutation(new CreateBackupMutation()).enqueue(new ApolloCallback<CreateBackupMutation.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<CreateBackupMutation.Data> response) {
+        future.complete(response);
+      }
+    });
+
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while creating backup: " + response.errors);
+      }
+
+      var data = response.data;
+      if (data == null || data.createBackup == null) {
+        throw new RuntimeException("Error while creating backup");
+      }
+
+      return data.createBackup.url;
+    } catch (Exception e) {
+      throw new RuntimeException("Error while creating backup", e);
+    }
   }
 
   /**
@@ -243,69 +261,40 @@ public class SuwayomiSettingsClient {
    *     restoration process
    */
   public void restoreBackup(Path backupFile) {
-
     if (!Files.exists(backupFile)) {
       throw new RuntimeException("Backup file does not exist");
     }
 
-    @Language("graphql")
-    String query =
-        """
-        mutation RestoreBackup($backup: Upload!) {
-          restoreBackup(input: {backup: $backup}) {
-            status {
-              totalManga
-              state
-              mangaProgress
-            }
+    var apolloClient = clientService.getApolloClient();
+
+    try {
+        byte[] bytes = Files.readAllBytes(backupFile);
+        Upload upload = new DefaultUpload.Builder()
+            .content(bytes)
+            .contentType("application/octet-stream")
+            .build();
+
+        CompletableFuture<ApolloResponse<RestoreBackupMutation.Data>> future = new CompletableFuture<>();
+        apolloClient.mutation(new RestoreBackupMutation(upload)).enqueue(new ApolloCallback<RestoreBackupMutation.Data>() {
+          @Override
+          public void onResponse(@NotNull ApolloResponse<RestoreBackupMutation.Data> response) {
+            future.complete(response);
           }
+        });
+
+        var response = future.join();
+        if (response.hasErrors()) {
+          throw new RuntimeException("Error while restoring backup: " + response.errors);
         }
-        """;
 
-    query = query.replace("\n", "").strip();
-
-    @Language("json")
-    String operations =
-        """
-        {
-          "query": "%s",
-          "variables": {"backup":  null}
+        var data = response.data;
+        if (data == null || data.restoreBackup == null) {
+          throw new RuntimeException("Error while restoring backup");
         }
-        """;
 
-    String operationBody = String.format(operations, query);
-
-    @Language("json")
-    String map = """
-        {
-          "0": ["variables.backup"]
-        }
-        """;
-
-    File file = backupFile.toFile();
-    FileSystemResource uploadFile = new FileSystemResource(file);
-
-    MultiValueMap<String, Object> requestBody = new LinkedMultiValueMap<>();
-    requestBody.add("operations", operationBody);
-    requestBody.add("map", map);
-    requestBody.add("0", uploadFile);
-
-    var webClient = clientService.getWebClient();
-
-    String response =
-        webClient
-            .post()
-            .uri("api/graphql")
-            .contentType(MediaType.MULTIPART_FORM_DATA)
-            .body(BodyInserters.fromMultipartData(requestBody))
-            .retrieve()
-            .bodyToMono(String.class)
-            .block();
-
-    if (response == null) {
-      throw new RuntimeException("Error while restoring backup");
+        log.debug("Restored backup: {}", data.restoreBackup.status);
+    } catch (Exception e) {
+      throw new RuntimeException("Error while restoring backup", e);
     }
-
-    log.debug("Restored backup: {}", response);
   }
 }

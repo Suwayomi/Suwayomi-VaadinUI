@@ -1,0 +1,42 @@
+mutation CreateCategory($name: String!) {
+  createCategory(input: {name: $name}) {
+    category {
+      id
+    }
+  }
+}
+
+mutation DeleteCategory($categoryId: Int!) {
+  deleteCategory(input: {categoryId: $categoryId}) {
+    category {
+      id
+    }
+  }
+}
+
+query GetCategories {
+  categories {
+    nodes {
+      default
+      id
+      name
+      order
+    }
+  }
+}
+
+query GetCategoryManga($categoryId: Int = 10) {
+  category(id: $categoryId) {
+    mangas {
+      nodes {
+        thumbnailUrl
+        title
+        inLibrary
+        id
+        lastReadChapter {
+          id
+        }
+      }
+    }
+  }
+}

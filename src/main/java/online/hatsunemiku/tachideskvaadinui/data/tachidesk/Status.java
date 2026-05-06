@@ -10,6 +10,8 @@ import lombok.Data;
 
 /** Represents the tracking status of a manga for a tracker on Suwayomi. */
 @Data
+@lombok.NoArgsConstructor
+@lombok.AllArgsConstructor
 public class Status {
 
   private String name;

@@ -1,14 +1,17 @@
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */
-
 package online.hatsunemiku.tachideskvaadinui.services.client;
 
+import com.apollographql.apollo.api.ApolloResponse;
+import com.apollographql.apollo.exception.ApolloException;
+import com.apollographql.apollo.runtime.java.ApolloCallback;
+import com.apollographql.apollo.runtime.java.ApolloClient;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.search.SourceSearchResult;
-import online.hatsunemiku.tachideskvaadinui.data.tachidesk.search.SourceSearchResult.SearchResponse;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.SearchSourceMutation;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,44 +19,48 @@ public class SearchClient {
 
   private final WebClientService webClientService;
 
-  public SearchClient(WebClientService webClientService) {
-    this.webClientService = webClientService;
+  public SearchClient(WebClientService clientService) {
+    this.webClientService = clientService;
   }
 
   public SourceSearchResult search(String searchQuery, int page, String sourceId) {
-    // language=GraphQL
-    String query =
-        """
-        mutation searchSource($sourceId: LongString!, $page: Int!, $query: String!) {
-          fetchSourceManga(
-            input: {page: $page, source: $sourceId, type: SEARCH, query: $query}
-          ) {
-            mangas {
-              id
-              thumbnailUrl
-              title
-            }
-            hasNextPage
-          }
-        }
-        """;
+    var apolloClient = webClientService.getApolloClient();
 
-    var graphClient = webClientService.getGraphQlClient();
+    CompletableFuture<ApolloResponse<SearchSourceMutation.Data>> future = new CompletableFuture<>();
+    apolloClient.mutation(new SearchSourceMutation(sourceId, page, searchQuery)).enqueue(new ApolloCallback<SearchSourceMutation.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<SearchSourceMutation.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    var result =
-        graphClient
-            .document(query)
-            .variable("sourceId", sourceId)
-            .variable("page", page)
-            .variable("query", searchQuery)
-            .retrieve("fetchSourceManga")
-            .toEntity(SearchResponse.class)
-            .block();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while searching: " + response.errors);
+      }
 
-    if (result == null) {
-      throw new RuntimeException("Error while searching");
+      var data = response.data;
+      if (data == null || data.fetchSourceManga == null) {
+        throw new RuntimeException("Error while searching");
+      }
+
+      var result = data.fetchSourceManga;
+
+      var mangaList = result.mangas.stream()
+          .map(node -> {
+            Manga manga = new Manga();
+            manga.setId(node.id);
+            manga.setThumbnailUrl(node.thumbnailUrl);
+            manga.setTitle(node.title);
+            manga.setInLibrary(false);
+            return manga;
+          })
+          .collect(Collectors.toList());
+
+      return new SourceSearchResult(mangaList, Boolean.TRUE.equals(result.hasNextPage), page);
+    } catch (Exception e) {
+      throw new RuntimeException("Error while searching", e);
     }
-
-    return new SourceSearchResult(result.mangas(), result.hasNextPage(), page);
   }
 }

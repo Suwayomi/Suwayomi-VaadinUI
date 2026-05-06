@@ -1,21 +1,29 @@
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */
-
 package online.hatsunemiku.tachideskvaadinui.services.client.suwayomi;
 
-import com.jayway.jsonpath.TypeRef;
-import java.time.Duration;
+import com.apollographql.apollo.api.ApolloResponse;
+import com.apollographql.apollo.exception.ApolloException;
+import com.apollographql.apollo.runtime.java.ApolloCallback;
+import com.apollographql.apollo.runtime.java.ApolloClient;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Status;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackRecord;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchResult;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.AllTheStuffForSuwayomiTrackingMutation;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetMangaTrackRecordsQuery;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetStatusesQuery;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetTrackerAuthUrlQuery;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetTrackingScoresQuery;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.IsMangaTrackedQuery;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.IsTrackerLoggedInQuery;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.LoginTrackerMutation;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.SearchTrackerQuery;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.StopTrackingNewMutation;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.TrackMangaMutation;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.TrackProgressOnTrackersMutation;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.UpdateScoreMutation;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
-import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,28 +60,31 @@ public class SuwayomiTrackingClient {
    */
   @SuppressWarnings("JavadocReference")
   public boolean isTrackerLoggedIn(int id) {
-    @Language("graphql")
-    String query =
-        """
-            query IsTrackerLoggedIn($id: Int!) {
-              tracker(id: $id) {
-                isLoggedIn
-                isTokenExpired
-              }
-            }
-            """;
+    var apolloClient = clientService.getApolloClient();
 
-    Map<String, Integer> variables = Map.of("id", id);
+    CompletableFuture<ApolloResponse<IsTrackerLoggedInQuery.Data>> future = new CompletableFuture<>();
+    apolloClient.query(new IsTrackerLoggedInQuery(id)).enqueue(new ApolloCallback<IsTrackerLoggedInQuery.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<IsTrackerLoggedInQuery.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    var graphClient = clientService.getDgsGraphQlClient();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while checking if tracker is logged in: " + response.errors);
+      }
 
-    var response = graphClient.reactiveExecuteQuery(query, variables).block();
+      var data = response.data;
+      if (data == null || data.tracker == null) {
+        throw new RuntimeException("Error while checking if tracker is logged in");
+      }
 
-    if (response == null) {
-      throw new RuntimeException("Error while checking if tracker is logged in");
+      return Boolean.TRUE.equals(data.tracker.isLoggedIn);
+    } catch (Exception e) {
+      throw new RuntimeException("Error while checking if tracker is logged in", e);
     }
-
-    return response.extractValueAsObject("tracker.isLoggedIn", Boolean.class);
   }
 
   /**
@@ -85,27 +96,31 @@ public class SuwayomiTrackingClient {
    */
   @SuppressWarnings("JavadocReference")
   public String getTrackerAuthUrl(int id) {
-    @Language("graphql")
-    String query =
-        """
-            query GetTrackerAuthUrl($id: Int!) {
-              tracker(id: $id) {
-                authUrl
-              }
-            }
-            """;
+    var apolloClient = clientService.getApolloClient();
 
-    Map<String, Integer> variables = Map.of("id", id);
+    CompletableFuture<ApolloResponse<GetTrackerAuthUrlQuery.Data>> future = new CompletableFuture<>();
+    apolloClient.query(new GetTrackerAuthUrlQuery(id)).enqueue(new ApolloCallback<GetTrackerAuthUrlQuery.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<GetTrackerAuthUrlQuery.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    var graphClient = clientService.getDgsGraphQlClient();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while getting tracker auth url: " + response.errors);
+      }
 
-    var response = graphClient.reactiveExecuteQuery(query, variables).block();
+      var data = response.data;
+      if (data == null || data.tracker == null) {
+        throw new RuntimeException("Error while getting tracker auth url");
+      }
 
-    if (response == null) {
-      throw new RuntimeException("Error while getting tracker auth url");
+      return data.tracker.authUrl;
+    } catch (Exception e) {
+      throw new RuntimeException("Error while getting tracker auth url", e);
     }
-
-    return response.extractValueAsObject("tracker.authUrl", String.class);
   }
 
   /**
@@ -115,28 +130,32 @@ public class SuwayomiTrackingClient {
    * @param id the ID of the tracker to log in to
    */
   public void loginTracker(String url, int id) {
-    @Language("graphql")
-    String query =
-        """
-            mutation LoginTracker($url: String!, $trackerId: Int!) {
-              loginTrackerOAuth(input: {callbackUrl: $url, trackerId: $trackerId}) {
-                isLoggedIn
-              }
-            }
-            """;
+    var apolloClient = clientService.getApolloClient();
 
-    Map<String, Object> variables = Map.of("url", url, "trackerId", id);
+    CompletableFuture<ApolloResponse<LoginTrackerMutation.Data>> future = new CompletableFuture<>();
+    apolloClient.mutation(new LoginTrackerMutation(url, id)).enqueue(new ApolloCallback<LoginTrackerMutation.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<LoginTrackerMutation.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    var graphClient = clientService.getDgsGraphQlClient();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while logging in tracker: " + response.errors);
+      }
 
-    var response = graphClient.reactiveExecuteQuery(query, variables).block();
+      var data = response.data;
+      if (data == null || data.loginTrackerOAuth == null) {
+        throw new RuntimeException("Error while logging in tracker");
+      }
 
-    if (response == null) {
-      throw new RuntimeException("Error while logging in tracker");
-    }
-
-    if (!response.extractValueAsObject("loginTrackerOAuth.isLoggedIn", Boolean.class)) {
-      log.error("Server returned false after logging in the tracker with id {}", id);
+      if (!Boolean.TRUE.equals(data.loginTrackerOAuth.isLoggedIn)) {
+        log.error("Server returned false after logging in the tracker with id {}", id);
+      }
+    } catch (Exception e) {
+      throw new RuntimeException("Error while logging in tracker", e);
     }
   }
 
@@ -150,46 +169,46 @@ public class SuwayomiTrackingClient {
    */
   @SuppressWarnings("JavadocReference")
   public List<TrackerSearchResult> searchTracker(String query, int id) {
-    @Language("graphql")
-    String graphQuery =
-        """
-            query searchTracker($query: String!, $id: Int!) {
-              searchTracker(input: {query: $query, trackerId: $id}) {
-                trackSearches {
-                  coverUrl
-                  id
-                  publishingStatus
-                  publishingType
-                  remoteId
-                  startDate
-                  summary
-                  title
-                  totalChapters
-                  trackingUrl
-                }
-              }
-            }
-            """;
+    var apolloClient = clientService.getApolloClient();
 
-    Map<String, Object> variables = Map.of("query", query, "id", id);
+    CompletableFuture<ApolloResponse<SearchTrackerQuery.Data>> future = new CompletableFuture<>();
+    apolloClient.query(new SearchTrackerQuery(query, id)).enqueue(new ApolloCallback<SearchTrackerQuery.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<SearchTrackerQuery.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    var graphClient = clientService.getDgsGraphQlClient();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        String errorText = "Error while searching tracker: " + response.errors;
+        log.error(errorText);
+        throw new RuntimeException(errorText);
+      }
 
-    var response = graphClient.reactiveExecuteQuery(graphQuery, variables).block();
+      var data = response.data;
+      if (data == null || data.searchTracker == null) {
+        throw new RuntimeException("Error while searching tracker");
+      }
 
-    if (response == null) {
-      throw new RuntimeException("Error while searching tracker");
+      return data.searchTracker.trackSearches.stream()
+          .map(node -> new TrackerSearchResult(
+              node.coverUrl,
+              node.id,
+              node.remoteId != null ? Integer.parseInt(node.remoteId.toString()) : 0,
+              node.publishingStatus,
+              node.publishingType,
+              node.startDate,
+              node.summary,
+              node.title,
+              node.totalChapters != null ? node.totalChapters : 0,
+              node.trackingUrl
+          ))
+          .collect(Collectors.toList());
+    } catch (Exception e) {
+      throw new RuntimeException("Error while searching tracker", e);
     }
-
-    if (response.hasErrors()) {
-      String errorText = "Error while searching tracker: " + response.getErrors();
-      log.error(errorText);
-      throw new RuntimeException(errorText);
-    }
-
-    TypeRef<List<TrackerSearchResult>> typeRef = new TypeRef<>() {};
-
-    return response.extractValueAsObject("searchTracker.trackSearches", typeRef);
   }
 
   /**
@@ -203,36 +222,30 @@ public class SuwayomiTrackingClient {
    */
   @SuppressWarnings("JavadocReference")
   public void trackMangaOnTracker(int mangaId, long externalId, int trackerId) {
-    @Language("graphql")
-    var query =
-        """
-            mutation TrackManga($mangaId: Int!, $remoteId: LongString!, $trackerId: Int!) {
-              bindTrack(input: {mangaId: $mangaId, remoteId: $remoteId, trackerId: $trackerId}) {
-                trackRecord {
-                  id
-                  trackerId
-                  mangaId
-                }
-              }
-            }
-            """;
+    var apolloClient = clientService.getApolloClient();
 
     String remoteId = String.valueOf(externalId);
 
-    var variables = Map.of("mangaId", mangaId, "remoteId", remoteId, "trackerId", trackerId);
+    CompletableFuture<ApolloResponse<TrackMangaMutation.Data>> future = new CompletableFuture<>();
+    apolloClient.mutation(new TrackMangaMutation(mangaId, remoteId, trackerId)).enqueue(new ApolloCallback<TrackMangaMutation.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<TrackMangaMutation.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    var graphClient = clientService.getDgsGraphQlClient();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while tracking manga: " + response.errors);
+      }
 
-    Duration timeout = Duration.ofSeconds(60);
-    var optional = graphClient.reactiveExecuteQuery(query, variables).blockOptional(timeout);
-
-    if (optional.isEmpty()) {
-      throw new RuntimeException(
-          "Didn't receive a response from the server after trying to track the manga");
-    }
-
-    if (optional.get().hasErrors()) {
-      throw new RuntimeException("Error while tracking manga: " + optional.get().getErrors());
+      var data = response.data;
+      if (data == null || data.bindTrack == null) {
+        throw new RuntimeException("Didn't receive a response from the server after trying to track the manga");
+      }
+    } catch (Exception e) {
+      throw new RuntimeException("Error while tracking manga", e);
     }
   }
 
@@ -242,31 +255,31 @@ public class SuwayomiTrackingClient {
    * @param mangaId the ID of the manga to sync
    */
   public void trackProgress(int mangaId) {
-    @Language("graphql")
-    var query =
-        """
-            mutation TrackProgressOnTrackers($mangaId: Int!) {
-              trackProgress(input: {mangaId: $mangaId}) {
-                trackRecords {
-                  id
-                }
-              }
-            }
-            """;
+    var apolloClient = clientService.getApolloClient();
 
-    var graphClient = clientService.getDgsGraphQlClient();
+    CompletableFuture<ApolloResponse<TrackProgressOnTrackersMutation.Data>> future = new CompletableFuture<>();
+    apolloClient.mutation(new TrackProgressOnTrackersMutation(mangaId)).enqueue(new ApolloCallback<TrackProgressOnTrackersMutation.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<TrackProgressOnTrackersMutation.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    var variables = Map.of("mangaId", mangaId);
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while tracking manga progress: " + response.errors);
+      }
 
-    Duration timeout = Duration.ofSeconds(10);
-    var optional = graphClient.reactiveExecuteQuery(query, variables).blockOptional(timeout);
+      var data = response.data;
+      if (data == null || data.trackProgress == null) {
+        throw new RuntimeException("Didn't receive a response from the server after trying to track the manga");
+      }
 
-    if (optional.isEmpty()) {
-      throw new RuntimeException(
-          "Didn't receive a response from the server after trying to track the manga");
+      log.info("Tracked progress on trackers");
+    } catch (Exception e) {
+      throw new RuntimeException("Error while tracking manga progress", e);
     }
-
-    log.info("Tracked progress on trackers");
   }
 
   /**
@@ -277,35 +290,32 @@ public class SuwayomiTrackingClient {
    * @return {@code true} if the manga is tracked on the tracker, {@code false} otherwise
    */
   public boolean isMangaTracked(int mangaId, int trackerId) {
-    @Language("graphql")
-    var query =
-        """
-            query IsMangaTracked($mangaId: Int!) {
-              manga(id: $mangaId) {
-                trackRecords {
-                  nodes {
-                    trackerId
-                  }
-                }
-              }
-            }
-            """;
+    var apolloClient = clientService.getApolloClient();
 
-    var variables = Map.of("mangaId", mangaId, "trackerId", trackerId);
+    CompletableFuture<ApolloResponse<IsMangaTrackedQuery.Data>> future = new CompletableFuture<>();
+    apolloClient.query(new IsMangaTrackedQuery(mangaId)).enqueue(new ApolloCallback<IsMangaTrackedQuery.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<IsMangaTrackedQuery.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    var graphClient = clientService.getDgsGraphQlClient();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while checking if manga is tracked: " + response.errors);
+      }
 
-    var response = graphClient.reactiveExecuteQuery(query, variables).block();
+      var data = response.data;
+      if (data == null || data.manga == null || data.manga.trackRecords == null) {
+        throw new RuntimeException("Error while checking if manga is tracked");
+      }
 
-    if (response == null) {
-      throw new RuntimeException("Error while checking if manga is tracked");
+      return data.manga.trackRecords.nodes.stream()
+          .anyMatch(record -> record.trackerId == trackerId);
+    } catch (Exception e) {
+      throw new RuntimeException("Error while checking if manga is tracked", e);
     }
-
-    TypeRef<List<TrackRecord>> typeRef = new TypeRef<>() {};
-
-    var trackRecords = response.extractValueAsObject("manga.trackRecords.nodes", typeRef);
-
-    return trackRecords.stream().anyMatch(record -> record.getTrackerId() == trackerId);
   }
 
   /**
@@ -318,59 +328,53 @@ public class SuwayomiTrackingClient {
    *     not tracked on the tracker.
    */
   public TrackRecord getTrackRecord(long mangaId, int trackerId) {
-    @Language("graphql")
-    var query =
-        """
-        query GetMangaTrackRecords($mangaId: Int!) {
-          manga(id: $mangaId) {
-            trackRecords {
-              nodes {
-            		id
-                libraryId
-                mangaId
-                remoteId
-                trackerId
-               \s
-                remoteUrl
-               \s
-                title
-                lastChapterRead
-                totalChapters
-                displayScore
-               \s
-                finishDate
-                startDate
-                score
-                status
-              }
-            }
-          }
-        }
-        """;
+    var apolloClient = clientService.getApolloClient();
 
-    var variables = Map.of("mangaId", mangaId);
+    CompletableFuture<ApolloResponse<GetMangaTrackRecordsQuery.Data>> future = new CompletableFuture<>();
+    apolloClient.query(new GetMangaTrackRecordsQuery((int) mangaId)).enqueue(new ApolloCallback<GetMangaTrackRecordsQuery.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<GetMangaTrackRecordsQuery.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    var graphClient = clientService.getDgsGraphQlClient();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while getting manga track records: " + response.errors);
+      }
 
-    var response = graphClient.reactiveExecuteQuery(query, variables).block();
+      var data = response.data;
+      if (data == null || data.manga == null || data.manga.trackRecords == null) {
+        throw new RuntimeException("Error while getting manga track records");
+      }
 
-    if (response == null) {
-      throw new RuntimeException("Error while getting manga track records");
+      return data.manga.trackRecords.nodes.stream()
+          .filter(record -> record.trackerId == trackerId)
+          .map(node -> {
+            TrackRecord record = new TrackRecord();
+            record.setId(node.id);
+            record.setLibraryId(node.libraryId != null ? Long.parseLong(node.libraryId.toString()) : 0L);
+            record.setMangaId(node.mangaId);
+            record.setRemoteId(node.remoteId != null ? Long.parseLong(node.remoteId.toString()) : 0L);
+            record.setTrackerId(node.trackerId);
+            record.setRemoteUrl(node.remoteUrl);
+            record.setTitle(node.title);
+            record.setLastChapterRead(node.lastChapterRead != null ? node.lastChapterRead.floatValue() : 0.0f);
+            record.setTotalChapters(node.totalChapters != null ? node.totalChapters : 0);
+            record.setDisplayScore(node.displayScore);
+            // date conversion if necessary, TrackRecord expects Instant
+            // record.setFinishDate(...);
+            // record.setStartDate(...);
+            record.setScore(node.score != null ? node.score.floatValue() : 0.0f);
+            record.setStatus(node.status != null ? node.status : 0);
+            return record;
+          })
+          .findFirst()
+          .orElse(null);
+    } catch (Exception e) {
+      throw new RuntimeException("Error while getting manga track records", e);
     }
-
-    if (response.hasErrors()) {
-      throw new RuntimeException(
-          "Error while getting manga track records: " + response.getErrors());
-    }
-
-    TypeRef<List<TrackRecord>> typeRef = new TypeRef<>() {};
-
-    var trackRecords = response.extractValueAsObject("manga.trackRecords.nodes", typeRef);
-
-    return trackRecords.stream()
-        .filter(record -> record.getTrackerId() == trackerId)
-        .findFirst()
-        .orElse(null);
   }
 
   /**
@@ -381,35 +385,7 @@ public class SuwayomiTrackingClient {
    *     from the server contains errors, or if the updated data does not match the expected data.
    */
   public void updateTrackerData(TrackRecord trackRecord) {
-    @Language("graphql")
-    var query =
-        """
-        mutation AllTheStuffForSuwayomiTracking(
-          $recordId: Int!
-          $finishDate: LongString!
-          $lastChapterRead: Float!
-          $startDate: LongString!
-          $status: Int!
-        ) {
-          updateTrack(
-            input: {
-              recordId: $recordId
-              finishDate: $finishDate
-              lastChapterRead: $lastChapterRead
-              startDate: $startDate
-              status: $status
-            }
-          ) {
-            trackRecord {
-              id
-              finishDate
-              lastChapterRead
-              startDate
-              status
-            }
-          }
-        }
-        """;
+    var apolloClient = clientService.getApolloClient();
 
     String startDate;
     if (trackRecord.getStartDate() == null) {
@@ -425,47 +401,45 @@ public class SuwayomiTrackingClient {
       finishDate = String.valueOf(trackRecord.getFinishDate().toEpochMilli());
     }
 
-    var variables =
-        Map.of(
-            "recordId", trackRecord.getId(),
-            "finishDate", finishDate,
-            "lastChapterRead", trackRecord.getLastChapterRead(),
-            "startDate", startDate,
-            "status", trackRecord.getStatus());
+    CompletableFuture<ApolloResponse<AllTheStuffForSuwayomiTrackingMutation.Data>> future = new CompletableFuture<>();
+    apolloClient.mutation(new AllTheStuffForSuwayomiTrackingMutation(
+        trackRecord.getId(),
+        finishDate,
+        (double) trackRecord.getLastChapterRead(),
+        startDate,
+        trackRecord.getStatus()
+    )).enqueue(new ApolloCallback<AllTheStuffForSuwayomiTrackingMutation.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<AllTheStuffForSuwayomiTrackingMutation.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    var graphClient = clientService.getDgsGraphQlClient();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while updating track record: " + response.errors);
+      }
 
-    var response = graphClient.reactiveExecuteQuery(query, variables).block();
+      var data = response.data;
+      if (data == null || data.updateTrack == null || data.updateTrack.trackRecord == null) {
+        throw new RuntimeException("Error while updating track record");
+      }
 
-    if (response == null) {
-      throw new RuntimeException("Error while updating track record");
+      var updatedRecord = data.updateTrack.trackRecord;
+
+      if (updatedRecord.lastChapterRead.floatValue() != trackRecord.getLastChapterRead()) {
+        throw new RuntimeException("Last chapter read was not updated correctly");
+      }
+
+      if (updatedRecord.status != trackRecord.getStatus()) {
+        throw new RuntimeException("Status was not updated correctly");
+      }
+
+      log.info("Updated track record with ID {}", updatedRecord.id);
+    } catch (Exception e) {
+      throw new RuntimeException("Error while updating track record", e);
     }
-
-    if (response.hasErrors()) {
-      throw new RuntimeException("Error while updating track record: " + response.getErrors());
-    }
-
-    var updatedRecord = response.extractValueAsObject("updateTrack.trackRecord", TrackRecord.class);
-
-    // check if the new data is as expected
-
-    if (!Objects.equals(updatedRecord.getFinishDate(), trackRecord.getFinishDate())) {
-      throw new RuntimeException("Finish date was not updated correctly");
-    }
-
-    if (updatedRecord.getLastChapterRead() != trackRecord.getLastChapterRead()) {
-      throw new RuntimeException("Last chapter read was not updated correctly");
-    }
-
-    if (!Objects.equals(updatedRecord.getStartDate(), trackRecord.getStartDate())) {
-      throw new RuntimeException("Start date was not updated correctly");
-    }
-
-    if (updatedRecord.getStatus() != trackRecord.getStatus()) {
-      throw new RuntimeException("Status was not updated correctly");
-    }
-
-    log.info("Updated track record with ID {}", updatedRecord.getId());
   }
 
   /**
@@ -477,36 +451,38 @@ public class SuwayomiTrackingClient {
    *     from the server contains errors.
    */
   public List<Status> getStatuses(int trackRecordId) {
-    @Language("graphql")
-    var query =
-        """
-        query GetStatuses($trackRecordId: Int!) {
-          tracker(id: $trackRecordId) {
-            statuses {
-              name
-              value
-            }
-          }
-        }
-        """;
+    var apolloClient = clientService.getApolloClient();
 
-    var variables = Map.of("trackRecordId", trackRecordId);
+    CompletableFuture<ApolloResponse<GetStatusesQuery.Data>> future = new CompletableFuture<>();
+    apolloClient.query(new GetStatusesQuery(trackRecordId)).enqueue(new ApolloCallback<GetStatusesQuery.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<GetStatusesQuery.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    var graphClient = clientService.getDgsGraphQlClient();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while getting track statuses: " + response.errors);
+      }
 
-    var response = graphClient.reactiveExecuteQuery(query, variables).block();
+      var data = response.data;
+      if (data == null || data.tracker == null || data.tracker.statuses == null) {
+        throw new RuntimeException("Error while getting track statuses");
+      }
 
-    if (response == null) {
-      throw new RuntimeException("Error while getting track statuses");
+      return data.tracker.statuses.stream()
+          .map(node -> {
+            Status status = new Status();
+            status.setName(node.name);
+            status.setValue(node.value);
+            return status;
+          })
+          .collect(Collectors.toList());
+    } catch (Exception e) {
+      throw new RuntimeException("Error while getting track statuses", e);
     }
-
-    if (response.hasErrors()) {
-      throw new RuntimeException("Error while getting track statuses: " + response.getErrors());
-    }
-
-    TypeRef<List<Status>> typeRef = new TypeRef<>() {};
-
-    return response.extractValueAsObject("tracker.statuses", typeRef);
   }
 
   /**
@@ -518,63 +494,26 @@ public class SuwayomiTrackingClient {
    *     server contains errors.
    */
   public void stopTracking(int recordId, boolean deleteRemote) {
-    @Language("graphql")
-    String query = getStopTrackingQuery();
+    var apolloClient = clientService.getApolloClient();
 
-    var variables = Map.of("recordId", recordId, "deleteRemote", deleteRemote);
+    CompletableFuture<ApolloResponse<StopTrackingNewMutation.Data>> future = new CompletableFuture<>();
+    apolloClient.mutation(new StopTrackingNewMutation(recordId, deleteRemote)).enqueue(new ApolloCallback<StopTrackingNewMutation.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<StopTrackingNewMutation.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    var graphClient = clientService.getDgsGraphQlClient();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while stopping tracking: " + response.errors);
+      }
 
-    var response = graphClient.reactiveExecuteQuery(query, variables).block();
-
-    if (response == null) {
-      throw new RuntimeException("Error while stopping tracking");
+      log.info("Stopped tracking manga with ID {}", recordId);
+    } catch (Exception e) {
+      throw new RuntimeException("Error while stopping tracking", e);
     }
-
-    if (response.hasErrors()) {
-      throw new RuntimeException("Error while stopping tracking: " + response.getErrors());
-    }
-
-    log.info("Stopped tracking manga with ID {}", recordId);
-  }
-
-  /**
-   * Constructs the GraphQL mutation query for stopping the tracking of a manga. The query differs
-   * based on the server version.
-   *
-   * @return The GraphQL mutation query as a string.
-   */
-  @Language("graphql")
-  private @NotNull String getStopTrackingQuery() {
-    @Language("graphql")
-    String query;
-
-    var version = suwayomiMetaClient.getServerVersion();
-
-    if (version.getRevisionNumber() >= 1510) {
-      query =
-          """
-          mutation StopTracking($recordId: Int!, $deleteRemote: Boolean!) {
-            unbindTrack(input: { recordId: $recordId, deleteRemoteTrack: $deleteRemote }) {
-              trackRecord {
-                id
-              }
-            }
-          }
-          """;
-    } else {
-      query =
-          """
-              mutation StopTracking($recordId: Int!) {
-                updateTrack(input: { recordId: $recordId, unbind: true }) {
-                  trackRecord {
-                    id
-                  }
-                }
-              }
-          """;
-    }
-    return query;
   }
 
   /**
@@ -587,35 +526,31 @@ public class SuwayomiTrackingClient {
    *     response contains errors.
    */
   public List<String> getTrackingScores(int recordId) {
-    @Language("graphql")
-    var query =
-        """
-        query GetTrackingScores($recordId: Int!) {
-          trackRecord(id: $recordId) {
-            tracker {
-              scores
-            }
-          }
-        }
-        """;
+    var apolloClient = clientService.getApolloClient();
 
-    var variables = Map.of("recordId", recordId);
+    CompletableFuture<ApolloResponse<GetTrackingScoresQuery.Data>> future = new CompletableFuture<>();
+    apolloClient.query(new GetTrackingScoresQuery(recordId)).enqueue(new ApolloCallback<GetTrackingScoresQuery.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<GetTrackingScoresQuery.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    var graphClient = clientService.getDgsGraphQlClient();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while getting tracking scores: " + response.errors);
+      }
 
-    var response = graphClient.reactiveExecuteQuery(query, variables).block();
+      var data = response.data;
+      if (data == null || data.trackRecord == null || data.trackRecord.tracker == null) {
+        throw new RuntimeException("Error while getting tracking scores");
+      }
 
-    if (response == null) {
-      throw new RuntimeException("Error while getting tracking scores");
+      return data.trackRecord.tracker.scores;
+    } catch (Exception e) {
+      throw new RuntimeException("Error while getting tracking scores", e);
     }
-
-    if (response.hasErrors()) {
-      throw new RuntimeException("Error while getting tracking scores: " + response.getErrors());
-    }
-
-    TypeRef<List<String>> typeRef = new TypeRef<>() {};
-
-    return response.extractValueAsObject("trackRecord.tracker.scores", typeRef);
   }
 
   /**
@@ -627,38 +562,36 @@ public class SuwayomiTrackingClient {
    *     does not match the expected value.
    */
   public void updateScore(int recordId, String value) {
-    @Language("graphql")
-    String query =
-        """
-        mutation updateScore($score: String!, $recordId: Int!) {
-          updateTrack(input: {scoreString: $score, recordId: $recordId}) {
-            trackRecord {
-              score
-            }
-          }
-        }
-        """;
+    var apolloClient = clientService.getApolloClient();
 
-    var variables = Map.of("score", value, "recordId", recordId);
+    CompletableFuture<ApolloResponse<UpdateScoreMutation.Data>> future = new CompletableFuture<>();
+    apolloClient.mutation(new UpdateScoreMutation(value, recordId)).enqueue(new ApolloCallback<UpdateScoreMutation.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<UpdateScoreMutation.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    var graphClient = clientService.getDgsGraphQlClient();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while updating score: " + response.errors);
+      }
 
-    var response = graphClient.reactiveExecuteQuery(query, variables).block();
+      var data = response.data;
+      if (data == null || data.updateTrack == null || data.updateTrack.trackRecord == null) {
+        throw new RuntimeException("Error while updating score");
+      }
 
-    if (response == null) {
-      throw new RuntimeException("Error while updating score");
+      float score = data.updateTrack.trackRecord.score.floatValue();
+
+      if (score != Float.parseFloat(value)) {
+        throw new RuntimeException("Score was not updated correctly");
+      }
+
+      log.info("Updated score for track record with ID {}", recordId);
+    } catch (Exception e) {
+      throw new RuntimeException("Error while updating score", e);
     }
-
-    if (response.hasErrors()) {
-      throw new RuntimeException("Error while updating score: " + response.getErrors());
-    }
-
-    float score = response.extractValueAsObject("updateTrack.trackRecord.score", Float.class);
-
-    if (score != Float.parseFloat(value)) {
-      throw new RuntimeException("Score was not updated correctly");
-    }
-
-    log.info("Updated score for track record with ID {}", recordId);
   }
 }

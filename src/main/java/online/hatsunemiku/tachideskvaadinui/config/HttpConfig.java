@@ -6,9 +6,11 @@
 
 package online.hatsunemiku.tachideskvaadinui.config;
 
+import okhttp3.OkHttpClient;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -20,11 +22,23 @@ public class HttpConfig {
    * Creates a new and configured instance of the {@link RestTemplate} class.
    *
    * @param builder the {@link RestTemplateBuilder} used to build the {@link RestTemplate} instance.
+   * @param okHttpClient the shared {@link OkHttpClient} instance.
    * @return a new instance of the {@link RestTemplate} class.
    */
   @Bean
-  public RestTemplate buildRestTemplate(RestTemplateBuilder builder) {
-    return builder.build();
+  public RestTemplate buildRestTemplate(RestTemplateBuilder builder, OkHttpClient okHttpClient) {
+    return builder.requestFactory(() -> new OkHttp3ClientHttpRequestFactory(okHttpClient)).build();
+  }
+
+  /**
+   * Creates a new and configured instance of the {@link OkHttpClient} class.
+   *
+   * @return a new instance of the {@link OkHttpClient} class.
+   */
+  @Bean
+  public OkHttpClient okHttpClient() {
+    return new OkHttpClient.Builder()
+        .build();
   }
 
   /**

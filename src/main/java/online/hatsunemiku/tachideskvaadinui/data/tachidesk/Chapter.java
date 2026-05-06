@@ -12,11 +12,13 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.With;
 import org.jetbrains.annotations.NotNull;
 
 /** Represents a chapter of a manga. */
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @With

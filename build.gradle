@@ -9,9 +9,23 @@ plugins {
     id 'org.springframework.boot' version '3.5.6'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.vaadin' version "$vaadinVersion"
+    id "com.apollographql.apollo" version "4.1.1"
 
     //Jpackage for building native installers
     id("org.panteleyev.jpackageplugin") version "1.6.0"
+}
+
+apollo {
+  service("suwayomi") {
+    srcDir("src/main/graphql/online/hatsunemiku/tachideskvaadinui/graphql/suwayomi")
+    packageName.set("online.hatsunemiku.tachideskvaadinui.graphql.suwayomi")
+    generateModelBuilders.set(true)
+  }
+  service("anilist") {
+    srcDir("src/main/graphql/online/hatsunemiku/tachideskvaadinui/graphql/anilist")
+    packageName.set("online.hatsunemiku.tachideskvaadinui.graphql.anilist")
+    generateModelBuilders.set(true)
+  }
 }
 
 java {
@@ -58,7 +72,8 @@ dependencies {
     implementation 'dev.katsute:mal4j:3.4.2'
 
     //GraphQL
-    implementation "com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter"
+    implementation("com.apollographql.apollo:apollo-runtime:4.1.1")
+    implementation("com.apollographql.apollo:apollo-runtime-java:4.1.1")
 
     //Apache Commons codec -> used for URL encoding
     implementation 'commons-codec:commons-codec:1.16.1'
@@ -83,7 +98,6 @@ dependencies {
 dependencyManagement {
     imports {
         mavenBom "com.vaadin:vaadin-bom:$vaadinVersion"
-        mavenBom "com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:9.0.0"
     }
 }
 

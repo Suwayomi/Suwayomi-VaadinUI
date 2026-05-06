@@ -8,7 +8,9 @@ package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -18,6 +20,9 @@ import lombok.Setter;
  * @version 1.12.0
  */
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Manga {
 
   @JsonProperty("sourceId")

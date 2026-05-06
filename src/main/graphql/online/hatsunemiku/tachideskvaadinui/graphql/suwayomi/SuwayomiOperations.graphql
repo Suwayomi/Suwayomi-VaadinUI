@@ -1,0 +1,62 @@
+query GetServerVersion {
+  aboutServer {
+    version
+    revision
+  }
+}
+
+mutation UpdateExtensionRepos($extensionRepoUrls: [String!]) {
+  setSettings(input: {settings: {extensionRepos: $extensionRepoUrls}}) {
+    settings {
+      extensionRepos
+    }
+  }
+}
+
+query GetExtensionRepos {
+  settings {
+    extensionRepos
+  }
+}
+
+query GetFlareSolverrSettings {
+  settings {
+    flareSolverrEnabled
+    flareSolverrSessionName
+    flareSolverrSessionTtl
+    flareSolverrTimeout
+    flareSolverrUrl
+  }
+}
+
+mutation UpdateFlareSolverrUrl($url: String!) {
+  setSettings(input: {settings: {flareSolverrUrl: $url}}) {
+    settings {
+      flareSolverrUrl
+    }
+  }
+}
+
+mutation UpdateFlareSolverrEnabledStatus($enabled: Boolean!) {
+  setSettings(input: {settings: {flareSolverrEnabled: $enabled}}) {
+    settings {
+      flareSolverrEnabled
+    }
+  }
+}
+
+mutation createBackup {
+  createBackup(input: {includeCategories: true, includeChapters: true}) {
+    url
+  }
+}
+
+mutation RestoreBackup($backup: Upload!) {
+  restoreBackup(input: {backup: $backup}) {
+    status {
+      totalManga
+      state
+      mangaProgress
+    }
+  }
+}

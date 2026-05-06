@@ -1,20 +1,30 @@
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */
-
 package online.hatsunemiku.tachideskvaadinui.services.client;
 
+import com.apollographql.apollo.api.ApolloResponse;
+import com.apollographql.apollo.api.Optional;
+import com.apollographql.apollo.exception.ApolloException;
+import com.apollographql.apollo.runtime.java.ApolloCallback;
+import com.apollographql.apollo.runtime.java.ApolloClient;
 import java.util.List;
-import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Category;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.AddMangaToCategoriesMutation;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.FetchChapterListMutation;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.FetchMangaMutation;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetChapterPagesMutation;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetChapterQuery;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetLibraryMangaQuery;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetMangaChaptersQuery;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.RemoveMangaFromCategoriesMutation;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.SetChapterReadStatusMutation;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.UpdateMangaLibraryStatusMutation;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
 import online.hatsunemiku.tachideskvaadinui.services.client.exception.InvalidResponseException;
-import org.springframework.graphql.client.FieldAccessException;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -28,93 +38,79 @@ public class MangaClient {
   }
 
   public boolean addMangaToCategories(List<Integer> categoryIds, int mangaId) {
-    String query =
-        """
-        mutation addMangaToCategories($categoryIds: [Int!], $mangaId: Int!) {
-          updateMangaCategories(
-            input: {id: $mangaId, patch: {addToCategories: $categoryIds}}
-          ) {
-            manga {
-              categories {
-                nodes {
-                  id
-                }
-              }
-            }
-          }
-        }
-        """;
+    var apolloClient = clientService.getApolloClient();
 
-    var graphClient = clientService.getGraphQlClient();
-
-    var tempCategoryIds =
-        graphClient
-            .document(query)
-            .variable("categoryIds", categoryIds)
-            .variable("mangaId", mangaId)
-            .retrieve("updateMangaCategories.manga.categories.nodes")
-            .toEntityList(UpdateMangaCategoryId.class)
-            .block();
-
-    if (tempCategoryIds == null) {
-      throw new RuntimeException("Error while adding manga to categories");
-    }
-
-    var newCategoryIds =
-        tempCategoryIds.stream().filter(Objects::nonNull).map(UpdateMangaCategoryId::id).toList();
-
-    for (int categoryId : newCategoryIds) {
-      if (!categoryIds.contains(categoryId)) {
-        return false;
+    CompletableFuture<ApolloResponse<AddMangaToCategoriesMutation.Data>> future = new CompletableFuture<>();
+    apolloClient.mutation(new AddMangaToCategoriesMutation(new Optional.Present<List<Integer>>(categoryIds), mangaId)).enqueue(new ApolloCallback<AddMangaToCategoriesMutation.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<AddMangaToCategoriesMutation.Data> response) {
+        future.complete(response);
       }
-    }
+    });
 
-    return true;
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while adding manga to categories: " + response.errors);
+      }
+
+      var data = response.data;
+      if (data == null || data.updateMangaCategories == null || data.updateMangaCategories.manga == null) {
+        throw new RuntimeException("Error while adding manga to categories");
+      }
+
+      var newCategoryIds = data.updateMangaCategories.manga.categories.nodes.stream()
+          .map(node -> node.id)
+          .collect(Collectors.toList());
+
+      for (int categoryId : categoryIds) {
+        if (!newCategoryIds.contains(categoryId)) {
+          return false;
+        }
+      }
+
+      return true;
+    } catch (Exception e) {
+      throw new RuntimeException("Error while adding manga to categories", e);
+    }
   }
 
   public boolean removeMangaFromCategories(List<Integer> categoryIds, int mangaId) {
-    String query =
-        """
-        mutation removeMangaFromCategories($categoryIds: [Int!], $mangaId: Int!) {
-          updateMangaCategories(
-            input: {id: $mangaId, patch: {removeFromCategories: $categoryIds}}
-          ) {
-            manga {
-              categories {
-                nodes {
-                  id
-                }
-              }
-            }
-          }
-        }
-        """;
+    var apolloClient = clientService.getApolloClient();
 
-    var graphClient = clientService.getGraphQlClient();
-
-    var tempCategoryIds =
-        graphClient
-            .document(query)
-            .variable("categoryIds", categoryIds)
-            .variable("mangaId", mangaId)
-            .retrieve("updateMangaCategories.manga.categories.nodes")
-            .toEntityList(UpdateMangaCategoryId.class)
-            .block();
-
-    if (tempCategoryIds == null) {
-      throw new RuntimeException("Error while removing manga from categories");
-    }
-
-    var newCategoryIds =
-        tempCategoryIds.stream().filter(Objects::nonNull).map(UpdateMangaCategoryId::id).toList();
-
-    for (int id : newCategoryIds) {
-      if (categoryIds.contains(id)) {
-        return false;
+    CompletableFuture<ApolloResponse<RemoveMangaFromCategoriesMutation.Data>> future = new CompletableFuture<>();
+    apolloClient.mutation(new RemoveMangaFromCategoriesMutation(new Optional.Present<List<Integer>>(categoryIds), mangaId)).enqueue(new ApolloCallback<RemoveMangaFromCategoriesMutation.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<RemoveMangaFromCategoriesMutation.Data> response) {
+        future.complete(response);
       }
-    }
+    });
 
-    return true;
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while removing manga from categories: " + response.errors);
+      }
+
+      var data = response.data;
+      if (data == null || data.updateMangaCategories == null || data.updateMangaCategories.manga == null) {
+        throw new RuntimeException("Error while removing manga from categories");
+      }
+
+      var newCategoryIds = data.updateMangaCategories.manga.categories.nodes.stream()
+          .map(node -> node.id)
+          .collect(Collectors.toList());
+
+      for (int id : categoryIds) {
+        if (newCategoryIds.contains(id)) {
+          return false;
+        }
+      }
+
+      return true;
+    } catch (Exception e) {
+      throw new RuntimeException("Error while removing manga from categories", e);
+    }
   }
 
   /**
@@ -125,68 +121,61 @@ public class MangaClient {
    * @throws RuntimeException if an error occurs while parsing the JSON response.
    */
   public Chapter getChapter(long chapterId) {
-    String query =
-        """
-        query MyQuery($id: Int!) {
-          chapter(id: $id) {
-            mangaId
-            isDownloaded
-            chapterNumber
-            name
-            id
-            pageCount
-          }
-        }
-        """;
+    var apolloClient = clientService.getApolloClient();
 
-    var graphClient = clientService.getGraphQlClient();
+    CompletableFuture<ApolloResponse<GetChapterQuery.Data>> future = new CompletableFuture<>();
+    apolloClient.query(new GetChapterQuery((int) chapterId)).enqueue(new ApolloCallback<GetChapterQuery.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<GetChapterQuery.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    return graphClient
-        .document(query)
-        .variable("id", chapterId)
-        .retrieve("chapter")
-        .toEntity(Chapter.class)
-        .block();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while getting chapter: " + response.errors);
+      }
+
+      var data = response.data;
+      if (data == null || data.chapter == null) {
+        return null;
+      }
+
+      return mapToChapter(data.chapter);
+    } catch (Exception e) {
+      throw new RuntimeException("Error while getting chapter", e);
+    }
   }
 
   public List<Chapter> getChapters(int mangaId) {
-    // language=GraphQL
-    String query =
-        """
-        query getMangaChapters($mangaId: Int!) {
-          manga(id: $mangaId) {
-            chapters {
-              nodes {
-                url
-                chapterNumber
-                mangaId
-                name
-                uploadDate
-                isRead
-                isDownloaded
-                id
-                pageCount
-                manga {
-                  chapters {
-                    edges {
-                      cursor
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-        """;
+    var apolloClient = clientService.getApolloClient();
 
-    var graphClient = clientService.getGraphQlClient();
+    CompletableFuture<ApolloResponse<GetMangaChaptersQuery.Data>> future = new CompletableFuture<>();
+    apolloClient.query(new GetMangaChaptersQuery(mangaId)).enqueue(new ApolloCallback<GetMangaChaptersQuery.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<GetMangaChaptersQuery.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    return graphClient
-        .document(query)
-        .variable("mangaId", mangaId)
-        .retrieve("manga.chapters.nodes")
-        .toEntityList(Chapter.class)
-        .block();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while getting manga chapters: " + response.errors);
+      }
+
+      var data = response.data;
+      if (data == null || data.manga == null || data.manga.chapters == null) {
+        return List.of();
+      }
+
+      return data.manga.chapters.nodes.stream()
+          .map(this::mapToChapter)
+          .collect(Collectors.toList());
+    } catch (Exception e) {
+      throw new RuntimeException("Error while getting manga chapters", e);
+    }
   }
 
   /**
@@ -205,48 +194,33 @@ public class MangaClient {
       throw new RuntimeException("Error while fetching manga " + mangaId);
     }
 
-    // language=graphql
-    String query =
-        """
-        mutation fetchChapterList($mangaId: Int!) {
-             fetchChapters(input: { mangaId: $mangaId }) {
-               chapters {
-                 url
-                 chapterNumber
-                 mangaId
-                 name
-                 uploadDate
-                 isRead
-                 isDownloaded
-                 id
-                 pageCount
-                 manga {
-                   chapters {
-                     edges {
-                       cursor
-                     }
-                   }
-                 }
-               }
-             }
-           }
-        """;
+    var apolloClient = clientService.getApolloClient();
 
-    var graphClient = clientService.getGraphQlClient();
+    CompletableFuture<ApolloResponse<FetchChapterListMutation.Data>> future = new CompletableFuture<>();
+    apolloClient.mutation(new FetchChapterListMutation(mangaId)).enqueue(new ApolloCallback<FetchChapterListMutation.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<FetchChapterListMutation.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    return graphClient
-        .document(query)
-        .variable("mangaId", mangaId)
-        .retrieve("fetchChapters.chapters")
-        .toEntityList(Chapter.class)
-        .doOnError(
-            throwable -> {
-              if (throwable instanceof FieldAccessException) {
-                throw new InvalidResponseException(
-                    "Invalid response from server for manga " + mangaId, throwable);
-              }
-            })
-        .block();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new InvalidResponseException("Invalid response from server for manga " + mangaId, null);
+      }
+
+      var data = response.data;
+      if (data == null || data.fetchChapters == null || data.fetchChapters.chapters == null) {
+        return List.of();
+      }
+
+      return data.fetchChapters.chapters.stream()
+          .map(this::mapToChapter)
+          .collect(Collectors.toList());
+    } catch (Exception e) {
+      throw new RuntimeException("Error while fetching chapter list", e);
+    }
   }
 
   /**
@@ -311,36 +285,31 @@ public class MangaClient {
   }
 
   public Manga getManga(long mangaId) {
-    String query =
-        """
-        mutation FetchManga($id: Int!) {
-          fetchManga(input: {id: $id}) {
-            manga {
-              thumbnailUrl
-              title
-              inLibrary
-              id
-              lastReadChapter {
-                id
-              }
-              categories {
-                nodes {
-                  id
-                }
-              }
-            }
-          }
-        }
-        """;
+    var apolloClient = clientService.getApolloClient();
 
-    var graphClient = clientService.getGraphQlClient();
+    CompletableFuture<ApolloResponse<FetchMangaMutation.Data>> future = new CompletableFuture<>();
+    apolloClient.mutation(new FetchMangaMutation((int) mangaId)).enqueue(new ApolloCallback<FetchMangaMutation.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<FetchMangaMutation.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    return graphClient
-        .document(query)
-        .variable("id", mangaId)
-        .retrieve("fetchManga.manga")
-        .toEntity(Manga.class)
-        .block();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while fetching manga: " + response.errors);
+      }
+
+      var data = response.data;
+      if (data == null || data.fetchManga == null || data.fetchManga.manga == null) {
+        return null;
+      }
+
+      return mapToManga(data.fetchManga.manga);
+    } catch (Exception e) {
+      throw new RuntimeException("Error while fetching manga", e);
+    }
   }
 
   /**
@@ -353,27 +322,31 @@ public class MangaClient {
    * @throws RuntimeException if there is an error while parsing the JSON response
    */
   private boolean updateChapterReadStatus(int chapterId, boolean read) {
-    String query =
-        """
-        mutation SetChapterReadStatus($id: Int!, $isRead: Boolean!) {
-          updateChapter(input: {patch: {isRead: $isRead}, id: $id}) {
-            chapter {
-              isRead
-            }
-          }
-        }""";
+    var apolloClient = clientService.getApolloClient();
 
-    var graphClient = clientService.getGraphQlClient();
-    Boolean readStatus =
-        graphClient
-            .document(query)
-            .variable("id", chapterId)
-            .variable("isRead", read)
-            .retrieve("updateChapter.chapter.isRead")
-            .toEntity(Boolean.class)
-            .block();
+    CompletableFuture<ApolloResponse<SetChapterReadStatusMutation.Data>> future = new CompletableFuture<>();
+    apolloClient.mutation(new SetChapterReadStatusMutation(chapterId, read)).enqueue(new ApolloCallback<SetChapterReadStatusMutation.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<SetChapterReadStatusMutation.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    return Objects.requireNonNullElse(readStatus, false);
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while updating chapter read status: " + response.errors);
+      }
+
+      var data = response.data;
+      if (data == null || data.updateChapter == null || data.updateChapter.chapter == null) {
+        return false;
+      }
+
+      return Boolean.TRUE.equals(data.updateChapter.chapter.isRead);
+    } catch (Exception e) {
+      throw new RuntimeException("Error while updating chapter read status", e);
+    }
   }
 
   /**
@@ -385,48 +358,59 @@ public class MangaClient {
    * @throws RuntimeException if there is an error while parsing the JSON response
    */
   private boolean updateMangaLibraryStatus(int mangaId, boolean add) {
-    String query =
-        """
-        mutation UpdateMangaLibraryStatus($id: Int!, $add: Boolean!) {
-          updateManga(input: {id: $id, patch: {inLibrary: $add}}) {
-            manga {
-              inLibrary
-            }
-          }
-        }
-        """;
+    var apolloClient = clientService.getApolloClient();
 
-    var graphClient = clientService.getGraphQlClient();
-    Boolean success =
-        graphClient
-            .document(query)
-            .variable("id", mangaId)
-            .variable("add", add)
-            .retrieve("updateManga.manga.inLibrary")
-            .toEntity(Boolean.class)
-            .block();
+    CompletableFuture<ApolloResponse<UpdateMangaLibraryStatusMutation.Data>> future = new CompletableFuture<>();
+    apolloClient.mutation(new UpdateMangaLibraryStatusMutation(mangaId, add)).enqueue(new ApolloCallback<UpdateMangaLibraryStatusMutation.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<UpdateMangaLibraryStatusMutation.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    return Objects.requireNonNullElse(success, false);
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while updating manga library status: " + response.errors);
+      }
+
+      var data = response.data;
+      if (data == null || data.updateManga == null || data.updateManga.manga == null) {
+        return false;
+      }
+
+      return Boolean.TRUE.equals(data.updateManga.manga.inLibrary);
+    } catch (Exception e) {
+      throw new RuntimeException("Error while updating manga library status", e);
+    }
   }
 
   public List<String> getChapterPages(int chapterId) {
-    String query =
-        """
-        mutation getChapterPages($chapterId: Int!) {
-          fetchChapterPages(input: {chapterId: $chapterId}) {
-            pages
-          }
-        }
-        """;
+    var apolloClient = clientService.getApolloClient();
 
-    var graphClient = clientService.getGraphQlClient();
+    CompletableFuture<ApolloResponse<GetChapterPagesMutation.Data>> future = new CompletableFuture<>();
+    apolloClient.mutation(new GetChapterPagesMutation(chapterId)).enqueue(new ApolloCallback<GetChapterPagesMutation.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<GetChapterPagesMutation.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    return graphClient
-        .document(query)
-        .variable("chapterId", chapterId)
-        .retrieve("fetchChapterPages.pages")
-        .toEntityList(String.class)
-        .block();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while getting chapter pages: " + response.errors);
+      }
+
+      var data = response.data;
+      if (data == null || data.fetchChapterPages == null) {
+        return List.of();
+      }
+
+      return data.fetchChapterPages.pages;
+    } catch (Exception e) {
+      throw new RuntimeException("Error while getting chapter pages", e);
+    }
   }
 
   /**
@@ -435,49 +419,90 @@ public class MangaClient {
    * @return the list of manga, which are in the library
    */
   public List<Manga> getLibraryManga() {
-    // language=GraphQL
-    String query =
-        """
-            query getLibraryManga {
-              categories {
-                nodes {
-                  mangas {
-                    nodes {
-                      thumbnailUrl
-                      title
-                      inLibrary
-                      id
-                      lastReadChapter {
-                        id
-                      }
-                    }
-                  }
-                }
-              }
-            }
-            """;
+    var apolloClient = clientService.getApolloClient();
 
-    var graphClient = clientService.getGraphQlClient();
+    CompletableFuture<ApolloResponse<GetLibraryMangaQuery.Data>> future = new CompletableFuture<>();
+    apolloClient.query(new GetLibraryMangaQuery()).enqueue(new ApolloCallback<GetLibraryMangaQuery.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<GetLibraryMangaQuery.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    List<LibraryCategory> mangaLibrary =
-        graphClient
-            .document(query)
-            .retrieve("categories.nodes")
-            .toEntityList(LibraryCategory.class)
-            .block();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Error while retrieving library manga: " + response.errors);
+      }
 
-    if (mangaLibrary == null) {
-      throw new RuntimeException("Error while retrieving library manga");
+      var data = response.data;
+      if (data == null || data.categories == null) {
+        throw new RuntimeException("Error while retrieving library manga");
+      }
+
+      return data.categories.nodes.parallelStream()
+          .flatMap(node -> node.mangas.nodes.stream())
+          .map(this::mapToManga)
+          .collect(Collectors.toList());
+    } catch (Exception e) {
+      throw new RuntimeException("Error while retrieving library manga", e);
     }
-
-    return mangaLibrary.parallelStream()
-        .flatMap(libraryManga -> libraryManga.mangas().nodes().stream())
-        .toList();
   }
 
-  private record UpdateMangaCategoryId(int id) {}
+  private Chapter mapToChapter(GetChapterQuery.Chapter node) {
+    Chapter chapter = new Chapter();
+    chapter.setId(node.id);
+    chapter.setName(node.name);
+    chapter.setChapterNumber(node.chapterNumber.floatValue());
+    chapter.setDownloaded(Boolean.TRUE.equals(node.isDownloaded));
+    chapter.setRead(false);
+    chapter.setMangaId(node.mangaId);
+    chapter.setUrl("");
+    chapter.setPageCount(node.pageCount);
+    return chapter;
+  }
 
-  private record LibraryCategory(LibraryMangaList mangas) {}
+  private Chapter mapToChapter(GetMangaChaptersQuery.Node node) {
+    Chapter chapter = new Chapter();
+    chapter.setId(node.id);
+    chapter.setName(node.name);
+    chapter.setChapterNumber(node.chapterNumber.floatValue());
+    chapter.setDownloaded(Boolean.TRUE.equals(node.isDownloaded));
+    chapter.setRead(Boolean.TRUE.equals(node.isRead));
+    chapter.setMangaId(node.mangaId);
+    chapter.setUrl(node.url);
+    chapter.setPageCount(node.pageCount);
+    return chapter;
+  }
 
-  private record LibraryMangaList(List<Manga> nodes) {}
+  private Chapter mapToChapter(FetchChapterListMutation.Chapter node) {
+    Chapter chapter = new Chapter();
+    chapter.setId(node.id);
+    chapter.setName(node.name);
+    chapter.setChapterNumber(node.chapterNumber.floatValue());
+    chapter.setDownloaded(Boolean.TRUE.equals(node.isDownloaded));
+    chapter.setRead(Boolean.TRUE.equals(node.isRead));
+    chapter.setMangaId(node.mangaId);
+    chapter.setUrl(node.url);
+    chapter.setPageCount(node.pageCount);
+    return chapter;
+  }
+
+  private Manga mapToManga(FetchMangaMutation.Manga node) {
+    Manga manga = new Manga();
+    manga.setId(node.id);
+    manga.setTitle(node.title);
+    manga.setThumbnailUrl(node.thumbnailUrl);
+    manga.setInLibrary(Boolean.TRUE.equals(node.inLibrary));
+    return manga;
+  }
+
+  private Manga mapToManga(GetLibraryMangaQuery.Node1 node) {
+    Manga manga = new Manga();
+    manga.setId(node.id);
+    manga.setTitle(node.title);
+    manga.setThumbnailUrl(node.thumbnailUrl);
+    manga.setInLibrary(Boolean.TRUE.equals(node.inLibrary));
+    return manga;
+  }
 }

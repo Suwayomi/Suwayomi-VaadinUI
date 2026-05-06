@@ -9,9 +9,11 @@ package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import java.time.Instant;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /** Represents a track record of a user for a manga. */
 @Data
+@NoArgsConstructor
 public class TrackRecord {
 
   private int id;
@@ -51,7 +53,7 @@ public class TrackRecord {
    * @param status the status of the manga
    */
   @JsonCreator
-  private TrackRecord(
+  public TrackRecord(
       int id,
       String libraryId,
       int mangaId,

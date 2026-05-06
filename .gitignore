@@ -67,3 +67,8 @@ target/
 meta.json
 settings.json
 secrets.json
+/devDir/
+/src/main/frontend/generated/
+/conductor/
+/logs/
+/temp_extract/

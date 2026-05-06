@@ -1,0 +1,124 @@
+mutation downloadChapters($chapterIds: [Int!]!) {
+  enqueueChapterDownloads(input: {ids: $chapterIds}) {
+    downloadStatus {
+      queue {
+        chapter {
+          id
+        }
+      }
+    }
+  }
+}
+
+mutation deleteChapter($id: Int!) {
+  deleteDownloadedChapter(input: {id: $id}) {
+    chapters {
+      isDownloaded
+    }
+  }
+}
+
+subscription trackDownloads {
+  downloadChanged {
+    queue {
+      progress
+      state
+      chapter {
+        id
+      }
+    }
+  }
+}
+
+mutation UpdateExtension($extensionId: String!) {
+  updateExtension(input: {id: $extensionId, patch: {update: true}}) {
+    extension {
+      hasUpdate
+    }
+  }
+}
+
+mutation GetExtensions {
+  fetchExtensions(input: {clientMutationId: ""}) {
+    extensions {
+      pkgName
+      apkName
+      isInstalled
+      isNsfw
+      isObsolete
+      lang
+      name
+      hasUpdate
+      iconUrl
+    }
+  }
+}
+
+mutation installExtension($extensionId: String!, $install: Boolean!, $uninstall: Boolean!) {
+  updateExtension(input: {id: $extensionId, patch: {install: $install, uninstall: $uninstall}}) {
+    extension {
+      isInstalled
+    }
+  }
+}
+
+mutation updateLibraryManga {
+  updateLibraryManga(input: {}) {
+    updateStatus {
+      isRunning
+    }
+  }
+}
+
+query hasSkipped {
+  updateStatus {
+    skippedJobs {
+      mangas {
+        nodes {
+          id
+        }
+      }
+    }
+  }
+}
+
+subscription TrackMangaUpdate {
+  updateStatusChanged {
+    completeJobs {
+      mangas {
+        nodes {
+          title
+          chapters {
+            totalCount
+          }
+          id
+        }
+      }
+    }
+    isRunning
+  }
+}
+
+mutation searchSource($sourceId: LongString!, $page: Int!, $query: String!) {
+  fetchSourceManga(
+    input: {page: $page, source: $sourceId, type: SEARCH, query: $query}
+  ) {
+    mangas {
+      id
+      thumbnailUrl
+      title
+    }
+    hasNextPage
+  }
+}
+
+mutation getPopularSourceManga($sourceId: LongString!, $page: Int!, $type: FetchSourceMangaType!) {
+  fetchSourceManga(input: {page: $page, source: $sourceId, type: $type}) {
+    hasNextPage
+    mangas {
+      id
+      thumbnailUrl
+      title
+    }
+  }
+}

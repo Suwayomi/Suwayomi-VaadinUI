@@ -11,6 +11,7 @@ import lombok.Getter;
 
 /** Represents the version of the Suwayomi Server. */
 @Getter
+@lombok.NoArgsConstructor(force = true)
 public class ServerVersion {
 
   /** The version of the server. Format: vX.Y.Z */
@@ -25,9 +26,8 @@ public class ServerVersion {
    * @param version the version of the server
    * @param revision the revision of the server
    */
-  // Private constructor so only Spring can create instances of this class
   @JsonCreator
-  private ServerVersion(String version, String revision) {
+  public ServerVersion(String version, String revision) {
     this.version = version;
     this.revision = revision;
   }

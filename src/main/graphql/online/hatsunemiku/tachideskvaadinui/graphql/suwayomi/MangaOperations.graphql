@@ -1,0 +1,145 @@
+mutation addMangaToCategories($categoryIds: [Int!], $mangaId: Int!) {
+  updateMangaCategories(
+    input: {id: $mangaId, patch: {addToCategories: $categoryIds}}
+  ) {
+    manga {
+      categories {
+        nodes {
+          id
+        }
+      }
+    }
+  }
+}
+
+mutation removeMangaFromCategories($categoryIds: [Int!], $mangaId: Int!) {
+  updateMangaCategories(
+    input: {id: $mangaId, patch: {removeFromCategories: $categoryIds}}
+  ) {
+    manga {
+      categories {
+        nodes {
+          id
+        }
+      }
+    }
+  }
+}
+
+query GetChapter($id: Int!) {
+  chapter(id: $id) {
+    mangaId
+    isDownloaded
+    chapterNumber
+    name
+    id
+    pageCount
+  }
+}
+
+query getMangaChapters($mangaId: Int!) {
+  manga(id: $mangaId) {
+    chapters {
+      nodes {
+        url
+        chapterNumber
+        mangaId
+        name
+        uploadDate
+        isRead
+        isDownloaded
+        id
+        pageCount
+        manga {
+          chapters {
+            edges {
+              cursor
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+mutation fetchChapterList($mangaId: Int!) {
+  fetchChapters(input: { mangaId: $mangaId }) {
+    chapters {
+      url
+      chapterNumber
+      mangaId
+      name
+      uploadDate
+      isRead
+      isDownloaded
+      id
+      pageCount
+      manga {
+        chapters {
+          edges {
+            cursor
+          }
+        }
+      }
+    }
+  }
+}
+
+mutation FetchManga($id: Int!) {
+  fetchManga(input: {id: $id}) {
+    manga {
+      thumbnailUrl
+      title
+      inLibrary
+      id
+      lastReadChapter {
+        id
+      }
+      categories {
+        nodes {
+          id
+        }
+      }
+    }
+  }
+}
+
+mutation SetChapterReadStatus($id: Int!, $isRead: Boolean!) {
+  updateChapter(input: {patch: {isRead: $isRead}, id: $id}) {
+    chapter {
+      isRead
+    }
+  }
+}
+
+mutation UpdateMangaLibraryStatus($id: Int!, $add: Boolean!) {
+  updateManga(input: {id: $id, patch: {inLibrary: $add}}) {
+    manga {
+      inLibrary
+    }
+  }
+}
+
+mutation getChapterPages($chapterId: Int!) {
+  fetchChapterPages(input: {chapterId: $chapterId}) {
+    pages
+  }
+}
+
+query getLibraryManga {
+  categories {
+    nodes {
+      mangas {
+        nodes {
+          thumbnailUrl
+          title
+          inLibrary
+          id
+          lastReadChapter {
+            id
+          }
+        }
+      }
+    }
+  }
+}

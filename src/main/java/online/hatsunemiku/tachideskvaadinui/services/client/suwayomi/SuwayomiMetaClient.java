@@ -1,14 +1,14 @@
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */
-
 package online.hatsunemiku.tachideskvaadinui.services.client.suwayomi;
 
+import com.apollographql.apollo.api.ApolloResponse;
+import com.apollographql.apollo.exception.ApolloException;
+import com.apollographql.apollo.runtime.java.ApolloCallback;
+import com.apollographql.apollo.runtime.java.ApolloClient;
+import java.util.concurrent.CompletableFuture;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.ServerVersion;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetServerVersionQuery;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
-import org.intellij.lang.annotations.Language;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 /** Retrieves metadata about the Suwayomi Server through its API. */
@@ -34,25 +34,30 @@ public class SuwayomiMetaClient {
    * @return the version of the Suwayomi Server.
    */
   public ServerVersion getServerVersion() {
-    var client = webClientService.getDgsGraphQlClient();
+    var apolloClient = webClientService.getApolloClient();
 
-    @Language("graphql")
-    String query =
-        """
-            query {
-              aboutServer {
-                version
-                revision
-              }
-            }
-            """;
+    CompletableFuture<ApolloResponse<GetServerVersionQuery.Data>> future = new CompletableFuture<>();
+    apolloClient.query(new GetServerVersionQuery()).enqueue(new ApolloCallback<GetServerVersionQuery.Data>() {
+      @Override
+      public void onResponse(@NotNull ApolloResponse<GetServerVersionQuery.Data> response) {
+        future.complete(response);
+      }
+    });
 
-    var response = client.reactiveExecuteQuery(query).block();
+    try {
+      var response = future.join();
+      if (response.hasErrors()) {
+        throw new RuntimeException("Failed to retrieve server version: " + response.errors);
+      }
 
-    if (response == null) {
-      throw new RuntimeException("Failed to retrieve server version");
+      var data = response.data;
+      if (data == null || data.aboutServer == null) {
+        throw new RuntimeException("Failed to retrieve server version");
+      }
+
+      return new ServerVersion(data.aboutServer.version, data.aboutServer.revision);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to retrieve server version", e);
     }
-
-    return response.extractValueAsObject("aboutServer", ServerVersion.class);
   }
 }
