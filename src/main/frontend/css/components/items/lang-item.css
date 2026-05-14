@@ -6,17 +6,20 @@
 
 .lang-item {
   display: flex;
-  background-color: var(--miku-frosted-glass);
-  border-radius: 1rem;
-  border: 0.1rem solid var(--miku-unselected-color);
-  margin: 0.5rem;
+  background: rgba(162, 234, 231, 0.05);
+  border-radius: 0.5rem;
+  border-left: 4px solid #86cecb;
+  margin: 1.5rem 0.5rem 0.5rem;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding: 0.5rem 1rem;
 }
 
 .lang-item-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin: 0.5rem;
-  color: var(--miku-main-color);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #a2eae7;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }

@@ -15,48 +15,99 @@ img {
 .card {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  border-radius: 0.5rem;
-  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
+  justify-content: flex-end;
+  border-radius: 0.72rem;
+  border: 1px solid rgba(162, 234, 231, 0.12);
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(0, 0, 0, 0.25) inset;
   overflow: hidden;
-  background: var(--miku-loading);
+  background:
+    radial-gradient(circle at 75% 0%, rgba(162, 234, 231, 0.08), transparent 32%),
+    #0d1218;
   background-repeat: no-repeat;
   background-position: center;
-  transition: all 0.2s ease-in-out;
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.75, 0.2, 1),
+    box-shadow 0.35s ease,
+    border-color 0.35s ease,
+    filter 0.35s ease;
   position: relative;
   cursor: pointer;
   height: 100%;
   aspect-ratio: 2/3;
+  color: var(--miku-main-color);
+  isolation: isolate;
+  will-change: transform, box-shadow;
+  animation: card-enter 0.45s ease-out both;
 }
 
 .card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 1rem rgba(0, 0, 0, 0.2);
+  transform: translateY(-6px) scale(1.015);
+  border-color: rgba(162, 234, 231, 0.42);
+  box-shadow:
+    0 16px 38px rgba(0, 0, 0, 0.48),
+    0 0 18px rgba(162, 234, 231, 0.22);
+  filter: saturate(1.05);
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(6, 10, 14, 0) 36%,
+    rgba(6, 10, 14, 0.4) 62%,
+    rgba(6, 10, 14, 0.88) 100%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  inset: -35% -140% auto;
+  height: 45%;
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    rgba(162, 234, 231, 0.06) 44%,
+    rgba(255, 176, 203, 0.08) 52%,
+    transparent 64%
+  );
+  z-index: 2;
+  transform: translateX(-12%);
+  transition: transform 0.5s ease;
+  pointer-events: none;
+}
+
+.card:hover::after {
+  transform: translateX(18%);
 }
 
 .card-title {
   font-weight: 700;
   margin: 0;
-  text-align: center;
-  z-index: 1;
+  text-align: left;
+  z-index: 3;
   position: absolute;
   bottom: 0;
-  background-image: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0.6),
-      rgba(0, 0, 0, 0.8)
-  );
-  color: var(--miku-main-color);
-  height: 10%;
-  max-width: 100%;
+  color: #eafaff;
+  width: 100%;
   min-width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   text-overflow: ellipsis;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
+  padding: 0.7rem 0.72rem 0.82rem;
   overflow: hidden;
+  white-space: nowrap;
+  line-height: 1.2;
+  font-size: 0.98rem;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
+  letter-spacing: 0.01em;
 }
 
 .card-img {
@@ -66,4 +117,54 @@ img {
   -moz-user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
+  transition: transform 0.45s cubic-bezier(0.2, 0.75, 0.2, 1), filter 0.45s ease;
+  transform-origin: center;
+}
+
+.card:hover .card-img {
+  transform: scale(1.08);
+  filter: contrast(1.04) saturate(1.08);
+}
+
+.library-grid > .card:nth-child(5n + 1) {
+  animation-delay: 0.02s;
+}
+
+.library-grid > .card:nth-child(5n + 2) {
+  animation-delay: 0.06s;
+}
+
+.library-grid > .card:nth-child(5n + 3) {
+  animation-delay: 0.1s;
+}
+
+.library-grid > .card:nth-child(5n + 4) {
+  animation-delay: 0.14s;
+}
+
+.library-grid > .card:nth-child(5n + 5) {
+  animation-delay: 0.18s;
+}
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+    filter: blur(1px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card-img,
+  .card::after {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
 }

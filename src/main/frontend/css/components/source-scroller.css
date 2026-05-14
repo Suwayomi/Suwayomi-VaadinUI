@@ -6,6 +6,11 @@
 
 .source-scroller {
   min-width: 100%;
-  min-height: 70vh;
-  max-height: 70vh;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.extension-cards-grid {
+    padding: 0.5rem;
 }

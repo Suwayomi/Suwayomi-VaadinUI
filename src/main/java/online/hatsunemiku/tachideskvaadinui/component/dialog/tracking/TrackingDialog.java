@@ -19,7 +19,6 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.theme.lumo.LumoIcon;
-import dev.katsute.mal4j.manga.property.MangaStatus;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +32,7 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackerType;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.Tracker;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListStatus;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDate;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.mal.MALMangaStatus;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.AniListMangaStatistics;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.MALMangaStatistics;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.MangaStatistics;
@@ -675,10 +675,10 @@ public class TrackingDialog extends Dialog {
    * @param mangaStats the statistics for the manga
    * @return a {@link ComboBox} for selecting the status of the manga
    */
-  private ComboBox<MangaStatus> configureStatusComboBoxMAL(
+  private ComboBox<MALMangaStatus> configureStatusComboBoxMAL(
       Tracker tracker, MALMangaStatistics mangaStats) {
-    ComboBox<MangaStatus> status = new ComboBox<>();
-    status.setItems(MangaStatus.values());
+    ComboBox<MALMangaStatus> status = new ComboBox<>();
+    status.setItems(MALMangaStatus.values());
     status.setValue(mangaStats.status());
     status.addValueChangeListener(
         e -> {

@@ -6,10 +6,9 @@
 
 package online.hatsunemiku.tachideskvaadinui.services;
 
-import com.apollographql.apollo.runtime.java.ApolloClient;
+import com.apollographql.java.client.ApolloClient;
 import jakarta.annotation.PreDestroy;
 import lombok.Getter;
-import okhttp3.OkHttpClient;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.settings.event.UrlChangeEvent;
 import org.slf4j.Logger;
@@ -27,7 +26,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class WebClientService {
 
   private static final Logger log = LoggerFactory.getLogger(WebClientService.class);
-  private final OkHttpClient okHttpClient;
   private WebClient webClient;
   private ApolloClient apolloClient;
 
@@ -35,10 +33,8 @@ public class WebClientService {
    * Creates a new instance of the {@link WebClientService} class.
    *
    * @param settingsService the {@link SettingsService} used for getting the current settings.
-   * @param okHttpClient the shared {@link OkHttpClient} instance.
    */
-  public WebClientService(SettingsService settingsService, OkHttpClient okHttpClient) {
-    this.okHttpClient = okHttpClient;
+  public WebClientService(SettingsService settingsService) {
     Settings settings = settingsService.getSettings();
 
     this.webClient = WebClient.create(settings.getUrl());
@@ -86,7 +82,6 @@ public class WebClientService {
 
     this.apolloClient =
         new ApolloClient.Builder()
-            .okHttpClient(okHttpClient)
             .serverUrl(httpUrl)
             .webSocketServerUrl(wsUrl)
             .build();

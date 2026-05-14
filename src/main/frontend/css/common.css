@@ -4,20 +4,48 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#outlet {
+    width: 100%;
+    height: 100%;
+}
+
+#container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
 .content {
-  justify-content: center;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
+  width: 100%;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .content-fullscreen {
-  height: 100vh;
-  width: 100vw;
+  width: 100%;
+  flex: 1;
   padding: 0;
+  overflow: hidden;
 }
 
 .fullscreen {
+  width: 100%;
+  height: 100%;
   padding: 0 !important;
   margin: 0;
 }
@@ -39,24 +67,151 @@ h1 {
 
 footer {
   color: aliceblue;
+  padding: 0.5rem 1.5rem;
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  opacity: 0.6;
 }
 
-.navbar {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-end;
-  width: 100%;
+.global-navbar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1.5rem;
+    background: rgba(17, 20, 21, 0.4);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
+    z-index: 1200;
+    width: 100%;
+    min-height: 60px;
+    flex-shrink: 0;
 }
 
-.btn-container {
-  display: flex;
-  border: 0.1rem solid var(--miku-main-color);
-  flex-grow: 1;
-  padding-right: 0.5rem;
+.primary-nav, .action-nav {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
 }
 
-.nav-btn {
-  margin-left: 0.5rem;
+.global-search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 280px;
+    max-width: 35vw;
+    z-index: 1210;
+}
+
+.global-search-input {
+    width: 100%;
+    --vaadin-input-field-background: rgba(255, 255, 255, 0.06);
+    --vaadin-input-field-border-color: rgba(255, 255, 255, 0.08);
+    transition: all 0.3s ease;
+}
+
+.global-search-input:focus-within {
+    --vaadin-input-field-background: rgba(255, 255, 255, 0.1);
+    --vaadin-input-field-border-color: var(--obsidian-accent);
+}
+
+.global-search-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: rgba(16, 20, 23, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(162, 234, 231, 0.15);
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    overflow: hidden;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.global-dropdown-header {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--obsidian-accent);
+    padding: 0.5rem 0.75rem 0.25rem;
+    letter-spacing: 0.12em;
+    opacity: 0.8;
+}
+
+.global-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.global-dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.global-dropdown-item-thumb {
+    width: 36px;
+    height: 54px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.global-dropdown-item-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.global-dropdown-item-title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.global-dropdown-item-meta {
+    font-size: 0.72rem;
+    color: var(--obsidian-text-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.global-dropdown-no-results {
+    padding: 1rem;
+    text-align: center;
+    color: var(--obsidian-text-dim);
+    font-size: 0.85rem;
+}
+
+.global-dropdown-footer {
+    margin-top: 0.5rem;
+    padding: 0.6rem 0.75rem;
+    text-align: center;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--obsidian-accent);
+    text-decoration: none;
+    background: rgba(var(--obsidian-accent-rgb), 0.05);
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.global-dropdown-footer:hover {
+    background: rgba(var(--obsidian-accent-rgb), 0.12);
+    color: #fff;
 }
 
 .spacer {

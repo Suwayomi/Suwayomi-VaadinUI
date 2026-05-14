@@ -9,9 +9,14 @@ package online.hatsunemiku.tachideskvaadinui.view.source;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import online.hatsunemiku.tachideskvaadinui.component.combo.LangComboBox;
 import online.hatsunemiku.tachideskvaadinui.component.events.source.SourceFilterUpdateEvent;
@@ -40,15 +45,29 @@ public class SourcesView extends StandardLayout {
    * @param settingsService The {@link SettingsService} to use to get the settings
    */
   public SourcesView(SourceService sources, SettingsService settingsService) {
-    super("Sources");
+    super("Discover");
 
-    VerticalLayout content = new VerticalLayout();
+    fullScreenNoHide();
+    addClassName("library-screen");
 
-    HorizontalLayout filters = new HorizontalLayout();
-    filters.addClassName("sources-filters");
+    Div hero = new Div();
+    hero.setClassName("manager-hero");
 
-    TextField nameFilter = new TextField("Search by name");
-    nameFilter.setPlaceholder("LHTranslation");
+    Div left = new Div();
+    left.setClassName("manager-hero-left");
+    H2 title = new H2("Discovery");
+    Span subtitle = new Span("Explore and discover new manga from various sources.");
+    subtitle.setClassName("manager-subtitle");
+    left.add(title, subtitle);
+
+    Div right = new Div();
+    right.setClassName("manager-hero-right");
+
+    TextField nameFilter = new TextField();
+    nameFilter.setPlaceholder("Search sources...");
+    nameFilter.addClassName("manager-search");
+    nameFilter.setPrefixComponent(VaadinIcon.SEARCH.create());
+    nameFilter.setValueChangeMode(ValueChangeMode.EAGER);
     nameFilter.addValueChangeListener(
         e -> {
           String filterText = e.getValue();
@@ -61,7 +80,7 @@ public class SourcesView extends StandardLayout {
         });
 
     LangComboBox langFilter = new LangComboBox();
-    langFilter.addClassName("source-lang-filter");
+    langFilter.addClassName("source-lang-filter-discovery");
     langFilter.setAllowCustomValue(false);
     langFilter.addLangUpdateEventListener(
         e -> {
@@ -77,15 +96,17 @@ public class SourcesView extends StandardLayout {
 
           return null;
         });
-
-    filters.add(nameFilter, langFilter);
+    
+    right.add(nameFilter, langFilter);
+    hero.add(left, right);
 
     SourceScroller scroller = new SourceScroller(sources, settingsService);
     scroller.addLangUpdateEventListener(langFilter);
 
-    content.add(filters, scroller);
-    content.addClassName("sources-content");
-
-    setContent(content);
+    Div container = new Div(hero, scroller);
+    container.setClassName("library-view-container");
+    container.setSizeFull();
+    
+    setContent(container);
   }
 }

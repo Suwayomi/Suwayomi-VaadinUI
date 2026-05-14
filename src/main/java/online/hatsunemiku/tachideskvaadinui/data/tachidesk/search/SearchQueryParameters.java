@@ -6,14 +6,15 @@
 
 package online.hatsunemiku.tachideskvaadinui.data.tachidesk.search;
 
-import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 
 @Data
 @Builder
 public class SearchQueryParameters {
 
   private int pageNum;
-  @Nullable private String searchTerm;
+  @Nullable
+  private String searchTerm;
 }

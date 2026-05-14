@@ -10,13 +10,15 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -35,12 +37,12 @@ import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.utils.NavigationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.RootView;
+import online.hatsunemiku.tachideskvaadinui.view.SettingsView;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * MangaReader is a class that represents the main component for reading manga. It uses a {@link
- * Reader} to display the manga pages and provides controls for navigating between pages and
- * chapters with the help of a {@link Sidebar} and {@link Controls}.
+ * MangaReader is the primary component for reading manga, offering a glassmorphic UI.
+ * It supports different reader modes (Paged and Strip) and includes a Focus Mode to hide controls.
  */
 @CssImport("./css/components/reader/manga-reader.css")
 @Slf4j
@@ -50,15 +52,8 @@ public class MangaReader extends Div {
   private final MangaService mangaService;
   private final int chapterIndex;
   private final List<Chapter> chapters;
+  private boolean focusMode = false;
 
-  /**
-   * Constructs a {@link MangaReader} object.
-   *
-   * @param chapter The Chapter object representing the chapter being read.
-   * @param settingsService The SettingsService object used for managing reader settings.
-   * @param mangaService The MangaService object used for manga-related operations.
-   * @param chapters The list of chapters in the manga
-   */
   public MangaReader(
       Chapter chapter,
       SettingsService settingsService,
@@ -71,13 +66,27 @@ public class MangaReader extends Div {
     this.chapterIndex = chapters.stream().map(Chapter::getId).toList().indexOf(chapter.getId());
     this.chapters = List.copyOf(chapters);
 
+    if (chapter.getManga() == null) {
+      chapter.setManga(mangaService.getManga(chapter.getMangaId()));
+    }
+
     Settings settings = settingsService.getSettings();
     var readerSettings = settings.getReaderSettings(chapter.getMangaId());
 
-    // So I can update the direction to the new direction once the reader has been replaced
     AtomicReference<ReaderDirection> dir = new AtomicReference<>(readerSettings.getDirection());
 
     replaceReader(dir.get(), chapter);
+
+    // Toggle focus mode on click, but ignore clicks on UI components and overlays
+    getElement().addEventListener("click", e -> {
+      focusMode = !focusMode;
+      if (focusMode) {
+        addClassName("focus-mode");
+      } else {
+        removeClassName("focus-mode");
+      }
+    }).setFilter("!(event.composedPath().some(el => el.classList && (el.classList.contains('sidebar') || el.classList.contains('controls'))) || " +
+               "event.composedPath().some(el => el.tagName && el.tagName.includes('OVERLAY')))");
 
     UI ui = getUI().orElseGet(UI::getCurrent);
 
@@ -93,70 +102,44 @@ public class MangaReader extends Div {
                 return;
               }
 
-              // if the new or old direction is vertical then the reader implementation must change
-              // as both LTR and RTL use PagedReader, while only Vertical uses StripReader
-              if (newDir == ReaderDirection.VERTICAL || dir.get() == ReaderDirection.VERTICAL) {
-                var oldReader = (Reader) getComponentAt(1);
-                int currentPageIndex = oldReader.getPageIndex();
+              var oldReader = (Reader) getComponentAt(0);
+              int currentPageIndex = oldReader.getPageIndex();
 
-                replaceReader(newDir, chapter);
+              replaceReader(newDir, chapter);
 
-                var newReader = (Reader) getComponentAt(1);
-                newReader.moveToPage(currentPageIndex);
+              var newReader = (Reader) getComponentAt(0);
+              newReader.moveToPage(currentPageIndex);
 
-                dir.set(newDir);
-              }
+              dir.set(newDir);
             });
 
     addDetachListener(e -> settingsChangeListener.remove());
   }
 
-  /**
-   * Creates a reader with the correct Implementation based on the given parameters.
-   *
-   * @param direction the {@link ReaderDirection direction} of the reader
-   * @param chapter the {@link Chapter chapter} to be read
-   * @return a Reader object of either {@link PagedReader} or {@link StripReader}
-   */
   private Reader createReader(ReaderDirection direction, Chapter chapter) {
-    Reader reader;
-
     if (direction == ReaderDirection.VERTICAL) {
-      reader = new StripReader(chapter, mangaService, settingsService);
+      return new StripReader(chapter, mangaService, settingsService);
     } else {
-      reader = new PagedReader(chapter, mangaService, settingsService);
+      return new PagedReader(chapter, mangaService, settingsService);
     }
-
-    return reader;
   }
 
-  /**
-   * Replaces the existing reader with a new one based on the specified direction and chapter. If no
-   * reader exists, it will just add the new reader instead.
-   *
-   * @param direction the {@link ReaderDirection direction} of the new reader
-   * @param chapter the {@link Chapter chapter} that should be displayed
-   */
   private void replaceReader(ReaderDirection direction, Chapter chapter) {
     removeAll();
 
     var reader = createReader(direction, chapter);
-
-    Sidebar sidebar = new Sidebar(mangaService, chapter, reader);
+    Sidebar sidebar = new Sidebar(chapter);
     Controls controls = new Controls(reader, chapter, chapterIndex);
 
     reader.addReaderReachEndListener(
         e -> {
           if (mangaService.setChapterRead(chapter.getId(), chapter.getMangaId())) {
             log.info("Set chapter {} to read", chapter.getName());
-          } else {
-            log.warn("Couldn't set chapter {} to read", chapter.getName());
           }
-
           e.unregisterListener();
         });
 
-    add(sidebar, reader, controls);
+    add(reader, sidebar, controls);
   }
 
   public Registration addReaderChapterChangeEventListener(
@@ -164,391 +147,214 @@ public class MangaReader extends Div {
     return addListener(ReaderChapterChangeEvent.class, listener);
   }
 
-  // skipcq: JAVA-W1019
   private class Sidebar extends Div {
+    public Sidebar(Chapter chapter) {
+      setClassName("sidebar");
+      getElement().addEventListener("click", e -> {}).addEventData("event.stopPropagation()");
 
-    public Sidebar(MangaService mangaService, Chapter chapter, Reader reader) {
-      addClassName("sidebar");
+      Div navButtons = new Div();
+      navButtons.addClassName("navigation-buttons");
 
-      Div navigationButtons = getNavigationButtons(chapter);
+      Button home = new Button(VaadinIcon.HOME.create(), e -> UI.getCurrent().navigate(RootView.class));
+      home.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+      home.setTooltipText("Home");
 
-      List<Chapter> chapters = mangaService.getChapterList(chapter.getMangaId());
+      Button back = new Button(VaadinIcon.BOOK.create(), e -> NavigationUtils.navigateToManga(chapter.getMangaId(), UI.getCurrent()));
+      back.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+      back.setTooltipText("Back to Manga");
 
-      if (chapters.isEmpty()) {
-        chapters = mangaService.fetchChapterList(chapter.getMangaId());
-      }
+      navButtons.add(home, back);
 
-      Div chapterSelect = new Div();
-      chapterSelect.setClassName("chapter-select");
-      chapterSelect.getStyle().set("--vaadin-combo-box-overlay-width", "20vw");
-
-      Button leftBtn = getChapterLeftBtn(reader, chapter);
-
-      Select<Chapter> chapterSelector = getChapterSelector(chapter, chapters);
-
-      Button rightBtn = getChapterRightBtn(reader, chapter);
-
-      chapterSelect.add(leftBtn, chapterSelector, rightBtn);
-
-      Button settingsBtn = new Button(VaadinIcon.COG.create());
+      Button settingsBtn = new Button(VaadinIcon.COG.create(), e -> UI.getCurrent().navigate(SettingsView.class));
       settingsBtn.setId("settings-btn");
-      settingsBtn.addClickListener(
-          e -> {
-            var dialog =
-                new ReaderSettingsDialog(settingsService.getSettings(), chapter.getMangaId());
-            dialog.open();
-          });
+      settingsBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+      settingsBtn.setTooltipText("Global Settings");
 
-      add(navigationButtons, chapterSelect, settingsBtn);
-    }
-
-    @NotNull
-    private Div getNavigationButtons(Chapter chapter) {
-      Div navigationButtons = new Div();
-      navigationButtons.addClassName("navigation-buttons");
-
-      Button home = getHomeButton();
-      Button backToManga = getBackToMangaButton(chapter);
-
-      navigationButtons.add(home, backToManga);
-      return navigationButtons;
-    }
-
-    @NotNull
-    private Button getBackToMangaButton(Chapter chapter) {
-      Button backToManga = new Button(VaadinIcon.BOOK.create());
-
-      int mangaId = chapter.getMangaId();
-      var ui = getUI().orElseGet(UI::getCurrent);
-
-      if (ui == null) {
-        log.error("UI could not be accessed.");
-        throw new IllegalStateException("UI could not be accessed.");
-      }
-
-      backToManga.addClickListener(e -> NavigationUtils.navigateToManga(mangaId, ui));
-      return backToManga;
-    }
-
-    @NotNull
-    private Button getChapterRightBtn(Reader reader, Chapter chapter) {
-      Button rightBtn = new Button(VaadinIcon.ANGLE_RIGHT.create());
-      rightBtn.setId("rightBtn");
-      rightBtn.addClickListener(
-          e -> {
-            int newChapterId;
-
-            if (reader.getReaderDirection() == ReaderDirection.RTL) {
-
-              if (chapterIndex == 0) {
-                return;
-              }
-
-              newChapterId = chapters.get(chapterIndex - 1).getId();
-            } else {
-
-              if (chapterIndex == chapters.size() - 1) {
-                return;
-              }
-
-              newChapterId = chapters.get(chapterIndex + 1).getId();
-            }
-
-            int mangaId = chapter.getMangaId();
-            var changeEvent =
-                new ReaderChapterChangeEvent(
-                    MangaReader.this, false, mangaId, newChapterId, chapters);
-            MangaReader.this.fireEvent(changeEvent);
-          });
-      return rightBtn;
-    }
-
-    /**
-     * Creates the chapter selection component for the sidebar.
-     *
-     * @param chapter The current chapter.
-     * @param chapters The list of chapters.
-     * @return The chapter selection component.
-     */
-    @NotNull
-    private Select<Chapter> getChapterSelector(Chapter chapter, List<Chapter> chapters) {
-      Select<Chapter> chapterSelector = new Select<>();
-      chapterSelector.setId("chapter-selector");
-      chapterSelector.setOverlayClassName("chapter-select-overlay");
-      chapterSelector.setRenderer(createRenderer());
-      chapterSelector.setItems(chapters);
-
-      // Doesn't show the chapter correctly if it's not the same instance as in the list.
-      Chapter thisChapter =
-          chapters.stream().filter(c -> c.getId() == chapter.getId()).findFirst().orElse(null);
-      chapterSelector.setValue(thisChapter);
-      chapterSelector.addValueChangeListener(
-          e -> {
-            if (!e.isFromClient()) {
-              return;
-            }
-
-            if (Objects.equals(e.getOldValue(), e.getValue())) {
-              return;
-            }
-
-            Chapter c = e.getValue();
-
-            if (c == null) {
-              return;
-            }
-
-            var mangaId = c.getMangaId();
-            var chapterId = c.getId();
-
-            var event =
-                new ReaderChapterChangeEvent(MangaReader.this, false, mangaId, chapterId, chapters);
-
-            MangaReader.this.fireEvent(event);
-          });
-      return chapterSelector;
-    }
-
-    @NotNull
-    private Button getChapterLeftBtn(Reader reader, Chapter chapter) {
-      Button leftBtn = new Button(VaadinIcon.ANGLE_LEFT.create());
-      leftBtn.setId("leftBtn");
-      leftBtn.addClickListener(
-          e -> {
-            int newChapterId;
-
-            int mangaId = chapter.getMangaId();
-            if (reader.getReaderDirection() == ReaderDirection.RTL) {
-
-              if (chapterIndex >= chapters.size() - 1) {
-                return;
-              }
-
-              newChapterId = chapters.get(chapterIndex + 1).getId();
-            } else {
-
-              if (chapterIndex == 0) {
-                return;
-              }
-              newChapterId = chapters.get(chapterIndex - 1).getId();
-            }
-
-            var changeEvent =
-                new ReaderChapterChangeEvent(
-                    MangaReader.this, false, mangaId, newChapterId, chapters);
-
-            MangaReader.this.fireEvent(changeEvent);
-          });
-      return leftBtn;
-    }
-
-    /**
-     * Creates a renderer for the chapter selector.
-     *
-     * @return The renderer for the chapter selector.
-     */
-    private ComponentRenderer<? extends Component, Chapter> createRenderer() {
-      return new ComponentRenderer<Component, Chapter>(
-          chapter -> {
-            var div = new Div();
-            div.setText(chapter.getName());
-            return div;
-          });
-    }
-
-    @NotNull
-    private static Button getHomeButton() {
-      Button home = new Button(VaadinIcon.HOME.create());
-      home.setId("homeBtn");
-      home.addClickListener(e -> UI.getCurrent().navigate(RootView.class));
-      return home;
+      add(navButtons, settingsBtn);
     }
   }
 
-  /**
-   * Controls class represents the controls used in a manga reader. It provides buttons and text
-   * fields for navigating between pages and chapters of a manga.
-   */
   private class Controls extends Div {
-
     private final int pageCount;
-    private final int mangaId;
-    private final int chapterIndex;
 
-    /**
-     * Represents a {@link Controls} object that provides navigation controls for a {@link
-     * MangaReader}.
-     *
-     * @param reader The {@link Reader} component on which the controls will work on.
-     * @param chapter The {@link Chapter} object representing the chapter being read.
-     * @param chapterIndex The index of the chapter being read.
-     */
     public Controls(Reader reader, Chapter chapter, int chapterIndex) {
-      addClassName("controls");
+      setClassName("controls");
+      getElement().addEventListener("click", e -> {}).addEventData("event.stopPropagation()");
+      this.pageCount = chapter.getPageCount() != -1 ? chapter.getPageCount() : mangaService.getChapter(chapter.getId()).getPageCount();
 
-      int tempPageCount = chapter.getPageCount();
+      // Left: Manga Info
+      Div mangaInfo = new Div();
+      mangaInfo.setClassName("manga-info");
+      Span title = new Span(chapter.getManga() != null ? chapter.getManga().getTitle() : "Manga");
+      title.setClassName("manga-title");
+      Span chapterName = new Span(chapter.getName().toUpperCase());
+      chapterName.setClassName("chapter-info");
+      mangaInfo.add(title, chapterName);
 
-      if (tempPageCount == -1) {
-        tempPageCount = mangaService.getChapter(chapter.getId()).getPageCount();
+      // Center-Left: Chapter Navigation
+      Div navGroup = new Div();
+      navGroup.setClassName("nav-group");
+      
+      Button leftBtn = new Button();
+      Button rightBtn = new Button();
+      leftBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+      rightBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+
+      if (reader.getReaderDirection() == ReaderDirection.RTL) {
+          // RTL: Left is Next Chapter, Right is Prev Chapter
+          leftBtn.setText("Next");
+          leftBtn.setIcon(VaadinIcon.ARROW_LEFT.create());
+          leftBtn.addClickListener(e -> nextChapter());
+
+          rightBtn.setText("Prev");
+          rightBtn.setIcon(VaadinIcon.ARROW_RIGHT.create());
+          rightBtn.setIconAfterText(true);
+          rightBtn.addClickListener(e -> prevChapter());
+      } else {
+          // LTR/Vertical: Left is Prev Chapter, Right is Next Chapter
+          leftBtn.setText("Prev");
+          leftBtn.setIcon(VaadinIcon.ARROW_LEFT.create());
+          leftBtn.addClickListener(e -> prevChapter());
+
+          rightBtn.setText("Next");
+          rightBtn.setIcon(VaadinIcon.ARROW_RIGHT.create());
+          rightBtn.setIconAfterText(true);
+          rightBtn.addClickListener(e -> nextChapter());
       }
+      
+      navGroup.add(leftBtn, rightBtn);
 
-      this.pageCount = tempPageCount;
-      this.mangaId = chapter.getMangaId();
-      this.chapterIndex = chapterIndex;
+      // Center: Page & Chapter Controls
+      Div pageControls = new Div();
+      pageControls.setClassName("page-controls");
 
-      Button left = getPrevButton(reader);
+      Div pageIndicator = new Div();
+      pageIndicator.setClassName("page-indicator");
+      
+      Button pageLeft = new Button(VaadinIcon.CHEVRON_LEFT.create());
+      Button pageRight = new Button(VaadinIcon.CHEVRON_RIGHT.create());
+      pageLeft.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+      pageRight.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
-      Div pageTrack = new Div();
-
-      TextField input = new TextField("", "1", "");
+      TextField input = new TextField();
+      input.setValue("1");
       input.setAllowedCharPattern("\\d");
-      input.addValueChangeListener(
-          e -> {
-            if (!e.isFromClient()) {
-              return;
-            }
-
-            if (e.getValue().isEmpty()) {
-              log.debug("Value is empty");
-              input.setValue(e.getOldValue());
-              return;
-            }
-
-            if (!e.getValue().matches("\\d+")) {
-              log.debug("Value is not a number");
-              input.setValue(e.getOldValue());
-              return;
-            }
-
-            int value = Integer.parseInt(e.getValue());
-
-            if (value == reader.getPageIndex()) {
-              log.debug("Value is the same as active index");
-              input.setValue(e.getOldValue());
-              return;
-            }
-
-            if (value > pageCount || value < 1) {
-              log.debug("Value is out of bounds");
-              input.setValue(e.getOldValue());
-              return;
-            }
-
-            reader.moveToPage(value - 1);
-            log.debug("Value changed to {}", value);
-          });
-
-      Text totalChapters = new Text("/ " + pageCount);
-
-      reader.addReaderPageIndexChangeListener(
-          e -> {
-            int activeIndex = e.getPageIndex() + 1;
-            input.setValue(String.valueOf(activeIndex));
-          });
-
-      pageTrack.add(input, totalChapters);
-
-      Button right = getNextButton(reader);
-
-      add(left, pageTrack, right);
-    }
-
-    /**
-     * Retrieves a button for navigating to the next page in the reader.
-     *
-     * @param reader The {@link Reader} component on which the button will perform actions.
-     * @return The {@link Button} object.
-     */
-    @NotNull
-    private Button getNextButton(Reader reader) {
-      Icon arrowRight = VaadinIcon.ARROW_RIGHT.create();
-      Button right = new Button(arrowRight);
-      right.addClickListener(
-          e -> {
-            var direction = reader.getReaderDirection();
-
-            if (direction == ReaderDirection.RTL) {
-              prevPage(reader);
-            } else {
-              nextPage(reader);
-            }
-          });
+      input.addValueChangeListener(e -> {
+        if (e.isFromClient() && !e.getValue().isEmpty()) {
+          int val = Integer.parseInt(e.getValue());
+          if (val >= 1 && val <= pageCount) reader.moveToPage(val - 1);
+          else input.setValue(e.getOldValue());
+        }
+      });
 
       if (reader.getReaderDirection() == ReaderDirection.RTL) {
-        right.addClickShortcut(Key.ARROW_RIGHT);
+          // RTL Page Logic: Left is Next Page (with boundary jump), Right is Prev Page
+          pageLeft.addClickListener(e -> nextPage(reader));
+          pageLeft.addClickShortcut(Key.ARROW_LEFT);
+          pageRight.addClickListener(e -> prevPage(reader));
+          pageRight.addClickShortcut(Key.ARROW_RIGHT);
       } else {
-        right.addClickShortcut(Key.ARROW_LEFT);
+          // LTR Page Logic: Left is Prev Page, Right is Next Page
+          pageLeft.addClickListener(e -> prevPage(reader));
+          pageLeft.addClickShortcut(Key.ARROW_LEFT);
+          pageRight.addClickListener(e -> nextPage(reader));
+          pageRight.addClickShortcut(Key.ARROW_RIGHT);
       }
 
-      right.setIconAfterText(true);
-      return right;
-    }
+      pageIndicator.add(pageLeft, input, new Span("/ " + pageCount), pageRight);
 
-    /**
-     * Retrieves a button for navigating to the previous page in the reader.
-     *
-     * @param reader The {@link Reader} component on which the button will perform actions.
-     * @return The {@link Button} object.
-     */
-    @NotNull
-    private Button getPrevButton(Reader reader) {
-      Icon arrowLeft = VaadinIcon.ARROW_LEFT.create();
-      Button left = new Button(arrowLeft);
-      left.addClickListener(
-          e -> {
-            if (reader.getReaderDirection() == ReaderDirection.RTL) {
-              nextPage(reader);
-            } else {
-              prevPage(reader);
-            }
-          });
-
-      if (reader.getReaderDirection() == ReaderDirection.RTL) {
-        left.addClickShortcut(Key.ARROW_LEFT);
-      } else {
-        left.addClickShortcut(Key.ARROW_RIGHT);
+      List<Chapter> chapterList = mangaService.getChapterList(chapter.getMangaId());
+      if (chapterList.isEmpty()) {
+        chapterList = mangaService.fetchChapterList(chapter.getMangaId());
       }
-      return left;
+      Select<Chapter> selector = new Select<>();
+      selector.setItems(chapterList);
+      selector.setValue(chapterList.stream().filter(c -> c.getId() == chapter.getId()).findFirst().orElse(null));
+      selector.setRenderer(new ComponentRenderer<>(c -> {
+        Span span = new Span(c.getName());
+        span.getStyle().set("font-family", "Space Grotesk");
+        return span;
+      }));
+      selector.addValueChangeListener(e -> {
+        if (e.isFromClient() && e.getValue() != null && !Objects.equals(e.getOldValue(), e.getValue())) {
+          MangaReader.this.fireEvent(new ReaderChapterChangeEvent(MangaReader.this, false, e.getValue().getMangaId(), e.getValue().getId(), chapters));
+        }
+      });
+
+      pageControls.add(pageIndicator, selector);
+
+      // Right: Actions
+      Div actionGroup = new Div();
+      actionGroup.setClassName("action-group");
+      Button settingsBtn = new Button(VaadinIcon.COG.create(), e -> new ReaderSettingsDialog(settingsService.getSettings(), chapter.getMangaId()).open());
+      settingsBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+      settingsBtn.setTooltipText("Reader Settings");
+      
+      Button fullscreenBtn = new Button(VaadinIcon.EXPAND_SQUARE.create());
+      fullscreenBtn.addClickListener(e -> {
+          UI.getCurrent().getPage().executeJs("if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); } else { if (document.exitFullscreen) { document.exitFullscreen(); } }");
+      });
+      fullscreenBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+      fullscreenBtn.setTooltipText("Toggle Fullscreen");
+      fullscreenBtn.getElement().executeJs(
+          "const btn = $0; " +
+          "const icon = btn.querySelector('vaadin-icon'); " +
+          "const update = () => { " +
+          "  if (document.fullscreenElement) { " +
+          "    icon.setAttribute('icon', 'vaadin:compress-square'); " +
+          "    btn.setAttribute('title', 'Exit Fullscreen'); " +
+          "  } else { " +
+          "    icon.setAttribute('icon', 'vaadin:expand-square'); " +
+          "    btn.setAttribute('title', 'Toggle Fullscreen'); " +
+          "  } " +
+          "}; " +
+          "document.addEventListener('fullscreenchange', update); " +
+          "update();", fullscreenBtn.getElement());
+      
+      actionGroup.add(settingsBtn, fullscreenBtn);
+
+      add(mangaInfo, navGroup, pageControls, actionGroup);
+
+      // Initialize Progress
+      int initialPage = reader.getPageIndex() + 1;
+      double initialProgress = ((double) initialPage / pageCount) * 100;
+      getElement().getStyle().set("--reader-progress", initialProgress + "%");
+
+      // Progress Update
+      reader.addReaderPageIndexChangeListener(e -> {
+        input.setValue(String.valueOf(e.getPageIndex() + 1));
+        double progress = ((double) (e.getPageIndex() + 1) / pageCount) * 100;
+        getElement().getStyle().set("--reader-progress", progress + "%");
+      });
     }
 
     private void nextPage(Reader reader) {
-
-      if (reader.getPageIndex() != pageCount - 1) {
+      if (reader.getPageIndex() < pageCount - 1) {
         reader.moveToNextPage();
-        return;
+      } else {
+        nextChapter();
       }
-
-      if (chapterIndex >= chapters.size() - 1) {
-        return;
-      }
-
-      int chapterIndex = this.chapterIndex + 1;
-      Chapter nextChapter = chapters.get(chapterIndex);
-
-      int nextChapterId = nextChapter.getId();
-      var event =
-          new ReaderChapterChangeEvent(MangaReader.this, false, mangaId, nextChapterId, chapters);
-      MangaReader.this.fireEvent(event);
     }
 
     private void prevPage(Reader reader) {
-
-      if (reader.getPageIndex() != 0) {
+      if (reader.getPageIndex() > 0) {
         reader.moveToPreviousPage();
-        return;
+      } else {
+        prevChapter();
       }
+    }
 
-      if (this.chapterIndex <= 0) {
-        return;
+    private void nextChapter() {
+      if (chapterIndex < chapters.size() - 1) {
+        MangaReader.this.fireEvent(new ReaderChapterChangeEvent(MangaReader.this, false, chapters.get(chapterIndex + 1).getMangaId(), chapters.get(chapterIndex + 1).getId(), chapters));
       }
+    }
 
-      var prevChapter = chapters.get(chapterIndex - 1);
-
-      int prevChapterId = prevChapter.getId();
-
-      var event =
-          new ReaderChapterChangeEvent(MangaReader.this, false, mangaId, prevChapterId, chapters);
-      MangaReader.this.fireEvent(event);
+    private void prevChapter() {
+      if (chapterIndex > 0) {
+        MangaReader.this.fireEvent(new ReaderChapterChangeEvent(MangaReader.this, false, chapters.get(chapterIndex - 1).getMangaId(), chapters.get(chapterIndex - 1).getId(), chapters));
+      }
     }
   }
 }
+

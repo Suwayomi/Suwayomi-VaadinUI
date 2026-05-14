@@ -1,0 +1,14 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+:host {
+    border-bottom: 1px solid rgba(var(--obsidian-accent-rgb), 0.08);
+    background: transparent;
+}
+
+[part="tabs"] {
+    gap: 0.5rem;
+}

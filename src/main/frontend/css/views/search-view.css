@@ -39,13 +39,58 @@
   background-color: var(--miku-unselected-color-50)
 }
 
+.search-content .search-inputs-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 2rem;
+  margin: 2rem 0 3rem;
+  width: 100%;
+  padding: 0 2rem;
+}
+
 .search-content .search-field {
-  margin-bottom: 1rem;
+  width: 550px;
+  max-width: 60vw;
+  margin: 0;
+  --vaadin-input-field-border-radius: 12px;
 }
 
 .search-content .search-lang-filter {
-  max-width: 10vw;
-  margin-bottom: 1rem;
+  width: 220px;
+  margin: 0;
+  --vaadin-input-field-border-radius: 12px;
+}
+
+/* Custom Search Spinner */
+.loading-div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.5rem;
+}
+
+.search-pulse {
+    width: 20px;
+    height: 20px;
+    background: var(--obsidian-accent);
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 0 0 10px var(--obsidian-accent);
+}
+
+.search-pulse::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border: 2px solid var(--obsidian-accent);
+    border-radius: 50%;
+    animation: pulse-ring 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-ring {
+    0% { transform: scale(0.5); opacity: 1; }
+    100% { transform: scale(1.8); opacity: 0; }
 }
 
 .search-result-title .search-result-icon {

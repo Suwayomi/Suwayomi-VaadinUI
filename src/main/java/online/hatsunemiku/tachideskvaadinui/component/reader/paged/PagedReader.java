@@ -45,6 +45,8 @@ public class PagedReader extends Reader {
     var config = SwiperConfig.builder().zoom(true).centeredSlides(true).build();
 
     swiper = new Swiper(config);
+    swiper.getElement().getStyle().set("width", "100%");
+    swiper.getElement().getStyle().set("height", "100%");
 
     UI ui = UI.getCurrent();
     var settingsChangeListener =
@@ -86,6 +88,14 @@ public class PagedReader extends Reader {
                                   console.info("Removing zoom listener.");
                                   removeEventListener('wheel', zoomListener);
                                   return;
+                                 }
+                                 
+                                 var path = e.composedPath();
+                                 var isUI = path.some(el => el.classList && (el.classList.contains('sidebar') || el.classList.contains('controls'))) ||
+                                            path.some(el => el.tagName && el.tagName.includes('OVERLAY'));
+                                 
+                                 if (isUI) {
+                                   return;
                                  }
 
                                   var zoom = $0.swiper.zoom.scale;
@@ -131,14 +141,31 @@ public class PagedReader extends Reader {
       String url = baseUrl + urls.get(i);
 
       Image image = new Image(url, "Page %d".formatted(i + 1));
+      image.addClassName("manga-page");
+      image.getStyle().set("opacity", "0");
 
       if (i > 1) {
         image.getElement().setAttribute("loading", "lazy");
       }
 
-      image.addClassName("manga-page");
+      com.vaadin.flow.component.html.Div imgContainer = new com.vaadin.flow.component.html.Div();
+      imgContainer.addClassName("image-container");
 
-      swiper.addZoomable(true, image);
+      com.vaadin.flow.component.html.Div spinner = new com.vaadin.flow.component.html.Div();
+      spinner.addClassName("obsidian-spinner");
+      spinner.add(new com.vaadin.flow.component.html.Div(), new com.vaadin.flow.component.html.Div(), new com.vaadin.flow.component.html.Div());
+
+      imgContainer.add(spinner, image);
+
+      // Fade in on load and hide spinner
+      image.getElement().executeJs(
+          "this.onload = () => {" +
+          "  this.style.opacity = '1';" +
+          "  this.parentElement.querySelector('.obsidian-spinner').style.display = 'none';" +
+          "};"
+      );
+
+      swiper.addZoomable(true, imgContainer);
     }
   }
 

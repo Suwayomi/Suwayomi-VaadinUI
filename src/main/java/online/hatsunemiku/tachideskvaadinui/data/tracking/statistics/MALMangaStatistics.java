@@ -6,16 +6,16 @@
 
 package online.hatsunemiku.tachideskvaadinui.data.tracking.statistics;
 
-import dev.katsute.mal4j.manga.property.MangaStatus;
 import java.util.Objects;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDate;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.mal.MALMangaStatus;
 
 /**
  * Represents the statistics for a manga on MyAnimeList. E.g. the score or the number of chapters.
  */
 public class MALMangaStatistics implements MangaStatistics {
 
-  private final MangaStatus status;
+  private final MALMangaStatus status;
   private final int progress;
   private final int score;
   private final MediaDate startedAt;
@@ -31,7 +31,7 @@ public class MALMangaStatistics implements MangaStatistics {
    * @param completedAt The date the user completed the manga.
    */
   public MALMangaStatistics(
-      MangaStatus status, int progress, int score, MediaDate startedAt, MediaDate completedAt) {
+      MALMangaStatus status, int progress, int score, MediaDate startedAt, MediaDate completedAt) {
     this.status = status;
     this.progress = progress;
     this.score = score;
@@ -42,9 +42,9 @@ public class MALMangaStatistics implements MangaStatistics {
   /**
    * The status of the manga on MyAnimeList.
    *
-   * @return The {@link MangaStatus status} of the manga.
+   * @return The {@link MALMangaStatus status} of the manga.
    */
-  public MangaStatus status() {
+  public MALMangaStatus status() {
     return status;
   }
 

@@ -6,20 +6,21 @@
 
 package online.hatsunemiku.tachideskvaadinui.services.notification;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.webpush.WebPush;
 import com.vaadin.flow.server.webpush.WebPushMessage;
 import com.vaadin.flow.server.webpush.WebPushSubscription;
 import jakarta.annotation.PreDestroy;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.json.JsonMapper;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Service for sending web push notifications via the WebPush API.
@@ -31,7 +32,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class WebPushService {
 
-  private final ObjectMapper mapper;
+  private final JsonMapper mapper;
   private final Path subscriptionFile;
 
   @Value("${vaadin.webpush.publicKey}")
@@ -49,10 +50,10 @@ public class WebPushService {
   /**
    * Creates a new {@link WebPushService} instance.
    *
-   * @param mapper The {@link ObjectMapper} used to serialize the subscription
+   * @param mapper The {@link JsonMapper} used to serialize the subscription
    * @param env The {@link Environment} used to get the project directory
    */
-  public WebPushService(ObjectMapper mapper, Environment env) {
+  public WebPushService(JsonMapper mapper, Environment env) {
     this.mapper = mapper;
 
     Path projectDirPath;

@@ -1,0 +1,315 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+#internal-error-view {
+  background: #101417;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Space Grotesk', sans-serif;
+  color: #D2EDF4;
+}
+
+/* --- Top Bar --- */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 2rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(162, 234, 231, 0.05);
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+}
+
+.nav-link {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #889392;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.nav-link.active {
+  color: #a2eae7; /* Stitch Primary */
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
+  padding: 0.4rem 1rem;
+  width: 300px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+}
+
+.search-input {
+  background: transparent;
+  border: none !important;
+  color: #D2EDF4;
+  font-size: 0.9rem;
+  width: 100%;
+  outline: none;
+}
+
+.search-input::part(input-field) {
+    background: transparent;
+    box-shadow: none;
+}
+
+.search-input vaadin-icon {
+    color: #889392;
+    margin-right: 0.5rem;
+}
+
+.search-input::placeholder {
+  color: #5d6666;
+}
+
+/* --- Search Dropdown --- */
+.search-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    width: 320px;
+    background: rgba(16, 20, 23, 0.95);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(162, 234, 231, 0.2);
+    border-radius: 12px;
+    z-index: 1000;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+}
+
+.dropdown-header {
+    padding: 0.75rem 1rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #a2eae7; /* Stitch Primary */
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid rgba(162, 234, 231, 0.1);
+}
+
+.dropdown-item {
+    display: flex;
+    padding: 0.75rem 1rem;
+    gap: 1rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.dropdown-item:hover {
+    background: rgba(162, 234, 231, 0.1);
+}
+
+.dropdown-item-thumb {
+    width: 40px;
+    height: 56px;
+    min-width: 40px; /* Override global img min-width: 100% */
+    min-height: 56px; /* Override global img min-height: 100% */
+    border-radius: 4px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.dropdown-item-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.dropdown-item-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #F0F8FF;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dropdown-item-meta {
+    font-size: 0.75rem;
+    color: #889392;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dropdown-no-results {
+    padding: 1.5rem;
+    text-align: center;
+    color: #889392;
+    font-size: 0.85rem;
+}
+
+.dropdown-footer {
+    padding: 0.75rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #ffb0cb; /* Stitch Secondary */
+    text-align: center;
+    text-decoration: none;
+    background: rgba(225, 40, 133, 0.05);
+    transition: background 0.2s ease;
+}
+
+.dropdown-footer:hover {
+    background: rgba(225, 40, 133, 0.15);
+    color: #ffb0cb;
+}
+
+/* --- Main Content --- */
+.error-content {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  position: relative;
+}
+
+.error-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(162, 234, 231, 0.08);
+  border-radius: 12px;
+  padding: 4rem 3rem;
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+}
+
+.status-icon-wrapper {
+  background: rgba(162, 234, 231, 0.05);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+  border: 1px solid rgba(162, 234, 231, 0.1);
+}
+
+.status-icon {
+  font-size: 2.5rem;
+  color: #a2eae7;
+}
+
+.error-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #F0F8FF;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.error-badge {
+  background: rgba(225, 40, 133, 0.1); /* Stitch Secondary: Hot Pink */
+  color: #ffb0cb;
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  border: 1px solid rgba(225, 40, 133, 0.2);
+}
+
+.error-description {
+  font-family: 'Manrope', sans-serif;
+  color: #889392;
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 450px;
+  margin-bottom: 1rem;
+}
+
+/* --- Buttons --- */
+.button-group {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.stitch-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  color: #a2eae7;
+  border: 1px solid rgba(162, 234, 231, 0.5);
+}
+
+.btn-primary:hover {
+  background: rgba(162, 234, 231, 0.15);
+  border-color: #a2eae7;
+  box-shadow: 0 0 20px rgba(162, 234, 231, 0.1);
+}
+
+.btn-secondary {
+  color: #889392;
+  border: 1px solid rgba(136, 147, 146, 0.3);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: #889392;
+  color: #D2EDF4;
+}
+
+/* --- Footer --- */
+.error-footer-info {
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: rgba(136, 147, 146, 0.3);
+  letter-spacing: 0.3em;
+}
+
+.glitch-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.05) 50%);
+  background-size: 100% 4px;
+  opacity: 0.3;
+}

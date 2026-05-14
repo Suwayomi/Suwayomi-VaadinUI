@@ -6,13 +6,7 @@
 
 package online.hatsunemiku.tachideskvaadinui;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.OkHttpClient;
 import online.hatsunemiku.tachideskvaadinui.utils.BrowserUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -20,6 +14,9 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+
+import java.io.IOException;
+import java.net.ServerSocket;
 
 /**
  * The main class of the application. This class is responsible for starting the Spring Boot

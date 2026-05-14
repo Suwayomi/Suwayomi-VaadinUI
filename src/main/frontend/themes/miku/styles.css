@@ -94,3 +94,33 @@ html {
     background-position: 0 50%;
   }
 }
+
+/* Global scrollbar styling for the dark neon theme */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(162, 234, 231, 0.85) rgba(13, 17, 21, 0.7);
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(13, 17, 21, 0.72);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #7fd8d4, #5fc9d1);
+  border: 2px solid rgba(13, 17, 21, 0.85);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #9ceeed, #76dbe1);
+}
+
+*::-webkit-scrollbar-corner {
+  background: rgba(13, 17, 21, 0.72);
+}

@@ -4,12 +4,37 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+@import url("./extensions.css");
+
 .sources-content {
   max-height: 80vh;
 }
 
-.sources-filters {
-  display: flex;
-  flex-direction: row;
-  min-width: 100%;
+.source-lang-filter-discovery {
+  width: 285px; /* Matches .manager-search width in extensions.css */
+}
+
+.source-lang-filter-discovery::part(input-field) {
+  border-radius: 999px;
+  background: rgba(140, 166, 179, 0.14);
+  border: 1px solid rgba(140, 166, 179, 0.2);
+  min-height: 2.05rem;
+  box-shadow: none;
+}
+
+.source-lang-filter-discovery::part(value) {
+  color: #d4ebf7;
+  font-size: 0.88rem;
+}
+
+.source-lang-filter-discovery vaadin-icon {
+  color: #97b0be;
+}
+
+@media (max-width: 760px) {
+    .manager-search, 
+    .source-lang-filter-discovery {
+        width: 100% !important;
+        max-width: 100%;
+    }
 }

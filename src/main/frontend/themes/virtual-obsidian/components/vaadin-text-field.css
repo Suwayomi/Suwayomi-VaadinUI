@@ -1,0 +1,27 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+:host {
+    --vaadin-input-field-background: rgba(255, 255, 255, 0.06);
+    --vaadin-input-field-border-color: rgba(255, 255, 255, 0.08);
+    --vaadin-input-field-value-color: var(--obsidian-text);
+    --vaadin-input-field-placeholder-color: var(--obsidian-text-dim);
+}
+
+[part="input-field"] {
+    border: 1px solid rgba(var(--obsidian-accent-rgb), 0.16);
+    border-radius: 0.5rem;
+}
+
+[part="label"] {
+    color: var(--obsidian-accent);
+    font-weight: 600;
+}
+
+:host([focused]) [part="label"] {
+    color: var(--obsidian-accent);
+    text-shadow: 0 0 8px rgba(var(--obsidian-accent-rgb), 0.4);
+}

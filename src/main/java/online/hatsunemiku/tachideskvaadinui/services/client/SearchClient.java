@@ -1,18 +1,14 @@
 package online.hatsunemiku.tachideskvaadinui.services.client;
 
 import com.apollographql.apollo.api.ApolloResponse;
-import com.apollographql.apollo.exception.ApolloException;
-import com.apollographql.apollo.runtime.java.ApolloCallback;
-import com.apollographql.apollo.runtime.java.ApolloClient;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.search.SourceSearchResult;
 import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.SearchSourceMutation;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Component
 public class SearchClient {
@@ -27,12 +23,7 @@ public class SearchClient {
     var apolloClient = webClientService.getApolloClient();
 
     CompletableFuture<ApolloResponse<SearchSourceMutation.Data>> future = new CompletableFuture<>();
-    apolloClient.mutation(new SearchSourceMutation(sourceId, page, searchQuery)).enqueue(new ApolloCallback<SearchSourceMutation.Data>() {
-      @Override
-      public void onResponse(@NotNull ApolloResponse<SearchSourceMutation.Data> response) {
-        future.complete(response);
-      }
-    });
+    apolloClient.mutation(new SearchSourceMutation(sourceId, page, searchQuery)).enqueue(future::complete);
 
     try {
       var response = future.join();

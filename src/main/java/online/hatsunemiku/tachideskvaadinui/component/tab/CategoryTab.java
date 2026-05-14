@@ -30,10 +30,12 @@ import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 @CssImport("./css/components/tab/category-tab.css")
 public class CategoryTab extends Tab implements DropTarget<Tab> {
 
+  private final Category category;
   @Setter private Div grid;
 
   public CategoryTab(Category category, MangaService mangaService) {
     super(category.getName());
+    this.category = category;
 
     addClassName("category-tab");
 

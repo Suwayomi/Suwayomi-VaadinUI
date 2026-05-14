@@ -6,20 +6,25 @@
 
 package online.hatsunemiku.tachideskvaadinui.view;
 
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.TabSheetVariant;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import online.hatsunemiku.tachideskvaadinui.component.card.DraggableMangaCard;
@@ -41,6 +46,9 @@ import org.jetbrains.annotations.NotNull;
 public class RootView extends StandardLayout implements BeforeEnterObserver {
 
   private TabSheet tabs;
+  private Span activeCategoryLabel;
+  private Span seriesCountLabel;
+  private final Map<Category, Integer> categoryMangaCounts = new HashMap<>();
   private final LibUpdateService libUpdateService;
   private final MangaService mangaService;
   private final CategoryService categoryService;
@@ -111,6 +119,8 @@ public class RootView extends StandardLayout implements BeforeEnterObserver {
       return new Div();
     }
 
+    categoryMangaCounts.put(c, manga.size());
+
     Div grid = new Div();
     grid.addClassName("library-grid");
 
@@ -128,6 +138,9 @@ public class RootView extends StandardLayout implements BeforeEnterObserver {
   @Override
   public void beforeEnter(BeforeEnterEvent event) {
 
+    fullScreenNoHide(); // Remove default StandardLayout padding/margins to let the grid expand
+    addClassName("library-screen");
+
     List<Category> categories;
 
     try {
@@ -138,14 +151,58 @@ public class RootView extends StandardLayout implements BeforeEnterObserver {
       return;
     }
 
+    activeCategoryLabel = new Span();
+    activeCategoryLabel.setClassName("active-category-label");
+    seriesCountLabel = new Span();
+    seriesCountLabel.setClassName("series-count-label");
+
     tabs = new TabSheet();
     tabs.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
+    tabs.addClassName("library-tabsheet");
+    tabs.setSizeFull();
     addCategoryTabs(categories, settingsService.getSettings());
 
-    Div buttons = getTabSheetButtons();
-    tabs.setSuffixComponent(buttons);
+    tabs.addSelectedChangeListener(
+        e -> {
+          Tab selectedTab = e.getSelectedTab();
+          if (selectedTab instanceof CategoryTab categoryTab) {
+            updateCategoryHeader(categoryTab.getCategory());
+          }
+        });
 
-    setContent(tabs);
+    // Initial update for the first tab
+    if (!categories.isEmpty()) {
+      updateCategoryHeader(categories.getFirst());
+    }
+
+    Div buttons = getTabSheetButtons();
+    buttons.addClassName("library-action-buttons");
+
+    Div categoryInfo = new Div(activeCategoryLabel, seriesCountLabel);
+    categoryInfo.setClassName("library-category-info");
+
+    HorizontalLayout header = new HorizontalLayout(categoryInfo, buttons);
+    header.setClassName("library-header");
+    header.setWidthFull();
+    header.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+    header.setAlignItems(FlexComponent.Alignment.CENTER);
+
+    Div container = new Div(header, tabs);
+    container.setClassName("library-view-container");
+    container.setSizeFull(); // Ensure container takes up full available height/width
+    container.getStyle().set("display", "flex");
+    container.getStyle().set("flex-direction", "column");
+    container.getStyle().set("flex", "1 1 auto");
+    container.getStyle().set("min-height", "0");
+
+    setContent(container);
+  }
+
+
+  private void updateCategoryHeader(Category category) {
+    activeCategoryLabel.setText(category.getName());
+    Integer count = categoryMangaCounts.getOrDefault(category, 0);
+    seriesCountLabel.setText(count + " SERIES");
   }
 
   @NotNull
@@ -153,7 +210,8 @@ public class RootView extends StandardLayout implements BeforeEnterObserver {
     Div buttons = new Div();
     buttons.setClassName("library-buttons");
 
-    Button createButton = new Button(VaadinIcon.PLUS.create());
+    Button createButton = new Button("Add Category", VaadinIcon.PLUS.create());
+    createButton.addClassName("add-category-button");
     createButton.addClickListener(
         e -> {
           CategoryDialog dialog = new CategoryDialog(categoryService);
@@ -174,12 +232,14 @@ public class RootView extends StandardLayout implements BeforeEnterObserver {
                 Settings s = settingsService.getSettings();
 
                 addCategoryTab(s, c);
+                updateCategoryHeader(c);
               });
 
           dialog.open();
         });
 
-    Button refreshButton = new Button(VaadinIcon.REFRESH.create());
+    Button refreshButton = new Button("Refresh", VaadinIcon.REFRESH.create());
+    refreshButton.addClassName("refresh-library-button");
     refreshButton.addClickListener(
         e -> {
           UI ui = UI.getCurrent();

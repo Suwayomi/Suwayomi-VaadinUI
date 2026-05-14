@@ -9,23 +9,24 @@ package online.hatsunemiku.tachideskvaadinui.api;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vaadin.flow.server.webpush.WebPushSubscription;
 import lombok.extern.slf4j.Slf4j;
-import nl.martijndwars.webpush.Subscription;
 import online.hatsunemiku.tachideskvaadinui.services.notification.WebPushService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  * API for updating the web push subscription of the user.
  *
- * @version 1.12.0
+ * @version 1.15.0
  * @since 1.12.0
  */
 @Slf4j
-@RestController("/api/subscription")
+@RestController
+@RequestMapping("/api/subscription")
 public class SubscriptionAPI {
 
-  private WebPushService webPushService;
+  private final WebPushService webPushService;
 
   /**
    * Creates a new {@link SubscriptionAPI} instance.
@@ -57,9 +58,9 @@ public class SubscriptionAPI {
    *
    * @param old The old subscription
    * @param _new The new subscription
-   * @version 1.12.0
+   * @version 1.15.0
    * @since 1.12.0
    */
   public record SubscriptionUpdateRequest(
-      @JsonProperty("old") Subscription old, @JsonProperty("new") WebPushSubscription _new) {}
+      @JsonProperty("old") WebPushSubscription old, @JsonProperty("new") WebPushSubscription _new) {}
 }

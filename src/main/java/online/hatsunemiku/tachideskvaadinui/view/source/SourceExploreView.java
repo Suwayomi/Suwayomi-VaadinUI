@@ -6,14 +6,13 @@
 
 package online.hatsunemiku.tachideskvaadinui.view.source;
 
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.BeforeLeaveEvent;
-import com.vaadin.flow.router.BeforeLeaveObserver;
 import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.Route;
 import online.hatsunemiku.tachideskvaadinui.component.scroller.source.ExploreType;
@@ -23,18 +22,20 @@ import online.hatsunemiku.tachideskvaadinui.services.SourceService;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 
 @Route("source/explore/:id(\\d+)")
-@CssImport("./css/views/source-explore.css")
-public class SourceExploreView extends StandardLayout
-    implements BeforeEnterObserver, BeforeLeaveObserver {
+public class SourceExploreView extends StandardLayout implements BeforeEnterObserver {
 
   private final SourceService sourceService;
   private SourceExploreScroller scroller;
+  private Div scrollerHost;
+  private H2 heading;
+  private Span subtitle;
   private final SettingsService settingsService;
 
   public SourceExploreView(SourceService sourceService, SettingsService settingsService) {
     super("Source Explore");
     this.sourceService = sourceService;
     this.settingsService = settingsService;
+    addClassNames("source-explore-screen", "library-screen");
   }
 
   @Override
@@ -58,22 +59,31 @@ public class SourceExploreView extends StandardLayout
     }
 
     fullScreenNoHide();
-    UI.getCurrent()
-        .access(
-            () -> UI.getCurrent().getPage().executeJs("document.body.style.overflow = 'hidden';"));
-
     setContent(content(sourceId));
   }
 
   private Div content(String sourceId) {
     Div content = new Div();
     content.addClassName("source-explore-container");
+    content.setSizeFull();
 
-    Div buttons = new Div();
-    buttons.addClassName("source-explore-buttons");
+    Div hero = new Div();
+    hero.addClassName("source-explore-hero");
+
+    Div heroLeft = new Div();
+    heroLeft.addClassName("source-explore-hero-left");
+    heading = new H2("Popular Updates");
+    subtitle = new Span("The latest releases and most read titles in your network.");
+    subtitle.addClassName("source-explore-subtitle");
+    heroLeft.add(heading, subtitle);
+
+    Div modeSwitcher = new Div();
+    modeSwitcher.addClassName("source-explore-buttons");
 
     Button popular = new Button("Popular");
     Button latest = new Button("Latest");
+    popular.addClassName("source-explore-mode");
+    latest.addClassName("source-explore-mode");
 
     latest.addClickListener(
         e -> {
@@ -81,10 +91,9 @@ public class SourceExploreView extends StandardLayout
             return;
           }
 
-          switchOutScroller(content, ExploreType.LATEST, sourceId);
-
-          disableButton(latest);
-          enableButton(popular);
+          switchOutScroller(ExploreType.LATEST, sourceId);
+          setActiveMode(popular, latest);
+          setHeader(ExploreType.LATEST);
         });
 
     popular.addClickListener(
@@ -93,42 +102,51 @@ public class SourceExploreView extends StandardLayout
             return;
           }
 
-          switchOutScroller(content, ExploreType.POPULAR, sourceId);
-
-          disableButton(popular);
-          enableButton(latest);
+          switchOutScroller(ExploreType.POPULAR, sourceId);
+          setActiveMode(latest, popular);
+          setHeader(ExploreType.POPULAR);
         });
 
-    buttons.add(popular, latest);
+    modeSwitcher.add(popular, latest);
+    hero.add(heroLeft, modeSwitcher);
+
+    scrollerHost = new Div();
+    scrollerHost.addClassName("source-explore-scroller-host");
+    scrollerHost.setSizeFull();
 
     scroller =
         new SourceExploreScroller(sourceService, ExploreType.POPULAR, sourceId, settingsService);
+    scroller.setSizeFull();
 
-    content.add(buttons, scroller);
+    scrollerHost.add(scroller);
+    content.add(hero, scrollerHost);
 
-    disableButton(popular);
+    setHeader(ExploreType.POPULAR);
+    setActiveMode(latest, popular);
 
     return content;
   }
 
-  private void disableButton(Button button) {
-    button.setEnabled(false);
+  private void setActiveMode(Button inactiveButton, Button activeButton) {
+    inactiveButton.removeClassName("active");
+    activeButton.addClassName("active");
   }
 
-  private void enableButton(Button button) {
-    button.setEnabled(true);
+  private void setHeader(ExploreType type) {
+    if (type == ExploreType.LATEST) {
+      heading.setText("Latest Updates");
+      subtitle.setText("Fresh chapter drops and recently updated titles.");
+      return;
+    }
+
+    heading.setText("Popular Updates");
+    subtitle.setText("The latest releases and most read titles in your network.");
   }
 
-  private void switchOutScroller(Div content, ExploreType type, String sourceId) {
-    content.remove(content.getComponentAt(1));
+  private void switchOutScroller(ExploreType type, String sourceId) {
+    scrollerHost.removeAll();
     scroller = new SourceExploreScroller(sourceService, type, sourceId, settingsService);
-    content.add(scroller);
-  }
-
-  @Override
-  public void beforeLeave(BeforeLeaveEvent event) {
-    UI.getCurrent()
-        .access(
-            () -> UI.getCurrent().getPage().executeJs("document.body.style.overflow = 'auto';"));
+    scroller.setSizeFull();
+    scrollerHost.add(scroller);
   }
 }

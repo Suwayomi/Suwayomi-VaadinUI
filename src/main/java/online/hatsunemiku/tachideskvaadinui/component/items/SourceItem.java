@@ -10,34 +10,44 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Span;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Source;
 
 @CssImport("./css/components/items/source-item.css")
-public class SourceItem extends BlurryItem {
+public class SourceItem extends Div {
 
   public SourceItem(Source source, Settings settings) {
-    Div container = new Div();
-    container.setClassName("source-item");
+    setClassName("extension-card"); // Use the modern card style directly on the component
 
-    Div title = new Div();
-    title.setText(source.getDisplayName());
-    title.setClassName("source-item-title");
+    Div header = new Div();
+    header.setClassName("card-header");
 
-    Div icon = new Div();
-    icon.setClassName("source-item-icon");
+    Image icon = new Image();
+    icon.setClassName("card-icon");
+    String baseUrl = settings == null ? "" : settings.getUrl();
+    String iconUrl = source.getIconUrl() == null ? "" : source.getIconUrl();
+    icon.setSrc(baseUrl + iconUrl);
+    icon.setAlt(source.getDisplayName());
 
-    Image iconImg = new Image();
-    iconImg.setClassName("source-item-icon-img");
-    iconImg.setSrc(settings.getUrl() + source.getIconUrl());
+    Div titleWrap = new Div();
+    titleWrap.setClassName("card-title-wrap");
+    Span name = new Span(source.getDisplayName());
+    name.setClassName("card-name");
+    
+    Span meta = new Span("Source ID: " + source.getId());
+    meta.setClassName("card-meta");
+    titleWrap.add(name, meta);
 
-    icon.add(iconImg);
+    Span langBadge = new Span((source.getLang() == null ? "--" : source.getLang()).toUpperCase());
+    langBadge.setClassName("lang-badge");
+    header.add(icon, titleWrap, langBadge);
 
-    Div buttons = new Div();
-    buttons.addClassName("source-item-buttons");
-
+    Div footer = new Div();
+    footer.setClassName("card-footer");
+    
     Button exploreBtn = new Button("Explore");
-    exploreBtn.addClassName("source-item-explore-btn");
+    exploreBtn.setClassName("card-primary-btn");
     exploreBtn.addClickListener(
         e -> {
           var possibleUi = getUI();
@@ -47,14 +57,7 @@ public class SourceItem extends BlurryItem {
           }
         });
 
-    buttons.add(exploreBtn);
-
-    Div infos = new Div();
-    infos.add(icon, title);
-    infos.setClassName("source-item-infos");
-
-    container.add(infos, buttons);
-
-    add(container);
+    footer.add(exploreBtn);
+    add(header, footer);
   }
 }

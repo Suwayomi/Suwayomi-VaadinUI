@@ -5,169 +5,293 @@
  */
 
 .manga-reader {
-    display: grid;
-    grid-template-columns: 15vw 85vw;
-    grid-template-rows: 92vh 8vh;
-    min-height: 100vh;
-    min-width: 100vw;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 100vw;
+    max-height: 100vh;
+    overflow: hidden;
+    background: #0b0f11;
+    color: var(--obsidian-text);
+    font-family: 'Space Grotesk', sans-serif;
+    display: flex;
 }
 
-.sidebar {
-    grid-column: 1 / 2;
-    grid-row: 1 / 3;
-    background-color: var(--miku-background-color-dark);
-    padding: 1rem;
-    border: 1px solid var(--miku-main-color);
-}
-
-.paged-reader {
-    display: grid;
-    grid-column: 2 / 3;
-    grid-row: 1 / 2;
-    background-color: var(--miku-background-color);
-    padding: 1rem;
-    border: 1px solid var(--miku-main-color);
+/* Base reader styles (Paged & Strip) */
+.paged-reader, .strip-reader {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    z-index: 1;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .strip-reader {
-    display: flex;
-    grid-column: 2 / 3;
-    grid-row: 1 / 2;
-    background-color: var(--miku-background-color);
-    border: 1px solid var(--miku-main-color);
-
-    /*Scrollbar*/
-    scrollbar-color: var(--miku-main-color) var(--miku-background-color-dark);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--obsidian-accent) var(--obsidian-bg-soft);
+    display: block; /* Overriding flex for strip */
 }
 
 .strip-reader .page-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    width: 95vw;
-}
-
-.strip-reader .image-container {
-    min-width: 50%;
-    max-width: 50%;
+    width: 100%;
 }
 
 .strip-reader .manga-page {
-    max-width: 50%;
+    max-width: 95vw;
+    height: auto;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
 
-.controls {
+/* Left Rail Sidebar */
+.manga-reader .sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 64px;
+    z-index: 100;
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
-    grid-column: 2 / 3;
-    grid-row: 2 / 3;
-    background-color: var(--miku-background-color-dark);
-    padding: 1rem 5rem;
-    border: 1px solid var(--miku-main-color);
-}
-
-.controls vaadin-text-field {
-    max-width: 30%;
-    min-width: 15%;
-
-    background-color: var(--miku-background);
-}
-
-.controls vaadin-text-field::part(input-field) {
-    border-radius: 20px;
-}
-
-.controls vaadin-text-field > input {
-    text-align: center;
-}
-
-
-.manga-page {
-    height: 100%;
-    width: auto;
-    background: var(--miku-loading) no-repeat center center;
-    object-fit: contain;
-}
-
-.swiper-container {
-    max-height: 100% !important;
-    max-width: 100% !important;
+    padding: 1.5rem 0;
+    background: rgba(16, 20, 23, 0.8);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
 }
 
 .manga-reader .navigation-buttons {
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
-.chapter-select {
-    margin-top: 3rem;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    max-height: 3rem;
-    gap: 0.5rem;
+.manga-reader .sidebar vaadin-button {
+    color: var(--obsidian-accent);
+    transition: all 0.2s ease;
 }
 
-.chapter-select vaadin-select {
-    /*make it go smaller when no space is available*/
-    flex-shrink: 1;
-    flex-grow: 1;
-    flex-basis: 0;
-    min-width: 10%;
-}
-
-.chapter-select vaadin-select-item {
-    color: var(--miku-main-color);
-}
-
-.chapter-select vaadin-select::part(toggle-button) {
-    color: var(--miku-main-color);
-}
-
-.chapter-select-overlay vaadin-select-list-box {
-    background-color: var(--miku-background-color-p2);
-    color: var(--miku-main-color);
-    padding: .5rem;
-}
-
-.chapter-select-overlay vaadin-select-item {
-    color: var(--miku-main-color);
-    border: 1px solid var(--miku-main-color);
-    border-radius: 5px;
-    /*Gap between items*/
-    margin: .25rem;
-}
-
-.chapter-select-overlay vaadin-select-item:hover {
-    background-color: var(--miku-background-color-p3);
-    color: var(--miku-background-color-p2);
-    border: 1px solid var(--miku-background-color-p2);
-}
-
-.chapter-select-overlay vaadin-select-item[selected] {
-    background-color: var(--miku-background-color-p3);
-    color: var(--miku-background-color-p2);
-    border: 1px solid var(--miku-background-color-p2);
-    box-shadow: none;
-}
-
-.chapter-select-overlay vaadin-select-item::part(checkmark)::before {
-    color: var(--miku-background-color-p2);
-}
-
-.chapter-select-overlay::part(content) {
-    padding: 0;
+.manga-reader .sidebar vaadin-button:hover {
+    color: #fff;
+    transform: scale(1.1);
 }
 
 .sidebar #settings-btn {
+    margin-top: auto;
+}
+
+/* Full-width Bottom Bar */
+.manga-reader .controls {
     position: absolute;
-    bottom: 1rem;
-    left: 1rem;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    z-index: 101;
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+    background: rgba(16, 20, 23, 0.9);
+    backdrop-filter: blur(24px);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Teal Progress Line */
+.manga-reader .controls::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: var(--reader-progress, 0%);
+    background: var(--obsidian-accent);
+    box-shadow: 0 0 12px var(--obsidian-accent);
+    transition: width 0.3s ease;
+    z-index: 102;
+}
+
+.controls .manga-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+}
+
+.controls .manga-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--obsidian-accent);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.controls .chapter-info {
+    font-size: 0.8rem;
+    color: var(--obsidian-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+}
+
+.controls .nav-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 2rem;
+}
+
+.controls .nav-group vaadin-button {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 0 1rem;
+    font-weight: 600;
+    color: var(--obsidian-accent);
+}
+
+.controls .page-controls {
+    flex: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.controls .page-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.4rem 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    font-weight: 700;
+    color: var(--obsidian-accent);
+}
+
+.controls .page-indicator vaadin-button {
+    color: var(--obsidian-accent);
+    min-width: 32px;
+}
+
+.controls vaadin-select {
+    width: 140px;
+    --vaadin-input-field-background: rgba(255, 255, 255, 0.03);
+    color: var(--obsidian-accent);
+}
+
+.controls .action-group {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.controls .action-group vaadin-button {
+    color: var(--obsidian-accent);
+}
+
+.controls vaadin-text-field {
+    width: 45px;
+    --vaadin-input-field-background: transparent;
+    --vaadin-input-field-border-color: transparent;
+}
+
+.controls vaadin-text-field::part(input-field) {
+    background: transparent;
+    padding: 0;
+}
+
+.controls vaadin-text-field > input {
+    text-align: center;
+    font-size: 1rem;
+    color: var(--obsidian-accent);
+    font-weight: 700;
+}
+
+.manga-page {
+    max-height: 100vh !important;
+    max-width: 100vw !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    background: transparent;
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: auto;
+    display: block;
+}
+
+/* Page Loading Container */
+.image-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* Obsidian Core Spinner */
+.obsidian-spinner {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    z-index: 5;
+}
+
+.obsidian-spinner div {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 3px solid transparent;
+    border-top-color: var(--obsidian-accent);
+    border-radius: 50%;
+    animation: obsidian-orbit 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+
+.obsidian-spinner div:nth-child(1) { animation-delay: -0.45s; border-top-color: var(--obsidian-accent); }
+.obsidian-spinner div:nth-child(2) { animation-delay: -0.3s; border-top-color: #fff; }
+.obsidian-spinner div:nth-child(3) { animation-delay: -0.15s; border-top-color: var(--obsidian-accent); opacity: 0.5; }
+
+.obsidian-spinner::after {
+    content: '';
+    position: absolute;
+    inset: 30px;
+    background: var(--obsidian-accent);
+    border-radius: 50%;
+    box-shadow: 0 0 20px var(--obsidian-accent), 0 0 40px var(--obsidian-accent);
+    animation: obsidian-pulse 1s ease-in-out infinite;
+}
+
+@keyframes obsidian-orbit {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes obsidian-pulse {
+    0%, 100% { transform: scale(0.8); opacity: 0.6; filter: blur(2px); }
+    50% { transform: scale(1.1); opacity: 1; filter: blur(0px); }
+}
+
+/* Focus Mode */
+.manga-reader.focus-mode .sidebar {
+    transform: translateX(-100%);
+}
+
+.manga-reader.focus-mode .controls {
+    transform: translateY(100%);
 }

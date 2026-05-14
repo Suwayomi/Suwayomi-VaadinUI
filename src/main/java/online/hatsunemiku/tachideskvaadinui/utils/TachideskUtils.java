@@ -6,14 +6,16 @@
 
 package online.hatsunemiku.tachideskvaadinui.utils;
 
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import lombok.experimental.UtilityClass;
 import online.hatsunemiku.tachideskvaadinui.data.Meta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.http.MediaType;
+import org.springframework.web.client.RestClient;
+
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @UtilityClass
 public class TachideskUtils {
@@ -23,9 +25,13 @@ public class TachideskUtils {
       Pattern.compile(
           "https://github\\.com/Suwayomi/Suwayomi-Server/releases/download/(v\\d+\\.\\d+\\.\\d+(-r\\d+)?)/(Suwayomi-Server-v\\d+\\.\\d+\\.(\\d+)\\.jar)");
 
-  public static String getNewestJarUrl(RestTemplate client) {
+  public static String getNewestJarUrl(RestClient client) {
     String githubApi = "https://api.github.com/repos/Suwayomi/Suwayomi-Server/releases/latest";
-    String json = client.getForObject(githubApi, String.class);
+    String json = client.get()
+            .uri(githubApi)
+            .accept(MediaType.APPLICATION_JSON)
+            .retrieve()
+            .body(String.class);
 
     if (json == null) {
       return null;

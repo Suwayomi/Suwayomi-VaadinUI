@@ -1,13 +1,8 @@
 package online.hatsunemiku.tachideskvaadinui.services.client;
 
 import com.apollographql.apollo.api.ApolloResponse;
-import com.apollographql.apollo.exception.ApolloException;
-import com.apollographql.apollo.runtime.java.ApolloCallback;
-import com.apollographql.apollo.runtime.java.ApolloClient;
-import com.apollographql.apollo.runtime.java.ApolloDisposable;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
+import com.apollographql.java.client.ApolloCallback;
+import com.apollographql.java.client.ApolloDisposable;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.event.MangaUpdateEvent;
 import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.HasSkippedQuery;
@@ -18,6 +13,9 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * Client responsible for any server communication related to manga library updates.

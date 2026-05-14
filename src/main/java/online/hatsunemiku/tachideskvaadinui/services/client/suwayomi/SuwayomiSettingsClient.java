@@ -1,28 +1,21 @@
 package online.hatsunemiku.tachideskvaadinui.services.client.suwayomi;
 
 import com.apollographql.apollo.api.ApolloResponse;
-import com.apollographql.apollo.api.Optional;
 import com.apollographql.apollo.api.DefaultUpload;
+import com.apollographql.apollo.api.Optional;
 import com.apollographql.apollo.api.Upload;
-import com.apollographql.apollo.exception.ApolloException;
-import com.apollographql.apollo.runtime.java.ApolloCallback;
-import com.apollographql.apollo.runtime.java.ApolloClient;
+import com.apollographql.java.client.ApolloCallback;
+import lombok.extern.slf4j.Slf4j;
+import online.hatsunemiku.tachideskvaadinui.data.settings.FlareSolverrSettings;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.*;
+import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Component;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import lombok.extern.slf4j.Slf4j;
-import online.hatsunemiku.tachideskvaadinui.data.settings.FlareSolverrSettings;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.CreateBackupMutation;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetExtensionReposQuery;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetFlareSolverrSettingsQuery;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.RestoreBackupMutation;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.UpdateExtensionReposMutation;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.UpdateFlareSolverrEnabledStatusMutation;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.UpdateFlareSolverrUrlMutation;
-import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.stereotype.Component;
 
 /**
  * The SuwayomiSettingsClient class is responsible for making API requests to the Suwayomi Server

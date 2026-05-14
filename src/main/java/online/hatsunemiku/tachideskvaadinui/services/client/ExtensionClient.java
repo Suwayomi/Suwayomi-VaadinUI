@@ -1,12 +1,7 @@
 package online.hatsunemiku.tachideskvaadinui.services.client;
 
 import com.apollographql.apollo.api.ApolloResponse;
-import com.apollographql.apollo.exception.ApolloException;
-import com.apollographql.apollo.runtime.java.ApolloCallback;
-import com.apollographql.apollo.runtime.java.ApolloClient;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
+import com.apollographql.java.client.ApolloCallback;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Extension;
 import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetExtensionsMutation;
@@ -15,6 +10,10 @@ import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.UpdateExtensionMuta
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -30,12 +29,7 @@ public class ExtensionClient {
     var apolloClient = clientService.getApolloClient();
 
     CompletableFuture<ApolloResponse<UpdateExtensionMutation.Data>> future = new CompletableFuture<>();
-    apolloClient.mutation(new UpdateExtensionMutation(extensionId)).enqueue(new ApolloCallback<UpdateExtensionMutation.Data>() {
-      @Override
-      public void onResponse(@NotNull ApolloResponse<UpdateExtensionMutation.Data> response) {
-        future.complete(response);
-      }
-    });
+    apolloClient.mutation(new UpdateExtensionMutation(extensionId)).enqueue(future::complete);
 
     try {
       var response = future.join();

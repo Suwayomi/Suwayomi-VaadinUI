@@ -53,7 +53,6 @@ import org.vaadin.miki.superfields.text.SuperTextField;
  * SearchView is a view used for searching sources for manga. It allows the user to search for manga
  * across all sources with a language filter to narrow down the search results.
  */
-@CssImport("./css/views/search-view.css")
 @Slf4j
 @Route("search")
 public class SearchView extends StandardLayout implements HasUrlParameter<String> {
@@ -98,9 +97,11 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     Div content = new Div();
     content.setClassName("search-content");
 
+    Div inputsContainer = new Div(searchField, langFilter);
+    inputsContainer.setClassName("search-inputs-container");
+
     content.add(btnContainer);
-    content.add(searchField);
-    content.add(langFilter);
+    content.add(inputsContainer);
     content.add(searchResults);
 
     setContent(content);
@@ -273,13 +274,9 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     Div loadingDiv = new Div();
     loadingDiv.setClassName("loading-div");
 
-    Resource loadingSvgResource = new ClassPathResource("images/loading.svg");
-    try {
-      Svg loadingSvg = new Svg(loadingSvgResource.getInputStream());
-      loadingDiv.add(loadingSvg);
-    } catch (IOException e) {
-      log.error("Error loading loading.svg", e);
-    }
+    Div pulse = new Div();
+    pulse.setClassName("search-pulse");
+    loadingDiv.add(pulse);
 
     return loadingDiv;
   }

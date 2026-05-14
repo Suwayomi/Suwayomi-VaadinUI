@@ -13,7 +13,6 @@ import com.vaadin.flow.component.html.Paragraph;
 import lombok.Getter;
 
 @Getter
-@CssImport("./css/card.css")
 public class Card extends Anchor {
 
   private final Paragraph textComponent;

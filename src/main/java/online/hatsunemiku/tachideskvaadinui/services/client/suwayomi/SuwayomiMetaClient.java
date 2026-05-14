@@ -1,15 +1,14 @@
 package online.hatsunemiku.tachideskvaadinui.services.client.suwayomi;
 
 import com.apollographql.apollo.api.ApolloResponse;
-import com.apollographql.apollo.exception.ApolloException;
-import com.apollographql.apollo.runtime.java.ApolloCallback;
-import com.apollographql.apollo.runtime.java.ApolloClient;
-import java.util.concurrent.CompletableFuture;
+import com.apollographql.java.client.ApolloCallback;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.ServerVersion;
 import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetServerVersionQuery;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.CompletableFuture;
 
 /** Retrieves metadata about the Suwayomi Server through its API. */
 @Component

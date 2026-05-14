@@ -6,6 +6,7 @@
 
 package online.hatsunemiku.tachideskvaadinui.component.scroller.source;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
@@ -17,7 +18,6 @@ import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.component.events.source.LanguageListChangeEvent;
 import online.hatsunemiku.tachideskvaadinui.component.events.source.SourceFilterUpdateEvent;
 import online.hatsunemiku.tachideskvaadinui.component.events.source.SourceLangFilterUpdateEvent;
-import online.hatsunemiku.tachideskvaadinui.component.items.BlurryItem;
 import online.hatsunemiku.tachideskvaadinui.component.items.LangItem;
 import online.hatsunemiku.tachideskvaadinui.component.items.SourceItem;
 import online.hatsunemiku.tachideskvaadinui.component.scroller.EndScroller;
@@ -64,7 +64,7 @@ public class SourceScroller extends EndScroller {
     setLanguages(getLanguages(sources));
 
     this.content = new Div();
-    content.setClassName("source-scroller-content");
+    content.setClassName("extension-cards-grid"); // Use grid layout
     this.filteredSources = new ArrayList<>();
 
     sort(sources);
@@ -109,14 +109,14 @@ public class SourceScroller extends EndScroller {
   }
 
   private void addNextContent(Settings settings) {
-    List<BlurryItem> items = new ArrayList<>();
+    List<Component> items = new ArrayList<>();
     getNextContent(settings, items);
-    for (BlurryItem source : items) {
+    for (Component source : items) {
       content.add(source);
     }
   }
 
-  private void getNextContent(Settings settings, List<BlurryItem> items) {
+  private void getNextContent(Settings settings, List<Component> items) {
 
     if (isDone) {
       return;
@@ -159,7 +159,7 @@ public class SourceScroller extends EndScroller {
     }
   }
 
-  private void switchToNextLang(List<BlurryItem> subList, Settings settings) {
+  private void switchToNextLang(List<Component> subList, Settings settings) {
     currentIndex = 0;
     languageIndex++;
 
@@ -174,6 +174,7 @@ public class SourceScroller extends EndScroller {
 
     String lang = languages.get(languageIndex);
     LangItem langItem = new LangItem(lang);
+    langItem.getStyle().set("grid-column", "1 / -1"); // Make language separator span full width
     subList.add(langItem);
 
     getNextContent(settings, subList);
@@ -286,3 +287,4 @@ public class SourceScroller extends EndScroller {
     addNextContent(settings);
   }
 }
+

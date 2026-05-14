@@ -6,11 +6,6 @@
 
 package online.hatsunemiku.tachideskvaadinui.services;
 
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.core.exc.StreamWriteException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DatabindException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PreDestroy;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,6 +18,11 @@ import online.hatsunemiku.tachideskvaadinui.data.tracking.TrackerTokens;
 import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.exc.StreamWriteException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * This class is responsible for managing tracking data. It handles the serialization and
@@ -38,7 +38,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class TrackingDataService {
 
-  private final ObjectMapper mapper;
+  private final JsonMapper mapper;
   private final Path tokenFile;
   private final Path trackerFile;
   private final HashMap<Long, Tracker> mangaTrackers = new HashMap<>();
@@ -47,10 +47,10 @@ public class TrackingDataService {
   /**
    * Creates a new {@link TrackingDataService} instance.
    *
-   * @param mapper The {@link ObjectMapper} used to serialize and deserialize the tracking data.
+   * @param mapper The {@link JsonMapper} used to serialize and deserialize the tracking data.
    * @param env The {@link Environment} used to get the project directory.
    */
-  public TrackingDataService(ObjectMapper mapper, Environment env) {
+  public TrackingDataService(JsonMapper mapper, Environment env) {
     this.mapper = mapper;
 
     Path projectDirPath = PathUtils.getResolvedProjectPath(env);

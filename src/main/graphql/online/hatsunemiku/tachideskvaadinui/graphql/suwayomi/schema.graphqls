@@ -964,8 +964,8 @@ type Mutation {
   updateMangaCategories(input: UpdateMangaCategoriesInput!): UpdateMangaCategoriesPayload!
   updateMangasCategories(input: UpdateMangasCategoriesInput!): UpdateMangasCategoriesPayload!
   deleteChapterMeta(input: DeleteChapterMetaInput!): DeleteChapterMetaPayload!
-  fetchChapterPages(input: FetchChapterPagesInput!): FetchChapterPagesPayload!
-  fetchChapters(input: FetchChaptersInput!): FetchChaptersPayload!
+  fetchChapterPages(input: FetchChapterPagesInput!): FetchChapterPagesPayload
+  fetchChapters(input: FetchChaptersInput!): FetchChaptersPayload
   setChapterMeta(input: SetChapterMetaInput!): SetChapterMetaPayload!
   updateChapter(input: UpdateChapterInput!): UpdateChapterPayload!
   updateChapters(input: UpdateChaptersInput!): UpdateChaptersPayload!
@@ -979,7 +979,7 @@ type Mutation {
   reorderChapterDownload(input: ReorderChapterDownloadInput!): ReorderChapterDownloadPayload!
   startDownloader(input: StartDownloaderInput!): StartDownloaderPayload!
   stopDownloader(input: StopDownloaderInput!): StopDownloaderPayload!
-  fetchExtensions(input: FetchExtensionsInput!): FetchExtensionsPayload!
+  fetchExtensions(input: FetchExtensionsInput!): FetchExtensionsPayload
   installExternalExtension(input: InstallExternalExtensionInput!): InstallExternalExtensionPayload!
   updateExtension(input: UpdateExtensionInput!): UpdateExtensionPayload!
   updateExtensions(input: UpdateExtensionsInput!): UpdateExtensionsPayload!
@@ -987,7 +987,7 @@ type Mutation {
   resetWebUIUpdateStatus: WebUIUpdateStatus!
   updateWebUI(input: WebUIUpdateInput!): WebUIUpdatePayload!
   deleteMangaMeta(input: DeleteMangaMetaInput!): DeleteMangaMetaPayload!
-  fetchManga(input: FetchMangaInput!): FetchMangaPayload!
+  fetchManga(input: FetchMangaInput!): FetchMangaPayload
   setMangaMeta(input: SetMangaMetaInput!): SetMangaMetaPayload!
   updateManga(input: UpdateMangaInput!): UpdateMangaPayload!
   updateMangas(input: UpdateMangasInput!): UpdateMangasPayload!
@@ -996,11 +996,11 @@ type Mutation {
   resetSettings(input: ResetSettingsInput!): ResetSettingsPayload!
   setSettings(input: SetSettingsInput!): SetSettingsPayload!
   deleteSourceMeta(input: DeleteSourceMetaInput!): DeleteSourceMetaPayload!
-  fetchSourceManga(input: FetchSourceMangaInput!): FetchSourceMangaPayload!
+  fetchSourceManga(input: FetchSourceMangaInput!): FetchSourceMangaPayload
   setSourceMeta(input: SetSourceMetaInput!): SetSourceMetaPayload!
   updateSourcePreference(input: UpdateSourcePreferenceInput!): UpdateSourcePreferencePayload!
   bindTrack(input: BindTrackInput!): BindTrackPayload!
-  fetchTrack(input: FetchTrackInput!): FetchTrackPayload!
+  fetchTrack(input: FetchTrackInput!): FetchTrackPayload
   loginTrackerCredentials(input: LoginTrackerCredentialsInput!): LoginTrackerCredentialsPayload!
   loginTrackerOAuth(input: LoginTrackerOAuthInput!): LoginTrackerOAuthPayload!
   logoutTracker(input: LogoutTrackerInput!): LogoutTrackerPayload!

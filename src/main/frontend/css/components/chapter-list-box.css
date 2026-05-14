@@ -5,78 +5,131 @@
  */
 
 .chapter-list-box-item {
-  position: relative;
-  display: flex;
-  width: 100%;
-  box-shadow: 0 0 0 1px var(--lumo-contrast-10pct);
-  justify-content: space-between;
-  align-items: center;
-  height: 4.5vh;
+    width: 100% !important;
+    min-height: 4.1rem !important;
+    margin: 0 0 0.45rem !important;
+    padding: 0.74rem 0.95rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    border-radius: 6px !important;
+    border: 1px solid rgba(176, 196, 198, 0.08) !important;
+    background: #172025 !important;
+    box-shadow: none !important;
+    cursor: pointer !important;
+    transition: border-color 120ms ease, background 120ms ease !important;
+}
+
+.chapter-list-box-item:hover {
+    border-color: rgba(176, 196, 198, 0.16) !important;
+    background: #1a252b !important;
+}
+
+vaadin-list-box.chapter-list-box vaadin-item::part(content) {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+vaadin-list-box.chapter-list-box vaadin-item[selected]::part(content),
+vaadin-list-box.chapter-list-box vaadin-item:focus::part(content),
+vaadin-list-box.chapter-list-box vaadin-item:focus-visible::part(content) {
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+vaadin-list-box.chapter-list-box vaadin-item[selected] .chapter-list-box-item {
+    border-color: rgba(176, 196, 198, 0.16) !important;
+    background: #1a252b !important;
+}
+
+.chapter-list-box-item-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.16rem;
+    min-width: 0;
 }
 
 .chapter-list-box-item-title {
-  font-size: 1.5em;
-  font-weight: bold;
-  color: var(--lumo-header-text-color);
-  z-index: 2;
-  padding-left: 1rem;
+    color: #e8efef !important;
+    font-family: "Space Grotesk", sans-serif !important;
+    font-size: 1.04rem !important;
+    font-weight: 600 !important;
+    line-height: 1.1;
 }
 
-.chapter-list-box-item-read .chapter-list-box-item-title {
-  color: var(--miku-unselected-color-50);
-}
-
-.chapter-list-box-item-date {
-  font-size: 1rem;
-  color: var(--lumo-header-text-color);
-  z-index: 2;
-  padding-right: 1rem;
-  padding-left: 0.5rem;
-  font-weight: bold;
-}
-
-.chapter-list-box-item-read .chapter-list-box-item-date {
-  color: var(--miku-unselected-color-50);
-}
-
-.chapter-list-box-item-background {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: rgba(255,255,255,0.1);
-  filter: blur(2px);
+.chapter-list-box-item-subtitle {
+    color: #99acad !important;
+    font-size: 0.82rem !important;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 34ch;
 }
 
 .chapter-list-box-item-right-side {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 1rem !important;
 }
 
-.chapter-list-box-item-right-side vaadin-button {
-  border: none;
+.chapter-list-box-item-date {
+    color: #b7c5c6 !important;
+    font-family: "Space Grotesk", sans-serif !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
 }
 
-.downloading {
-  animation: downloading 5s infinite;
+.chapter-list-box-item-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
 }
 
-@keyframes downloading {
-  0% {
-    background-position: 0 0;
-    color: var(--miku-background-color-p1);
-    border-color: var(--miku-background-color-p1);
-  }
+.chapter-list-box-item-actions vaadin-button {
+    min-width: 1.95rem !important;
+    width: 1.95rem;
+    height: 1.95rem;
+    padding: 0 !important;
+    border-radius: 5px;
+    border: 1px solid rgba(175, 206, 204, 0.12) !important;
+    background: #131b20 !important;
+    color: #9cb0af !important;
+}
 
-  50% {
-    background-position: 0 100%;
-    color: var(--miku-background-color-p2);
-    border-color: var(--miku-background-color-p2);
-  }
+.chapter-list-box-item-actions vaadin-button:hover {
+    color: #c8d9d9 !important;
+    border-color: rgba(175, 206, 204, 0.18) !important;
+    background: #162028 !important;
+}
 
-  100% {
-    background-position: 0 0;
-    color: var(--miku-background-color-p1);
-    border-color: var(--miku-background-color-p1);
-  }
+.chapter-list-box-item-actions vaadin-button.downloading {
+    opacity: 0.55;
+}
+
+.chapter-list-box-item-read {
+    opacity: 0.72 !important;
+}
+
+.chapter-list-box-item-read .chapter-list-box-item-title {
+    color: #94a2a3 !important;
+    text-decoration: line-through;
+}
+
+vaadin-list-box.chapter-list-box {
+    padding: 0 !important;
+    background: transparent !important;
+    --vaadin-item-background-hover: transparent;
+    --vaadin-item-background-selected: transparent;
+    --vaadin-item-background-pressed: transparent;
+    --vaadin-item-focused-overlay: transparent;
+}
+
+vaadin-list-box.chapter-list-box vaadin-item:hover::part(content),
+vaadin-list-box.chapter-list-box vaadin-item:active::part(content) {
+    background: transparent !important;
 }

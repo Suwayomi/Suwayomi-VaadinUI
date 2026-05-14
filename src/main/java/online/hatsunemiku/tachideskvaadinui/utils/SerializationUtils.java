@@ -6,20 +6,22 @@
 
 package online.hatsunemiku.tachideskvaadinui.utils;
 
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.DatabindException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+
 import online.hatsunemiku.tachideskvaadinui.data.Meta;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.json.JsonMapper;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class SerializationUtils {
 
   private static final Logger logger = LoggerFactory.getLogger(SerializationUtils.class);
+  private static final JsonMapper mapper = new JsonMapper();
 
   /**
    * Serializes the {@link Meta} object to a JSON file.
@@ -29,13 +31,8 @@ public class SerializationUtils {
    * @throws RuntimeException if there was an error during serialization
    */
   public static void serializeMetadata(Meta meta, @NotNull Path projectDir) {
-    ObjectMapper mapper = new ObjectMapper();
-    try {
       Path metaPath = projectDir.resolve("meta.json");
       mapper.writeValue(metaPath.toFile(), meta);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   /**
@@ -46,8 +43,6 @@ public class SerializationUtils {
    * @throws RuntimeException if there was an error during deserialization
    */
   public static Meta deserializeMetadata(@NotNull Path projectDir) {
-    ObjectMapper mapper = new ObjectMapper();
-
     try {
       Path metaPath = projectDir.resolve("meta.json");
 
@@ -61,9 +56,6 @@ public class SerializationUtils {
       throw new RuntimeException(e);
     } catch (DatabindException e) {
       logger.error("Content of Json file doesn't match expected json layout", e);
-      throw new RuntimeException(e);
-    } catch (IOException e) {
-      logger.error("Settings file couldn't be read", e);
       throw new RuntimeException(e);
     }
   }

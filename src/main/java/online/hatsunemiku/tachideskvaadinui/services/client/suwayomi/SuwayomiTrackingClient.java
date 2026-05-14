@@ -1,33 +1,20 @@
 package online.hatsunemiku.tachideskvaadinui.services.client.suwayomi;
 
 import com.apollographql.apollo.api.ApolloResponse;
-import com.apollographql.apollo.exception.ApolloException;
-import com.apollographql.apollo.runtime.java.ApolloCallback;
-import com.apollographql.apollo.runtime.java.ApolloClient;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
+import com.apollographql.java.client.ApolloCallback;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Status;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.TrackRecord;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.search.TrackerSearchResult;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.AllTheStuffForSuwayomiTrackingMutation;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetMangaTrackRecordsQuery;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetStatusesQuery;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetTrackerAuthUrlQuery;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetTrackingScoresQuery;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.IsMangaTrackedQuery;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.IsTrackerLoggedInQuery;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.LoginTrackerMutation;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.SearchTrackerQuery;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.StopTrackingNewMutation;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.TrackMangaMutation;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.TrackProgressOnTrackersMutation;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.UpdateScoreMutation;
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.*;
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * The SuwayomiTrackingClient class provides methods to interact with a Suwayomi tracker through

@@ -32,12 +32,12 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.streams.TemporaryFileUploadHandler;
 import com.vaadin.flow.server.streams.UploadHandler;
-import com.vaadin.open.OSUtils;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import online.hatsunemiku.tachideskvaadinui.utils.PlatformUtils;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +57,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.ResourceAccessException;
-import org.vaadin.miki.superfields.checkbox.SuperCheckbox;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import org.vaadin.miki.superfields.text.SuperTextField;
 
 /**
@@ -69,7 +69,6 @@ import org.vaadin.miki.superfields.text.SuperTextField;
  * @since 1.0.0
  */
 @Route("settings")
-@CssImport("./css/views/settings-view.css")
 public class SettingsView extends StandardLayout {
 
   public static final String STARTUP_CMD_NAME = "startupVaaUI.cmd";
@@ -101,22 +100,20 @@ public class SettingsView extends StandardLayout {
 
     VerticalLayout content = new VerticalLayout();
     content.setClassName("settings-content");
+    content.setPadding(false);
+    content.setSpacing(false);
 
     Section generalSettings = getGeneralSettingsSection(settingsService, sourceService);
     Section flareSolverrSettings = createFlareSolverrSection();
-    Div separator = getSeparator();
     Section extensionSettings = getExtensionSettingsSection();
     Section notificationSettings = createNotificationSettingsSection();
     Section backupSection = getBackupSection(settingsService);
+    
     content.add(
         generalSettings,
-        getSeparator(),
         flareSolverrSettings,
-        separator,
         extensionSettings,
-        getSeparator(),
         notificationSettings,
-        getSeparator(),
         backupSection);
 
     setContent(content);
@@ -145,7 +142,7 @@ public class SettingsView extends StandardLayout {
 
   /** Removes the batch file in the Windows startup folder that starts the Vaadin UI on startup. */
   private static void removeWindowsStartup() {
-    if (!OSUtils.isWindows()) {
+    if (!PlatformUtils.isWindows()) {
       Notification notification =
           new Notification("Startup with Windows is only available on Windows", 3000);
       notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -262,14 +259,15 @@ public class SettingsView extends StandardLayout {
     Div checkboxContainer = new Div();
     checkboxContainer.addClassName("checkbox-container");
 
-    SuperCheckbox checkbox = new SuperCheckbox().withLabel("Startup Popup").withId("start-popup");
+    Checkbox checkbox = new Checkbox("Startup Popup");
+    checkbox.setId("start-popup");
 
     checkbox.addClassName("settings-checkbox");
     checkbox.setValue(settingsService.getSettings().isStartPopup());
     binder.forField(checkbox).bind(Settings::isStartPopup, Settings::setStartPopup);
     checkboxContainer.add(checkbox);
 
-    if (OSUtils.isWindows()) {
+    if (PlatformUtils.isWindows()) {
       var startupWithWindowsCheckbox = getStartupWithWindowsCheckbox(settingsService, binder);
       checkboxContainer.add(startupWithWindowsCheckbox);
     }
@@ -290,12 +288,13 @@ public class SettingsView extends StandardLayout {
    * @param settingsService The service to retrieve settings from.
    * @param binder The binder to bind the checkbox to the startWithWindows property of the Settings
    *     object.
-   * @return The configured {@link SuperCheckbox} element.
+   * @return The configured {@link Checkbox} element.
    */
-  private @NotNull SuperCheckbox getStartupWithWindowsCheckbox(
+  private @NotNull Checkbox getStartupWithWindowsCheckbox(
       SettingsService settingsService, Binder<Settings> binder) {
-    SuperCheckbox startupWithWindowsCheckbox =
-        new SuperCheckbox().withLabel("Start with Windows").withId("start-with-windows");
+    Checkbox startupWithWindowsCheckbox =
+        new Checkbox("Start with Windows");
+    startupWithWindowsCheckbox.setId("start-with-windows");
     startupWithWindowsCheckbox.setValue(settingsService.getSettings().isStartWithWindows());
     startupWithWindowsCheckbox.addClassName("settings-checkbox");
     startupWithWindowsCheckbox.addValueChangeListener(
@@ -315,7 +314,7 @@ public class SettingsView extends StandardLayout {
 
   /** Creates a batch file in the Windows startup folder to start the Vaadin UI on startup. */
   private void createWindowsStartup() {
-    if (!OSUtils.isWindows()) {
+    if (!PlatformUtils.isWindows()) {
       Notification notification =
           new Notification("Startup with Windows is only available on Windows", 3000);
       notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -462,12 +461,6 @@ public class SettingsView extends StandardLayout {
     return extensionSettings;
   }
 
-  private Div getSeparator() {
-    Div separator = new Div();
-    separator.addClassName("separator");
-    return separator;
-  }
-
   private Grid<ExtensionRepo> createExtensionReposList() {
     Grid<ExtensionRepo> repoGrid = new Grid<>();
     Binder<ExtensionRepo> binder = new Binder<>(ExtensionRepo.class);
@@ -476,7 +469,6 @@ public class SettingsView extends StandardLayout {
     editor.setBuffered(true);
 
     TextField extensionRepoUrlField = new TextField("Extension Repo URL");
-    extensionRepoUrlField.getStyle().set("width", "90%");
 
     var url = repoGrid.addColumn(ExtensionRepo::getUrl).setHeader("Extension Repos");
     url.setEditorComponent(extensionRepoUrlField);

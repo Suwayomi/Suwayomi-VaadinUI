@@ -88,10 +88,28 @@ mutation fetchChapterList($mangaId: Int!) {
 mutation FetchManga($id: Int!) {
   fetchManga(input: {id: $id}) {
     manga {
+      author
       thumbnailUrl
       title
+      description
       inLibrary
       id
+      status
+      chapters {
+        nodes {
+          chapterNumber
+        }
+      }
+      source {
+        displayName
+        id
+        iconUrl
+        isConfigurable
+        isNsfw
+        lang
+        name
+        supportsLatest
+      }
       lastReadChapter {
         id
       }

@@ -1,0 +1,21 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+[part="backdrop"] {
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+}
+
+[part="overlay"] {
+    background: var(--obsidian-bg-soft);
+    border: 1px solid rgba(var(--obsidian-accent-rgb), 0.16);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+    border-radius: 1rem;
+}
+
+[part="header"] {
+    border-bottom: 1px solid rgba(var(--obsidian-accent-rgb), 0.08);
+}

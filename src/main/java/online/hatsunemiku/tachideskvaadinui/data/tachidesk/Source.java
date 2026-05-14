@@ -7,10 +7,16 @@
 package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Source implements Comparable<Source> {
 
   @JsonProperty("supportsLatest")

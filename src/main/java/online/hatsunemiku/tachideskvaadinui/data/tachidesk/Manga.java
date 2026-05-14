@@ -41,7 +41,7 @@ public class Manga {
   private int unreadCount;
 
   @JsonProperty("source")
-  private Object source;
+  private Source source;
 
   @JsonProperty("title")
   private String title;
@@ -133,12 +133,19 @@ public class Manga {
   }
 
   public List<Category> getMangaCategories() {
+    if (categories == null) {
+      return List.of();
+    }
+
     return categories.getNodes();
   }
 
   /** Represents chapters of a manga with the total count of chapters. */
   @Getter
-  private static class Chapters {
+  @Setter
+  @AllArgsConstructor
+  @NoArgsConstructor
+  public static class Chapters {
 
     @JsonProperty("edges")
     private List<Edge> edge;
@@ -148,21 +155,30 @@ public class Manga {
   }
 
   @Getter
-  private static class Edge {
+  @Setter
+  @AllArgsConstructor
+  @NoArgsConstructor
+  public static class Edge {
 
     @JsonProperty("node")
     private Node node;
   }
 
   @Getter
-  private static class Node {
+  @Setter
+  @AllArgsConstructor
+  @NoArgsConstructor
+  public static class Node {
 
     @JsonProperty("id")
     private int id;
   }
 
   @Getter
-  private static class MangaCategories {
+  @Setter
+  @AllArgsConstructor
+  @NoArgsConstructor
+  public static class MangaCategories {
 
     @JsonProperty("nodes")
     private List<Category> nodes;

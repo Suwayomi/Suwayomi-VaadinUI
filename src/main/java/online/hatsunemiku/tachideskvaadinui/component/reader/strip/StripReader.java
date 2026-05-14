@@ -7,7 +7,7 @@
 package online.hatsunemiku.tachideskvaadinui.component.reader.strip;
 
 import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.ScrollOptions;
+import com.vaadin.flow.component.ScrollIntoViewOption;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
@@ -157,17 +157,28 @@ public class StripReader extends Reader {
       String altText = "Page %d".formatted(i);
 
       Image image = new Image(completeUrl, altText);
-
       image.getElement().setAttribute("data-page-index", String.valueOf(i));
-
       image.addClassName("manga-page");
+      image.getStyle().set("opacity", "0");
 
       Div imgContainer = new Div();
       imgContainer.addClassName("image-container");
 
-      pages.add(image);
+      Div spinner = new Div();
+      spinner.addClassName("obsidian-spinner");
+      spinner.add(new Div(), new Div(), new Div()); // Orbital rings
 
-      imgContainer.add(image);
+      imgContainer.add(spinner, image);
+
+      // Fade in on load and hide spinner
+      image.getElement().executeJs(
+          "this.onload = () => {" +
+          "  this.style.opacity = '1';" +
+          "  this.parentElement.querySelector('.obsidian-spinner').style.display = 'none';" +
+          "};"
+      );
+
+      pages.add(image);
       container.add(imgContainer);
     }
 
@@ -196,11 +207,7 @@ public class StripReader extends Reader {
       return;
     }
 
-    ScrollOptions options = new ScrollOptions();
-    options.setBehavior(ScrollOptions.Behavior.SMOOTH);
-    options.setBlock(ScrollOptions.Alignment.START);
-
-    pages.get(index).getElement().scrollIntoView(options);
+    pages.get(index).getElement().scrollIntoView(ScrollIntoViewOption.Behavior.SMOOTH, ScrollIntoViewOption.Block.START);
   }
 
   @Override

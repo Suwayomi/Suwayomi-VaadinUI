@@ -1,0 +1,62 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+:host {
+    --vaadin-input-field-background: transparent;
+    --vaadin-input-field-border-color: rgba(var(--obsidian-accent-rgb), 0.3);
+    --vaadin-input-field-value-color: var(--obsidian-text);
+    background-color: transparent !important;
+}
+
+/* User-verified selector for the internal container */
+vaadin-input-container[part="input-field"] {
+    background-color: #0d1115 !important;
+    background-image: none !important;
+    border: 1px solid rgba(var(--obsidian-accent-rgb), 0.3) !important;
+    border-radius: 4px;
+    box-shadow: none !important;
+}
+
+/* Remove Lumo-injected pseudo-element highlights/gloss from this specific tag */
+vaadin-input-container[part="input-field"]::before,
+vaadin-input-container[part="input-field"]::after {
+    display: none !important;
+    content: none !important;
+    background: transparent !important;
+}
+
+/* Explicit hover state using verified selector */
+:host(:hover:not([readonly])) vaadin-input-container[part="input-field"] {
+    border-color: var(--obsidian-accent) !important;
+}
+
+/* Explicit focus state using verified selector */
+:host([focused]:not([readonly])) vaadin-input-container[part="input-field"] {
+    border-color: var(--obsidian-accent) !important;
+    box-shadow: 0 0 0 1px var(--obsidian-accent) !important;
+}
+
+[part="value"] {
+    color: var(--obsidian-text) !important;
+}
+
+[part="toggle-button"] {
+    color: var(--obsidian-accent) !important;
+}
+
+[part="label"] {
+    color: var(--obsidian-accent);
+    font-weight: 600;
+}
+
+::slotted([slot="value"]) {
+    color: var(--obsidian-text) !important;
+}
+
+
+vaadin-input-container[part="input-field"] {
+    background-color: var(--obsidian-accent) !important;
+}

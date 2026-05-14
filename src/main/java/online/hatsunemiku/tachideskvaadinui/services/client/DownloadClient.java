@@ -1,13 +1,8 @@
 package online.hatsunemiku.tachideskvaadinui.services.client;
 
 import com.apollographql.apollo.api.ApolloResponse;
-import com.apollographql.apollo.exception.ApolloException;
-import com.apollographql.apollo.runtime.java.ApolloCallback;
-import com.apollographql.apollo.runtime.java.ApolloClient;
-import com.apollographql.apollo.runtime.java.ApolloDisposable;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
+import com.apollographql.java.client.ApolloCallback;
+import com.apollographql.java.client.ApolloDisposable;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.DeleteChapterMutation;
 import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.DownloadChaptersMutation;
@@ -16,6 +11,10 @@ import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
+
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
