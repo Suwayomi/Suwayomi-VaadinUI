@@ -13,8 +13,18 @@
     font-weight: 600;
 }
 
+:host([theme~="primary"]) {
+    background-color: var(--obsidian-accent);
+    color: var(--obsidian-bg);
+}
+
 :host(:hover) {
     background-color: rgba(var(--obsidian-accent-rgb), 0.1);
+}
+
+:host([theme~="primary"]:hover) {
+    background-color: #fff;
+    color: var(--obsidian-bg);
 }
 
 :host([disabled]) {

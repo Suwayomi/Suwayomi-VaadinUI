@@ -22,8 +22,8 @@
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
-  border-top: 1px solid rgba(70, 80, 88, 0.45);
-  background: #0b0d10;
+  border-top: 1px solid rgba(var(--obsidian-accent-rgb), 0.08);
+  background: var(--obsidian-bg-alt);
 }
 
 .source-explore-container > * {
@@ -45,13 +45,13 @@
   font-weight: 700;
   line-height: 1.05;
   letter-spacing: -0.02em;
-  color: #e6ecef;
+  color: var(--obsidian-accent);
 }
 
 .source-explore-subtitle {
   display: block;
   margin-top: 0.55rem;
-  color: rgba(190, 203, 209, 0.84);
+  color: var(--obsidian-text-dim);
   font-size: 1.05rem;
   line-height: 1.35;
 }
@@ -60,9 +60,9 @@
   display: flex;
   flex-direction: row;
   gap: 0.3rem;
-  background: rgba(45, 54, 61, 0.65);
+  background: rgba(var(--obsidian-accent-rgb), 0.05);
   border-radius: 8px;
-  border: 1px solid rgba(95, 109, 120, 0.34);
+  border: 1px solid rgba(var(--obsidian-accent-rgb), 0.1);
   padding: 0.22rem;
   margin-bottom: 0.18rem;
 }
@@ -70,7 +70,7 @@
 .source-explore-mode {
   border-radius: 6px;
   border: 1px solid transparent;
-  color: rgba(205, 213, 220, 0.92);
+  color: var(--obsidian-text-dim);
   background: transparent;
   font-size: 0.9rem;
   font-weight: 700;
@@ -81,13 +81,14 @@
 }
 
 .source-explore-mode:hover {
-  background: rgba(151, 167, 177, 0.16);
+  background: rgba(var(--obsidian-accent-rgb), 0.1);
+  color: var(--obsidian-text);
 }
 
 .source-explore-mode.active {
-  color: #224046;
-  background: #93d7d7;
-  border-color: rgba(165, 238, 238, 0.75);
+  color: var(--obsidian-bg);
+  background: var(--obsidian-accent);
+  border-color: var(--obsidian-accent);
 }
 
 .source-explore-scroller-host {

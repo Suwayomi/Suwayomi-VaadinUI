@@ -1,0 +1,74 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+:host {
+    display: block;
+    width: 100%;
+}
+
+[part="primary-buttons"] {
+    border: 1px dashed rgba(var(--obsidian-accent-rgb), 0.16) !important;
+    border-radius: 12px !important;
+    background: rgba(var(--obsidian-accent-rgb), 0.02) !important;
+    padding: 1.5rem 1rem !important;
+    transition: all 0.3s ease;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+}
+
+:host(:hover) [part="primary-buttons"],
+:host([dragover]) [part="primary-buttons"] {
+    border-color: var(--obsidian-accent) !important;
+    background: rgba(var(--obsidian-accent-rgb), 0.08) !important;
+}
+
+[part="drop-label"] {
+    color: var(--obsidian-text-dim) !important;
+    font-weight: 600 !important;
+    font-size: 1.1rem !important;
+    margin-bottom: 1rem !important;
+    font-family: 'Space Grotesk', sans-serif !important;
+    transition: color 0.3s ease;
+}
+
+:host(:hover) [part="drop-label"],
+:host([dragover]) [part="drop-label"] {
+    color: var(--obsidian-accent) !important;
+}
+
+[part="drop-label-icon"] {
+    color: var(--obsidian-text-dim) !important;
+    width: 48px !important;
+    height: 48px !important;
+    margin-bottom: 1rem !important;
+    transition: color 0.3s ease;
+}
+
+:host(:hover) [part="drop-label-icon"],
+:host([dragover]) [part="drop-label-icon"] {
+    color: var(--obsidian-accent) !important;
+}
+
+[part="primary-button"] {
+    background-color: var(--obsidian-accent) !important;
+    color: var(--obsidian-bg) !important;
+    border-radius: 0.6rem !important;
+    font-weight: 700 !important;
+    border: none !important;
+    font-family: 'Space Grotesk', sans-serif !important;
+    padding: 0.5rem 1.5rem !important;
+    transition: all 0.2s ease !important;
+    margin: 0 !important;
+}
+
+[part="primary-button"]:hover {
+    background-color: #fff !important;
+    transform: scale(1.05) !important;
+}

@@ -62,15 +62,15 @@ html, body {
 }
 
 h1 {
-  color: aliceblue;
+  color: var(--obsidian-accent);
 }
 
 footer {
-  color: aliceblue;
+  color: var(--obsidian-text-dim);
   padding: 0.5rem 1.5rem;
   flex-shrink: 0;
   font-size: 0.8rem;
-  opacity: 0.6;
+  opacity: 0.8;
 }
 
 .global-navbar {
@@ -175,7 +175,7 @@ footer {
 .global-dropdown-item-title {
     font-size: 0.88rem;
     font-weight: 600;
-    color: #fff;
+    color: var(--obsidian-text);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -211,7 +211,7 @@ footer {
 
 .global-dropdown-footer:hover {
     background: rgba(var(--obsidian-accent-rgb), 0.12);
-    color: #fff;
+    color: var(--obsidian-text);
 }
 
 .spacer {

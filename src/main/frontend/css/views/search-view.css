@@ -23,9 +23,11 @@
 }
 
 .search-content .search-result {
-  border: var(--miku-main-color) 1px solid;
+  border: rgba(var(--obsidian-accent-rgb), 0.2) 1px solid;
   padding: 1rem;
   margin-bottom: 1rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .search-content .search-result-title {
@@ -35,8 +37,10 @@
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 1rem;
-  color: var(--miku-main-color);
-  background-color: var(--miku-unselected-color-50)
+  color: var(--obsidian-accent);
+  background-color: rgba(var(--obsidian-accent-rgb), 0.08);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
 }
 
 .search-content .search-inputs-container {

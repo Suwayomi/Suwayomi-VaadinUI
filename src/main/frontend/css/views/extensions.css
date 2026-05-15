@@ -49,19 +49,19 @@
 
 .manager-search::part(input-field) {
   border-radius: 999px;
-  background: rgba(140, 166, 179, 0.14);
-  border: 1px solid rgba(140, 166, 179, 0.2);
+  background: rgba(var(--obsidian-accent-rgb), 0.1);
+  border: 1px solid rgba(var(--obsidian-accent-rgb), 0.2);
   min-height: 2.05rem;
   box-shadow: none;
 }
 
 .manager-search::part(value) {
-  color: #d4ebf7;
+  color: var(--obsidian-text);
   font-size: 0.88rem;
 }
 
 .manager-search vaadin-icon {
-  color: #97b0be;
+  color: var(--obsidian-accent);
 }
 
 .manager-hero {
@@ -73,7 +73,7 @@
 
 .manager-hero-left h2 {
   margin: 0;
-  color: #e9f4fa;
+  color: var(--obsidian-accent);
   font-size: 3rem;
   line-height: 1.05;
 }
@@ -81,7 +81,7 @@
 .manager-subtitle {
   margin-top: 0.35rem;
   display: block;
-  color: #88a2af;
+  color: var(--obsidian-text-dim);
   font-size: 1.02rem;
 }
 
@@ -94,14 +94,21 @@
 
 .browse-btn {
   border-radius: 10px;
-  border: 1px solid rgba(128, 240, 236, 0.5);
-  background: #a6efec;
-  color: #16343f;
+  border: 1px solid rgba(var(--obsidian-accent-rgb), 0.5);
+  background: var(--obsidian-accent);
+  color: var(--obsidian-bg);
   min-width: 255px;
   min-height: 2.9rem;
   font-weight: 700;
   font-size: 1rem;
-  box-shadow: 0 0 18px rgba(128, 240, 236, 0.24);
+  box-shadow: 0 0 18px rgba(var(--obsidian-accent-rgb), 0.24);
+  transition: all 0.2s ease;
+}
+
+.browse-btn:hover {
+  background: #fff;
+  color: var(--obsidian-bg);
+  box-shadow: 0 0 24px rgba(var(--obsidian-accent-rgb), 0.4);
 }
 
 .updates-banner {
@@ -130,14 +137,14 @@
 }
 
 .updates-title {
-  color: #eaf2f9;
+  color: var(--obsidian-text);
   font-size: 2rem;
   font-weight: 700;
   display: block;
 }
 
 .updates-description {
-  color: #96aab6;
+  color: var(--obsidian-text-dim);
   font-size: 1rem;
 }
 
@@ -145,31 +152,38 @@
   min-width: 210px;
   min-height: 3rem;
   border-radius: 10px;
-  border: 1px solid rgba(126, 146, 159, 0.4);
-  background: rgba(98, 112, 123, 0.26);
-  color: #d9e8f1;
+  border: 1px solid rgba(var(--obsidian-accent-rgb), 0.4);
+  background: rgba(var(--obsidian-accent-rgb), 0.1);
+  color: var(--obsidian-accent);
   font-size: 1.1rem;
   font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.update-all-btn:hover {
+  background: rgba(var(--obsidian-accent-rgb), 0.2);
+  border-color: var(--obsidian-accent);
 }
 
 .manager-tabs {
   display: flex;
   gap: 2.4rem;
-  border-bottom: 1px solid rgba(125, 157, 170, 0.2);
+  border-bottom: 1px solid rgba(var(--obsidian-accent-rgb), 0.1);
   padding-bottom: 0.75rem;
 }
 
 .manager-tab {
   font-size: 0.95rem;
   font-weight: 700;
-  color: #8ea4b1;
+  color: var(--obsidian-text-dim);
   cursor: pointer;
   padding-bottom: 0.55rem;
+  transition: all 0.2s ease;
 }
 
 .manager-tab.active {
-  color: #8ef1ec;
-  border-bottom: 2px solid #8ef1ec;
+  color: var(--obsidian-accent);
+  border-bottom: 2px solid var(--obsidian-accent);
 }
 
 .extension-cards-grid {
@@ -180,12 +194,18 @@
 
 .extension-card {
   border-radius: 14px;
-  border: 1px solid rgba(123, 152, 163, 0.2);
-  background: rgba(19, 31, 42, 0.84);
+  border: 1px solid rgba(var(--obsidian-accent-rgb), 0.1);
+  background: var(--obsidian-bg-card);
   padding: 0.65rem;
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
+  transition: all 0.3s ease;
+}
+
+.extension-card:hover {
+  border-color: rgba(var(--obsidian-accent-rgb), 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .card-header {
@@ -205,7 +225,7 @@
   flex-shrink: 0;
   border-radius: 8px;
   object-fit: contain;
-  background: #141d28;
+  background: rgba(0, 0, 0, 0.2);
   padding: 0.15rem;
 }
 
@@ -217,7 +237,7 @@
 }
 
 .card-name {
-  color: #f4fbff;
+  color: var(--obsidian-text);
   font-size: 0.9rem;
   font-weight: 700;
   display: block;
@@ -228,16 +248,16 @@
 }
 
 .card-meta {
-  color: #a8bcc8;
+  color: var(--obsidian-text-dim);
   font-size: 0.68rem;
   display: block;
 }
 
 .lang-badge {
   border-radius: 999px;
-  background: rgba(130, 240, 236, 0.15);
-  border: 1px solid rgba(130, 240, 236, 0.2);
-  color: #96f0ed;
+  background: rgba(var(--obsidian-accent-rgb), 0.15);
+  border: 1px solid rgba(var(--obsidian-accent-rgb), 0.2);
+  color: var(--obsidian-accent);
   font-size: 0.62rem;
   font-weight: 700;
   padding: 0.2rem 0.45rem;
@@ -285,10 +305,16 @@
   min-width: 180px;
   min-height: 2.2rem;
   border-radius: 10px;
-  border: 1px solid rgba(130, 240, 236, 0.35);
-  background: rgba(130, 240, 236, 0.12);
-  color: #b4f5f1;
+  border: 1px solid rgba(var(--obsidian-accent-rgb), 0.35);
+  background: rgba(var(--obsidian-accent-rgb), 0.12);
+  color: var(--obsidian-accent);
   font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.load-more-btn:hover {
+  background: rgba(var(--obsidian-accent-rgb), 0.2);
+  border-color: var(--obsidian-accent);
 }
 
 @media (max-width: 1100px) {

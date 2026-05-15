@@ -9,130 +9,126 @@
   justify-content: start;
   flex-direction: column;
   flex-grow: 1;
-  max-width: 100%;
-}
-
-.settings-view .content {
-  flex-direction: row;
-}
-
-.settings-view .content .checkbox-container {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--miku-main-color);
-  border-radius: 0.5rem;
-  width: 99% !important;
-  margin-right: 10vw !important;
-}
-
-.settings-view .content .checkbox-container .settings-checkbox {
-  margin: 0.5rem;
-  padding: 0.25rem;
-}
-
-.settings-view .button-container vaadin-button {
-  margin-left: 0.125rem;
-  margin-right: 0.125rem;
-}
-
-#extension-settings-description {
-  color: var(--miku-main-color);
-  font-weight: 500;
-  padding-bottom: 1rem;
-}
-
-#dialog-buttons vaadin-button {
-  display: flex;
-  align-items: center;
-}
-
-#extension-repos-grid {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-}
-
-.settings-header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-#no-server-warning {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: var(--miku-main-color);
-  font-weight: 500;
-  border: 1px solid var(--miku-main-color);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
-}
-
-#general-settings-section {
-  display: flex;
-  flex-direction: column;
   width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+  gap: 2.5rem;
 }
 
-.flare-solverr-settings {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-#notification-settings-section {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-#notification-settings-section #notification-buttons {
-  display: flex;
-  justify-content: center;
-}
-
-#notification-settings-section #notification-buttons vaadin-button {
-  margin-right: .5rem;
-}
-
+#general-settings-section,
+.flare-solverr-settings,
+#extension-settings-section,
+#notification-settings-section,
 .backup-settings {
-  display: flex;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(var(--obsidian-accent-rgb), 0.08);
+  border-radius: 1rem;
+  padding: 2rem;
   width: 100%;
-}
-
-#backup-settings-buttons {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: row;
-  width: 60%;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
 }
 
 #backup-settings-content {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  align-content: center;
   width: 100%;
 }
 
-#backup-settings-header {
-  display: flex;
-  justify-content: center;
-  align-content: center;
+.backup-upload {
+  width: 100% !important;
+  max-width: 400px;
+  margin: 1.5rem 0 !important;
+}
+
+#backup-settings-description {
+  color: var(--obsidian-text-dim);
+  font-weight: 500;
+  padding-bottom: 2rem;
+  text-align: center;
+  max-width: 80%;
+  line-height: 1.6;
+}
+
+.backup-card {
+  background: var(--obsidian-bg-card) !important;
+  border: 1px solid rgba(var(--obsidian-accent-rgb), 0.12) !important;
+  border-radius: 0.75rem !important;
+  padding: 2.5rem 2rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  width: 45%;
+  min-width: 320px;
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 
+    0 12px 28px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(0, 0, 0, 0.25) inset;
+  position: relative;
+  overflow: hidden;
+}
+
+.backup-card:hover {
+  border-color: rgba(var(--obsidian-accent-rgb), 0.42) !important;
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 
+    0 20px 48px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(var(--obsidian-accent-rgb), 0.15);
+}
+
+.backup-card h2 {  margin: 0 0 0.75rem 0 !important;
+  color: var(--obsidian-accent) !important;
+  font-size: 1.6rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em;
+  z-index: 3;
+}
+
+.backup-card span {
+  text-align: center;
+  color: var(--obsidian-text-dim);
+  font-size: 0.98rem;
+  line-height: 1.5;
+  z-index: 3;
+}
+
+.backup-upload:hover span {
+  color: var(--obsidian-accent);
+}
+
+.backup-card vaadin-button.backup-action-btn {
+  z-index: 3;
+  min-width: 200px;
+  margin: 1.5rem 0 0 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: rgba(var(--obsidian-accent-rgb), 0.08);
+  color: var(--obsidian-accent);
+  border: 1px solid rgba(var(--obsidian-accent-rgb), 0.3);
+  border-radius: 0.55rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  padding: 0.5rem 1.5rem;
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.backup-card vaadin-button.backup-action-btn:hover {
+  background-color: rgba(var(--obsidian-accent-rgb), 0.15);
+  border-color: var(--obsidian-accent);
+  box-shadow: 0 4px 12px rgba(var(--obsidian-accent-rgb), 0.15);
+  transform: translateY(-1px);
+}
+
+.backup-card vaadin-button.backup-action-btn:active {
+  transform: translateY(1px);
+  background-color: rgba(var(--obsidian-accent-rgb), 0.2);
 }
 
 #backup-restore {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid var(--miku-main-color);
-  border-radius: 0.5rem;
-  margin: .5rem;
-  padding: .5rem;
+  display: none;
 }

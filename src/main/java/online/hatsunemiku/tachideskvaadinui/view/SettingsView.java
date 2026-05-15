@@ -25,6 +25,8 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.data.binder.Binder;
@@ -69,6 +71,7 @@ import org.vaadin.miki.superfields.text.SuperTextField;
  * @since 1.0.0
  */
 @Route("settings")
+@CssImport("./css/views/settings-view.css")
 public class SettingsView extends StandardLayout {
 
   public static final String STARTUP_CMD_NAME = "startupVaaUI.cmd";
@@ -102,6 +105,7 @@ public class SettingsView extends StandardLayout {
     content.setClassName("settings-content");
     content.setPadding(false);
     content.setSpacing(false);
+    content.setAlignItems(Alignment.CENTER);
 
     Section generalSettings = getGeneralSettingsSection(settingsService, sourceService);
     Section flareSolverrSettings = createFlareSolverrSection();
@@ -895,17 +899,40 @@ public class SettingsView extends StandardLayout {
   private @NotNull Section getBackupSection(SettingsService service) {
     Section section = new Section();
     section.addClassName("backup-settings");
+    section.setId("backup-settings-section");
 
     Div content = new Div();
     content.setId("backup-settings-content");
-    var header = new H2("Backup");
-    header.setId("backup-settings-header");
+    content.getStyle().set("width", "100%");
 
-    Div buttons = new Div();
-    buttons.setId("backup-settings-buttons");
+    var header = new H2("Backup & Restore");
+    header.addClassName("settings-header");
+
+    Span description = new Span("Create a backup of your data or restore from a previously created backup file.");
+    description.setId("backup-settings-description");
+    description.getStyle().set("color", "var(--obsidian-text-dim)");
+    description.getStyle().set("font-weight", "500");
+    description.getStyle().set("padding-bottom", "1rem");
+    description.getStyle().set("display", "block");
+    description.getStyle().set("text-align", "center");
+
+    HorizontalLayout cardsLayout = new HorizontalLayout();
+    cardsLayout.setWidthFull();
+    cardsLayout.setJustifyContentMode(com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER);
+    cardsLayout.setSpacing(true);
+    cardsLayout.setPadding(true);
+
+    // Create Backup Card
+    VerticalLayout createCard = new VerticalLayout();
+    createCard.addClassName("backup-card");
+    createCard.setAlignItems(Alignment.CENTER);
+
+    H2 createHeader = new H2("Export");
+    Span createDesc = new Span("Download a backup file to your computer.");
 
     var settings = service.getSettings();
-    Button backupButton = new Button("Create Backup");
+    Button backupButton = new Button("Create Backup", VaadinIcon.DOWNLOAD.create());
+    backupButton.addClassName("backup-action-btn");
     backupButton.addClickListener(
         event -> {
           try {
@@ -921,6 +948,16 @@ public class SettingsView extends StandardLayout {
             notification.open();
           }
         });
+    
+    createCard.add(createHeader, createDesc, backupButton);
+
+    // Restore Backup Card
+    VerticalLayout restoreCard = new VerticalLayout();
+    restoreCard.addClassName("backup-card");
+    restoreCard.setAlignItems(Alignment.CENTER);
+
+    H2 restoreHeader = new H2("Import");
+    Span restoreDesc = new Span("Upload a backup file to restore your data.");
 
     AtomicReference<Path> backupFile = new AtomicReference<>();
     UploadHandler uploadHandler =
@@ -932,8 +969,11 @@ public class SettingsView extends StandardLayout {
     Upload upload = new Upload(uploadHandler);
     upload.setAutoUpload(true);
     upload.setMaxFiles(1);
+    upload.setDropAllowed(true);
+    upload.addClassName("backup-upload");
 
-    Button restore = new Button("Restore Backup");
+    Button restore = new Button("Restore Backup", VaadinIcon.UPLOAD.create());
+    restore.addClassName("backup-action-btn");
     restore.addClickListener(
         e -> {
           log.info("Restoring backup");
@@ -957,14 +997,11 @@ public class SettingsView extends StandardLayout {
           notification.open();
         });
 
-    Div restorePart = new Div();
-    restorePart.setId("backup-restore");
-    restorePart.add(upload, restore);
+    restoreCard.add(restoreHeader, restoreDesc, upload, restore);
 
-    buttons.add(backupButton, restorePart);
+    cardsLayout.add(createCard, restoreCard);
 
-    content.add(header, buttons);
-
+    content.add(header, description, cardsLayout);
     section.add(content);
 
     return section;

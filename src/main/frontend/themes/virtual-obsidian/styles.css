@@ -12,18 +12,19 @@ html {
     --obsidian-accent: #a2eae7;
     --obsidian-accent-rgb: 162, 234, 231;
     --obsidian-text: #eafaff;
-    --obsidian-text-dim: rgba(210, 237, 244, 0.65);
+    --obsidian-text-dim: rgba(var(--obsidian-accent-rgb), 0.6);
     
     /* Legacy compatibility for components still using miku variables */
     --miku-main-color: var(--obsidian-text);
-    --miku-main-color-50: rgba(210, 237, 244, 0.5);
-    --miku-unselected-color: rgb(88, 147, 146);
+    --miku-main-color-50: rgba(var(--obsidian-accent-rgb), 0.4);
+    --miku-unselected-color: rgba(var(--obsidian-accent-rgb), 0.55);
     --miku-frosted-glass: rgba(255, 255, 255, 0.05);
-    --miku-unselected-color-50: rgba(55, 59, 62, 0.5);
+    --miku-unselected-color-50: rgba(var(--obsidian-accent-rgb), 0.25);
     --miku-background-color-p3: #86cecb;
 
     /* Global Typography */
     font-family: 'Space Grotesk', sans-serif;
+    color: var(--obsidian-text);
     
     /* Scrollbar */
     scrollbar-width: thin;
@@ -31,6 +32,25 @@ html {
 
     /* Robust Global Background */
     background: var(--obsidian-bg);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--obsidian-accent);
+    margin-top: 0;
+}
+
+vaadin-icon, iron-icon {
+    color: var(--obsidian-accent);
+}
+
+/* Ensure icons inside dark-on-accent components are dark */
+.active-nav vaadin-icon,
+.active-nav iron-icon,
+[theme~="primary"] vaadin-icon,
+[theme~="primary"] iron-icon,
+.browse-btn vaadin-icon,
+.browse-btn iron-icon {
+    color: var(--obsidian-bg) !important;
 }
 
 body {
@@ -392,6 +412,14 @@ body {
     padding: 0.5rem 1rem;
     transition: all 0.3s ease;
     border-radius: 0.5rem;
+}
+
+.nav-btn:hover vaadin-icon {
+    color: var(--obsidian-text);
+}
+
+.nav-btn vaadin-icon {
+    color: var(--obsidian-text-dim);
 }
 
 .nav-btn:hover {

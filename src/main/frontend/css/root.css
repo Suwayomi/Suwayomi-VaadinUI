@@ -62,7 +62,7 @@
 }
 
 .active-category-label {
-    color: #d9f9ff;
+    color: var(--obsidian-text);
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 700;
     font-size: 1.2rem;
@@ -70,7 +70,7 @@
 }
 
 .series-count-label {
-    color: rgba(210, 237, 244, 0.65);
+    color: var(--obsidian-text-dim);
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 700;
     font-size: 0.68rem;

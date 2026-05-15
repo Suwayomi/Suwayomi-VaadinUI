@@ -16,19 +16,19 @@
 
 .source-lang-filter-discovery::part(input-field) {
   border-radius: 999px;
-  background: rgba(140, 166, 179, 0.14);
-  border: 1px solid rgba(140, 166, 179, 0.2);
+  background: rgba(var(--obsidian-accent-rgb), 0.1);
+  border: 1px solid rgba(var(--obsidian-accent-rgb), 0.2);
   min-height: 2.05rem;
   box-shadow: none;
 }
 
 .source-lang-filter-discovery::part(value) {
-  color: #d4ebf7;
+  color: var(--obsidian-text);
   font-size: 0.88rem;
 }
 
 .source-lang-filter-discovery vaadin-icon {
-  color: #97b0be;
+  color: var(--obsidian-accent);
 }
 
 @media (max-width: 760px) {
