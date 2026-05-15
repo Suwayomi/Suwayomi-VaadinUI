@@ -72,3 +72,6 @@ secrets.json
 /conductor/
 /logs/
 /temp_extract/
+.ai
+.kotlin
+.idea
