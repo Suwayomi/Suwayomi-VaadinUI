@@ -4,20 +4,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
+package online.hatsunemiku.tachideskvaadinui.data.tachidesk
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
-import lombok.Data;
-
-@Data
-public class SourceMangaList {
-
-  @JsonProperty("mangas")
-  private List<Manga> mangaList;
-
-  @JsonProperty("hasNextPage")
-  private boolean hasNextPage;
-
-  private int page;
+class SourceMangaList {
+    var mangaList: List<Manga>? = null
+    var isHasNextPage: Boolean = false
 }

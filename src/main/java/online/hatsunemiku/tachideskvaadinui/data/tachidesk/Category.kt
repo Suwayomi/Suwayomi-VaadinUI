@@ -4,17 +4,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
+package online.hatsunemiku.tachideskvaadinui.data.tachidesk
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonAlias
 
-@Data
-public class Category {
-  private int id;
-  private int order;
-  private String name;
-
-  @JsonAlias(value = "default")
-  private boolean def;
-}
+data class Category(
+    var id: Int = 0,
+    var order: Int = 0,
+    var name: String? = null,
+    @JsonAlias("default")
+    var isDef: Boolean = false
+)

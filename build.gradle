@@ -6,10 +6,12 @@ import org.springframework.boot.gradle.tasks.run.BootRun
 plugins {
     id 'java'
     id 'idea'
+    id 'org.jetbrains.kotlin.jvm' version '2.3.21'
+    id "io.freefair.lombok" version "8.12.2"
     id 'org.springframework.boot' version '4.0.6'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.vaadin' version "$vaadinVersion"
-    id "com.apollographql.apollo" version "4.1.1"
+    id "com.apollographql.apollo" version "5.0.0"
 
     //Jpackage for building native installers
     id("org.panteleyev.jpackageplugin") version "1.6.0"
@@ -19,12 +21,10 @@ apollo {
     service("suwayomi") {
         srcDir("src/main/graphql/online/hatsunemiku/tachideskvaadinui/graphql/suwayomi")
         packageName.set("online.hatsunemiku.tachideskvaadinui.graphql.suwayomi")
-        generateModelBuilders.set(true)
     }
     service("anilist") {
         srcDir("src/main/graphql/online/hatsunemiku/tachideskvaadinui/graphql/anilist")
         packageName.set("online.hatsunemiku.tachideskvaadinui.graphql.anilist")
-        generateModelBuilders.set(true)
     }
 }
 
@@ -33,6 +33,10 @@ java {
         languageVersion = JavaLanguageVersion.of(21)
         vendor = JvmVendorSpec.BELLSOFT
     }
+}
+
+kotlin {
+    jvmToolchain(21)
 }
 
 group = 'online.hatsunemiku'
@@ -65,7 +69,10 @@ dependencies {
     implementation 'com.github.ben-manes.caffeine:caffeine:3.1.5'
 
     //GraphQL
-    implementation("com.apollographql.java:client:0.0.2")
+    implementation("com.apollographql.apollo:apollo-runtime:5.0.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.10.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.10.1")
 
     //Apache Commons codec -> used for URL encoding
     implementation 'commons-codec:commons-codec:1.16.1'

@@ -4,30 +4,34 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
+package online.hatsunemiku.tachideskvaadinui.data.tachidesk
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonProperty
 
-@Data
-public class Extension {
-  @JsonProperty("isInstalled")
-  private boolean installed;
+class Extension {
+    @get:JsonProperty("isInstalled")
+    @set:JsonProperty("isInstalled")
+    var isInstalled: Boolean = false
 
-  private boolean hasUpdate;
-  private String apkName;
+    @get:JsonProperty("hasUpdate")
+    @set:JsonProperty("hasUpdate")
+    var isHasUpdate: Boolean = false
+    
+    var apkName: String? = null
 
-  @JsonProperty("isNsfw")
-  private boolean isNsfw;
+    @get:JsonProperty("isNsfw")
+    @set:JsonProperty("isNsfw")
+    var isNsfw: Boolean = false
 
-  private String pkgName;
-  private String name;
+    var pkgName: String? = null
+    var name: String? = null
 
-  @JsonProperty("isObsolete")
-  private boolean obsolete;
+    @get:JsonProperty("isObsolete")
+    @set:JsonProperty("isObsolete")
+    var isObsolete: Boolean = false
 
-  private String iconUrl;
-  private String versionName;
-  private String lang;
-  private int versionCode;
+    var iconUrl: String? = null
+    var versionName: String? = null
+    var lang: String? = null
+    var versionCode: Int = 0
 }

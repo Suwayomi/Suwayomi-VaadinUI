@@ -4,96 +4,85 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
+package online.hatsunemiku.tachideskvaadinui.data.tachidesk
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Objects;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.With;
-import org.jetbrains.annotations.NotNull;
+import com.fasterxml.jackson.annotation.JsonProperty
 
-/** Represents a chapter of a manga. */
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@With
-@EqualsAndHashCode
-public class Chapter implements Comparable<Chapter> {
+/**
+ * Represents a chapter object from the Suwayomi API.
+ *
+ * @since 0.9.0
+ * @version 1.12.0
+ */
+class Chapter : Comparable<Chapter> {
 
-  @JsonProperty("pageCount")
-  private int pageCount;
+    @JsonProperty("id")
+    var id: Int = 0
 
-  @JsonProperty("isRead")
-  private boolean isRead;
+    @JsonProperty("name")
+    var name: String? = null
 
-  @JsonProperty("mangaId")
-  private int mangaId;
+    @JsonProperty("chapterNumber")
+    var chapterNumber: Float = 0.0f
 
-  @JsonProperty("scanlator")
-  private String scanlator;
+    @JsonProperty("isDownloaded")
+    var isDownloaded: Boolean = false
 
-  @JsonProperty("bookmarked")
-  private boolean bookmarked;
+    @JsonProperty("isRead")
+    var isRead: Boolean = false
 
-  @JsonProperty("chapterCount")
-  private int chapterCount;
+    @JsonProperty("mangaId")
+    var mangaId: Int = 0
 
-  @JsonProperty("fetchedAt")
-  private int fetchedAt;
+    @JsonProperty("url")
+    var url: String? = null
 
-  @JsonProperty("chapterNumber")
-  private float chapterNumber;
+    @JsonProperty("pageCount")
+    var pageCount: Int = 0
 
-  @JsonProperty("isDownloaded")
-  private boolean isDownloaded;
+    @JsonProperty("scanlator")
+    var scanlator: String? = null
 
-  @JsonProperty("url")
-  private String url;
+    @JsonProperty("sourceOrder")
+    var sourceOrder: Int = 0
 
-  @JsonProperty("lastReadAt")
-  private int lastReadAt;
+    @JsonProperty("readAt")
+    var readAt: Int = 0
 
-  @JsonProperty("uploadDate")
-  private long uploadDate;
+    @JsonProperty("lastPageRead")
+    var lastChapterRead: Int = 0
 
-  @JsonProperty("lastPageRead")
-  private int lastPageRead;
+    @JsonProperty("dateFetch")
+    var dateFetch: Long = 0
 
-  @JsonProperty("name")
-  private String name;
+    @JsonProperty("dateUpload")
+    var dateUpload: Long = 0
 
-  @JsonProperty("realUrl")
-  private String realUrl;
+    var manga: Manga? = null
 
-  @JsonProperty("id")
-  private int id;
-
-  @JsonProperty("manga")
-  private Manga manga;
-
-  @Override
-  public String toString() {
-    return name;
-  }
-
-  /**
-   * Compares this chapter to another chapter based on the chapter number.
-   *
-   * @param o the object to be compared.
-   * @return a negative integer, zero, or a positive integer as this chapter is less than, equal to,
-   *     or greater than the specified chapter.
-   */
-  @Override
-  public int compareTo(@NotNull Chapter o) { // skipcq: JAVA-W1056
-    if (Objects.equals(this, o)) {
-      return 0;
+    override fun compareTo(other: Chapter): Int {
+        return chapterNumber.compareTo(other.chapterNumber)
     }
 
-    return Float.compare(chapterNumber, o.chapterNumber);
-  }
+    fun withDownloaded(downloaded: Boolean): Chapter {
+        val chapter = Chapter()
+        chapter.id = id
+        chapter.name = name
+        chapter.chapterNumber = chapterNumber
+        chapter.isDownloaded = downloaded
+        chapter.isRead = isRead
+        chapter.mangaId = mangaId
+        chapter.url = url
+        chapter.pageCount = pageCount
+        chapter.scanlator = scanlator
+        chapter.sourceOrder = sourceOrder
+        chapter.readAt = readAt
+        chapter.lastChapterRead = lastChapterRead
+        chapter.dateFetch = dateFetch
+        chapter.dateUpload = dateUpload
+        chapter.manga = manga
+        return chapter
+    }
+
+    fun getUploadDate(): Long = dateUpload
 }

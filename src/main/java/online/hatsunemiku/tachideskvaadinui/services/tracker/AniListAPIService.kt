@@ -4,343 +4,308 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package online.hatsunemiku.tachideskvaadinui.services.tracker;
+package online.hatsunemiku.tachideskvaadinui.services.tracker
 
-import com.apollographql.apollo.api.ApolloResponse;
-import com.apollographql.apollo.api.Optional;
-import com.apollographql.apollo.api.http.HttpRequest;
-import com.apollographql.apollo.api.http.HttpResponse;
-import com.apollographql.java.client.ApolloCallback;
-import com.apollographql.java.client.ApolloClient;
-import com.apollographql.java.client.network.http.HttpCallback;
-import com.apollographql.java.client.network.http.HttpInterceptor;
-import com.apollographql.java.client.network.http.HttpInterceptorChain;
-import lombok.extern.slf4j.Slf4j;
-import online.hatsunemiku.tachideskvaadinui.data.tracking.OAuthData;
-import online.hatsunemiku.tachideskvaadinui.data.tracking.TrackerTokens;
-import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListMedia;
-import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListStatus;
-import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.MangaList;
-import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDate;
-import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.AniListMangaStatistics;
-import online.hatsunemiku.tachideskvaadinui.graphql.anilist.*;
-import online.hatsunemiku.tachideskvaadinui.graphql.anilist.type.FuzzyDateInput;
-import online.hatsunemiku.tachideskvaadinui.graphql.anilist.type.MediaListStatus;
-import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import com.apollographql.apollo.ApolloClient
+import com.apollographql.apollo.api.Optional
+import com.apollographql.apollo.network.http.HttpInterceptor
+import com.apollographql.apollo.network.http.HttpInterceptorChain
+import com.apollographql.apollo.api.http.HttpRequest
+import com.apollographql.apollo.api.http.HttpResponse
+import kotlinx.coroutines.runBlocking
+import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListMedia
+import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.AniListStatus
+import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.MangaList
+import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDate
+import online.hatsunemiku.tachideskvaadinui.data.tracking.statistics.AniListMangaStatistics
+import online.hatsunemiku.tachideskvaadinui.graphql.anilist.*
+import online.hatsunemiku.tachideskvaadinui.graphql.anilist.type.FuzzyDateInput
+import online.hatsunemiku.tachideskvaadinui.graphql.anilist.type.MediaListStatus
+import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService
+import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Service
 
 /**
  * Is responsible for interacting with the AniList API using Apollo GraphQL client.
  */
 @Service
-@Slf4j
-public class AniListAPIService {
+class AniListAPIService(private val dataService: TrackingDataService) {
 
-  private static final String ANILIST_API_URL = "https://graphql.anilist.co";
-  private static final String OAUTH_CLIENT_ID = "14576";
-  public static final String OAUTH_URL = "https://anilist.co/api/v2/oauth";
-  private static final String OAUTH_CODE_PATTERN =
-      OAUTH_URL + "/authorize?client_id=%s&response_type=token";
+    companion object {
+        private val log = LoggerFactory.getLogger(AniListAPIService::class.java)
+        private const val ANILIST_API_URL = "https://graphql.anilist.co"
+        private const val OAUTH_CLIENT_ID = "14576"
+        const val OAUTH_URL = "https://anilist.co/api/v2/oauth"
+        private const val OAUTH_CODE_PATTERN = "$OAUTH_URL/authorize?client_id=%s&response_type=token"
+    }
 
-  private final TrackingDataService dataService;
-  private final ApolloClient apolloClient;
-
-  public AniListAPIService(TrackingDataService dataService) {
-    this.dataService = dataService;
-    this.apolloClient = new ApolloClient.Builder()
+    private val apolloClient: ApolloClient = ApolloClient.Builder()
         .serverUrl(ANILIST_API_URL)
-        .addHttpInterceptor((httpRequest, httpInterceptorChain, httpCallback) -> {
-            if (hasAniListToken()) {
-                httpRequest = httpRequest.newBuilder()
-                    .addHeader("Authorization", getAniListTokenHeader())
-                    .build();
+        .addHttpInterceptor(object : HttpInterceptor {
+            override suspend fun intercept(request: HttpRequest, chain: HttpInterceptorChain): HttpResponse {
+                return if (hasAniListToken()) {
+                    val authenticatedRequest = request.newBuilder()
+                        .addHeader("Authorization", getAniListTokenHeader())
+                        .build()
+                    chain.proceed(authenticatedRequest)
+                } else {
+                    chain.proceed(request)
+                }
             }
-            httpInterceptorChain.proceed(httpRequest, httpCallback);
         })
-        .build();
+        .build()
 
-    try {
-      log.info("User ID: {}", getCurrentUserId());
-    } catch (RuntimeException e) {
-      log.info("No AniList token set yet");
-    }
-  }
-
-  private java.util.Optional<OAuthData> getAniListToken() {
-    TrackerTokens trackerTokens = dataService.getTokens();
-    if (!trackerTokens.hasAniListToken()) {
-      return java.util.Optional.empty();
-    }
-    return java.util.Optional.of(trackerTokens.getAniListToken());
-  }
-
-  public boolean hasAniListToken() {
-    return getAniListToken().isPresent();
-  }
-
-  private String getAniListTokenHeader() {
-    if (!hasAniListToken()) {
-      throw new IllegalStateException("No AniList Token");
-    }
-    var token = getAniListToken().get();
-    if (!token.getTokenType().equals("Bearer")) {
-      throw new IllegalStateException("AniList token is not a Bearer token");
-    }
-    return "Bearer " + token.getAccessToken();
-  }
-
-  public String getAniListAuthUrl() {
-    return String.format(OAUTH_CODE_PATTERN, OAUTH_CLIENT_ID);
-  }
-
-  private int getCurrentUserId() {
-    CompletableFuture<ApolloResponse<GetViewerIdQuery.Data>> future = new CompletableFuture<>();
-    apolloClient.query(new GetViewerIdQuery()).enqueue(future::complete);
-
-    var response = future.join();
-    if (response.hasErrors()) {
-      throw new RuntimeException("Error retrieving user ID: " + response.errors);
-    }
-    if (response.data == null || response.data.Viewer == null) {
-      throw new RuntimeException("No user ID found in viewer response");
-    }
-    return response.data.Viewer.id;
-  }
-
-  public AniListMangaStatistics getMangaFromList(int mangaId) {
-    CompletableFuture<ApolloResponse<GetMediaListQuery.Data>> future = new CompletableFuture<>();
-    apolloClient.query(new GetMediaListQuery(Optional.present(mangaId), Optional.present(getCurrentUserId()))).enqueue(future::complete);
-
-    var response = future.join();
-    if (response.hasErrors()) {
-      log.warn("Manga with ID {} not found or error occurred: {}", mangaId, response.errors);
-      throw new RuntimeException("Manga list entry not found");
-    }
-    var data = response.data;
-    if (data == null || data.MediaList == null) {
-        throw new RuntimeException("Manga list entry is null");
+    init {
+        try {
+            log.info("User ID: {}", getCurrentUserId())
+        } catch (e: Exception) {
+            log.info("No AniList token set yet")
+        }
     }
 
-    var entry = data.MediaList;
-    return new AniListMangaStatistics(
-        mapToInternalStatus(entry.status),
-        entry.progress != null ? entry.progress : 0,
-        entry.score != null ? entry.score.intValue() : 0,
-        mapToInternalDate(entry.startedAt),
-        mapToInternalDate(entry.completedAt)
-    );
-  }
-
-  public void updateMangaProgress(int mangaId, double mangaProgress) {
-    SaveMediaListEntryMutation mutation = SaveMediaListEntryMutation.builder()
-        .mangaId(mangaId)
-        .progress((int) mangaProgress)
-        .build();
-
-    executeMutation(mutation, "progress");
-  }
-
-  public void updateMangaStatus(int aniListId, AniListStatus value) {
-    SaveMediaListEntryMutation mutation = SaveMediaListEntryMutation.builder()
-        .mangaId(aniListId)
-        .status(mapToApolloStatus(value))
-        .build();
-
-    executeMutation(mutation, "status");
-  }
-
-  public void updateMangaScore(int aniListId, double value) {
-    SaveMediaListEntryMutation mutation = SaveMediaListEntryMutation.builder()
-        .mangaId(aniListId)
-        .score(value)
-        .build();
-
-    executeMutation(mutation, "score");
-  }
-
-  public void updateMangaEndDate(int aniListId, MediaDate date) {
-    FuzzyDateInput endDate = date == null ? null : FuzzyDateInput.builder()
-        .year(date.year())
-        .month(date.month())
-        .day(date.day())
-        .build();
-
-    SaveMediaListEntryMutation mutation = SaveMediaListEntryMutation.builder()
-        .mangaId(aniListId)
-        .completedAt(endDate)
-        .build();
-
-    executeMutation(mutation, "end date");
-  }
-
-  public void updateMangaPrivacyStatus(int aniListId, boolean isPrivate) {
-    SaveMediaListEntryMutation mutation = SaveMediaListEntryMutation.builder()
-        .mangaId(aniListId)
-        .private_(isPrivate)
-        .build();
-
-    executeMutation(mutation, "privacy status");
-  }
-
-  private void executeMutation(SaveMediaListEntryMutation mutation, String fieldName) {
-    CompletableFuture<ApolloResponse<SaveMediaListEntryMutation.Data>> future = new CompletableFuture<>();
-    apolloClient.mutation(mutation).enqueue(future::complete);
-
-    var response = future.join();
-    if (response.hasErrors()) {
-      throw new RuntimeException("Error updating manga " + fieldName + ": " + response.errors);
-    }
-    if (response.data != null && response.data.SaveMediaListEntry != null) {
-      log.info("Updated manga {} for ID {}", fieldName, response.data.SaveMediaListEntry.id);
-    }
-  }
-
-  public MangaList getMangaList() {
-    CompletableFuture<ApolloResponse<GetMediaListCollectionQuery.Data>> future = new CompletableFuture<>();
-    apolloClient.query(new GetMediaListCollectionQuery(Optional.present(getCurrentUserId()))).enqueue(future::complete);
-
-    var response = future.join();
-    if (response.hasErrors()) {
-      throw new RuntimeException("Error retrieving manga list: " + response.errors);
-    }
-    if (response.data == null || response.data.MediaListCollection == null) {
-      throw new RuntimeException("Manga list response is empty");
+    private fun getAniListToken(): java.util.Optional<online.hatsunemiku.tachideskvaadinui.data.tracking.OAuthData> {
+        val trackerTokens = (dataService as Any).javaClass.getMethod("getTokens").invoke(dataService) as online.hatsunemiku.tachideskvaadinui.data.tracking.TrackerTokens
+        return if (!trackerTokens.hasAniListToken()) {
+            java.util.Optional.empty()
+        } else {
+            java.util.Optional.of(trackerTokens.javaClass.getMethod("getAniListToken").invoke(trackerTokens) as online.hatsunemiku.tachideskvaadinui.data.tracking.OAuthData)
+        }
     }
 
-    List<AniListMedia> completed = new ArrayList<>();
-    List<AniListMedia> reading = new ArrayList<>();
-    List<AniListMedia> dropped = new ArrayList<>();
-    List<AniListMedia> onHold = new ArrayList<>();
-    List<AniListMedia> planToRead = new ArrayList<>();
+    fun hasAniListToken(): Boolean {
+        return getAniListToken().isPresent
+    }
 
-    for (var list : response.data.MediaListCollection.lists) {
-        if (list == null || list.entries == null) continue;
+    private fun getAniListTokenHeader(): String {
+        if (!hasAniListToken()) {
+            throw IllegalStateException("No AniList Token")
+        }
+        val token = getAniListToken().get()
+        val tokenType = token.javaClass.getMethod("getTokenType").invoke(token) as String
+        if (tokenType != "Bearer") {
+            throw IllegalStateException("AniList token is not a Bearer token")
+        }
+        val accessToken = token.javaClass.getMethod("getAccessToken").invoke(token) as String
+        return "Bearer " + accessToken
+    }
 
-        for (var entry : list.entries) {
-            if (entry == null) continue;
+    fun getAniListAuthUrl(): String {
+        return String.format(OAUTH_CODE_PATTERN, OAUTH_CLIENT_ID)
+    }
 
-            AniListMedia media = mapToInternalMedia(entry);
-            AniListStatus status = mapToInternalStatus(entry.status);
+    private fun getCurrentUserId(): Int {
+        return runBlocking {
+            val response = apolloClient.query(GetViewerIdQuery()).execute()
+            if (response.hasErrors()) {
+                throw RuntimeException("Error retrieving user ID: " + response.errors)
+            }
+            response.data?.Viewer?.id ?: throw RuntimeException("No user ID found in viewer response")
+        }
+    }
 
-            switch (status) {
-                case COMPLETED -> completed.add(media);
-                case CURRENT, REPEATING -> reading.add(media);
-                case DROPPED -> dropped.add(media);
-                case PAUSED -> onHold.add(media);
-                case PLANNING -> planToRead.add(media);
+    fun getMangaFromList(mangaId: Int): AniListMangaStatistics {
+        return runBlocking {
+            val response = apolloClient.query(GetMediaListQuery(Optional.present(mangaId), Optional.present(getCurrentUserId()))).execute()
+            if (response.hasErrors()) {
+                log.warn("Manga with ID {} not found or error occurred: {}", mangaId, response.errors)
+                throw RuntimeException("Manga list entry not found")
+            }
+            val entry = response.data?.MediaList ?: throw RuntimeException("Manga list entry is null")
+
+            AniListMangaStatistics(
+                mapToInternalStatus(entry.status),
+                entry.progress ?: 0,
+                entry.score?.toInt() ?: 0,
+                mapToInternalDate(entry.startedAt),
+                mapToInternalDate(entry.completedAt)
+            )
+        }
+    }
+
+    fun updateMangaProgress(mangaId: Int, mangaProgress: Double) {
+        val mutation = SaveMediaListEntryMutation(
+            mangaId = Optional.present(mangaId),
+            progress = Optional.present(mangaProgress.toInt())
+        )
+        executeMutation(mutation, "progress")
+    }
+
+    fun updateMangaStatus(aniListId: Int, value: AniListStatus) {
+        val mutation = SaveMediaListEntryMutation(
+            mangaId = Optional.present(aniListId),
+            status = Optional.present(mapToApolloStatus(value))
+        )
+        executeMutation(mutation, "status")
+    }
+
+    fun updateMangaScore(aniListId: Int, value: Double) {
+        val mutation = SaveMediaListEntryMutation(
+            mangaId = Optional.present(aniListId),
+            score = Optional.present(value)
+        )
+        executeMutation(mutation, "score")
+    }
+
+    fun updateMangaEndDate(aniListId: Int, date: MediaDate?) {
+        val endDate = if (date == null) Optional.Absent else Optional.present(
+            FuzzyDateInput(
+                year = Optional.present(date.year()),
+                month = Optional.present(date.month()),
+                day = Optional.present(date.day())
+            )
+        )
+
+        val mutation = SaveMediaListEntryMutation(
+            mangaId = Optional.present(aniListId),
+            completedAt = endDate
+        )
+        executeMutation(mutation, "end date")
+    }
+
+    fun updateMangaPrivacyStatus(aniListId: Int, isPrivate: Boolean) {
+        val mutation = SaveMediaListEntryMutation(
+            mangaId = Optional.present(aniListId),
+            `private` = Optional.present(isPrivate)
+        )
+        executeMutation(mutation, "privacy status")
+    }
+
+    private fun executeMutation(mutation: SaveMediaListEntryMutation, fieldName: String) {
+        runBlocking {
+            val response = apolloClient.mutation(mutation).execute()
+            if (response.hasErrors()) {
+                throw RuntimeException("Error updating manga $fieldName: " + response.errors)
+            }
+            response.data?.SaveMediaListEntry?.let {
+                log.info("Updated manga $fieldName for ID ${it.id}")
             }
         }
     }
 
-    return new MangaList(reading, planToRead, completed, onHold, dropped);
-  }
+    fun getMangaList(): MangaList {
+        return runBlocking {
+            val response = apolloClient.query(GetMediaListCollectionQuery(Optional.present(getCurrentUserId()))).execute()
+            if (response.hasErrors()) {
+                throw RuntimeException("Error retrieving manga list: " + response.errors)
+            }
+            val collection = response.data?.MediaListCollection ?: throw RuntimeException("Manga list response is empty")
 
-  public void removeMangaFromList(int aniListId) {
-    int entryId = getMangaListEntryId(aniListId);
-    CompletableFuture<ApolloResponse<DeleteMediaListEntryMutation.Data>> future = new CompletableFuture<>();
-    apolloClient.mutation(new DeleteMediaListEntryMutation(Optional.present(entryId))).enqueue(future::complete);
+            val completed = mutableListOf<AniListMedia>()
+            val reading = mutableListOf<AniListMedia>()
+            val dropped = mutableListOf<AniListMedia>()
+            val onHold = mutableListOf<AniListMedia>()
+            val planToRead = mutableListOf<AniListMedia>()
 
-    var response = future.join();
-    if (response.hasErrors()) {
-      throw new RuntimeException("Error deleting manga: " + response.errors);
+            collection.lists?.filterNotNull()?.forEach { list ->
+                list.entries?.filterNotNull()?.forEach { entry ->
+                    val media = mapToInternalMedia(entry)
+                    val status = mapToInternalStatus(entry.status)
+
+                    when (status) {
+                        AniListStatus.COMPLETED -> completed.add(media)
+                        AniListStatus.CURRENT, AniListStatus.REPEATING -> reading.add(media)
+                        AniListStatus.DROPPED -> dropped.add(media)
+                        AniListStatus.PAUSED -> onHold.add(media)
+                        AniListStatus.PLANNING -> planToRead.add(media)
+                    }
+                }
+            }
+
+            MangaList(reading, planToRead, completed, onHold, dropped)
+        }
     }
-    if (response.data != null && response.data.DeleteMediaListEntry != null && Boolean.TRUE.equals(response.data.DeleteMediaListEntry.deleted)) {
-      log.info("Deleted manga with ID {}", aniListId);
-    } else {
-      throw new RuntimeException("Manga could not be deleted");
+
+    fun removeMangaFromList(aniListId: Int) {
+        val entryId = getMangaListEntryId(aniListId)
+        runBlocking {
+            val response = apolloClient.mutation(DeleteMediaListEntryMutation(Optional.present(entryId))).execute()
+            if (response.hasErrors()) {
+                throw RuntimeException("Error deleting manga: " + response.errors)
+            }
+            if (response.data?.DeleteMediaListEntry?.deleted == true) {
+                log.info("Deleted manga with ID $aniListId")
+            } else {
+                throw RuntimeException("Manga could not be deleted")
+            }
+        }
     }
-  }
 
-  private int getMangaListEntryId(int mangaId) {
-    CompletableFuture<ApolloResponse<GetMediaListEntryIdQuery.Data>> future = new CompletableFuture<>();
-    apolloClient.query(new GetMediaListEntryIdQuery(Optional.present(mangaId), Optional.present(getCurrentUserId()))).enqueue(future::complete);
-
-    var response = future.join();
-    if (response.hasErrors()) {
-      throw new RuntimeException("Error retrieving manga list entry ID: " + response.errors);
+    private fun getMangaListEntryId(mangaId: Int): Int {
+        return runBlocking {
+            val response = apolloClient.query(GetMediaListEntryIdQuery(Optional.present(mangaId), Optional.present(getCurrentUserId()))).execute()
+            if (response.hasErrors()) {
+                throw RuntimeException("Error retrieving manga list entry ID: " + response.errors)
+            }
+            response.data?.MediaList?.id ?: throw RuntimeException("Manga list entry ID not found")
+        }
     }
-    if (response.data == null || response.data.MediaList == null) {
-      throw new RuntimeException("Manga list entry ID not found");
+
+    fun addMangaToList(mangaId: Int, isPrivate: Boolean) {
+        val mutation = SaveMediaListEntryMutation(
+            mangaId = Optional.present(mangaId),
+            status = Optional.present(MediaListStatus.CURRENT),
+            `private` = Optional.present(isPrivate)
+        )
+        runBlocking {
+            val response = apolloClient.mutation(mutation).execute()
+            if (response.hasErrors()) {
+                throw RuntimeException("Error adding manga to list: " + response.errors)
+            }
+        }
     }
-    return response.data.MediaList.id;
-  }
 
-  public void addMangaToList(int mangaId, boolean isPrivate) {
-    SaveMediaListEntryMutation mutation = SaveMediaListEntryMutation.builder()
-        .mangaId(mangaId)
-        .status(MediaListStatus.CURRENT)
-        .private_(isPrivate)
-        .build();
+    // Helper Mappers
 
-    CompletableFuture<ApolloResponse<SaveMediaListEntryMutation.Data>> future = new CompletableFuture<>();
-    apolloClient.mutation(mutation).enqueue(future::complete);
-
-    var response = future.join();
-    if (response.hasErrors()) {
-        throw new RuntimeException("Error adding manga to list: " + response.errors);
+    private fun mapToInternalStatus(apolloStatus: MediaListStatus?): AniListStatus {
+        return when (apolloStatus) {
+            MediaListStatus.CURRENT -> AniListStatus.CURRENT
+            MediaListStatus.PLANNING -> AniListStatus.PLANNING
+            MediaListStatus.COMPLETED -> AniListStatus.COMPLETED
+            MediaListStatus.DROPPED -> AniListStatus.DROPPED
+            MediaListStatus.PAUSED -> AniListStatus.PAUSED
+            MediaListStatus.REPEATING -> AniListStatus.REPEATING
+            else -> AniListStatus.PLANNING
+        }
     }
-  }
 
-  // Helper Mappers
+    private fun mapToApolloStatus(internalStatus: AniListStatus): MediaListStatus {
+        return when (internalStatus) {
+            AniListStatus.CURRENT -> MediaListStatus.CURRENT
+            AniListStatus.PLANNING -> MediaListStatus.PLANNING
+            AniListStatus.COMPLETED -> MediaListStatus.COMPLETED
+            AniListStatus.DROPPED -> MediaListStatus.DROPPED
+            AniListStatus.PAUSED -> MediaListStatus.PAUSED
+            AniListStatus.REPEATING -> MediaListStatus.REPEATING
+        }
+    }
 
-  private AniListStatus mapToInternalStatus(MediaListStatus apolloStatus) {
-    if (apolloStatus == null) return AniListStatus.PLANNING;
-    if (MediaListStatus.CURRENT.equals(apolloStatus)) return AniListStatus.CURRENT;
-    if (MediaListStatus.PLANNING.equals(apolloStatus)) return AniListStatus.PLANNING;
-    if (MediaListStatus.COMPLETED.equals(apolloStatus)) return AniListStatus.COMPLETED;
-    if (MediaListStatus.DROPPED.equals(apolloStatus)) return AniListStatus.DROPPED;
-    if (MediaListStatus.PAUSED.equals(apolloStatus)) return AniListStatus.PAUSED;
-    if (MediaListStatus.REPEATING.equals(apolloStatus)) return AniListStatus.REPEATING;
-    return AniListStatus.PLANNING;
-  }
+    private fun mapToInternalDate(date: GetMediaListQuery.StartedAt?): MediaDate? {
+        return date?.let { MediaDate(it.day, it.month, it.year) }
+    }
 
-  private MediaListStatus mapToApolloStatus(AniListStatus internalStatus) {
-    return switch (internalStatus) {
-      case CURRENT -> MediaListStatus.CURRENT;
-      case PLANNING -> MediaListStatus.PLANNING;
-      case COMPLETED -> MediaListStatus.COMPLETED;
-      case DROPPED -> MediaListStatus.DROPPED;
-      case PAUSED -> MediaListStatus.PAUSED;
-      case REPEATING -> MediaListStatus.REPEATING;
-    };
-  }
+    private fun mapToInternalDate(date: GetMediaListQuery.CompletedAt?): MediaDate? {
+        return date?.let { MediaDate(it.day, it.month, it.year) }
+    }
 
-  private MediaDate mapToInternalDate(GetMediaListQuery.StartedAt date) {
-    if (date == null) return null;
-    return new MediaDate(date.day, date.month, date.year);
-  }
+    private fun mapToInternalDate(date: GetMediaListCollectionQuery.StartedAt?): MediaDate? {
+        return date?.let { MediaDate(it.day, it.month, it.year) }
+    }
 
-  private MediaDate mapToInternalDate(GetMediaListQuery.CompletedAt date) {
-    if (date == null) return null;
-    return new MediaDate(date.day, date.month, date.year);
-  }
+    private fun mapToInternalDate(date: GetMediaListCollectionQuery.CompletedAt?): MediaDate? {
+        return date?.let { MediaDate(it.day, it.month, it.year) }
+    }
 
-  private MediaDate mapToInternalDate(GetMediaListCollectionQuery.StartedAt date) {
-    if (date == null) return null;
-    return new MediaDate(date.day, date.month, date.year);
-  }
-
-  private MediaDate mapToInternalDate(GetMediaListCollectionQuery.CompletedAt date) {
-    if (date == null) return null;
-    return new MediaDate(date.day, date.month, date.year);
-  }
-
-  private AniListMedia mapToInternalMedia(GetMediaListCollectionQuery.Entry entry) {
-      var media = entry.media;
-      return new AniListMedia(
-          entry.mediaId,
-          new AniListMedia.MediaTitle(null, media.title.romaji, media.title.english, media.title.native_),
-          new AniListMedia.MediaCoverImage(media.coverImage.large),
-          null,
-          entry.status != null ? entry.status.rawValue : null,
-          0,
-          null,
-          mapToInternalDate(entry.startedAt)
-      );
-  }
+    private fun mapToInternalMedia(entry: GetMediaListCollectionQuery.Entry): AniListMedia {
+        val media = entry.media!!
+        return AniListMedia(
+            entry.mediaId,
+            AniListMedia.MediaTitle(null, media.title?.romaji, media.title?.english, media.title?.native),
+            AniListMedia.MediaCoverImage(media.coverImage?.large),
+            null,
+            entry.status?.rawValue,
+            0,
+            null,
+            mapToInternalDate(entry.startedAt)
+        )
+    }
 }

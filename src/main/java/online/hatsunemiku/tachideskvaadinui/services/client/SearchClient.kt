@@ -1,57 +1,41 @@
-package online.hatsunemiku.tachideskvaadinui.services.client;
+package online.hatsunemiku.tachideskvaadinui.services.client
 
-import com.apollographql.apollo.api.ApolloResponse;
-import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
-import online.hatsunemiku.tachideskvaadinui.data.tachidesk.search.SourceSearchResult;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.SearchSourceMutation;
-import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
-import org.springframework.stereotype.Component;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
+import kotlinx.coroutines.runBlocking
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.search.SourceSearchResult
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.SearchSourceMutation
+import online.hatsunemiku.tachideskvaadinui.services.WebClientService
+import org.springframework.stereotype.Component
 
 @Component
-public class SearchClient {
+class SearchClient(private val webClientService: WebClientService) {
 
-  private final WebClientService webClientService;
+    fun search(searchQuery: String, page: Int, sourceId: String): SourceSearchResult {
+        val apolloClient = webClientService.apolloClient ?: throw RuntimeException("ApolloClient not initialized")
 
-  public SearchClient(WebClientService clientService) {
-    this.webClientService = clientService;
-  }
+        return runBlocking {
+            try {
+                val response = apolloClient.mutation(SearchSourceMutation(sourceId, page, searchQuery)).execute()
+                if (response.hasErrors()) {
+                    throw RuntimeException("Error while searching: " + response.errors)
+                }
 
-  public SourceSearchResult search(String searchQuery, int page, String sourceId) {
-    var apolloClient = webClientService.getApolloClient();
+                val data = response.data ?: throw RuntimeException("Error while searching: No data")
+                val result = data.fetchSourceManga ?: throw RuntimeException("Error while searching: No result data")
 
-    CompletableFuture<ApolloResponse<SearchSourceMutation.Data>> future = new CompletableFuture<>();
-    apolloClient.mutation(new SearchSourceMutation(sourceId, page, searchQuery)).enqueue(future::complete);
+                val mangaList = result.mangas.map { node ->
+                    Manga().apply {
+                        id = node.id
+                        thumbnailUrl = node.thumbnailUrl
+                        title = node.title
+                        isInLibrary = false
+                    }
+                }
 
-    try {
-      var response = future.join();
-      if (response.hasErrors()) {
-        throw new RuntimeException("Error while searching: " + response.errors);
-      }
-
-      var data = response.data;
-      if (data == null || data.fetchSourceManga == null) {
-        throw new RuntimeException("Error while searching");
-      }
-
-      var result = data.fetchSourceManga;
-
-      var mangaList = result.mangas.stream()
-          .map(node -> {
-            Manga manga = new Manga();
-            manga.setId(node.id);
-            manga.setThumbnailUrl(node.thumbnailUrl);
-            manga.setTitle(node.title);
-            manga.setInLibrary(false);
-            return manga;
-          })
-          .collect(Collectors.toList());
-
-      return new SourceSearchResult(mangaList, Boolean.TRUE.equals(result.hasNextPage), page);
-    } catch (Exception e) {
-      throw new RuntimeException("Error while searching", e);
+                SourceSearchResult(mangaList, result.hasNextPage == true, page)
+            } catch (e: Exception) {
+                throw RuntimeException("Error while searching", e)
+            }
+        }
     }
-  }
 }

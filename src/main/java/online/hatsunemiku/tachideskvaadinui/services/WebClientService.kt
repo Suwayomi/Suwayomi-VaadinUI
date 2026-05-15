@@ -4,86 +4,74 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package online.hatsunemiku.tachideskvaadinui.services;
+package online.hatsunemiku.tachideskvaadinui.services
 
-import com.apollographql.java.client.ApolloClient;
-import jakarta.annotation.PreDestroy;
-import lombok.Getter;
-import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
-import online.hatsunemiku.tachideskvaadinui.data.settings.event.UrlChangeEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import com.apollographql.apollo.ApolloClient
+import jakarta.annotation.PreDestroy
+import online.hatsunemiku.tachideskvaadinui.data.settings.event.UrlChangeEvent
+import org.slf4j.LoggerFactory
+import org.springframework.context.event.EventListener
+import org.springframework.stereotype.Service
+import org.springframework.web.reactive.function.client.WebClient
 
 /**
  * The WebClientService class is responsible for creating and managing clients used by other
  * services to communicate with APIs.
  */
-@Getter
 @Service
-public class WebClientService {
+class WebClientService(settingsService: SettingsService) {
 
-  private static final Logger log = LoggerFactory.getLogger(WebClientService.class);
-  private WebClient webClient;
-  private ApolloClient apolloClient;
-
-  /**
-   * Creates a new instance of the {@link WebClientService} class.
-   *
-   * @param settingsService the {@link SettingsService} used for getting the current settings.
-   */
-  public WebClientService(SettingsService settingsService) {
-    Settings settings = settingsService.getSettings();
-
-    this.webClient = WebClient.create(settings.getUrl());
-    initApolloClient(settings.getUrl());
-  }
-
-  /**
-   * Handles an {@link UrlChangeEvent} by updating the clients with the new URL of the server
-   * instance. Should only be called by Spring when an {@link UrlChangeEvent} is published.
-   *
-   * @param event the {@link UrlChangeEvent} to handle.
-   */
-  @EventListener(UrlChangeEvent.class)
-  protected void onUrlChange(UrlChangeEvent event) {
-    this.webClient = WebClient.create(event.getUrl());
-
-    initApolloClient(event.getUrl());
-  }
-
-  @PreDestroy
-  protected void destroy() {
-    if (apolloClient != null) {
-      apolloClient.close();
-    }
-  }
-
-  /**
-   * Initializes the Apollo GraphQL client.
-   *
-   * @param url the URL of the GraphQL server without the {@code /api/graphql} path.
-   */
-  private void initApolloClient(String url) {
-    String httpUrl = url + "/api/graphql";
-    httpUrl = httpUrl.replace("//api", "/api");
-
-    String wsUrl = httpUrl.replace("http", "ws").replace("https", "wss");
-
-    if (this.apolloClient != null) {
-      try {
-        this.apolloClient.close();
-      } catch (Exception e) {
-        log.error("Error while closing ApolloClient", e);
-      }
+    companion object {
+        private val log = LoggerFactory.getLogger(WebClientService::class.java)
     }
 
-    this.apolloClient =
-        new ApolloClient.Builder()
+    var webClient: WebClient
+        private set
+
+    var apolloClient: ApolloClient? = null
+        private set
+
+    init {
+        val settings = (settingsService as Any).javaClass.getMethod("getSettings").invoke(settingsService)
+        val url = settings.javaClass.getMethod("getUrl").invoke(settings) as String
+        webClient = WebClient.create(url)
+        initApolloClient(url)
+    }
+
+    /**
+     * Handles an [UrlChangeEvent] by updating the clients with the new URL of the server
+     * instance. Should only be called by Spring when an [UrlChangeEvent] is published.
+     *
+     * @param event the [UrlChangeEvent] to handle.
+     */
+    @EventListener(UrlChangeEvent::class)
+    protected fun onUrlChange(event: UrlChangeEvent) {
+        val url = event.javaClass.getMethod("getUrl").invoke(event) as String
+        webClient = WebClient.create(url)
+        initApolloClient(url)
+    }
+
+    @PreDestroy
+    protected fun destroy() {
+        apolloClient?.close()
+    }
+
+    /**
+     * Initializes the Apollo GraphQL client.
+     *
+     * @param url the URL of the GraphQL server without the `/api/graphql` path.
+     */
+    private fun initApolloClient(url: String) {
+        var httpUrl = "$url/api/graphql"
+        httpUrl = httpUrl.replace("//api", "/api")
+
+        val wsUrl = httpUrl.replace("http", "ws").replace("https", "wss")
+
+        apolloClient?.close()
+
+        apolloClient = ApolloClient.Builder()
             .serverUrl(httpUrl)
             .webSocketServerUrl(wsUrl)
-            .build();
-  }
+            .build()
+    }
 }

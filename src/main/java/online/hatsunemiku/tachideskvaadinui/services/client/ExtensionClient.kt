@@ -1,148 +1,113 @@
-package online.hatsunemiku.tachideskvaadinui.services.client;
+package online.hatsunemiku.tachideskvaadinui.services.client
 
-import com.apollographql.apollo.api.ApolloResponse;
-import com.apollographql.java.client.ApolloCallback;
-import lombok.extern.slf4j.Slf4j;
-import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Extension;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetExtensionsMutation;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.InstallExtensionMutation;
-import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.UpdateExtensionMutation;
-import online.hatsunemiku.tachideskvaadinui.services.WebClientService;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
+import kotlinx.coroutines.runBlocking
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Extension
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetExtensionsMutation
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.InstallExtensionMutation
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.UpdateExtensionMutation
+import online.hatsunemiku.tachideskvaadinui.services.WebClientService
+import org.springframework.stereotype.Component
 
 @Component
-@Slf4j
-public class ExtensionClient {
+class ExtensionClient(private val clientService: WebClientService) {
 
-  private final WebClientService clientService;
+    fun updateExtension(extensionId: String): Boolean {
+        val apolloClient = clientService.apolloClient ?: throw RuntimeException("ApolloClient not initialized")
 
-  public ExtensionClient(WebClientService clientService) {
-    this.clientService = clientService;
-  }
+        return runBlocking {
+            try {
+                val response = apolloClient.mutation(UpdateExtensionMutation(extensionId)).execute()
+                if (response.hasErrors()) {
+                    throw RuntimeException("Error while updating extension: " + response.errors)
+                }
 
-  public boolean updateExtension(String extensionId) {
-    var apolloClient = clientService.getApolloClient();
-
-    CompletableFuture<ApolloResponse<UpdateExtensionMutation.Data>> future = new CompletableFuture<>();
-    apolloClient.mutation(new UpdateExtensionMutation(extensionId)).enqueue(future::complete);
-
-    try {
-      var response = future.join();
-      if (response.hasErrors()) {
-        throw new RuntimeException("Error while updating extension: " + response.errors);
-      }
-
-      var data = response.data;
-      if (data == null || data.updateExtension == null || data.updateExtension.extension == null) {
-        throw new RuntimeException("Error while updating extension");
-      }
-
-      return !Boolean.TRUE.equals(data.updateExtension.extension.hasUpdate);
-    } catch (Exception e) {
-      throw new RuntimeException("Error while updating extension", e);
+                val data = response.data ?: throw RuntimeException("Error while updating extension: No data")
+                val extension = data.updateExtension.extension ?: throw RuntimeException("Error while updating extension: Null extension")
+                
+                extension.hasUpdate == false
+            } catch (e: Exception) {
+                throw RuntimeException("Error while updating extension", e)
+            }
+        }
     }
-  }
 
-  /**
-   * Retrieves a list of extensions from the GraphQL server.
-   *
-   * @return a {@link List list} of {@link Extension} objects
-   * @throws RuntimeException if there is an error while retrieving the extensions
-   */
-  public List<Extension> getExtensions() {
-    var apolloClient = clientService.getApolloClient();
+    /**
+     * Retrieves a list of extensions from the GraphQL server.
+     *
+     * @return a [List] of [Extension] objects
+     * @throws RuntimeException if there is an error while retrieving the extensions
+     */
+    fun getExtensions(): List<Extension> {
+        val apolloClient = clientService.apolloClient ?: throw RuntimeException("ApolloClient not initialized")
 
-    CompletableFuture<ApolloResponse<GetExtensionsMutation.Data>> future = new CompletableFuture<>();
-    apolloClient.mutation(new GetExtensionsMutation()).enqueue(new ApolloCallback<GetExtensionsMutation.Data>() {
-      @Override
-      public void onResponse(@NotNull ApolloResponse<GetExtensionsMutation.Data> response) {
-        future.complete(response);
-      }
-    });
+        return runBlocking {
+            try {
+                val response = apolloClient.mutation(GetExtensionsMutation()).execute()
+                if (response.hasErrors()) {
+                    throw RuntimeException("Error while retrieving extensions: " + response.errors)
+                }
 
-    try {
-      var response = future.join();
-      if (response.hasErrors()) {
-        throw new RuntimeException("Error while retrieving extensions: " + response.errors);
-      }
+                val data = response.data ?: throw RuntimeException("Error while retrieving extensions: No data")
+                val extensions = data.fetchExtensions?.extensions ?: throw RuntimeException("Error while retrieving extensions: Null list")
 
-      var data = response.data;
-      if (data == null || data.fetchExtensions == null || data.fetchExtensions.extensions == null) {
-        throw new RuntimeException("Error while retrieving extensions");
-      }
-
-      return data.fetchExtensions.extensions.stream()
-          .map(node -> {
-            Extension extension = new Extension();
-            extension.setPkgName(node.pkgName);
-            extension.setApkName(node.apkName);
-            extension.setInstalled(Boolean.TRUE.equals(node.isInstalled));
-            extension.setNsfw(Boolean.TRUE.equals(node.isNsfw));
-            extension.setObsolete(Boolean.TRUE.equals(node.isObsolete));
-            extension.setLang(node.lang);
-            extension.setName(node.name);
-            extension.setHasUpdate(Boolean.TRUE.equals(node.hasUpdate));
-            extension.setIconUrl(node.iconUrl);
-            return extension;
-          })
-          .collect(Collectors.toList());
-    } catch (Exception e) {
-      throw new RuntimeException("Error while retrieving extensions", e);
+                extensions.map { node ->
+                    Extension().apply {
+                        pkgName = node.pkgName
+                        apkName = node.apkName
+                        isInstalled = node.isInstalled == true
+                        isNsfw = node.isNsfw == true
+                        isObsolete = node.isObsolete == true
+                        lang = node.lang
+                        name = node.name
+                        isHasUpdate = node.hasUpdate == true
+                        iconUrl = node.iconUrl
+                    }
+                }
+            } catch (e: Exception) {
+                throw RuntimeException("Error while retrieving extensions", e)
+            }
+        }
     }
-  }
 
-  /**
-   * Installs an extension with the given extension ID.
-   *
-   * @param extensionId the ID of the extension to install
-   * @return {@code true} if the extension is installed successfully, {@code false} otherwise
-   * @throws RuntimeException if there is an error while installing the extension
-   */
-  public boolean installExtension(String extensionId) {
-    return updateExtensionInstallStatus(extensionId, true);
-  }
-
-  /**
-   * Uninstalls an extension with the given extension ID.
-   *
-   * @param extensionId the ID of the extension to uninstall
-   * @return {@code true} if the extension is uninstalled successfully, {@code false} otherwise
-   * @throws RuntimeException if there is an error while uninstalling the extension
-   */
-  public boolean uninstallExtension(String extensionId) {
-    return !updateExtensionInstallStatus(extensionId, false);
-  }
-
-  private boolean updateExtensionInstallStatus(String extensionId, boolean install) {
-    var apolloClient = clientService.getApolloClient();
-
-    CompletableFuture<ApolloResponse<InstallExtensionMutation.Data>> future = new CompletableFuture<>();
-    apolloClient.mutation(new InstallExtensionMutation(extensionId, install, !install)).enqueue(new ApolloCallback<InstallExtensionMutation.Data>() {
-      @Override
-      public void onResponse(@NotNull ApolloResponse<InstallExtensionMutation.Data> response) {
-        future.complete(response);
-      }
-    });
-
-    try {
-      var response = future.join();
-      if (response.hasErrors()) {
-        throw new RuntimeException("Error while updating extension install status: " + response.errors);
-      }
-
-      var data = response.data;
-      if (data == null || data.updateExtension == null || data.updateExtension.extension == null) {
-        throw new RuntimeException("Error while updating extension install status");
-      }
-
-      return Boolean.TRUE.equals(data.updateExtension.extension.isInstalled);
-    } catch (Exception e) {
-      throw new RuntimeException("Error while updating extension install status", e);
+    /**
+     * Installs an extension with the given extension ID.
+     *
+     * @param extensionId the ID of the extension to install
+     * @return `true` if the extension is installed successfully, `false` otherwise
+     * @throws RuntimeException if there is an error while installing the extension
+     */
+    fun installExtension(extensionId: String): Boolean {
+        return updateExtensionInstallStatus(extensionId, true)
     }
-  }
+
+    /**
+     * Uninstalls an extension with the given extension ID.
+     *
+     * @param extensionId the ID of the extension to uninstall
+     * @return `true` if the extension is uninstalled successfully, `false` otherwise
+     * @throws RuntimeException if there is an error while uninstalling the extension
+     */
+    fun uninstallExtension(extensionId: String): Boolean {
+        return !updateExtensionInstallStatus(extensionId, false)
+    }
+
+    private fun updateExtensionInstallStatus(extensionId: String, install: Boolean): Boolean {
+        val apolloClient = clientService.apolloClient ?: throw RuntimeException("ApolloClient not initialized")
+
+        return runBlocking {
+            try {
+                val response = apolloClient.mutation(InstallExtensionMutation(extensionId, install, !install)).execute()
+                if (response.hasErrors()) {
+                    throw RuntimeException("Error while updating extension install status: " + response.errors)
+                }
+
+                val data = response.data ?: throw RuntimeException("Error while updating extension install status: No data")
+                val extension = data.updateExtension.extension ?: throw RuntimeException("Error while updating extension install status: Null extension")
+
+                extension.isInstalled == true
+            } catch (e: Exception) {
+                throw RuntimeException("Error while updating extension install status", e)
+            }
+        }
+    }
 }

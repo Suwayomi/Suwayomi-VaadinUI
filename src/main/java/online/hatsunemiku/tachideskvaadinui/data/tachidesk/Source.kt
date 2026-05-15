@@ -4,47 +4,15 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
+package online.hatsunemiku.tachideskvaadinui.data.tachidesk
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.jetbrains.annotations.NotNull;
-
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class Source implements Comparable<Source> {
-
-  @JsonProperty("supportsLatest")
-  private boolean supportsLatest;
-
-  @JsonProperty("isConfigurable")
-  private boolean isConfigurable;
-
-  @JsonProperty("isNsfw")
-  private boolean isNsfw;
-
-  @JsonProperty("displayName")
-  private String displayName;
-
-  @JsonProperty("name")
-  private String name;
-
-  @JsonProperty("id")
-  private String id;
-
-  @JsonProperty("iconUrl")
-  private String iconUrl;
-
-  @JsonProperty("lang")
-  private String lang;
-
-  @Override
-  public int compareTo(@NotNull Source o) {
-    return displayName.compareTo(o.getDisplayName());
-  }
+class Source {
+    var id: String? = null
+    var name: String? = null
+    var displayName: String? = null
+    var lang: String? = null
+    var iconUrl: String? = null
+    var isSupportsLatest: Boolean = false
+    var isConfigurable: Boolean = false
+    var isNsfw: Boolean = false
 }

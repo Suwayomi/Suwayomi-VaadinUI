@@ -4,14 +4,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
+package online.hatsunemiku.tachideskvaadinui.data.tachidesk
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * Represents a manga object from the Suwayomi API.
@@ -19,187 +14,143 @@ import lombok.Setter;
  * @since 0.9.0
  * @version 1.12.0
  */
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class Manga {
+class Manga {
 
-  @JsonProperty("sourceId")
-  private String sourceId;
+    @JsonProperty("sourceId")
+    var sourceId: String? = null
 
-  @JsonProperty("artist")
-  private String artist;
+    @JsonProperty("artist")
+    var artist: String? = null
 
-  @JsonProperty("chaptersLastFetchedAt")
-  private int chaptersLastFetchedAt;
+    @JsonProperty("chaptersLastFetchedAt")
+    var chaptersLastFetchedAt: Int = 0
 
-  @JsonProperty("description")
-  private String description;
+    @JsonProperty("description")
+    var description: String? = null
 
-  @JsonProperty("unreadCount")
-  private int unreadCount;
+    @JsonProperty("unreadCount")
+    var unreadCount: Int = 0
 
-  @JsonProperty("source")
-  private Source source;
+    @JsonProperty("source")
+    var source: Source? = null
 
-  @JsonProperty("title")
-  private String title;
+    @JsonProperty("title")
+    var title: String? = null
 
-  @JsonProperty("freshData")
-  private boolean freshData;
+    @JsonProperty("freshData")
+    var isFreshData: Boolean = false
 
-  @JsonProperty("thumbnailUrlLastFetched")
-  private int thumbnailUrlLastFetched;
+    @JsonProperty("thumbnailUrlLastFetched")
+    var thumbnailUrlLastFetched: Int = 0
 
-  @JsonProperty("inLibraryAt")
-  private int inLibraryAt;
+    @JsonProperty("inLibraryAt")
+    var inLibraryAt: Int = 0
 
-  @JsonProperty("genre")
-  private List<String> genre;
+    @JsonProperty("genre")
+    var genre: List<String>? = null
 
-  @JsonProperty("realUrl")
-  private String realUrl;
+    @JsonProperty("realUrl")
+    var realUrl: String? = null
 
-  @JsonProperty("initialized")
-  private boolean initialized;
-
-  @JsonProperty("id")
-  private int id;
-
-  @JsonProperty("thumbnailUrl")
-  private String thumbnailUrl;
-
-  @JsonProperty("lastFetchedAt")
-  private int lastFetchedAt;
-
-  @Setter
-  @JsonProperty("inLibrary")
-  private boolean inLibrary;
-
-  @JsonProperty("author")
-  private String author;
-
-  @JsonProperty("chapterCount")
-  private int chapterCount;
-
-  @JsonProperty("url")
-  private String url;
-
-  @JsonProperty("updateStrategy")
-  private String updateStrategy;
-
-  @JsonProperty("chaptersAge")
-  private int chaptersAge;
-
-  @JsonProperty("lastChapterRead")
-  private Chapter lastChapterRead;
-
-  @JsonProperty("downloadCount")
-  private int downloadCount;
-
-  @JsonProperty("age")
-  private int age;
-
-  @JsonProperty("status")
-  private String status;
-
-  @JsonProperty("chapters")
-  @Getter(value = lombok.AccessLevel.NONE)
-  private Chapters chapters;
-
-  @JsonProperty("categories")
-  @Getter(value = lombok.AccessLevel.NONE)
-  private MangaCategories categories;
-
-  public int getLastChapterId() {
-    List<Edge> edges = chapters.getEdge();
-
-    if (edges.isEmpty()) {
-      return 0;
-    }
-
-    return edges.get(edges.size() - 1).getNode().getId();
-  }
-
-  public int getFirstChapterId() {
-    List<Edge> edges = chapters.getEdge();
-
-    if (edges.isEmpty()) {
-      return 0;
-    }
-
-    return edges.get(0).getNode().getId();
-  }
-
-  public List<Category> getMangaCategories() {
-    if (categories == null) {
-      return List.of();
-    }
-
-    return categories.getNodes();
-  }
-
-  /** Represents chapters of a manga with the total count of chapters. */
-  @Getter
-  @Setter
-  @AllArgsConstructor
-  @NoArgsConstructor
-  public static class Chapters {
-
-    @JsonProperty("edges")
-    private List<Edge> edge;
-
-    @JsonProperty("totalCount")
-    private long totalCount;
-  }
-
-  @Getter
-  @Setter
-  @AllArgsConstructor
-  @NoArgsConstructor
-  public static class Edge {
-
-    @JsonProperty("node")
-    private Node node;
-  }
-
-  @Getter
-  @Setter
-  @AllArgsConstructor
-  @NoArgsConstructor
-  public static class Node {
+    @JsonProperty("initialized")
+    var isInitialized: Boolean = false
 
     @JsonProperty("id")
-    private int id;
-  }
+    var id: Int = 0
 
-  @Getter
-  @Setter
-  @AllArgsConstructor
-  @NoArgsConstructor
-  public static class MangaCategories {
+    @JsonProperty("thumbnailUrl")
+    var thumbnailUrl: String? = null
 
-    @JsonProperty("nodes")
-    private List<Category> nodes;
-  }
+    @JsonProperty("lastFetchedAt")
+    var lastFetchedAt: Int = 0
 
-  /**
-   * Get the total number of chapters for this manga. If the chapter count is not set, the count
-   * will be retrieved from the {@link Chapters chapters} object if available. The default value is
-   * 0.
-   *
-   * @return the total number of chapters for this manga
-   */
-  public int getChapterCount() {
-    if (this.chapterCount != 0) {
-      return chapterCount;
+    @JsonProperty("inLibrary")
+    var isInLibrary: Boolean = false
+
+    @JsonProperty("author")
+    var author: String? = null
+
+    @JsonProperty("chapterCount")
+    var chapterCount: Int = 0
+
+    @JsonProperty("url")
+    var url: String? = null
+
+    @JsonProperty("updateStrategy")
+    var updateStrategy: String? = null
+
+    @JsonProperty("chaptersAge")
+    var chaptersAge: Int = 0
+
+    @JsonProperty("lastChapterRead")
+    var lastChapterRead: Chapter? = null
+
+    @JsonProperty("downloadCount")
+    var downloadCount: Int = 0
+
+    @JsonProperty("age")
+    var age: Int = 0
+
+    @JsonProperty("status")
+    var status: String? = null
+
+    @JsonProperty("chapters")
+    private var chapters: Chapters? = null
+
+    @JsonProperty("categories")
+    private var categories: MangaCategories? = null
+
+    fun getLastChapterId(): Int {
+        val edges = chapters?.edge ?: return 0
+        if (edges.isEmpty()) return 0
+        return edges.last().node?.id ?: 0
     }
 
-    if (chapters == null) {
-      return 0;
+    fun getFirstChapterId(): Int {
+        val edges = chapters?.edge ?: return 0
+        if (edges.isEmpty()) return 0
+        return edges.first().node?.id ?: 0
     }
 
-    return (int) chapters.getTotalCount();
-  }
+    fun getMangaCategories(): List<Category> {
+        return categories?.nodes ?: emptyList()
+    }
+
+    /** Represents chapters of a manga with the total count of chapters. */
+    class Chapters {
+        @JsonProperty("edges")
+        var edge: List<Edge>? = null
+
+        @JsonProperty("totalCount")
+        var totalCount: Long = 0
+    }
+
+    class Edge {
+        @JsonProperty("node")
+        var node: Node? = null
+    }
+
+    class Node {
+        @JsonProperty("id")
+        var id: Int = 0
+    }
+
+    class MangaCategories {
+        @JsonProperty("nodes")
+        var nodes: List<Category>? = null
+    }
+
+    /**
+     * Get the total number of chapters for this manga. If the chapter count is not set, the count
+     * will be retrieved from the [Chapters chapters] object if available. The default value is
+     * 0.
+     *
+     * @return the total number of chapters for this manga
+     */
+    fun getChapterCountValue(): Int {
+        if (this.chapterCount != 0) {
+            return chapterCount
+        }
+        return chapters?.totalCount?.toInt() ?: 0
+    }
 }
