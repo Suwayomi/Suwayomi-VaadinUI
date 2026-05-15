@@ -25,11 +25,11 @@ class WebClientService(settingsService: SettingsService) {
         private val log = LoggerFactory.getLogger(WebClientService::class.java)
     }
 
-    var webClient: WebClient
+    final var webClient: WebClient
         private set
 
-    var apolloClient: ApolloClient? = null
-        private set
+    final var apolloClient: ApolloClient? = null
+
 
     init {
         val settings = (settingsService as Any).javaClass.getMethod("getSettings").invoke(settingsService)

@@ -15,12 +15,14 @@ plugins {
 
     //Jpackage for building native installers
     id("org.panteleyev.jpackageplugin") version "1.6.0"
+    id "org.jetbrains.kotlin.plugin.spring" version '2.3.21'
 }
 
 apollo {
     service("suwayomi") {
         srcDir("src/main/graphql/online/hatsunemiku/tachideskvaadinui/graphql/suwayomi")
         packageName.set("online.hatsunemiku.tachideskvaadinui.graphql.suwayomi")
+        mapScalarToUpload("Upload")
     }
     service("anilist") {
         srcDir("src/main/graphql/online/hatsunemiku/tachideskvaadinui/graphql/anilist")
@@ -91,6 +93,7 @@ dependencies {
     implementation 'pl.unforgiven:superfields:0.20.2'
     implementation 'org.vaadin.addons.online.hatsunemiku.diamond:FlowSwiper:1.4.0'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
 }
 
 configurations {

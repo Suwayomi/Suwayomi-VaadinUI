@@ -9,6 +9,8 @@ package online.hatsunemiku.tachideskvaadinui.services;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.settings.FlareSolverrSettings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.ExtensionRepo;
 import online.hatsunemiku.tachideskvaadinui.services.client.suwayomi.SuwayomiSettingsClient;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
  * SuwayomiSettingsClient} class and provides methods for updating and retrieving Suwayomi server
  * settings.
  */
+@Slf4j
 @Service
 public class SuwayomiSettingsService {
 
@@ -116,6 +119,7 @@ public class SuwayomiSettingsService {
       client.restoreBackup(path);
       return true;
     } catch (Exception e) {
+      log.error("Error while restoring backup", e);
       return false;
     }
   }
