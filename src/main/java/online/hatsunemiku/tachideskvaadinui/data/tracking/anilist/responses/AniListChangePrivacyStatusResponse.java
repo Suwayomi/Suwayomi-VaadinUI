@@ -9,4 +9,4 @@ package online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.responses;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record AniListChangePrivacyStatusResponse(
-    @JsonProperty("id") int id, @JsonProperty("private") boolean isPrivate) {}
+    @JsonProperty("id") int id, @JsonProperty("private") Boolean isPrivate) {}

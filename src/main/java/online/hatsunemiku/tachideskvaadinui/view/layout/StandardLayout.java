@@ -299,6 +299,7 @@ public class StandardLayout extends VerticalLayout {
   protected void setContent(Component content) {
     this.content.removeAll();
     this.content.add(content);
+    this.content.setFlexGrow(1, content);
   }
 
   protected void fullScreen() {

@@ -154,6 +154,7 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
   private static Button getDownloadBtn(Chapter chapter, MangaService mangaService, Div actions) {
     if (chapter.isDownloaded()) {
       Button deleteBtn = new Button(VaadinIcon.TRASH.create());
+      deleteBtn.getElement().addEventListener("click", e -> {}).addEventData("event.stopPropagation()");
       deleteBtn.addClickListener(
           e -> {
             var success = mangaService.deleteSingleChapter(chapter.getId());
@@ -165,6 +166,7 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
       return deleteBtn;
     } else {
       Button downloadBtn = new Button(VaadinIcon.DOWNLOAD.create());
+      downloadBtn.getElement().addEventListener("click", e -> {}).addEventData("event.stopPropagation()");
       downloadBtn.addClickListener(
           e -> {
             var success = mangaService.downloadSingleChapter(chapter.getId());
@@ -216,6 +218,7 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
    */
   private static Button getReadButton(Chapter chapter, MangaService mangaService, Div actions) {
     Button readButton = new Button(VaadinIcon.EYE.create());
+    readButton.getElement().addEventListener("click", e -> {}).addEventData("event.stopPropagation()");
     readButton.setId("read-button");
     readButton.addClickListener(
         e -> {
@@ -240,6 +243,7 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
    */
   private static Button getUnreadButton(Chapter chapter, MangaService mangaService, Div actions) {
     Button unreadButton = new Button(VaadinIcon.EYE_SLASH.create());
+    unreadButton.getElement().addEventListener("click", e -> {}).addEventData("event.stopPropagation()");
     unreadButton.setId("unread-button");
     unreadButton.addClickListener(
         e -> {

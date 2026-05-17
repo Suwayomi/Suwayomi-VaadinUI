@@ -372,47 +372,57 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
             return;
           }
 
+          // Use a sorted copy (oldest to newest) to avoid ambiguity with list ordering
+          List<Chapter> sorted = new ArrayList<>(chapters);
+          sorted.sort(Chapter::compareTo);
+
           Chapter nextChapter = null;
-
           var lastChapter = manga.getLastChapterRead();
-          if (lastChapter == null) {
-            var reversed = new ArrayList<>(chapters);
-            Collections.reverse(reversed);
 
-            for (Chapter chapter : reversed) {
-              if (chapter.isRead()) {
-                continue;
-              }
-
-              nextChapter = chapter;
-              break;
-            }
-
-            if (nextChapter == null) {
-              nextChapter = chapters.getFirst();
-            }
-          } else {
-            int id = lastChapter.getId();
-            int index = 0;
-
-            for (Chapter chapter : chapters) {
-              if (chapter.getId() == id) {
+          if (lastChapter != null) {
+            int lastId = lastChapter.getId();
+            int index = -1;
+            for (int i = 0; i < sorted.size(); i++) {
+              if (sorted.get(i).getId() == lastId) {
+                index = i;
                 break;
               }
-              index++;
             }
 
-            if (index == chapters.size() - 1) {
-              Notification notification = new Notification("No more chapters available", 3000);
-              notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
-              notification.setPosition(Notification.Position.MIDDLE);
-              notification.open();
-              return;
+            if (index != -1) {
+              Chapter currentInList = sorted.get(index);
+              if (!currentInList.isRead()) {
+                // Resume the current chapter if it's not finished
+                nextChapter = currentInList;
+              } else {
+                // Find the first unread chapter after the last read one
+                for (int i = index + 1; i < sorted.size(); i++) {
+                  if (!sorted.get(i).isRead()) {
+                    nextChapter = sorted.get(i);
+                    break;
+                  }
+                }
+              }
             }
+          }
 
-            List<Chapter> reverseChapters = new ArrayList<>(chapters);
-            Collections.reverse(reverseChapters);
-            nextChapter = reverseChapters.get(index);
+          if (nextChapter == null) {
+            // Not found in history or no history, find the first unread chapter overall
+            for (Chapter chapter : sorted) {
+              if (!chapter.isRead()) {
+                nextChapter = chapter;
+                break;
+              }
+            }
+          }
+
+          if (nextChapter == null) {
+            // Everything is read
+            Notification notification = new Notification("No more chapters available", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+            notification.setPosition(Notification.Position.MIDDLE);
+            notification.open();
+            return;
           }
 
           UI ui = UI.getCurrent();
