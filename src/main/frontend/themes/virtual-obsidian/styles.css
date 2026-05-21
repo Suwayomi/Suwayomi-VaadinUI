@@ -11,7 +11,7 @@ html {
     --obsidian-bg-card: #0d1218;
     --obsidian-accent: #a2eae7;
     --obsidian-accent-rgb: 162, 234, 231;
-    --obsidian-text: #eafaff;
+    --obsidian-text: #a2eae7;
     --obsidian-text-dim: rgba(var(--obsidian-accent-rgb), 0.6);
     
     /* Legacy compatibility for components still using miku variables */
