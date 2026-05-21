@@ -949,7 +949,13 @@ public class SettingsView extends StandardLayout {
           }
         });
     
-    createCard.add(createHeader, createDesc, backupButton);
+    VerticalLayout createHeaderGroup = new VerticalLayout(createHeader, createDesc);
+    createHeaderGroup.setAlignItems(Alignment.CENTER);
+    createHeaderGroup.setPadding(false);
+    createHeaderGroup.setSpacing(false);
+    createHeaderGroup.setWidthFull();
+
+    createCard.add(createHeaderGroup, backupButton);
 
     // Restore Backup Card
     VerticalLayout restoreCard = new VerticalLayout();
@@ -958,6 +964,12 @@ public class SettingsView extends StandardLayout {
 
     H2 restoreHeader = new H2("Import");
     Span restoreDesc = new Span("Upload a backup file to restore your data.");
+
+    VerticalLayout restoreHeaderGroup = new VerticalLayout(restoreHeader, restoreDesc);
+    restoreHeaderGroup.setAlignItems(Alignment.CENTER);
+    restoreHeaderGroup.setPadding(false);
+    restoreHeaderGroup.setSpacing(false);
+    restoreHeaderGroup.setWidthFull();
 
     AtomicReference<Path> backupFile = new AtomicReference<>();
     UploadHandler uploadHandler =
@@ -997,7 +1009,7 @@ public class SettingsView extends StandardLayout {
           notification.open();
         });
 
-    restoreCard.add(restoreHeader, restoreDesc, upload, restore);
+    restoreCard.add(restoreHeaderGroup, upload, restore);
 
     cardsLayout.add(createCard, restoreCard);
 

@@ -549,7 +549,7 @@ body {
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
-    justify-content: flex-start;
+    justify-content: center;
     margin-top: 1rem;
 }
 
