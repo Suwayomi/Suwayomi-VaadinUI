@@ -12,6 +12,7 @@ html {
     --obsidian-accent: #a2eae7;
     --obsidian-accent-rgb: 162, 234, 231;
     --obsidian-text: #a2eae7;
+    --obsidian-highlight: #eafaff;
     --obsidian-text-dim: rgba(var(--obsidian-accent-rgb), 0.6);
     
     /* Legacy compatibility for components still using miku variables */
@@ -419,7 +420,7 @@ body {
 }
 
 .nav-btn:hover vaadin-icon {
-    color: var(--obsidian-text);
+    color: var(--obsidian-highlight);
 }
 
 .nav-btn vaadin-icon {
@@ -427,7 +428,7 @@ body {
 }
 
 .nav-btn:hover {
-    color: var(--obsidian-text);
+    color: var(--obsidian-highlight);
     background: rgba(var(--obsidian-accent-rgb), 0.08);
 }
 

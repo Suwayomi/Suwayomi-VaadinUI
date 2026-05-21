@@ -17,11 +17,15 @@
 }
 
 [part="label"] {
-    color: var(--obsidian-accent);
+    color: var(--obsidian-accent) !important;
     font-weight: 600;
 }
 
+:host(:hover:not([focused])) [part="label"] {
+    color: var(--obsidian-highlight) !important;
+}
+
 :host([focused]) [part="label"] {
-    color: var(--obsidian-accent);
-    text-shadow: 0 0 8px rgba(var(--obsidian-accent-rgb), 0.4);
+    color: var(--obsidian-highlight) !important;
+    text-shadow: 0 0 10px rgba(var(--obsidian-accent-rgb), 0.4);
 }

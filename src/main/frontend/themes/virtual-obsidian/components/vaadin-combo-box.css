@@ -53,3 +53,11 @@ vaadin-input-container[part="input-field"]::after {
 [part="value"] {
     color: var(--obsidian-text) !important;
 }
+
+:host([focused]) [part="label"] {
+    color: var(--obsidian-text);
+}
+
+:host(:hover:not([readonly])) [part="label"] {
+    border-color: var(--obsidian-highlight);
+}
