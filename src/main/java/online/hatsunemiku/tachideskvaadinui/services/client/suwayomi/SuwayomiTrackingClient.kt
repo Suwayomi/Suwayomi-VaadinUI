@@ -384,7 +384,7 @@ class SuwayomiTrackingClient(
                 }
 
                 val data = response.data ?: throw RuntimeException("Error while getting tracking scores: No data")
-                data.trackRecord?.tracker?.scores ?: emptyList()
+                data.trackRecord.tracker.scores
             } catch (e: Exception) {
                 throw RuntimeException("Error while getting tracking scores", e)
             }
