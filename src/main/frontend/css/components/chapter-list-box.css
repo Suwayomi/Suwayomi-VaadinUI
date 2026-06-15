@@ -1,8 +1,9 @@
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */
+@property --download-progress {
+    syntax: "<percentage>";
+    inherits: true;
+    initial-value: 0%;
+}
+
 
 .chapter-list-box-item {
     width: 100% !important;
@@ -17,12 +18,13 @@
     background: #172025 !important;
     box-shadow: none !important;
     cursor: pointer !important;
-    transition: border-color 120ms ease, background 120ms ease !important;
+    transition: border-color 120ms ease, background 500ms ease, box-shadow 120ms ease !important;
 }
 
 .chapter-list-box-item:hover {
-    border-color: rgba(176, 196, 198, 0.16) !important;
+    border-color: rgba(var(--obsidian-accent-rgb), 0.3) !important;
     background: #1a252b !important;
+    box-shadow: 0 0 12px rgba(var(--obsidian-accent-rgb), 0.18) !important;
 }
 
 vaadin-list-box.chapter-list-box vaadin-item::part(content) {
@@ -52,11 +54,12 @@ vaadin-list-box.chapter-list-box vaadin-item[selected] .chapter-list-box-item {
 }
 
 .chapter-list-box-item-title {
-    color: #e8efef !important;
+    color: var(--obsidian-accent) !important;
     font-family: "Space Grotesk", sans-serif !important;
     font-size: 1.04rem !important;
     font-weight: 600 !important;
     line-height: 1.1;
+    transition: color 250ms ease !important;
 }
 
 .chapter-list-box-item-subtitle {
@@ -67,6 +70,7 @@ vaadin-list-box.chapter-list-box vaadin-item[selected] .chapter-list-box-item {
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 34ch;
+    transition: color 250ms ease !important;
 }
 
 .chapter-list-box-item-right-side {
@@ -82,6 +86,7 @@ vaadin-list-box.chapter-list-box vaadin-item[selected] .chapter-list-box-item {
     font-weight: 700 !important;
     text-transform: uppercase !important;
     letter-spacing: 0.08em !important;
+    transition: color 250ms ease !important;
 }
 
 .chapter-list-box-item-actions {
@@ -129,7 +134,37 @@ vaadin-list-box.chapter-list-box {
     --vaadin-item-focused-overlay: transparent;
 }
 
+/* Make sure the wrapping vaadin-item background is completely transparent to prevent solid blocks/glows peeking out */
+vaadin-list-box.chapter-list-box vaadin-item,
+vaadin-list-box.chapter-list-box vaadin-item:hover,
+vaadin-list-box.chapter-list-box vaadin-item:active,
+vaadin-list-box.chapter-list-box vaadin-item:focus,
+vaadin-list-box.chapter-list-box vaadin-item[selected] {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
 vaadin-list-box.chapter-list-box vaadin-item:hover::part(content),
 vaadin-list-box.chapter-list-box vaadin-item:active::part(content) {
     background: transparent !important;
+}
+
+.chapter-list-box-item.downloading-item {
+    background: linear-gradient(to right, var(--lumo-primary-color) 0%, var(--lumo-primary-color) var(--download-progress, 0%), #172025 var(--download-progress, 0%), #172025 100%) !important;
+    transition: --download-progress 350ms ease-out !important;
+}
+
+.chapter-list-box-item.downloading-item .chapter-list-box-item-title {
+    color: var(--obsidian-bg) !important;
+}
+
+.chapter-list-box-item.downloading-item .chapter-list-box-item-subtitle {
+    color: var(--obsidian-bg) !important;
+    opacity: 0.82 !important;
+}
+
+.chapter-list-box-item.downloading-item.progress-past-date .chapter-list-box-item-date {
+    color: var(--obsidian-bg) !important;
 }

@@ -168,13 +168,17 @@
     transition: all 0.22s ease;
 }
 
-.refresh-library-button {
-    color: rgba(210, 237, 244, 0.9);
+.refresh-library-button,
+.anilist-import-button,
+.mal-import-button {
+  color: var(--miku-main-color);
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.refresh-library-button:hover {
+.refresh-library-button:hover,
+.anilist-import-button:hover,
+.mal-import-button:hover {
     background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.18);
 }
@@ -183,6 +187,10 @@
     color: #0f151a;
     background: linear-gradient(90deg, #7fd8d4, #a2eae7);
     border: 1px solid rgba(162, 234, 231, 0.6);
+}
+
+.add-category-button vaadin-icon {
+  color: #111415;
 }
 
 .add-category-button:hover {
@@ -202,3 +210,6 @@
     margin-bottom: 1rem;
     width: 100%;
 }
+
+
+

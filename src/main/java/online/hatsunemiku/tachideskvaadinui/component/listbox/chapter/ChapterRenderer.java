@@ -9,6 +9,7 @@ package online.hatsunemiku.tachideskvaadinui.component.listbox.chapter;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -18,7 +19,9 @@ import com.vaadin.flow.router.RouteParam;
 import com.vaadin.flow.router.RouteParameters;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import online.hatsunemiku.tachideskvaadinui.component.listbox.chapter.event.ChapterDownloadSyncEvent;
 import online.hatsunemiku.tachideskvaadinui.component.listbox.chapter.event.ChapterReadStatusChangeEvent;
 import online.hatsunemiku.tachideskvaadinui.component.listbox.chapter.event.ChapterReadSyncEvent;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
@@ -35,8 +38,8 @@ import org.jetbrains.annotations.NotNull;
 @Slf4j
 public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter> {
 
-  public ChapterRenderer(MangaService mangaService) {
-    super(chapter -> createPresentation(chapter, mangaService));
+  public ChapterRenderer(MangaService mangaService, ChapterListBox listBox) {
+    super(chapter -> createPresentation(chapter, mangaService, listBox));
   }
 
   /**
@@ -44,9 +47,11 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
    *
    * @param chapter The chapter to render
    * @param mangaService The manga service to use for setting the chapter read status
+   * @param listBox The parent ChapterListBox component
    * @return The presentation of the chapter as a {@link HorizontalLayout}
    */
-  private static HorizontalLayout createPresentation(Chapter chapter, MangaService mangaService) {
+  private static HorizontalLayout createPresentation(
+      Chapter chapter, MangaService mangaService, ChapterListBox listBox) {
     HorizontalLayout container = new HorizontalLayout();
     container.addClassName("chapter-list-box-item");
 
@@ -99,7 +104,7 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
       readStatusBtn = getUnreadButton(chapter, mangaService, actions);
     }
 
-    Button downloadBtn = getDownloadBtn(chapter, mangaService, actions);
+    Button downloadBtn = getDownloadBtn(chapter, mangaService, actions, container);
 
     actions.add(readStatusBtn, downloadBtn);
     rightSide.add(dateDiv, actions);
@@ -114,6 +119,108 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
       RouteParameters params = new RouteParameters(mangaIdParam, chapterIdParam);
       UI.getCurrent().navigate(ReadingView.class, params);
     });
+
+    // Right-click context menu
+    ContextMenu contextMenu = new ContextMenu();
+    contextMenu.setTarget(container);
+
+    contextMenu.addItem(
+        "Mark this and all below as read",
+        e -> {
+          List<Chapter> allChapters = listBox.getListDataView().getItems().toList();
+          int idx = allChapters.indexOf(chapter);
+          if (idx != -1) {
+            List<Chapter> targets = allChapters.subList(idx, allChapters.size());
+            List<Integer> ids = targets.stream().filter(c -> !c.isRead()).map(Chapter::getId)
+                .toList();
+            if (!ids.isEmpty()) {
+              mangaService.setChaptersRead(ids, chapter.getMangaId());
+              for (Chapter c : targets) {
+                c.setRead(true);
+              }
+              listBox.getListDataView().refreshAll();
+            }
+          }
+        });
+
+    if (chapter.isRead()) {
+      contextMenu.addItem(
+          "Mark as unread",
+          e -> {
+            if (mangaService.setChapterUnread(chapter.getId())) {
+              chapter.setRead(false);
+              listBox.getListDataView().refreshItem(chapter);
+            }
+          });
+    } else {
+      contextMenu.addItem(
+          "Mark as read",
+          e -> {
+            if (mangaService.setChapterRead(chapter.getId(), chapter.getMangaId())) {
+              chapter.setRead(true);
+              listBox.getListDataView().refreshItem(chapter);
+            }
+          });
+    }
+
+    contextMenu.addItem(
+        "Mark this and all below as unread",
+        e -> {
+          List<Chapter> allChapters = listBox.getListDataView().getItems().toList();
+          int idx = allChapters.indexOf(chapter);
+          if (idx != -1) {
+            List<Chapter> targets = allChapters.subList(idx, allChapters.size());
+            List<Integer> ids = targets.stream().filter(Chapter::isRead).map(Chapter::getId)
+                .toList();
+            if (!ids.isEmpty()) {
+              mangaService.setChaptersUnread(ids);
+              for (Chapter c : targets) {
+                c.setRead(false);
+              }
+              listBox.getListDataView().refreshAll();
+            }
+          }
+        });
+
+    contextMenu.addItem(
+        "Download this and all below",
+        e -> {
+          List<Chapter> allChapters = listBox.getListDataView().getItems().toList();
+          int idx = allChapters.indexOf(chapter);
+          if (idx != -1) {
+            List<Chapter> targets = allChapters.subList(idx, allChapters.size());
+            List<Integer> ids = targets.stream().filter(c -> !c.isDownloaded()).map(Chapter::getId)
+                .toList();
+            if (!ids.isEmpty()) {
+              if (mangaService.downloadMultipleChapter(ids)) {
+                UI uiObj = container.getUI().orElse(UI.getCurrent());
+                ComponentUtil.fireEvent(uiObj, new ChapterDownloadSyncEvent(container, ids));
+              }
+            }
+          }
+        });
+
+    if (chapter.isDownloaded()) {
+      contextMenu.addItem(
+          "Delete download",
+          e -> {
+            var success = mangaService.deleteSingleChapter(chapter.getId());
+            if (success) {
+              chapter.setDownloaded(false);
+              listBox.getListDataView().refreshItem(chapter);
+            }
+          });
+    } else {
+      contextMenu.addItem(
+          "Download this",
+          e -> {
+            if (mangaService.downloadSingleChapter(chapter.getId())) {
+              UI uiObj = container.getUI().orElse(UI.getCurrent());
+              ComponentUtil.fireEvent(uiObj,
+                  new ChapterDownloadSyncEvent(container, List.of(chapter.getId())));
+            }
+          });
+    }
 
     ComponentUtil.addListener(
         actions,
@@ -151,7 +258,8 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
   }
 
   @NotNull
-  private static Button getDownloadBtn(Chapter chapter, MangaService mangaService, Div actions) {
+  private static Button getDownloadBtn(
+      Chapter chapter, MangaService mangaService, Div actions, HorizontalLayout container) {
     if (chapter.isDownloaded()) {
       Button deleteBtn = new Button(VaadinIcon.TRASH.create());
       deleteBtn.getElement().addEventListener("click", e -> {}).addEventData("event.stopPropagation()");
@@ -160,7 +268,8 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
             var success = mangaService.deleteSingleChapter(chapter.getId());
             if (success) {
               Chapter chapterCopy = chapter.withDownloaded(false);
-              actions.replace(deleteBtn, getDownloadBtn(chapterCopy, mangaService, actions));
+              actions.replace(deleteBtn,
+                  getDownloadBtn(chapterCopy, mangaService, actions, container));
             }
           });
       return deleteBtn;
@@ -174,7 +283,7 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
               downloadBtn.setEnabled(false);
               downloadBtn.addClassName("downloading");
               UI ui = UI.getCurrent();
-              trackChapterDownload(chapter, mangaService, actions, ui, downloadBtn);
+              trackChapterDownload(chapter, mangaService, actions, ui, downloadBtn, container);
             }
           });
 
@@ -185,7 +294,18 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
           e -> {
             downloadBtn.setEnabled(false);
             downloadBtn.addClassName("downloading");
-            trackChapterDownload(chapter, mangaService, actions, ui, downloadBtn);
+            trackChapterDownload(chapter, mangaService, actions, ui, downloadBtn, container);
+          });
+
+      ComponentUtil.addListener(
+          ui,
+          ChapterDownloadSyncEvent.class,
+          e -> {
+            if (e.getChapterIds().contains(chapter.getId())) {
+              downloadBtn.setEnabled(false);
+              downloadBtn.addClassName("downloading");
+              trackChapterDownload(chapter, mangaService, actions, ui, downloadBtn, container);
+            }
           });
 
       return downloadBtn;
@@ -193,15 +313,46 @@ public class ChapterRenderer extends ComponentRenderer<HorizontalLayout, Chapter
   }
 
   private static void trackChapterDownload(
-      Chapter chapter, MangaService mangaService, Div actions, UI ui, Button downloadBtn) {
+      Chapter chapter,
+      MangaService mangaService,
+      Div actions,
+      UI ui,
+      Button downloadBtn,
+      HorizontalLayout container) {
+    if (ui.isAttached()) {
+      ui.access(() -> {
+        container.addClassName("downloading-item");
+        container.getElement().getStyle().set("--download-progress", "0%");
+        container.removeClassName("progress-past-date");
+      });
+    }
+
     mangaService.addDownloadTrackListener(
         chapter.getId(),
+        progress -> {
+          if (ui.isAttached()) {
+            ui.access(() -> {
+              int percentage = (int) (progress * 100);
+              container.getElement().getStyle().set("--download-progress", percentage + "%");
+
+              if (percentage >= 75) {
+                container.addClassName("progress-past-date");
+              } else {
+                container.removeClassName("progress-past-date");
+              }
+            });
+          }
+        },
         () -> {
           if (ui.isAttached()) {
             ui.access(
                 () -> {
+                  container.removeClassName("downloading-item");
+                  container.removeClassName("progress-past-date");
+                  container.getElement().getStyle().remove("--download-progress");
+
                   Chapter chapterCopy = chapter.withDownloaded(true);
-                  Button deleteBtn = getDownloadBtn(chapterCopy, mangaService, actions);
+                  Button deleteBtn = getDownloadBtn(chapterCopy, mangaService, actions, container);
                   actions.replace(downloadBtn, deleteBtn);
                 });
           }

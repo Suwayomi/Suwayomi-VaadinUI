@@ -1,0 +1,70 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+:host {
+  --vaadin-input-field-background: transparent;
+  --vaadin-input-field-border-color: rgba(var(--obsidian-accent-rgb), 0.3);
+  --vaadin-input-field-value-color: var(--obsidian-text);
+  --vaadin-input-field-placeholder-color: var(--obsidian-text-dim);
+  background-color: transparent !important;
+}
+
+/* Selector for the internal container */
+[part="input-field"],
+vaadin-input-container[part="input-field"] {
+  background-color: #0d1115 !important;
+  background-image: none !important;
+  border: 1px solid rgba(var(--obsidian-accent-rgb), 0.3) !important;
+  border-radius: 4px;
+  box-shadow: none !important;
+}
+
+/* Remove Lumo-injected pseudo-element highlights/gloss */
+[part="input-field"]::before,
+[part="input-field"]::after,
+vaadin-input-container[part="input-field"]::before,
+vaadin-input-container[part="input-field"]::after {
+  display: none !important;
+  content: none !important;
+  background: transparent !important;
+}
+
+/* Explicit hover state */
+:host(:hover:not([readonly])) [part="input-field"],
+:host(:hover:not([readonly])) vaadin-input-container[part="input-field"] {
+  border-color: var(--obsidian-accent) !important;
+  background-color: #161b22 !important;
+}
+
+/* Explicit focus state */
+:host([focused]:not([readonly])) [part="input-field"],
+:host([focused]:not([readonly])) vaadin-input-container[part="input-field"] {
+  border-color: var(--obsidian-accent) !important;
+  background-color: #161b22 !important;
+  box-shadow: 0 0 0 1px var(--obsidian-accent) !important;
+}
+
+[part="toggle-button"] {
+  color: var(--obsidian-accent) !important;
+}
+
+[part="label"] {
+  color: var(--obsidian-accent) !important;
+  font-weight: 600;
+}
+
+[part="value"] {
+  color: var(--obsidian-text) !important;
+}
+
+:host(:hover:not([readonly])) [part="label"] {
+  color: var(--obsidian-highlight) !important;
+}
+
+:host([focused]) [part="label"] {
+  color: var(--obsidian-highlight) !important;
+  text-shadow: 0 0 10px rgba(var(--obsidian-accent-rgb), 0.4);
+}

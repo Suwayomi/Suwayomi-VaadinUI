@@ -10,6 +10,8 @@ import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
+import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
@@ -64,6 +66,11 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
   private final MyAnimeListAPIService malAPI;
   private final SuwayomiService suwayomiService;
 
+  private List<Chapter> chapters;
+  private ListBox<Chapter> chapterListBox;
+  private Span countBadge;
+  private boolean filterDuplicates = false;
+
   /**
    * Creates a MangaView object.
    *
@@ -115,13 +122,14 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
       return;
     }
 
-    List<Chapter> chapters = new ArrayList<>(mangaService.getChapterList(mangaId));
-    if (chapters.isEmpty()) {
-      chapters = new ArrayList<>(mangaService.fetchChapterList(mangaId));
+    this.filterDuplicates = false;
+    this.chapters = new ArrayList<>(mangaService.getChapterList(mangaId));
+    if (this.chapters.isEmpty()) {
+      this.chapters = new ArrayList<>(mangaService.fetchChapterList(mangaId));
     }
-    Collections.reverse(chapters);
+    Collections.reverse(this.chapters);
 
-    setContent(buildMangaView(settings, manga, chapters));
+    setContent(buildMangaView(settings, manga, this.chapters));
   }
 
   @NotNull
@@ -174,7 +182,8 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     Div metaContainer = new Div();
     metaContainer.addClassName("manga-hero-meta");
     metaContainer.add(createHeroMetaItem(VaadinIcon.USER, "Author: " + safe(manga.getAuthor())));
-    metaContainer.add(createHeroMetaItem(VaadinIcon.REFRESH, "Status: " + safe(manga.getStatus())));
+    metaContainer.add(
+        createHeroMetaItem(VaadinIcon.REFRESH, "Status: " + manga.getFormattedStatus()));
     metaContainer.add(createHeroMetaItem(VaadinIcon.HASH, "Source: " + manga.getSource().getDisplayName()));
 
     Div actions = new Div();
@@ -247,7 +256,7 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     Div detailsList = new Div();
     detailsList.addClassName("manga-details-list");
     detailsList.add(createDetailItem("SOURCE", String.valueOf(manga.getSource().getDisplayName())));
-    detailsList.add(createDetailItem("STATUS", safe(manga.getStatus())));
+    detailsList.add(createDetailItem("STATUS", manga.getFormattedStatus()));
     detailsList.add(createDetailItem("CHAPTERS", String.valueOf(manga.getChapterCount())));
     detailsList.add(createDetailItem("READ", readChapters + " / " + chapters.size()));
 
@@ -270,25 +279,53 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
     H3 chaptersTitle = new H3("Chapters");
     chaptersTitle.addClassName("chapters-title");
 
-    Span countBadge = new Span(chapters.size() + " TOTAL");
-    countBadge.addClassName("chapters-count-badge");
+    this.countBadge = new Span(chapters.size() + " TOTAL");
+    this.countBadge.addClassName("chapters-count-badge");
 
     Button chapterFilterBtn = new Button(VaadinIcon.FILTER.create());
     chapterFilterBtn.addClassName("chapters-filter-button");
     chapterFilterBtn.setAriaLabel("Filter chapters");
 
-    titleGroup.add(chaptersTitle, countBadge);
+    ContextMenu contextMenu = new ContextMenu();
+    contextMenu.setTarget(chapterFilterBtn);
+    contextMenu.setOpenOnClick(true);
+    MenuItem filterDuplicatesItem = contextMenu.addItem("Filter duplicate chapters");
+    filterDuplicatesItem.setCheckable(true);
+    filterDuplicatesItem.setChecked(filterDuplicates);
+    filterDuplicatesItem.addClickListener(e -> {
+      filterDuplicates = filterDuplicatesItem.isChecked();
+      updateChaptersList();
+    });
+
+    titleGroup.add(chaptersTitle, this.countBadge);
     chaptersHeader.add(titleGroup, chapterFilterBtn);
 
     Div chaptersContainer = new Div();
     chaptersContainer.addClassName("manga-chapters-container");
 
-    ListBox<Chapter> chapterListBox = new ChapterListBox(chapters, mangaService);
-    chapterListBox.addClassNames("manga-chapters-listbox", "chapter-list-box");
+    this.chapterListBox = new ChapterListBox(chapters, mangaService);
+    this.chapterListBox.addClassNames("manga-chapters-listbox", "chapter-list-box");
 
-    chaptersContainer.add(chapterListBox);
+    chaptersContainer.add(this.chapterListBox);
     chaptersColumn.add(chaptersHeader, chaptersContainer);
     return chaptersColumn;
+  }
+
+  private void updateChaptersList() {
+    List<Chapter> filtered;
+    if (filterDuplicates) {
+      filtered = new ArrayList<>();
+      java.util.Set<Float> seen = new java.util.HashSet<>();
+      for (Chapter c : chapters) {
+        if (seen.add(c.getChapterNumber())) {
+          filtered.add(c);
+        }
+      }
+    } else {
+      filtered = chapters;
+    }
+    chapterListBox.setItems(filtered);
+    countBadge.setText(filtered.size() + " TOTAL");
   }
 
   private void openTrackingDialog(Manga manga) {
@@ -392,8 +429,29 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
             if (index != -1) {
               Chapter currentInList = sorted.get(index);
               if (!currentInList.isRead()) {
-                // Resume the current chapter if it's not finished
-                nextChapter = currentInList;
+                // If there are unread chapters before the last opened one, resume from the first of those.
+                // We consider a chapter unread if isRead is false and no duplicate with the same chapter number is read.
+                java.util.Set<Float> readChapterNumbers = new java.util.HashSet<>();
+                for (Chapter c : sorted) {
+                  if (c.isRead()) {
+                    readChapterNumbers.add(c.getChapterNumber());
+                  }
+                }
+
+                Chapter firstUnreadBefore = null;
+                for (int i = 0; i < index; i++) {
+                  Chapter prev = sorted.get(i);
+                  if (!prev.isRead() && !readChapterNumbers.contains(prev.getChapterNumber())) {
+                    firstUnreadBefore = prev;
+                    break;
+                  }
+                }
+
+                if (firstUnreadBefore != null) {
+                  nextChapter = firstUnreadBefore;
+                } else {
+                  nextChapter = currentInList;
+                }
               } else {
                 // Find the first unread chapter after the last read one
                 for (int i = index + 1; i < sorted.size(); i++) {

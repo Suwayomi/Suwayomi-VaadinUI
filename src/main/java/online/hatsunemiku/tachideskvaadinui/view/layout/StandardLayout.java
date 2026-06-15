@@ -8,16 +8,15 @@ package online.hatsunemiku.tachideskvaadinui.view.layout;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -244,10 +243,15 @@ public class StandardLayout extends VerticalLayout {
       authorArtist += " / " + manga.getArtist();
     }
 
+    String statusText = manga.getFormattedStatus();
+    if ("-".equals(statusText)) {
+      statusText = "Unknown";
+    }
+
     String metaText =
         (authorArtist != null ? authorArtist : "Unknown")
             + " • "
-            + (manga.getStatus() != null ? manga.getStatus() : "Unknown");
+        + statusText;
     Span meta = new Span(metaText);
     meta.setClassName("global-dropdown-item-meta");
 

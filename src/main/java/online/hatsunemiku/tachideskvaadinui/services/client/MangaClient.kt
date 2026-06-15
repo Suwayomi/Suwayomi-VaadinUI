@@ -2,7 +2,6 @@ package online.hatsunemiku.tachideskvaadinui.services.client
 
 import com.apollographql.apollo.api.Optional
 import kotlinx.coroutines.runBlocking
-import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Category
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Source
@@ -112,17 +111,30 @@ class MangaClient(private val clientService: WebClientService) {
     }
 
     fun removeMangaFromLibrary(mangaId: Int): Boolean {
-        val manga = getManga(mangaId.toLong()) ?: return false
-        val categories = manga.getMangaCategories()
+        val manga = try {
+            getManga(mangaId.toLong())
+        } catch (_: Exception) {
+            null
+        }
 
-        if (categories.isNotEmpty()) {
-            val categoryIds = categories.map { it.id }
-            if (!removeMangaFromCategories(categoryIds, mangaId)) {
-                return false
+        if (manga != null) {
+            val categories = manga.getMangaCategories()
+
+            if (categories.isNotEmpty()) {
+                val categoryIds = categories.map { it.id }
+                try {
+                    removeMangaFromCategories(categoryIds, mangaId)
+                } catch (e: Exception) {
+                    // Ignore exception to try and remove from library anyway
+                }
             }
         }
 
-        return !updateMangaLibraryStatus(mangaId, false)
+        return try {
+            !updateMangaLibraryStatus(mangaId, false)
+        } catch (_: Exception) {
+            false
+        }
     }
 
     fun setChapterRead(chapterId: Int): Boolean {
@@ -140,12 +152,12 @@ class MangaClient(private val clientService: WebClientService) {
             try {
                 val response = apolloClient.mutation(FetchMangaMutation(mangaId.toInt())).execute()
                 if (response.hasErrors()) {
-                    throw RuntimeException("Error while fetching manga: " + response.errors)
+                    throw RuntimeException("Error while fetching manga $mangaId: " + response.errors)
                 }
 
                 response.data?.fetchManga?.manga?.let { mapToManga(it) }
             } catch (e: Exception) {
-                throw RuntimeException("Error while fetching manga", e)
+                throw RuntimeException("Error while fetching manga $mangaId", e)
             }
         }
     }
@@ -225,6 +237,7 @@ class MangaClient(private val clientService: WebClientService) {
             id = node.id
             name = node.name
             chapterNumber = node.chapterNumber.toFloat()
+            sourceOrder = node.sourceOrder
             isDownloaded = node.isDownloaded == true
             isRead = false
             mangaId = node.mangaId
@@ -238,6 +251,7 @@ class MangaClient(private val clientService: WebClientService) {
             id = node.id
             name = node.name
             chapterNumber = node.chapterNumber.toFloat()
+            sourceOrder = node.sourceOrder
             isDownloaded = node.isDownloaded == true
             isRead = node.isRead == true
             mangaId = node.mangaId
@@ -251,6 +265,7 @@ class MangaClient(private val clientService: WebClientService) {
             id = node.id
             name = node.name
             chapterNumber = node.chapterNumber.toFloat()
+            sourceOrder = node.sourceOrder
             isDownloaded = node.isDownloaded == true
             isRead = node.isRead == true
             mangaId = node.mangaId

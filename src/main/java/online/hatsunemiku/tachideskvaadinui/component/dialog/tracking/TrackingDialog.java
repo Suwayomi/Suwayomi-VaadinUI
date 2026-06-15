@@ -399,6 +399,7 @@ public class TrackingDialog extends Dialog {
               () -> {
                 Notification notification = new Notification();
                 notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                notification.setDuration(5000);
                 notification.setText("Chapters synced");
                 notification.open();
               });
@@ -417,6 +418,7 @@ public class TrackingDialog extends Dialog {
   @NotNull
   private Checkbox getPrivateCheckboxField(Tracker tracker) {
     Checkbox privateCheckbox = new Checkbox("Private");
+    privateCheckbox.addClassName("private-checkbox");
     privateCheckbox.setValue(tracker.isPrivate());
     privateCheckbox.addValueChangeListener(
         e -> {

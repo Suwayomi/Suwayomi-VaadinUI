@@ -20,8 +20,6 @@
 }
 
 .extensions-view {
-  min-height: 100vh;
-  height: auto;
   background: #0b1117 !important;
   background-image: none !important;
   animation: none !important;
@@ -38,8 +36,6 @@
 }
 
 .extensions-view .content {
-  min-height: 100%;
-  height: auto;
   background: #0b1117 !important;
 }
 
@@ -61,6 +57,27 @@
 }
 
 .manager-search vaadin-icon {
+  color: var(--obsidian-accent);
+}
+
+.manager-lang-filter {
+  width: 285px;
+}
+
+.manager-lang-filter::part(input-field) {
+  border-radius: 8px;
+  background: rgba(var(--obsidian-accent-rgb), 0.1);
+  border: 1px solid rgba(var(--obsidian-accent-rgb), 0.2);
+  min-height: 2.05rem;
+  box-shadow: none;
+}
+
+.manager-lang-filter::part(value) {
+  color: var(--obsidian-text);
+  font-size: 0.88rem;
+}
+
+.manager-lang-filter vaadin-icon {
   color: var(--obsidian-accent);
 }
 
@@ -93,7 +110,7 @@
 }
 
 .browse-btn {
-  border-radius: 10px;
+  border-radius: 999px;
   border: 1px solid rgba(var(--obsidian-accent-rgb), 0.5);
   background: var(--obsidian-accent);
   color: var(--obsidian-bg);
@@ -116,7 +133,7 @@
   align-items: center;
   gap: 1rem;
   padding: 1.2rem 1.4rem;
-  border-radius: 14px;
+  border-radius: 16px;
   border: 1px solid rgba(130, 156, 170, 0.2);
   background: linear-gradient(90deg, rgba(29, 37, 49, 0.9), rgba(34, 42, 56, 0.9));
 }
@@ -151,7 +168,7 @@
 .update-all-btn {
   min-width: 210px;
   min-height: 3rem;
-  border-radius: 10px;
+  border-radius: 999px;
   border: 1px solid rgba(var(--obsidian-accent-rgb), 0.4);
   background: rgba(var(--obsidian-accent-rgb), 0.1);
   color: var(--obsidian-accent);
@@ -193,7 +210,7 @@
 }
 
 .extension-card {
-  border-radius: 14px;
+  border-radius: 12px;
   border: 1px solid rgba(var(--obsidian-accent-rgb), 0.1);
   background: var(--obsidian-bg-card);
   padding: 0.65rem;
@@ -274,10 +291,10 @@
 .card-primary-btn {
   flex: 1;
   min-height: 1.75rem;
-  border-radius: 7px;
-  border: 1px solid rgba(127, 146, 157, 0.28);
-  background: rgba(127, 146, 157, 0.2);
-  color: #cadce7;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--obsidian-accent-rgb), 0.28);
+  background: rgba(var(--obsidian-accent-rgb), 0.15);
+  color: var(--obsidian-accent);
   font-weight: 700;
 }
 
@@ -289,10 +306,10 @@
 
 .card-secondary-btn {
   min-width: 1.75rem;
-  border-radius: 7px;
-  border: 1px solid rgba(127, 146, 157, 0.28);
-  background: rgba(127, 146, 157, 0.16);
-  color: #8fa4b1;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--obsidian-accent-rgb), 0.28);
+  background: rgba(var(--obsidian-accent-rgb), 0.12);
+  color: var(--obsidian-accent);
 }
 
 .load-more-wrap {
@@ -304,7 +321,7 @@
 .load-more-btn {
   min-width: 180px;
   min-height: 2.2rem;
-  border-radius: 10px;
+  border-radius: 999px;
   border: 1px solid rgba(var(--obsidian-accent-rgb), 0.35);
   background: rgba(var(--obsidian-accent-rgb), 0.12);
   color: var(--obsidian-accent);
@@ -344,7 +361,8 @@
     align-items: stretch;
   }
 
-  .manager-search {
+  .manager-search,
+  .manager-lang-filter {
     width: 100%;
   }
 

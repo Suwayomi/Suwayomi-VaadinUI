@@ -6,11 +6,9 @@
 
 package online.hatsunemiku.tachideskvaadinui.view;
 
-import com.vaadin.flow.component.Svg;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -21,7 +19,6 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,8 +40,6 @@ import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import online.hatsunemiku.tachideskvaadinui.view.trackers.AniListView;
 import online.hatsunemiku.tachideskvaadinui.view.trackers.MALView;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.web.client.ResourceAccessException;
 import org.vaadin.miki.shared.text.TextInputMode;
 import org.vaadin.miki.superfields.text.SuperTextField;
@@ -447,6 +442,15 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   public void setParameter(BeforeEvent event, @OptionalParameter String query) {
     if (query == null) {
       return;
+    }
+
+    try {
+      // URLDecoder.decode converts '+' to ' '.
+      // In URL path segments, '+' is a literal plus sign, so we escape it to '%2B' before decoding.
+      query = java.net.URLDecoder.decode(query.replace("+", "%2B"),
+          java.nio.charset.StandardCharsets.UTF_8);
+    } catch (IllegalArgumentException e) {
+      log.warn("Failed to decode search query: {}", query, e);
     }
 
     searchField.setValue(query);

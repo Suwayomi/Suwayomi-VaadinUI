@@ -5,15 +5,39 @@
  */
 
 :host {
-    --vaadin-input-field-background: rgba(255, 255, 255, 0.06);
-    --vaadin-input-field-border-color: rgba(255, 255, 255, 0.08);
+    --vaadin-input-field-background: transparent;
+    --vaadin-input-field-border-color: rgba(var(--obsidian-accent-rgb), 0.3);
     --vaadin-input-field-value-color: var(--obsidian-text);
     --vaadin-input-field-placeholder-color: var(--obsidian-text-dim);
 }
 
 [part="input-field"] {
-    border: 1px solid rgba(var(--obsidian-accent-rgb), 0.16);
-    border-radius: 0.5rem;
+    background-color: #0d1115 !important;
+    background-image: none !important;
+    border: 1px solid rgba(var(--obsidian-accent-rgb), 0.3) !important;
+    border-radius: 4px;
+    box-shadow: none !important;
+}
+
+/* Remove Lumo-injected pseudo-element highlights/gloss from this specific tag */
+[part="input-field"]::before,
+[part="input-field"]::after {
+    display: none !important;
+    content: none !important;
+    background: transparent !important;
+}
+
+/* Explicit hover state */
+:host(:hover:not([readonly])) [part="input-field"] {
+    border-color: var(--obsidian-accent) !important;
+    background-color: #161b22 !important;
+}
+
+/* Explicit focus state */
+:host([focused]:not([readonly])) [part="input-field"] {
+    border-color: var(--obsidian-accent) !important;
+    background-color: #161b22 !important;
+    box-shadow: 0 0 0 1px var(--obsidian-accent) !important;
 }
 
 [part="label"] {

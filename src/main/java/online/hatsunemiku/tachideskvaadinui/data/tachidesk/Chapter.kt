@@ -61,7 +61,17 @@ class Chapter : Comparable<Chapter> {
     var manga: Manga? = null
 
     override fun compareTo(other: Chapter): Int {
-        return chapterNumber.compareTo(other.chapterNumber)
+        if (chapterNumber > 0.0f && other.chapterNumber > 0.0f) {
+            val c = chapterNumber.compareTo(other.chapterNumber)
+            if (c != 0) {
+                return c
+            }
+        }
+        val s = other.sourceOrder.compareTo(this.sourceOrder)
+        if (s != 0) {
+            return s
+        }
+        return id.compareTo(other.id)
     }
 
     fun withDownloaded(downloaded: Boolean): Chapter {

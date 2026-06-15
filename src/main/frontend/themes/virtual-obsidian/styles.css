@@ -14,6 +14,21 @@ html {
     --obsidian-text: #a2eae7;
     --obsidian-highlight: #eafaff;
     --obsidian-text-dim: rgba(var(--obsidian-accent-rgb), 0.6);
+    --vaadin-input-field-placeholder-color: var(--obsidian-text-dim);
+    --lumo-placeholder-color: var(--obsidian-text-dim);
+
+    /* Lumo & Vaadin overrides to change default blue focus rings and primary elements to Obsidian Accent */
+    --lumo-primary-color: var(--obsidian-accent);
+    --lumo-primary-text-color: var(--obsidian-accent);
+    --lumo-primary-color-50: rgba(var(--obsidian-accent-rgb), 0.5);
+    --lumo-primary-color-10: rgba(var(--obsidian-accent-rgb), 0.1);
+    --vaadin-focus-ring-color: rgba(var(--obsidian-accent-rgb), 0.5);
+
+    --lumo-body-text-color: var(--obsidian-text);
+    --lumo-secondary-text-color: var(--obsidian-text-dim);
+    --lumo-tertiary-text-color: rgba(var(--obsidian-accent-rgb), 0.4);
+    --lumo-header-text-color: var(--obsidian-highlight);
+    --lumo-primary-contrast-color: var(--obsidian-bg);
     
     /* Legacy compatibility for components still using miku variables */
     --miku-main-color: var(--obsidian-text);
@@ -187,12 +202,10 @@ body {
     z-index: 3;
     position: absolute;
     bottom: 0;
-    color: #eafaff;
-    width: 100%;
-    min-width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
+    left: 0;
+    right: 0;
+    color: var(--miku-main-color);
+    display: block;
     text-overflow: ellipsis;
     padding: 0.7rem 0.72rem 0.82rem;
     overflow: hidden;
@@ -201,6 +214,7 @@ body {
     font-size: 0.98rem;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
     letter-spacing: 0.01em;
+    box-sizing: border-box !important;
 }
 
 .card-img {
@@ -581,4 +595,28 @@ body {
     background: linear-gradient(180deg, #7fd8d4, #5fc9d1);
     border: 2px solid rgba(13, 17, 21, 0.85);
     border-radius: 999px;
+}
+
+/* Create Category Dialog (Obsidian Style) */
+.category-dialog-content {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.category-dialog-description {
+    color: var(--obsidian-text-dim);
+    font-size: 0.88rem;
+    line-height: 1.4;
+    margin-bottom: 0.85rem;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.category-dialog-input {
+    margin-top: 0.25rem;
+}
+
+@media (max-width: 450px) {
+    .category-dialog {
+        width: 95% !important;
+    }
 }

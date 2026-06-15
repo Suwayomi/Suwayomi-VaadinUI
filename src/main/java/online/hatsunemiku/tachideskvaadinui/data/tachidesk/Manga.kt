@@ -153,4 +153,22 @@ class Manga {
         }
         return chapters?.totalCount?.toInt() ?: 0
     }
+
+    /**
+     * Map the uppercase status string/enum from Tachidesk/Suwayomi into a human-readable title-case status.
+     */
+    fun getFormattedStatus(): String {
+        val s = status
+        if (s.isNullOrBlank()) return "-"
+        return when (s.uppercase()) {
+            "UNKNOWN" -> "Unknown"
+            "ONGOING" -> "Ongoing"
+            "COMPLETED" -> "Completed"
+            "LICENSED" -> "Licensed"
+            "PUBLISHING_FINISHED" -> "Publishing Finished"
+            "CANCELLED" -> "Cancelled"
+            "ON_HIATUS" -> "On Hiatus"
+            else -> s
+        }
+    }
 }

@@ -11,6 +11,7 @@
     padding: 8px 12px;
     background-image: none !important;
     transition: none;
+  border-bottom: 1px solid rgba(var(--obsidian-accent-rgb), 0.08);
 }
 
 :host([selected]) {

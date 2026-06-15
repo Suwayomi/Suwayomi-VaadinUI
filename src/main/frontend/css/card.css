@@ -94,12 +94,10 @@ img {
   z-index: 3;
   position: absolute;
   bottom: 0;
-  color: #eafaff;
-  width: 100%;
-  min-width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
+  left: 0;
+  right: 0;
+  color: var(--miku-main-color);
+  display: block;
   text-overflow: ellipsis;
   padding: 0.7rem 0.72rem 0.82rem;
   overflow: hidden;
@@ -108,6 +106,7 @@ img {
   font-size: 0.98rem;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
   letter-spacing: 0.01em;
+  box-sizing: border-box !important;
 }
 
 .card-img {

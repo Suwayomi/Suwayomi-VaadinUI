@@ -193,6 +193,60 @@ public class MangaService {
   }
 
   /**
+   * Sets multiple chapters as read in parallel.
+   *
+   * @param chapterIds the IDs of the chapters to be set as read
+   * @param mangaId    the ID of the manga the chapters belong to
+   * @return {@code true} if all chapters were successfully set as read, {@code false} otherwise
+   */
+  public boolean setChaptersRead(List<Integer> chapterIds, int mangaId) {
+    try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+      List<Callable<Boolean>> tasks = new ArrayList<>();
+      for (int id : chapterIds) {
+        tasks.add(() -> setChapterRead(id, mangaId));
+      }
+      var futures = executor.invokeAll(tasks);
+      boolean allSuccess = true;
+      for (var f : futures) {
+        if (!f.get()) {
+          allSuccess = false;
+        }
+      }
+      return allSuccess;
+    } catch (Exception e) {
+      log.error("Failed to set chapters read", e);
+      return false;
+    }
+  }
+
+  /**
+   * Sets multiple chapters as unread in parallel.
+   *
+   * @param chapterIds the IDs of the chapters to be set as unread
+   * @return {@code true} if all chapters were successfully set as unread, {@code false} otherwise
+   */
+  public boolean setChaptersUnread(List<Integer> chapterIds) {
+    try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+      List<Callable<Boolean>> tasks = new ArrayList<>();
+      for (int id : chapterIds) {
+        tasks.add(() -> setChapterUnread(id));
+      }
+      var futures = executor.invokeAll(tasks);
+      boolean allSuccess = true;
+      for (var f : futures) {
+        if (!f.get()) {
+          allSuccess = false;
+        }
+      }
+      return allSuccess;
+    } catch (Exception e) {
+      log.error("Failed to set chapters unread", e);
+      return false;
+    }
+  }
+
+
+  /**
    * Sets a chapter as unread.
    *
    * @param chapterId the ID of the chapter to be set as unread
@@ -292,7 +346,10 @@ public class MangaService {
    * @param chapterId The id of the chapter to listen for
    * @param callback The callback to run when the chapter is downloaded
    */
-  public void addDownloadTrackListener(int chapterId, Runnable callback) {
+  public void addDownloadTrackListener(
+      int chapterId,
+      java.util.function.Consumer<Float> progressCallback,
+      Runnable completionCallback) {
     Disposable.Composite cancellation = Disposables.composite();
 
     var subscription =
@@ -304,12 +361,12 @@ public class MangaService {
                         return;
                       }
 
-                      if (event.progress() != 1) {
-                        return;
-                      }
+                      progressCallback.accept(event.progress());
 
-                      callback.run();
-                      cancellation.dispose();
+                      if (event.progress() >= 1.0f) {
+                        completionCallback.run();
+                        cancellation.dispose();
+                      }
                     }));
 
     cancellation.add(subscription);

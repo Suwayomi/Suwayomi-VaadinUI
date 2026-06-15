@@ -1,6 +1,8 @@
 package online.hatsunemiku.tachideskvaadinui.services.client
 
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.DeleteChapterMutation
 import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.DownloadChaptersMutation
@@ -71,7 +73,7 @@ class DownloadClient(private val clientService: WebClientService) {
         val apolloClient = clientService.apolloClient ?: throw RuntimeException("ApolloClient not initialized")
 
         return Flux.create<List<DownloadChangeEvent>> { sink ->
-            runBlocking {
+            val job = CoroutineScope(Dispatchers.IO).launch {
                 try {
                     apolloClient.subscription(TrackDownloadsSubscription())
                         .toFlow()
@@ -92,6 +94,9 @@ class DownloadClient(private val clientService: WebClientService) {
                 } catch (e: Exception) {
                     sink.error(e)
                 }
+            }
+            sink.onDispose {
+                job.cancel()
             }
         }
     }

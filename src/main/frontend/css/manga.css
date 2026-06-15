@@ -137,11 +137,17 @@
     border: 1px solid rgba(var(--obsidian-accent-rgb), 0.14);
 }
 
+/* Style the icon inside the Resume button to match active nav/primary button design */
 .btn-resume {
     color: var(--obsidian-bg) !important;
     background: var(--obsidian-accent) !important;
     border-color: rgba(var(--obsidian-accent-rgb), 0.55) !important;
     box-shadow: none;
+}
+
+.btn-resume vaadin-icon,
+.btn-resume iron-icon {
+    color: var(--obsidian-bg) !important;
 }
 
 .btn-resume:hover {

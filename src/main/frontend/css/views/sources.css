@@ -15,7 +15,7 @@
 }
 
 .source-lang-filter-discovery::part(input-field) {
-  border-radius: 999px;
+  border-radius: 8px;
   background: rgba(var(--obsidian-accent-rgb), 0.1);
   border: 1px solid rgba(var(--obsidian-accent-rgb), 0.2);
   min-height: 2.05rem;

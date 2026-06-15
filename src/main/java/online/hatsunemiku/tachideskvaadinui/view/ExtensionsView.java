@@ -6,9 +6,11 @@
 
 package online.hatsunemiku.tachideskvaadinui.view;
 
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
@@ -16,13 +18,14 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import java.util.ArrayList;
 import java.util.List;
-import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Extension;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Extension;
 import online.hatsunemiku.tachideskvaadinui.services.ExtensionService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
@@ -43,11 +46,12 @@ public class ExtensionsView extends StandardLayout {
   private final Button updateAllButton = new Button("Update All");
   private final Span installedTab = new Span();
   private final Span availableTab = new Span();
-  private final Button loadMoreButton = new Button("Load More");
   private TextField searchField;
+  private static final int INITIAL_PAGE_SIZE = 24;
   private boolean showingInstalled = true;
-  private int visibleCards = 6;
-  private static final int PAGE_SIZE = 6;
+  private static final int PAGE_SIZE = 12;
+  private Select<String> langFilter;
+  private int visibleCards = INITIAL_PAGE_SIZE;
   private List<Extension> extensions = new ArrayList<>();
 
   public ExtensionsView(ExtensionService extensionService, SettingsService settingsService) {
@@ -66,7 +70,7 @@ public class ExtensionsView extends StandardLayout {
     Div shell = new Div();
     shell.setClassName("extension-manager-shell");
 
-    shell.add(createHeroSection(), createUpdatesBanner(), createFilterTabs(), cardsGrid, createLoadMoreSection());
+    shell.add(createHeroSection(), createUpdatesBanner(), createFilterTabs(), cardsGrid);
 
     setContent(shell);
     searchField.setValue("");
@@ -93,14 +97,35 @@ public class ExtensionsView extends StandardLayout {
     searchField.setValueChangeMode(ValueChangeMode.EAGER);
     searchField.addValueChangeListener(
         e -> {
-          visibleCards = PAGE_SIZE;
+          visibleCards = INITIAL_PAGE_SIZE;
+          render();
+        });
+
+    langFilter = new Select<>();
+    langFilter.setPlaceholder("All Languages");
+    langFilter.addClassName("manager-lang-filter");
+
+    List<String> langs = extensions.stream()
+        .map(Extension::getLang)
+        .filter(lang -> lang != null && !lang.isBlank())
+        .map(String::toUpperCase)
+        .distinct()
+        .sorted()
+        .toList();
+
+    langFilter.setItems(langs);
+    langFilter.setEmptySelectionAllowed(true);
+    langFilter.setEmptySelectionCaption("All Languages");
+    langFilter.addValueChangeListener(
+        e -> {
+          visibleCards = INITIAL_PAGE_SIZE;
           render();
         });
 
     Button browseSources = new Button("Browse Sources", VaadinIcon.PLUS_CIRCLE_O.create());
     browseSources.setClassName("browse-btn");
     browseSources.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(SourcesView.class)));
-    right.add(searchField, browseSources);
+    right.add(searchField, langFilter, browseSources);
 
     hero.add(left, right);
     return hero;
@@ -134,7 +159,7 @@ public class ExtensionsView extends StandardLayout {
     installedTab.addClickListener(
         e -> {
           showingInstalled = true;
-          visibleCards = PAGE_SIZE;
+          visibleCards = INITIAL_PAGE_SIZE;
           render();
         });
 
@@ -142,7 +167,7 @@ public class ExtensionsView extends StandardLayout {
     availableTab.addClickListener(
         e -> {
           showingInstalled = false;
-          visibleCards = PAGE_SIZE;
+          visibleCards = INITIAL_PAGE_SIZE;
           render();
         });
 
@@ -150,18 +175,7 @@ public class ExtensionsView extends StandardLayout {
     return tabs;
   }
 
-  private Div createLoadMoreSection() {
-    Div wrap = new Div();
-    wrap.setClassName("load-more-wrap");
-    loadMoreButton.setClassName("load-more-btn");
-    loadMoreButton.addClickListener(
-        e -> {
-          visibleCards += PAGE_SIZE;
-          render();
-        });
-    wrap.add(loadMoreButton);
-    return wrap;
-  }
+
 
   private void render() {
     List<Extension> installed = extensions.stream().filter(Extension::isInstalled).toList();
@@ -180,6 +194,9 @@ public class ExtensionsView extends StandardLayout {
     cardsGrid.removeAll();
     cardsGrid.setClassName("extension-cards-grid");
     String searchValue = (searchField == null ? "" : searchField.getValue()).toLowerCase();
+    String selectedLang =
+        (langFilter == null || langFilter.getValue() == null || langFilter.getValue().isBlank())
+            ? null : langFilter.getValue();
     List<Extension> source = showingInstalled ? installed : available;
     List<Extension> filtered =
         source.stream()
@@ -187,15 +204,18 @@ public class ExtensionsView extends StandardLayout {
                 extension ->
                     extension.getName() != null
                         && extension.getName().toLowerCase().contains(searchValue))
+            .filter(
+                extension ->
+                    selectedLang == null
+                    || (extension.getLang() != null
+                        && extension.getLang().equalsIgnoreCase(selectedLang)))
             .toList();
 
     filtered.stream()
         .limit(visibleCards)
         .forEach(extension -> cardsGrid.add(createCard(extension)));
 
-    long remaining = Math.max(0, filtered.size() - visibleCards);
-    loadMoreButton.setVisible(remaining > 0);
-    loadMoreButton.setText("Load More (" + Math.min(PAGE_SIZE, remaining) + " more)");
+
   }
 
   private Div createCard(Extension extension) {
@@ -319,5 +339,83 @@ public class ExtensionsView extends StandardLayout {
       throw new RuntimeException("Couldn't access UI", e);
     }
     ui.navigate("settings#extensions");
+  }
+
+  @Override
+  protected void onAttach(AttachEvent attachEvent) {
+    super.onAttach(attachEvent);
+    this.getElement().executeJs(
+        "const el = $0; " +
+        "const scrollable = el.querySelector('.content'); " +
+        "if (scrollable) { " +
+        "  if (scrollable._extensionsScrollListener) { " +
+        "    scrollable.removeEventListener('scroll', scrollable._extensionsScrollListener); " +
+        "  } " +
+        "  let isActionPending = false; " +
+        "  const checkScroll = () => { " +
+        "    if (isActionPending) return; " +
+        "    if (scrollable.scrollHeight - scrollable.scrollTop - scrollable.clientHeight < 200) { "
+        +
+        "      isActionPending = true; " +
+        "      console.log('ExtensionsView: scroll threshold reached, loading more...'); " +
+        "      el.$server.loadMore().then(() => { " +
+        "        isActionPending = false; " +
+        "        setTimeout(checkScroll, 100); " +
+        "      }).catch((err) => { " +
+        "        console.error('ExtensionsView: failed to load more:', err); " +
+        "        isActionPending = false; " +
+        "      }); " +
+        "    } " +
+        "  }; " +
+        "  scrollable._extensionsScrollListener = checkScroll; " +
+        "  scrollable.addEventListener('scroll', checkScroll); " +
+        "  console.log('ExtensionsView: successfully bound scroll listener to', scrollable); " +
+        "  setTimeout(checkScroll, 200); " +
+        "} else { " +
+        "  console.warn('Scrollable container not found for extensions-view'); " +
+        "}", this.getElement()
+    );
+  }
+
+  @Override
+  protected void onDetach(DetachEvent detachEvent) {
+    super.onDetach(detachEvent);
+    this.getElement().executeJs(
+        "const el = $0; " +
+        "const scrollable = el.querySelector('.content'); " +
+        "if (scrollable && scrollable._extensionsScrollListener) { " +
+        "  scrollable.removeEventListener('scroll', scrollable._extensionsScrollListener); " +
+        "  delete scrollable._extensionsScrollListener; " +
+        "  console.log('ExtensionsView: unbound scroll listener'); " +
+        "}", this.getElement()
+    );
+  }
+
+  @com.vaadin.flow.component.ClientCallable
+  public void loadMore() {
+    String searchValue = (searchField == null ? "" : searchField.getValue()).toLowerCase();
+    String selectedLang =
+        (langFilter == null || langFilter.getValue() == null || langFilter.getValue().isBlank())
+            ? null : langFilter.getValue();
+    List<Extension> installed = extensions.stream().filter(Extension::isInstalled).toList();
+    List<Extension> available = extensions.stream().filter(extension -> !extension.isInstalled())
+        .toList();
+    List<Extension> source = showingInstalled ? installed : available;
+    long totalSize = source.stream()
+        .filter(
+            extension ->
+                extension.getName() != null
+                && extension.getName().toLowerCase().contains(searchValue))
+        .filter(
+            extension ->
+                selectedLang == null
+                || (extension.getLang() != null
+                    && extension.getLang().equalsIgnoreCase(selectedLang)))
+        .count();
+
+    if (visibleCards < totalSize) {
+      visibleCards += PAGE_SIZE;
+      render();
+    }
   }
 }

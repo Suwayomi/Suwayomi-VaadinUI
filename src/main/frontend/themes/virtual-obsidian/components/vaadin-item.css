@@ -15,7 +15,13 @@
 }
 
 :host(:hover) {
-    background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+@media (any-hover: hover) {
+  :host(:hover:not([disabled])) {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+  }
 }
 
 [part="checkmark"]::before {

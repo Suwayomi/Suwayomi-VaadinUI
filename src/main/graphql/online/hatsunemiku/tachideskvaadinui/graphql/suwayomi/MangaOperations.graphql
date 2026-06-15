@@ -31,6 +31,7 @@ query GetChapter($id: Int!) {
     mangaId
     isDownloaded
     chapterNumber
+      sourceOrder
     name
     id
     pageCount
@@ -43,6 +44,7 @@ query getMangaChapters($mangaId: Int!) {
       nodes {
         url
         chapterNumber
+          sourceOrder
         mangaId
         name
         uploadDate
@@ -67,6 +69,7 @@ mutation fetchChapterList($mangaId: Int!) {
     chapters {
       url
       chapterNumber
+        sourceOrder
       mangaId
       name
       uploadDate
@@ -98,6 +101,7 @@ mutation FetchManga($id: Int!) {
       chapters {
         nodes {
           chapterNumber
+            sourceOrder
         }
       }
       source {

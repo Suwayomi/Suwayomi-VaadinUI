@@ -8,6 +8,7 @@
     --vaadin-input-field-background: transparent;
     --vaadin-input-field-border-color: rgba(var(--obsidian-accent-rgb), 0.3);
     --vaadin-input-field-value-color: var(--obsidian-text);
+  --vaadin-input-field-placeholder-color: var(--obsidian-text-dim);
     background-color: transparent !important;
 }
 
@@ -59,4 +60,13 @@ vaadin-input-container[part="input-field"]::after {
 
 vaadin-input-container[part="input-field"] {
     background-color: var(--obsidian-accent) !important;
+}
+
+:host(:hover:not([readonly])) [part="label"] {
+  color: var(--obsidian-highlight) !important;
+}
+
+:host([focused]) [part="label"] {
+  color: var(--obsidian-highlight) !important;
+  text-shadow: 0 0 10px rgba(var(--obsidian-accent-rgb), 0.4);
 }

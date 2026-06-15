@@ -10,8 +10,10 @@
     border: 1px solid rgba(var(--obsidian-accent-rgb), 0.4);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8);
     border-radius: 4px;
+  overflow: hidden !important;
 }
 
 [part="content"] {
-    padding: 2px;
+  padding: 0 !important;
+  overflow: hidden !important;
 }

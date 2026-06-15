@@ -1,0 +1,42 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+:host {
+  outline: none !important;
+}
+
+:host(:focus), :host(:focus-visible), :host([focus-ring]) {
+  outline: none !important;
+}
+
+[part="overlay"] {
+  background-color: #0d1218;
+  background-image: none !important;
+  border: 1px solid rgba(var(--obsidian-accent-rgb), 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8) !important;
+  border-radius: 4px;
+  will-change: transform;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  outline: none !important;
+  overflow: hidden !important;
+}
+
+:host([focus-ring]) [part="overlay"],
+:host([focused]) [part="overlay"],
+:host(:focus) [part="overlay"],
+:host(:focus-within) [part="overlay"],
+[part="overlay"]:focus,
+[part="overlay"]:focus-visible,
+[part="overlay"][focus-ring] {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8) !important;
+  outline: none !important;
+}
+
+[part="content"] {
+  padding: 0 !important;
+  overflow: hidden !important;
+}

@@ -7,7 +7,6 @@
 package online.hatsunemiku.tachideskvaadinui.component.dialog.tracking;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -50,6 +49,7 @@ public class TrackingMangaChoiceDialog extends Dialog {
     this.setClassName("tracking-manga-choice-dialog");
 
     TextField searchField = new TextField("Search Manga");
+    searchField.addClassName("tracking-manga-search-field");
     searchField.setValue(mangaName);
 
     Tracker mangaTracker = dataService.getTracker(mangaId);
@@ -111,6 +111,7 @@ public class TrackingMangaChoiceDialog extends Dialog {
     }
 
     var buttons = new Div();
+    buttons.setClassName("tracking-manga-choice-dialog-buttons");
 
     Button closeBtn = new Button("Close");
     closeBtn.addClickListener(e -> close());
@@ -188,13 +189,9 @@ public class TrackingMangaChoiceDialog extends Dialog {
 
           Div data = new Div();
 
-          LabelField<String> title =
-              new LabelField<String>()
-                  .withLabelPosition(LabelPosition.BEFORE_MIDDLE)
-                  .withLabel("Title")
-                  .withValue(media.getTitle());
-
-          title.setClassName("manga-search-result-attribute");
+          Div title = new Div();
+          title.setText(media.getTitle());
+          title.setClassName("manga-search-result-title");
 
           LabelField<String> type =
               new LabelField<String>()
@@ -225,7 +222,17 @@ public class TrackingMangaChoiceDialog extends Dialog {
 
           upperHalf.add(image, data);
 
-          Text description = new Text(media.getSummary());
+          Div description = new Div();
+          description.setText(media.getSummary());
+          description.setClassName("manga-description");
+          description.addClickListener(
+              event -> {
+                if (description.getClassNames().contains("expanded")) {
+                  description.removeClassName("expanded");
+                } else {
+                  description.addClassName("expanded");
+                }
+              });
 
           content.add(upperHalf, description);
 

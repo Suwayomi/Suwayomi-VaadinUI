@@ -15,8 +15,7 @@ import org.springframework.stereotype.Component
  */
 @Component
 class SuwayomiTrackingClient(
-    private val clientService: WebClientService,
-    private val suwayomiMetaClient: SuwayomiMetaClient
+    private val clientService: WebClientService
 ) {
 
     companion object {
@@ -40,7 +39,7 @@ class SuwayomiTrackingClient(
                 }
 
                 val data = response.data ?: throw RuntimeException("Error while checking if tracker is logged in: No data")
-                data.tracker?.isLoggedIn == true
+                data.tracker.isLoggedIn
             } catch (e: Exception) {
                 throw RuntimeException("Error while checking if tracker is logged in", e)
             }
@@ -64,7 +63,7 @@ class SuwayomiTrackingClient(
                 }
 
                 val data = response.data ?: throw RuntimeException("Error while getting tracker auth url: No data")
-                data.tracker?.authUrl ?: ""
+                data.tracker.authUrl ?: ""
             } catch (e: Exception) {
                 throw RuntimeException("Error while getting tracker auth url", e)
             }
@@ -121,13 +120,13 @@ class SuwayomiTrackingClient(
                     TrackerSearchResult(
                         node.coverUrl,
                         node.id,
-                        node.remoteId?.toString()?.toInt() ?: 0,
+                        node.remoteId.toString().toInt(),
                         node.publishingStatus,
                         node.publishingType,
                         node.startDate,
                         node.summary,
                         node.title,
-                        node.totalChapters ?: 0,
+                        node.totalChapters,
                         node.trackingUrl
                     )
                 }
@@ -243,15 +242,19 @@ class SuwayomiTrackingClient(
                             id = node.id
                             libraryId = node.libraryId?.toString()?.toLong() ?: 0L
                             this.mangaId = node.mangaId
-                            remoteId = node.remoteId?.toString()?.toLong() ?: 0L
+                            remoteId = node.remoteId.toString().toLong()
                             this.trackerId = node.trackerId
                             remoteUrl = node.remoteUrl
                             title = node.title
-                            lastChapterRead = node.lastChapterRead?.toFloat() ?: 0.0f
-                            totalChapters = node.totalChapters ?: 0
+                            lastChapterRead = node.lastChapterRead.toFloat()
+                            totalChapters = node.totalChapters
                             displayScore = node.displayScore
-                            score = node.score?.toFloat() ?: 0.0f
-                            status = node.status ?: 0
+                            score = node.score.toFloat()
+                            status = node.status
+                            startDate = node.startDate.toString().toLongOrNull()
+                                ?.let { if (it == 0L) null else java.time.Instant.ofEpochMilli(it) }
+                            finishDate = node.finishDate.toString().toLongOrNull()
+                                ?.let { if (it == 0L) null else java.time.Instant.ofEpochMilli(it) }
                         }
                     }
             } catch (e: Exception) {

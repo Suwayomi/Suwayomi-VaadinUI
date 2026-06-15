@@ -6,7 +6,6 @@
 
 package online.hatsunemiku.tachideskvaadinui.view;
 
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -15,6 +14,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
@@ -39,7 +39,10 @@ import online.hatsunemiku.tachideskvaadinui.services.LibUpdateService;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
+import online.hatsunemiku.tachideskvaadinui.view.trackers.AniListView;
+import online.hatsunemiku.tachideskvaadinui.view.trackers.MALView;
 import org.jetbrains.annotations.NotNull;
+
 
 @Route("/")
 @CssImport("./css/root.css")
@@ -128,9 +131,9 @@ public class RootView extends StandardLayout implements BeforeEnterObserver {
     return grid;
   }
 
-  private static void fillMangaGrid(Settings settings, List<Manga> manga, Div grid, Category c) {
+  private void fillMangaGrid(Settings settings, List<Manga> manga, Div grid, Category c) {
     for (Manga m : manga) {
-      MangaCard card = new DraggableMangaCard(settings, m, c);
+      MangaCard card = new DraggableMangaCard(settings, m, c, this.mangaService);
       grid.add(card);
     }
   }
@@ -242,7 +245,7 @@ public class RootView extends StandardLayout implements BeforeEnterObserver {
     refreshButton.addClassName("refresh-library-button");
     refreshButton.addClickListener(
         e -> {
-          UI ui = UI.getCurrent();
+          UI ui = getUI().orElse(UI.getCurrent());
 
           updateExecutor.submit(
               () -> {
@@ -277,7 +280,39 @@ public class RootView extends StandardLayout implements BeforeEnterObserver {
               });
         });
 
-    buttons.add(refreshButton, createButton);
+    Button aniListImportBtn = getALImportBtn();
+    Button malImportBtn = getMalImportBtn();
+
+    buttons.add(aniListImportBtn, malImportBtn, refreshButton, createButton);
     return buttons;
   }
+
+  @NotNull
+  private Button getMalImportBtn() {
+    Button malImportBtn = new Button("Import from MAL", VaadinIcon.DOWNLOAD.create());
+    malImportBtn.addClassName("mal-import-button");
+    malImportBtn.addClickListener(
+        e -> {
+          UI ui = getUI().orElse(UI.getCurrent());
+          if (ui != null) {
+            ui.navigate(MALView.class);
+          }
+        });
+    return malImportBtn;
+  }
+
+  @NotNull
+  private Button getALImportBtn() {
+    Button importBtn = new Button("Import from AniList", VaadinIcon.DOWNLOAD.create());
+    importBtn.addClassName("anilist-import-button");
+    importBtn.addClickListener(
+        e -> {
+          UI ui = getUI().orElse(UI.getCurrent());
+          if (ui != null) {
+            ui.navigate(AniListView.class);
+          }
+        });
+    return importBtn;
+  }
 }
+
