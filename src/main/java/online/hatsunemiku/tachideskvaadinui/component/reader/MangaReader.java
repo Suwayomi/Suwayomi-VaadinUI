@@ -6,7 +6,6 @@
 
 package online.hatsunemiku.tachideskvaadinui.component.reader;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.Key;
@@ -17,8 +16,6 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -38,7 +35,6 @@ import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.utils.NavigationUtils;
 import online.hatsunemiku.tachideskvaadinui.view.RootView;
 import online.hatsunemiku.tachideskvaadinui.view.SettingsView;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * MangaReader is the primary component for reading manga, offering a glassmorphic UI.
@@ -77,7 +73,15 @@ public class MangaReader extends Div {
 
     replaceReader(dir.get(), chapter);
 
-    // Toggle focus mode on click, but ignore clicks on UI components and overlays
+    // Toggle focus mode on click, but ignore clicks on UI components and overlays, and ignore drag/pan actions
+    getElement().executeJs(
+        "this.addEventListener('pointerdown', e => {" +
+        "  this._startX = e.clientX;" +
+        "  this._startY = e.clientY;" +
+        "  this._lastPointerDownTime = Date.now();" +
+        "});"
+    );
+
     getElement().addEventListener("click", e -> {
       focusMode = !focusMode;
       if (focusMode) {
@@ -86,7 +90,11 @@ public class MangaReader extends Div {
         removeClassName("focus-mode");
       }
     }).setFilter("!(event.composedPath().some(el => el.classList && (el.classList.contains('sidebar') || el.classList.contains('controls'))) || " +
-               "event.composedPath().some(el => el.tagName && el.tagName.includes('OVERLAY')))");
+                 "event.composedPath().some(el => el.tagName && el.tagName.includes('OVERLAY'))) && "
+                 +
+                 "(!event.currentTarget._lastPointerDownTime || " +
+                 "(Date.now() - event.currentTarget._lastPointerDownTime) > 1000 || " +
+                 "(Math.pow(event.clientX - event.currentTarget._startX, 2) + Math.pow(event.clientY - event.currentTarget._startY, 2)) < 100)");
 
     UI ui = getUI().orElseGet(UI::getCurrent);
 
