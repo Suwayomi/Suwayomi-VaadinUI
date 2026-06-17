@@ -245,6 +245,7 @@ public class MangaReader extends Div {
       pageRight.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
       TextField input = new TextField();
+      input.addClassName("page-input");
       input.setValue("1");
       input.setAllowedCharPattern("\\d");
       input.addValueChangeListener(e -> {

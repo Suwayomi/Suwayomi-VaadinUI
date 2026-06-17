@@ -91,7 +91,6 @@ dependencies {
     implementation 'com.vaadin:flow-webpush'
     developmentOnly('com.vaadin:vaadin-dev')
     implementation 'pl.unforgiven:superfields:0.20.2'
-    implementation 'org.vaadin.addons.online.hatsunemiku.diamond:FlowSwiper:1.4.0'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 }

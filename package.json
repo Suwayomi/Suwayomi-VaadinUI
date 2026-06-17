@@ -3,6 +3,7 @@
   "license": "UNLICENSED",
   "type": "module",
   "dependencies": {
+    "@splidejs/splide": "^4.1.4",
     "@vaadin/aura": "25.1.2",
     "@vaadin/common-frontend": "0.0.22",
     "@vaadin/react-components": "25.1.2",
@@ -14,8 +15,7 @@
     "lit": "3.3.2",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "react-router": "7.13.1",
-    "swiper": "^10.0.3"
+    "react-router": "7.13.1"
   },
   "devDependencies": {
     "@babel/preset-react": "7.28.5",
@@ -103,7 +103,6 @@
     "@vaadin/email-field": "25.1.2",
     "@vaadin/message-input": "25.1.2",
     "@vaadin/common-frontend": "$@vaadin/common-frontend",
-    "swiper": "$swiper",
     "@vaadin/aura": "$@vaadin/aura",
     "lit": "$lit",
     "@vaadin/vaadin-development-mode-detector": "$@vaadin/vaadin-development-mode-detector",
@@ -115,6 +114,7 @@
     "react-dom": "$react-dom",
     "react": "$react",
     "react-router": "$react-router",
+    "@splidejs/splide": "$@splidejs/splide",
     "workbox-build": {
       "serialize-javascript": "7.0.5",
       "@rollup/plugin-terser": "1.0.0",
@@ -134,8 +134,7 @@
       "lit": "3.3.2",
       "react": "19.2.4",
       "react-dom": "19.2.4",
-      "react-router": "7.13.1",
-      "swiper": "^10.0.3"
+      "react-router": "7.13.1"
     },
     "devDependencies": {
       "@babel/preset-react": "7.28.5",
@@ -160,8 +159,9 @@
       "workbox-routing": "7.4.0",
       "workbox-strategies": "7.4.0"
     },
-    "hash": "93eda3b439f2ebdea60829db2c01e7d4f570da0010c120aa5a36553cd6951f53",
+    "hash": "695ae954bac2bd151dc7a567d7e7e2d3b8353203c229a9062d16d2c73f34ffcc",
     "overrides": {
+      "@splidejs/splide": "$@splidejs/splide",
       "@vaadin/a11y-base": "25.1.2",
       "@vaadin/accordion": "25.1.2",
       "@vaadin/app-layout": "25.1.2",
@@ -235,7 +235,6 @@
       "react": "$react",
       "react-dom": "$react-dom",
       "react-router": "$react-router",
-      "swiper": "$swiper",
       "workbox-build": {
         "@rollup/plugin-terser": "1.0.0",
         "glob": "13.0.6",

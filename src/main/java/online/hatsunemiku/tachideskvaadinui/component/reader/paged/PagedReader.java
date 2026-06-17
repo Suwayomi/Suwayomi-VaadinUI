@@ -8,9 +8,15 @@ package online.hatsunemiku.tachideskvaadinui.component.reader.paged;
 
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.component.reader.Reader;
+import online.hatsunemiku.tachideskvaadinui.component.reader.strip.MangaPageViewEvent;
 import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
 import online.hatsunemiku.tachideskvaadinui.data.settings.event.ReaderSettingsChangeEvent;
 import online.hatsunemiku.tachideskvaadinui.data.settings.reader.ReaderDirection;
@@ -18,18 +24,21 @@ import online.hatsunemiku.tachideskvaadinui.data.settings.reader.ReaderSettings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Chapter;
 import online.hatsunemiku.tachideskvaadinui.services.MangaService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
-import org.vaadin.addons.online.hatsunemiku.diamond.swiper.Swiper;
-import org.vaadin.addons.online.hatsunemiku.diamond.swiper.SwiperConfig;
-import org.vaadin.addons.online.hatsunemiku.diamond.swiper.constants.LanguageDirection;
 
 /**
  * The PagedReader class is responsible for displaying and controlling the reading of manga chapters
  * in a paged format. It extends the {@link Reader} class and provides additional functionality
- * specific to paged reading.
+ * specific to paged reading using native CSS scroll snapping and pinch-to-zoom.
  */
 @Slf4j
+@JsModule("./js/paged-reader-splide.js")
+@CssImport("@splidejs/splide/dist/css/splide.min.css")
 public class PagedReader extends Reader {
-  private final Swiper swiper;
+
+  private final Div carousel;
+  private final Div list;
+  private final List<Div> pageElements = new ArrayList<>();
+  private int currentPageIndex = 0;
 
   /**
    * Constructs a {@link PagedReader} object.
@@ -42,11 +51,24 @@ public class PagedReader extends Reader {
     super(chapter, mangaService, settingsService);
     addClassName("paged-reader");
 
-    var config = SwiperConfig.builder().zoom(true).centeredSlides(true).build();
+    carousel = new Div();
+    carousel.addClassName("paged-carousel");
+    carousel.addClassName("splide");
+    carousel.getElement().getStyle().set("width", "100%");
+    carousel.getElement().getStyle().set("height", "100%");
 
-    swiper = new Swiper(config);
-    swiper.getElement().getStyle().set("width", "100%");
-    swiper.getElement().getStyle().set("height", "100%");
+    Div track = new Div();
+    track.addClassName("splide__track");
+    track.getElement().getStyle().set("width", "100%");
+    track.getElement().getStyle().set("height", "100%");
+
+    list = new Div();
+    list.addClassName("splide__list");
+    list.getElement().getStyle().set("width", "100%");
+    list.getElement().getStyle().set("height", "100%");
+
+    track.add(list);
+    carousel.add(track);
 
     UI ui = UI.getCurrent();
     var settingsChangeListener =
@@ -57,8 +79,8 @@ public class PagedReader extends Reader {
               var direction = e.getNewSettings().getDirection();
 
               switch (direction) {
-                case RTL -> swiper.changeLanguageDirection(LanguageDirection.RIGHT_TO_LEFT);
-                case LTR -> swiper.changeLanguageDirection(LanguageDirection.LEFT_TO_RIGHT);
+                case RTL -> carousel.getElement().setAttribute("dir", "rtl");
+                case LTR -> carousel.getElement().setAttribute("dir", "ltr");
                 case VERTICAL -> log.info(
                     "Can't change to vertical direction inside PagedReader - Ignored");
                 default -> throw new IllegalStateException("Unexpected value: " + direction);
@@ -68,70 +90,44 @@ public class PagedReader extends Reader {
     addDetachListener(e -> settingsChangeListener.remove());
 
     ReaderSettings settings = settingsService.getSettings().getReaderSettings(chapter.getMangaId());
-
+    String dirStr;
     switch (settings.getDirection()) {
-      case RTL -> swiper.changeLanguageDirection(LanguageDirection.RIGHT_TO_LEFT);
-      case LTR -> swiper.changeLanguageDirection(LanguageDirection.LEFT_TO_RIGHT);
+      case RTL -> {
+        carousel.getElement().setAttribute("dir", "rtl");
+        dirStr = "rtl";
+      }
+      case LTR -> {
+        carousel.getElement().setAttribute("dir", "ltr");
+        dirStr = "ltr";
+      }
       default -> throw new IllegalStateException("Unexpected value: " + settings.getDirection());
     }
 
-    /*This is a JavaScript function as it feels more sluggish when it has
-     * to send data back to the server. Therefore, the server is responsible
-     * for the mouse wheel's zoom function.
-     */
-    swiper
-        .getElement()
-        .executeJs(
-            """
-                                var zoomListener = function (e) {
-                                 if ($0.swiper.zoom === undefined) {
-                                  console.info("Removing zoom listener.");
-                                  removeEventListener('wheel', zoomListener);
-                                  return;
-                                 }
-                                 
-                                 var path = e.composedPath();
-                                 var isUI = path.some(el => el.classList && (el.classList.contains('sidebar') || el.classList.contains('controls'))) ||
-                                            path.some(el => el.tagName && el.tagName.includes('OVERLAY'));
-                                 
-                                 if (isUI) {
-                                   return;
-                                 }
-
-                                  var zoom = $0.swiper.zoom.scale;
-                                  if (e.deltaY < 0) {
-                                    zoom += 0.5;
-                                  } else {
-                                    zoom -= 0.5;
-                                  }
-
-                                  if (zoom < 1) {
-                                    zoom = 1;
-                                  }
-
-                                  if (zoom > 3) {
-                                    zoom = 3;
-                                  }
-
-                                  $0.swiper.zoom.in(zoom);
-                                  };
-
-                                addEventListener('wheel', zoomListener);
-                                """,
-            swiper.getElement());
-
     loadChapter();
 
-    swiper.addReachEndEventListener(e -> sendReachEndEvent());
+    addListener(
+        MangaPageViewEvent.class,
+        e -> {
+          if (currentPageIndex == e.getPageIndex()) {
+            return;
+          }
+          currentPageIndex = e.getPageIndex();
+          sendPageChangeEvent(currentPageIndex);
 
-    swiper.addActiveIndexChangeEventListener(e -> sendPageChangeEvent(e.getActiveIndex()));
+          if (currentPageIndex == pageElements.size() - 1) {
+            sendReachEndEvent();
+          }
+        });
 
-    add(swiper);
+    carousel.getElement()
+        .executeJs("window.initMangaSplide(this, $0, $1, $2);", dirStr, currentPageIndex,
+            pageElements.size());
+
+    add(carousel);
   }
 
   @Override
   protected void loadChapter() {
-
     var urls = mangaService.getChapterPages(chapter.getId());
 
     Settings settings = settingsService.getSettings();
@@ -140,63 +136,93 @@ public class PagedReader extends Reader {
     for (int i = 0; i < urls.size(); i++) {
       String url = baseUrl + urls.get(i);
 
-      Image image = new Image(url, "Page %d".formatted(i + 1));
+      Image image = new Image();
+      image.setAlt("Page %d".formatted(i + 1));
       image.addClassName("manga-page");
+      image.getElement().setAttribute("draggable", "false");
       image.getStyle().set("opacity", "0");
 
-      if (i > 1) {
-        image.getElement().setAttribute("loading", "lazy");
+      if (i == 0) {
+        image.setSrc(url);
+      } else {
+        image.getElement().setAttribute("data-splide-lazy", url);
       }
 
-      com.vaadin.flow.component.html.Div imgContainer = new com.vaadin.flow.component.html.Div();
+      Div imgContainer = new Div();
       imgContainer.addClassName("image-container");
 
-      com.vaadin.flow.component.html.Div spinner = new com.vaadin.flow.component.html.Div();
+      Div spinner = new Div();
       spinner.addClassName("obsidian-spinner");
-      spinner.add(new com.vaadin.flow.component.html.Div(), new com.vaadin.flow.component.html.Div(), new com.vaadin.flow.component.html.Div());
+      spinner.add(new Div(), new Div(), new Div());
 
       imgContainer.add(spinner, image);
 
-      // Fade in on load and hide spinner
+      // Fade in on load and hide spinner, handling cached images immediately
       image.getElement().executeJs(
-          "this.onload = () => {" +
+          "if (this.complete) {" +
           "  this.style.opacity = '1';" +
-          "  this.parentElement.querySelector('.obsidian-spinner').style.display = 'none';" +
-          "};"
+          "  if (this.parentElement) {" +
+          "    const spinner = this.parentElement.querySelector('.obsidian-spinner');" +
+          "    if (spinner) spinner.style.display = 'none';" +
+          "  }" +
+          "} else {" +
+          "  this.onload = () => {" +
+          "    this.style.opacity = '1';" +
+          "    if (this.parentElement) {" +
+          "      const spinner = this.parentElement.querySelector('.obsidian-spinner');" +
+          "      if (spinner) spinner.style.display = 'none';" +
+          "    }" +
+          "  };" +
+          "}"
       );
 
-      swiper.addZoomable(true, imgContainer);
+      Div slide = new Div();
+      slide.addClassName("paged-slide");
+      slide.addClassName("splide__slide");
+      slide.getElement().setAttribute("data-page-index", String.valueOf(i));
+      slide.add(imgContainer);
+
+      list.add(slide);
+      pageElements.add(slide);
     }
   }
 
   @Override
   protected ReaderDirection getReaderDirection() {
-    var langDir = swiper.getLanguageDirection();
-
-    if (langDir == LanguageDirection.LEFT_TO_RIGHT) {
-      return ReaderDirection.LTR;
-    } else {
+    var dirAttr = carousel.getElement().getAttribute("dir");
+    if ("rtl".equalsIgnoreCase(dirAttr)) {
       return ReaderDirection.RTL;
+    } else {
+      return ReaderDirection.LTR;
     }
   }
 
   @Override
   protected int getPageIndex() {
-    return swiper.getActiveIndex();
+    return currentPageIndex;
   }
 
   @Override
   protected void moveToPage(int index) {
-    swiper.slideTo(index);
+    if (index < 0 || index >= pageElements.size()) {
+      return;
+    }
+    currentPageIndex = index;
+    sendPageChangeEvent(index);
+
+    carousel.getElement().executeJs(
+        "if (this._splide) { this._splide.go($0); }",
+        index
+    );
   }
 
   @Override
   protected void moveToPreviousPage() {
-    swiper.slidePrev();
+    moveToPage(currentPageIndex - 1);
   }
 
   @Override
   protected void moveToNextPage() {
-    swiper.slideNext();
+    moveToPage(currentPageIndex + 1);
   }
 }
