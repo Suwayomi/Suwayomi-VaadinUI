@@ -6,12 +6,14 @@
 
 package online.hatsunemiku.tachideskvaadinui.startup;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.Meta;
 import online.hatsunemiku.tachideskvaadinui.data.server.event.ServerEventPublisher;
@@ -23,6 +25,8 @@ import online.hatsunemiku.tachideskvaadinui.utils.BrowserUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -36,12 +40,15 @@ import org.springframework.stereotype.Service;
 public class SuwayomiStarter {
 
   private static final Logger logger = LoggerFactory.getLogger(SuwayomiStarter.class);
+  private static final int MAX_STARTUP_CHECK_ATTEMPTS = 24; // 2 minutes (24 * 5s)
+
   private final SettingsService settingsService;
   private final ServerEventPublisher serverEventPublisher;
   private final SuwayomiService suwayomiApi;
-  private Process serverProcess;
-  private ScheduledExecutorService serverChecker;
-  private ScheduledExecutorService startChecker;
+  private final ApplicationContext applicationContext;
+  private final AtomicInteger checkCount = new AtomicInteger(0);
+  private volatile Process serverProcess;
+  private volatile ScheduledExecutorService startChecker;
 
   /**
    * Creates a new instance of the {@link SuwayomiStarter} class.
@@ -50,14 +57,25 @@ public class SuwayomiStarter {
    * @param serverEventPublisher The {@link ServerEventPublisher} used for publishing server events
    *     to the application.
    * @param suwayomiApi The {@link SuwayomiService} used for checking if the server is running.
+   * @param applicationContext The {@link ApplicationContext} used for graceful shutdown.
    */
   public SuwayomiStarter(
       SettingsService settingsService,
       ServerEventPublisher serverEventPublisher,
-      SuwayomiService suwayomiApi) {
+      SuwayomiService suwayomiApi,
+      ApplicationContext applicationContext) {
     this.settingsService = settingsService;
     this.serverEventPublisher = serverEventPublisher;
     this.suwayomiApi = suwayomiApi;
+    this.applicationContext = applicationContext;
+  }
+
+  /**
+   * Registers the shutdown hook once after the bean has been initialized.
+   */
+  @PostConstruct
+  public void registerShutdownHook() {
+    Runtime.getRuntime().addShutdownHook(new Thread(this::stopJar));
   }
 
   /**
@@ -68,7 +86,12 @@ public class SuwayomiStarter {
    * @see online.hatsunemiku.tachideskvaadinui.utils.PathUtils#getResolvedProjectPath(Environment)
    *     getResolvedProjectPath
    */
-  public void startJar(File projectDir) {
+  public synchronized void startJar(File projectDir) {
+    if (serverProcess != null && serverProcess.isAlive()) {
+      log.info("Tachidesk Server Jar is already running.");
+      return;
+    }
+
     log.info("Starting Tachidesk Server Jar...");
 
     Meta meta = SerializationUtils.deserializeMetadata(projectDir.toPath());
@@ -80,6 +103,12 @@ public class SuwayomiStarter {
       return;
     }
 
+    File jarFile = new File(jarLocation);
+    if (!jarFile.exists()) {
+      logger.warn("Jar file not found at: {}", jarLocation);
+      return;
+    }
+
     File dataDirFile = new File(projectDir, "data");
 
     String dataDirFormat = "-Dsuwayomi.tachidesk.config.server.rootDir=%s";
@@ -88,11 +117,16 @@ public class SuwayomiStarter {
     log.info("Checking for java installation...");
     boolean isJavaInstalled;
     try {
-      Process process = Runtime.getRuntime().exec(new String[] {"java", "-version"});
-      isJavaInstalled = process.waitFor() == 0;
+      Process process = new ProcessBuilder("java", "-version").start();
+      process.getInputStream().transferTo(java.io.OutputStream.nullOutputStream());
+      process.getErrorStream().transferTo(java.io.OutputStream.nullOutputStream());
+      isJavaInstalled = process.waitFor(5, TimeUnit.SECONDS) && process.exitValue() == 0;
     } catch (IOException | InterruptedException e) {
-      log.error("Failed to check if java is installed");
+      log.error("Failed to check if java is installed", e);
       isJavaInstalled = false;
+      if (e instanceof InterruptedException) {
+        Thread.currentThread().interrupt();
+      }
     }
 
     if (!isJavaInstalled) {
@@ -103,8 +137,8 @@ public class SuwayomiStarter {
       } catch (IOException e) {
         log.error("Failed to open browser", e);
       }
-      System.exit(-1); // skipcq JAVA-W0060 - Controlled exit, application can't run if Java isn't
-      // installed.
+      // skipcq JAVA-W0060 - Controlled exit, application can't run if Java isn't installed.
+      SpringApplication.exit(applicationContext, () -> -1);
       return;
     }
 
@@ -113,13 +147,13 @@ public class SuwayomiStarter {
 
     File logFile = new File(projectDir, "server.log");
 
+    processBuilder.redirectErrorStream(true);
     processBuilder.redirectOutput(logFile);
 
     try {
       serverProcess = processBuilder.start();
       log.info("Started Jar");
       startServerCheck();
-      Runtime.getRuntime().addShutdownHook(new Thread(this::stopJar));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -134,8 +168,11 @@ public class SuwayomiStarter {
    * frequently and events are published promptly when the server is detected to be operational.
    */
   private void startServerCheck() {
-    serverChecker = Executors.newSingleThreadScheduledExecutor();
-    startChecker = Executors.newSingleThreadScheduledExecutor();
+    synchronized (this) {
+      stopServerCheck();
+      checkCount.set(0);
+      startChecker = Executors.newSingleThreadScheduledExecutor();
+    }
 
     // skipcq: JAVA-W1087
     startChecker.scheduleAtFixedRate(this::checkIfServerIsRunning, 0, 5, TimeUnit.SECONDS);
@@ -153,21 +190,33 @@ public class SuwayomiStarter {
    * <p>Also ensures that any active server health-checking thread pools are properly shut down.
    */
   @PreDestroy
-  public void stopJar() {
+  public synchronized void stopJar() {
     log.info("Stopping Jar");
 
-    if (serverChecker != null) {
-      serverChecker.shutdownNow();
-    }
+    stopServerCheck();
 
     if (serverProcess == null) {
       return;
     }
 
-    if (serverProcess.supportsNormalTermination()) {
-      serverProcess.destroy();
-    } else {
+    try {
+      if (serverProcess.isAlive()) {
+        if (serverProcess.supportsNormalTermination()) {
+          serverProcess.destroy();
+          if (!serverProcess.waitFor(5, TimeUnit.SECONDS)) {
+            log.warn("Server jar did not stop gracefully in 5 seconds, forcing shutdown...");
+            serverProcess.destroyForcibly();
+          }
+        } else {
+          serverProcess.destroyForcibly();
+        }
+      }
+    } catch (InterruptedException e) {
+      log.error("Interrupted while waiting for server process to exit", e);
       serverProcess.destroyForcibly();
+      Thread.currentThread().interrupt();
+    } finally {
+      serverProcess = null;
     }
   }
 
@@ -201,14 +250,32 @@ public class SuwayomiStarter {
       return;
     }
 
+    Process currentProcess = this.serverProcess;
+    if (currentProcess != null && !currentProcess.isAlive()) {
+      logger.error("Server process has exited unexpectedly with exit code: {}",
+          currentProcess.exitValue());
+      stopServerCheck();
+      return;
+    }
+
     if (!checkServerConnection()) {
+      if (checkCount.incrementAndGet() >= MAX_STARTUP_CHECK_ATTEMPTS) {
+        logger.error("Server failed to start within the timeout limit (2 minutes).");
+        stopServerCheck();
+      }
       return;
     }
 
     logger.info("Server is running");
     serverEventPublisher.publishServerStartedEvent();
-    startChecker.shutdownNow();
-    startChecker = null;
+    stopServerCheck();
+  }
+
+  private synchronized void stopServerCheck() {
+    if (startChecker != null) {
+      startChecker.shutdownNow();
+      startChecker = null;
+    }
   }
 
   /**
@@ -219,7 +286,8 @@ public class SuwayomiStarter {
    */
   private boolean checkServerConnection() {
     if (serverProcess == null) {
-      throw new RuntimeException("Server process is null");
+      logger.warn("Server process is null, skipping connection check");
+      return false;
     }
 
     try {
