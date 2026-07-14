@@ -34,7 +34,12 @@
     "transform-ast": "2.4.4",
     "typescript": "5.9.3",
     "vite": "7.3.2",
-    "vite-plugin-checker": "0.12.0"
+    "vite-plugin-checker": "0.12.0",
+    "workbox-build": "7.4.0",
+    "workbox-core": "7.4.0",
+    "workbox-precaching": "7.4.0",
+    "workbox-routing": "7.4.0",
+    "workbox-strategies": "7.4.0"
   },
   "overrides": {
     "@vaadin/form-layout": "25.1.2",
@@ -111,7 +116,12 @@
     "react": "$react",
     "react-router": "$react-router",
     "@splidejs/splide": "$@splidejs/splide",
-    "@panzoom/panzoom": "$@panzoom/panzoom"
+    "@panzoom/panzoom": "$@panzoom/panzoom",
+    "workbox-build": {
+      "serialize-javascript": "7.0.5",
+      "@rollup/plugin-terser": "1.0.0",
+      "glob": "13.0.6"
+    }
   },
   "vaadin": {
     "dependencies": {
@@ -144,9 +154,14 @@
       "transform-ast": "2.4.4",
       "typescript": "5.9.3",
       "vite": "7.3.2",
-      "vite-plugin-checker": "0.12.0"
+      "vite-plugin-checker": "0.12.0",
+      "workbox-build": "7.4.0",
+      "workbox-core": "7.4.0",
+      "workbox-precaching": "7.4.0",
+      "workbox-routing": "7.4.0",
+      "workbox-strategies": "7.4.0"
     },
-    "hash": "33c7b292404e3454502a5cfb1f78c5a967d62a8a7c4e3b6d51a90e6b0ba0c131",
+    "hash": "16863a7caba29009f4334755f417e1fe747f57b4477061582a1bdf030e579b49",
     "overrides": {
       "@panzoom/panzoom": "$@panzoom/panzoom",
       "@splidejs/splide": "$@splidejs/splide",
@@ -222,7 +237,12 @@
       "lit": "$lit",
       "react": "$react",
       "react-dom": "$react-dom",
-      "react-router": "$react-router"
+      "react-router": "$react-router",
+      "workbox-build": {
+        "@rollup/plugin-terser": "1.0.0",
+        "glob": "13.0.6",
+        "serialize-javascript": "7.0.5"
+      }
     }
   }
 }

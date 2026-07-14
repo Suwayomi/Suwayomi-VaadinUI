@@ -130,6 +130,7 @@ tasks.register('buildReleaseJar', BootJar) {
     group = 'build'
     enabled = true
     archiveFileName = "Tachidesk-VaadinUI-${version}.jar"
+    destinationDirectory = file("build/libs/release")
     mainClass = 'online.hatsunemiku.tachideskvaadinui.TachideskVaadinUiApplication'
     setTargetJavaVersion(targetCompatibility)
 
@@ -184,8 +185,12 @@ class InstallTask extends JPackageTask {
         mainJar = "Tachidesk-VaadinUI-${project.version}.jar"
         vendor = "Aless2003"
         verbose = true
-        input = "build/libs"
+        input = "build/libs/release"
         destination = "build/installer"
+        javaOptions = [
+                "-Djava.net.preferIPv4Stack=true",
+                "-Dio.netty.resolver.dns.useSystemNameResolver=true"
+        ]
     }
 }
 

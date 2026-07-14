@@ -6,6 +6,8 @@
 
 package online.hatsunemiku.tachideskvaadinui;
 
+import java.io.IOException;
+import java.net.ServerSocket;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.utils.BrowserUtils;
 import org.springframework.boot.SpringApplication;
@@ -14,9 +16,6 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-import java.io.IOException;
-import java.net.ServerSocket;
 
 /**
  * The main class of the application. This class is responsible for starting the Spring Boot
@@ -35,7 +34,10 @@ public class TachideskVaadinUiApplication {
    *
    * @param args The command line arguments
    */
-  public static void main(String[] args) {
+  static void main(String[] args) {
+    System.setProperty("java.net.preferIPv4Stack", "true");
+    System.setProperty("io.netty.resolver.dns.useSystemNameResolver", "true");
+
     boolean headless = Boolean.parseBoolean(System.getProperty("vaaui.headless"));
     if (isRunningAlready()) {
       log.warn("Application is already running.");

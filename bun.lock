@@ -46,6 +46,7 @@
     },
   },
   "overrides": {
+    "@panzoom/panzoom": "^4.5.1",
     "@splidejs/splide": "^4.1.4",
     "@vaadin/a11y-base": "25.1.2",
     "@vaadin/accordion": "25.1.2",
