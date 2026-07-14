@@ -75,3 +75,6 @@ secrets.json
 .ai
 .kotlin
 .idea
+.antigravitycli
+.gemini
+java_pid*.hprof

@@ -178,7 +178,7 @@ class InstallTask extends JPackageTask {
         mainClass = "org.springframework.boot.loader.launch.JarLauncher"
         mainJar = "Tachidesk-VaadinUI-${project.version}.jar"
         vendor = "Aless2003"
-        verbose = false
+        verbose = true
         input = "build/libs"
         destination = "build/installer"
     }
