@@ -7,6 +7,8 @@
 package online.hatsunemiku.tachideskvaadinui.utils;
 
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import online.hatsunemiku.tachideskvaadinui.data.Meta;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -14,9 +16,6 @@ import org.slf4j.LoggerFactory;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.json.JsonMapper;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 public class SerializationUtils {
 
@@ -46,17 +45,21 @@ public class SerializationUtils {
     try {
       Path metaPath = projectDir.resolve("meta.json");
 
-      if (!Files.exists(metaPath)) {
+      if (!Files.exists(metaPath) || metaPath.toFile().length() == 0) {
         return new Meta();
       }
 
       return mapper.readValue(metaPath.toFile(), Meta.class);
     } catch (StreamReadException e) {
-      logger.error("Invalid content", e);
-      throw new RuntimeException(e);
+      logger.warn("Invalid content in meta.json, returning default Meta", e);
+      return new Meta();
     } catch (DatabindException e) {
-      logger.error("Content of Json file doesn't match expected json layout", e);
-      throw new RuntimeException(e);
+      logger.warn("Content of meta.json doesn't match expected json layout, returning default Meta",
+          e);
+      return new Meta();
+    } catch (Exception e) {
+      logger.warn("Failed to deserialize metadata, returning default Meta", e);
+      return new Meta();
     }
   }
 }
