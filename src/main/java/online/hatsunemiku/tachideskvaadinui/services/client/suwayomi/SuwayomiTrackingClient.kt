@@ -327,12 +327,12 @@ class SuwayomiTrackingClient(
                 }
 
                 val data = response.data ?: throw RuntimeException("Error while getting track statuses: No data")
-                data.tracker?.statuses?.map { node ->
+                data.tracker.statuses.map { node ->
                     Status().apply {
                         name = node.name
                         value = node.value
                     }
-                } ?: emptyList()
+                }
             } catch (e: Exception) {
                 throw RuntimeException("Error while getting track statuses", e)
             }

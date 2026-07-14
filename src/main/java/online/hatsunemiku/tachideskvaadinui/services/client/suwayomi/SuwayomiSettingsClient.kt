@@ -89,8 +89,8 @@ class SuwayomiSettingsClient(private val clientService: WebClientService) {
                 FlareSolverrSettings().apply {
                     isEnabled = data.settings.flareSolverrEnabled == true
                     sessionName = data.settings.flareSolverrSessionName
-                    sessionTTL = data.settings.flareSolverrSessionTtl?.toInt() ?: 0
-                    timeout = data.settings.flareSolverrTimeout?.toInt() ?: 0
+                    sessionTTL = data.settings.flareSolverrSessionTtl
+                    timeout = data.settings.flareSolverrTimeout
                     url = data.settings.flareSolverrUrl
                 }
             } catch (e: Exception) {
@@ -187,7 +187,7 @@ class SuwayomiSettingsClient(private val clientService: WebClientService) {
         val apolloClient = clientService.apolloClient ?: throw RuntimeException("ApolloClient not initialized")
 
         try {
-            val bytes = Files.readAllBytes(backupFile);
+            val bytes = Files.readAllBytes(backupFile)
 
             val upload = DefaultUpload.Builder()
                 .fileName("${backupFile.fileName}")

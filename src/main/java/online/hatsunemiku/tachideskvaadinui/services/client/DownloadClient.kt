@@ -31,7 +31,7 @@ class DownloadClient(private val clientService: WebClientService) {
                 }
 
                 val data = response.data ?: throw RuntimeException("Error while downloading chapters: No data")
-                val downloadStatus = data.enqueueChapterDownloads.downloadStatus ?: throw RuntimeException("Error while downloading chapters: Null status")
+                val downloadStatus = data.enqueueChapterDownloads.downloadStatus
 
                 val newChapterIds = downloadStatus.queue.map { it.chapter.id }
 

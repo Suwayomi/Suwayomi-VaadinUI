@@ -282,11 +282,11 @@ class MangaClient(private val clientService: WebClientService) {
             description = node.description
             thumbnailUrl = node.thumbnailUrl
             isInLibrary = node.inLibrary == true
-            status = node.status?.rawValue
+            status = node.status.rawValue
 
             node.source?.let { sNode ->
                 source = Source().apply {
-                    id = sNode.id?.toString()
+                    id = sNode.id.toString()
                     name = sNode.name
                     displayName = sNode.displayName
                     lang = sNode.lang
@@ -301,14 +301,14 @@ class MangaClient(private val clientService: WebClientService) {
                 lastChapterRead = Chapter().apply { id = lrNode.id }
             }
 
-            node.categories?.nodes?.let { catNodes ->
+            node.categories.nodes.let { _ ->
                 // Note: We need a way to set categories, currently Manga.kt has it private
                 // For now, let's assume we can access it or use the nodes directly if we refactor Manga.kt further
-                // Accessing private fields in Kotlin within same package works if they are internal, 
+                // Accessing private fields in Kotlin within same package works if they are internal,
                 // but here they are private.
             }
 
-            node.chapters?.nodes?.let { chapterNodes ->
+            node.chapters.nodes.let { chapterNodes ->
                 chapterCount = chapterNodes.size
             }
         }

@@ -7,7 +7,7 @@ plugins {
     id 'java'
     id 'idea'
     id 'org.jetbrains.kotlin.jvm' version '2.3.21'
-    id "io.freefair.lombok" version "8.12.2"
+    id "io.freefair.lombok" version "9.5.0"
     id 'org.springframework.boot' version '4.0.6'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.vaadin' version "$vaadinVersion"
@@ -32,19 +32,20 @@ apollo {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
         vendor = JvmVendorSpec.BELLSOFT
+
     }
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(25)
 }
 
 group = 'online.hatsunemiku'
 version = '1.14.0'
-sourceCompatibility = JavaVersion.VERSION_21
-targetCompatibility = JavaVersion.VERSION_21
+sourceCompatibility = JavaVersion.VERSION_25
+targetCompatibility = JavaVersion.VERSION_25
 
 configurations {
     compileOnly {
