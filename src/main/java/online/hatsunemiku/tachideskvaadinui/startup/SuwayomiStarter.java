@@ -23,6 +23,7 @@ import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.services.SuwayomiService;
 import online.hatsunemiku.tachideskvaadinui.utils.BrowserUtils;
 import online.hatsunemiku.tachideskvaadinui.utils.SerializationUtils;
+import online.hatsunemiku.tachideskvaadinui.utils.TachideskUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -106,6 +107,11 @@ public class SuwayomiStarter {
     File jarFile = new File(jarLocation);
     if (!jarFile.exists()) {
       logger.warn("Jar file not found at: {}", jarLocation);
+      return;
+    }
+
+    if (!TachideskUtils.isValidJar(jarFile)) {
+      logger.error("Jar file at {} is invalid or corrupt.", jarLocation);
       return;
     }
 

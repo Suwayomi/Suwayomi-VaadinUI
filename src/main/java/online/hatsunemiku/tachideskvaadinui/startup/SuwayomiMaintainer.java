@@ -347,6 +347,11 @@ public class SuwayomiMaintainer {
       return false;
     }
 
+    if (!TachideskUtils.isValidJar(serverFile)) {
+      logger.warn("Server file is invalid or corrupt: {}", serverFile.getPath());
+      return false;
+    }
+
     return true;
   }
 

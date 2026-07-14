@@ -6,16 +6,19 @@
 
 package online.hatsunemiku.tachideskvaadinui.utils;
 
+import java.io.File;
+import java.util.Optional;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.experimental.UtilityClass;
 import online.hatsunemiku.tachideskvaadinui.data.Meta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
-
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @UtilityClass
 public class TachideskUtils {
@@ -64,5 +67,29 @@ public class TachideskUtils {
     meta.setJarName(matcher.group(3));
 
     return Optional.of(meta);
+  }
+
+  /**
+   * Validates if the given file is a valid, uncorrupted JAR file that has a main class.
+   *
+   * @param file the file to validate
+   * @return {@code true} if the file is a valid JAR, {@code false} otherwise
+   */
+  public static boolean isValidJar(File file) {
+    if (file == null || !file.exists() || !file.isFile()) {
+      return false;
+    }
+    try (JarFile jarFile = new JarFile(file)) {
+      Manifest manifest = jarFile.getManifest();
+      if (manifest == null) {
+        return false;
+      }
+      Attributes mainAttributes = manifest.getMainAttributes();
+      String mainClass = mainAttributes.getValue(Attributes.Name.MAIN_CLASS);
+      return mainClass != null && !mainClass.trim().isEmpty();
+    } catch (Exception e) {
+      logger.warn("Jar validation failed for file {}: {}", file.getPath(), e.getMessage());
+      return false;
+    }
   }
 }
