@@ -40,6 +40,7 @@ import online.hatsunemiku.tachideskvaadinui.view.SettingsView;
  * MangaReader is the primary component for reading manga, offering a glassmorphic UI.
  * It supports different reader modes (Paged and Strip) and includes a Focus Mode to hide controls.
  */
+@CssImport("./css/components/spinner.css")
 @CssImport("./css/components/reader/manga-reader.css")
 @Slf4j
 public class MangaReader extends Div {

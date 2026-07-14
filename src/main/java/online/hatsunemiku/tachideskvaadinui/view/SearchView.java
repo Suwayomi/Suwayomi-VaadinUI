@@ -9,6 +9,7 @@ package online.hatsunemiku.tachideskvaadinui.view;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -50,11 +51,14 @@ import org.vaadin.miki.superfields.text.SuperTextField;
  */
 @Slf4j
 @Route("search")
+@CssImport("./css/components/spinner.css")
+@CssImport("./css/views/search-view.css")
 public class SearchView extends StandardLayout implements HasUrlParameter<String> {
 
   private final Div searchResults;
   private final ComboBox<String> langFilter;
   private final SuperTextField searchField;
+  private final Div searchSpinnerContainer;
   private final SourceService sourceService;
   private final SearchService searchService;
   private final SettingsService settingsService;
@@ -74,6 +78,15 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     this.searchService = searchService;
     this.settingsService = settingsService;
     searchResults = new Div();
+
+    searchSpinnerContainer = new Div();
+    searchSpinnerContainer.setClassName("search-spinner-container");
+    searchSpinnerContainer.setVisible(false);
+
+    Div spinner = new Div();
+    spinner.addClassName("obsidian-spinner");
+    spinner.add(new Div(), new Div(), new Div());
+    searchSpinnerContainer.add(spinner);
 
     SuperTextField searchField = createSearchField();
     var langFilter = createLanguageComboBox(sourceService);
@@ -98,6 +111,7 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     content.add(btnContainer);
     content.add(inputsContainer);
     content.add(searchResults);
+    content.add(searchSpinnerContainer);
 
     setContent(content);
   }
@@ -232,37 +246,36 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     searchField.setReadOnly(true);
     langFilter.setReadOnly(true);
     searchResults.removeAll();
+    searchSpinnerContainer.setVisible(true);
 
     CompletableFuture<?> future = CompletableFuture.runAsync(() -> search(searchField.getValue()));
 
-    future
-        .thenRun(
-            () -> {
-              var ui = getUI();
+    future.whenComplete(
+        (res, ex) -> {
+          if (ex != null) {
+            log.error("Error searching", ex);
+          }
+          var ui = getUI();
 
-              if (ui.isEmpty()) {
-                log.error("UI is not present");
-                return;
-              }
+          if (ui.isEmpty()) {
+            log.error("UI is not present");
+            return;
+          }
 
-              if (!ui.get().isAttached()) {
-                log.debug("UI is not attached anymore");
-                return;
-              }
+          if (!ui.get().isAttached()) {
+            log.debug("UI is not attached anymore");
+            return;
+          }
 
-              ui.get()
-                  .access(
-                      () -> {
-                        searchField.setSuffixComponent(null);
-                        searchField.setReadOnly(false);
-                        langFilter.setReadOnly(false);
-                      });
-            })
-        .exceptionally(
-            ex -> {
-              log.error("Error searching", ex);
-              return null;
-            });
+          ui.get()
+              .access(
+                  () -> {
+                    searchField.setSuffixComponent(null);
+                    searchField.setReadOnly(false);
+                    langFilter.setReadOnly(false);
+                    searchSpinnerContainer.setVisible(false);
+                  });
+        });
   }
 
   private Div getLoadingDiv() {

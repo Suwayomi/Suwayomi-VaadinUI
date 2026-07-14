@@ -111,3 +111,14 @@
   margin-top: 1rem;
   gap: .5rem;
 }
+
+/* Center container for search spinner */
+.search-spinner-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px;
+  width: 100%;
+  margin: 2rem 0;
+}
