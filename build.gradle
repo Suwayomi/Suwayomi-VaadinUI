@@ -43,7 +43,7 @@ kotlin {
 }
 
 group = 'online.hatsunemiku'
-version = '1.14.0'
+version = '2.0.0'
 sourceCompatibility = JavaVersion.VERSION_25
 targetCompatibility = JavaVersion.VERSION_25
 
@@ -163,6 +163,10 @@ tasks.register('buildMacPkg', MacInstallTask) {
     type = ImageType.PKG
 }
 
+tasks.register('buildDebugWindowsMsi', WindowsDebugInstallTask) {
+    type = ImageType.MSI
+}
+
 class InstallTask extends JPackageTask {
     InstallTask() {
         super()
@@ -201,6 +205,14 @@ class WindowsInstallTask extends InstallTask {
         winShortcutPrompt = true
         winUpdateUrl = "https://github.com/aless2003/Tachidesk-VaadinUI"
         winUpgradeUuid = "1fd89884-c606-4304-b9f0-f82c47ff7676"
+    }
+}
+
+class WindowsDebugInstallTask extends WindowsInstallTask {
+    WindowsDebugInstallTask() {
+        super()
+
+        winConsole = true
     }
 }
 
