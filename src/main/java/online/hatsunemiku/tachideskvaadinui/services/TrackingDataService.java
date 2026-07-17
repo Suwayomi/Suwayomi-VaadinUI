@@ -63,7 +63,7 @@ public class TrackingDataService {
   }
 
   private void deserializeTokens() {
-    if (!Files.exists(tokenFile)) {
+    if (!Files.exists(tokenFile) || tokenFile.toFile().length() == 0) {
       tokens = new TrackerTokens();
       serializeTokens();
       return;
@@ -81,14 +81,17 @@ public class TrackingDataService {
         serializeTokens();
       }
     } catch (StreamReadException e) {
-      log.error("Failed to deserialize tokens, because the stream was already closed", e);
-      throw new RuntimeException(e);
+      log.warn("Invalid content in tokens.json, returning default TrackerTokens", e);
+      tokens = new TrackerTokens();
+      serializeTokens();
     } catch (DatabindException e) {
-      log.error("Failed to deserialize tokens, because the data binding failed", e);
-      throw new RuntimeException(e);
-    } catch (IOException e) {
-      log.error("Failed to deserialize tokens", e);
-      throw new RuntimeException(e);
+      log.warn("Failed to deserialize tokens, because the data binding failed, returning default TrackerTokens", e);
+      tokens = new TrackerTokens();
+      serializeTokens();
+    } catch (Exception e) {
+      log.warn("Failed to deserialize tokens, returning default TrackerTokens", e);
+      tokens = new TrackerTokens();
+      serializeTokens();
     }
   }
 
@@ -130,7 +133,7 @@ public class TrackingDataService {
   }
 
   private void deserializeTrackers() {
-    if (!Files.exists(trackerFile)) {
+    if (!Files.exists(trackerFile) || trackerFile.toFile().length() == 0) {
       return;
     }
 
@@ -149,14 +152,11 @@ public class TrackingDataService {
       }
       mangaTrackers.putAll(tempTrackers);
     } catch (StreamReadException e) {
-      log.error("Failed to deserialize trackers, because the stream was already closed", e);
-      throw new RuntimeException(e);
+      log.warn("Invalid content in trackers.json, returning empty trackers", e);
     } catch (DatabindException e) {
-      log.error("Failed to deserialize trackers, because the data binding failed", e);
-      throw new RuntimeException(e);
-    } catch (IOException e) {
-      log.error("Failed to deserialize trackers", e);
-      throw new RuntimeException(e);
+      log.warn("Failed to deserialize trackers, because the data binding failed, returning empty trackers", e);
+    } catch (Exception e) {
+      log.warn("Failed to deserialize trackers, returning empty trackers", e);
     }
   }
 
