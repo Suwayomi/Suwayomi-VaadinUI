@@ -33,7 +33,7 @@ apollo {
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
-        vendor = JvmVendorSpec.BELLSOFT
+        vendor = JvmVendorSpec.ADOPTIUM
     }
 }
 
