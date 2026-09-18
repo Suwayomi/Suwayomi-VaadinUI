@@ -23,27 +23,76 @@ class SuwayomiSettingsClient(private val clientService: WebClientService) {
     }
 
     /**
+     * Adds an extension store on the Suwayomi Server.
+     *
+     * @param indexUrl the extension store index URL.
+     * @return `true` if the extension store was added successfully, `false` otherwise.
+     */
+    fun addExtensionStore(indexUrl: String): Boolean {
+        val apolloClient = clientService.apolloClient ?: throw RuntimeException("ApolloClient not initialized")
+
+        return runBlocking {
+            try {
+                val response = apolloClient.mutation(AddExtensionStoreMutation(indexUrl)).execute()
+                if (response.hasErrors()) {
+                    throw RuntimeException("Error while adding extension store: " + response.errors)
+                }
+
+                val data = response.data ?: throw RuntimeException("Error while adding extension store: No data")
+                data.addExtensionStore?.extensionStore != null
+            } catch (e: Exception) {
+                throw RuntimeException("Error while adding extension store", e)
+            }
+        }
+    }
+
+    /**
+     * Removes an extension store from the Suwayomi Server.
+     *
+     * @param indexUrl the extension store index URL.
+     * @return `true` if the extension store was removed successfully, `false` otherwise.
+     */
+    fun removeExtensionStore(indexUrl: String): Boolean {
+        val apolloClient = clientService.apolloClient ?: throw RuntimeException("ApolloClient not initialized")
+
+        return runBlocking {
+            try {
+                val response = apolloClient.mutation(RemoveExtensionStoreMutation(indexUrl)).execute()
+                if (response.hasErrors()) {
+                    throw RuntimeException("Error while removing extension store: " + response.errors)
+                }
+
+                val data = response.data ?: throw RuntimeException("Error while removing extension store: No data")
+                data.removeExtensionStore?.extensionStore != null
+            } catch (e: Exception) {
+                throw RuntimeException("Error while removing extension store", e)
+            }
+        }
+    }
+
+    /**
      * Updates the user's extension repositories on the Suwayomi Server.
      *
      * @param extensionRepoUrls a list of extension repository URLs as strings.
      * @return `true` if the extension repositories were updated successfully, `false`
      */
     fun updateExtensionRepos(extensionRepoUrls: List<String>): Boolean {
-        val apolloClient = clientService.apolloClient ?: throw RuntimeException("ApolloClient not initialized")
+        val currentStores = getExtensionRepos()
+        val toRemove = currentStores.filter { !extensionRepoUrls.contains(it) }
+        val toAdd = extensionRepoUrls.filter { !currentStores.contains(it) }
 
-        return runBlocking {
-            try {
-                val response = apolloClient.mutation(UpdateExtensionReposMutation(Optional.present(extensionRepoUrls))).execute()
-                if (response.hasErrors()) {
-                    throw RuntimeException("Error while updating extensionRepos: " + response.errors)
-                }
-
-                val data = response.data ?: throw RuntimeException("Error while updating extensionRepos: No data")
-                data.setSettings.settings.extensionRepos == extensionRepoUrls
-            } catch (e: Exception) {
-                throw RuntimeException("Error while updating extensionRepos", e)
+        var success = true
+        for (url in toRemove) {
+            if (!removeExtensionStore(url)) {
+                success = false
             }
         }
+        for (url in toAdd) {
+            if (!addExtensionStore(url)) {
+                success = false
+            }
+        }
+        return success
     }
 
     /**
@@ -56,15 +105,15 @@ class SuwayomiSettingsClient(private val clientService: WebClientService) {
 
         return runBlocking {
             try {
-                val response = apolloClient.query(GetExtensionReposQuery()).execute()
+                val response = apolloClient.query(GetExtensionStoresQuery()).execute()
                 if (response.hasErrors()) {
-                    throw RuntimeException("Error while getting extensionRepos: " + response.errors)
+                    throw RuntimeException("Error while getting extensionStores: " + response.errors)
                 }
 
-                val data = response.data ?: throw RuntimeException("Error while getting extensionRepos: No data")
-                data.settings.extensionRepos
+                val data = response.data ?: throw RuntimeException("Error while getting extensionStores: No data")
+                data.extensionStores.nodes.map { it.indexUrl }
             } catch (e: Exception) {
-                throw RuntimeException("Error while getting extensionRepos", e)
+                throw RuntimeException("Error while getting extensionStores", e)
             }
         }
     }

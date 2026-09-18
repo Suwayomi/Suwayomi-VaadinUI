@@ -19,12 +19,22 @@ mutation deleteChapter($id: Int!) {
 }
 
 subscription trackDownloads {
-  downloadChanged {
-    queue {
+  downloadStatusChanged(input: {}) {
+    initial {
       progress
       state
       chapter {
         id
+      }
+    }
+    updates {
+      type
+      download {
+        progress
+        state
+        chapter {
+          id
+        }
       }
     }
   }
@@ -44,7 +54,7 @@ mutation GetExtensions {
       pkgName
       apkName
       isInstalled
-      isNsfw
+      contentWarning
       isObsolete
       lang
       name
@@ -71,31 +81,26 @@ mutation updateLibraryManga {
 }
 
 query hasSkipped {
-  updateStatus {
-    skippedJobs {
-      mangas {
-        nodes {
-          id
-        }
-      }
+  libraryUpdateStatus {
+    jobsInfo {
+      isRunning
+      skippedMangasCount
     }
   }
 }
 
 subscription TrackMangaUpdate {
-  updateStatusChanged {
-    completeJobs {
-      mangas {
-        nodes {
-          title
-          chapters {
-            totalCount
-          }
-          id
-        }
+  libraryUpdateStatusChanged(input: {}) {
+    jobsInfo {
+      isRunning
+    }
+    mangaUpdates {
+      status
+      manga {
+        id
+        title
       }
     }
-    isRunning
   }
 }
 

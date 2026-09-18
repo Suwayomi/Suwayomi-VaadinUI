@@ -551,6 +551,10 @@ public class SettingsView extends StandardLayout {
 
     Dialog dialog = new Dialog();
     SuperTextField addRepoUrlField = new SuperTextField("Extension Repo URL");
+    addRepoUrlField.setPlaceholder("e.g. https://github.com/keiyoushi/extensions");
+    addRepoUrlField.setHelperText(
+        "GitHub repository links are automatically resolved to the index file");
+    addRepoUrlField.setWidth("400px");
     dialog.add(addRepoUrlField);
     Div dialogButtons = getDialogButtons(dialog, addRepoUrlField, repoGrid);
     dialog.add(dialogButtons);
@@ -621,18 +625,51 @@ public class SettingsView extends StandardLayout {
           }
 
           if (!newRepoUrl.startsWith("http") && !newRepoUrl.startsWith("https")) {
+            Notification notification =
+                new Notification("URL must start with http:// or https://", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.open();
             return;
           }
 
           UrlValidator urlValidator = new UrlValidator();
 
           if (!urlValidator.isValid(newRepoUrl)) {
+            Notification notification = new Notification("URL is not valid", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.open();
             return;
           }
 
-          suwayomiSettingsService.addExtensionRepo(newRepoUrl);
-          dialog.close();
-          reloadGrid(repoGrid);
+          var resolvedOpt = suwayomiSettingsService.resolveExtensionRepoUrl(newRepoUrl);
+          if (resolvedOpt.isEmpty()) {
+            Notification notification =
+                new Notification(
+                    "Could not find a valid extension index (index.min.json / index.pb) for this URL",
+                    4000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.open();
+            return;
+          }
+
+          String resolvedUrl = resolvedOpt.get();
+          if (!resolvedUrl.equalsIgnoreCase(newRepoUrl.trim())) {
+            Notification notification =
+                new Notification("Resolved repository to: " + resolvedUrl, 4000);
+            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            notification.open();
+          }
+
+          boolean success = suwayomiSettingsService.addExtensionRepo(resolvedUrl);
+          if (success) {
+            dialog.close();
+            reloadGrid(repoGrid);
+          } else {
+            Notification notification =
+                new Notification("Failed to add extension repository to Suwayomi Server", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.open();
+          }
         });
 
     addRepoUrlField.addKeyPressListener(Key.ENTER, event -> addButton.click());

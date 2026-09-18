@@ -65,11 +65,11 @@ query getMangaChapters($mangaId: Int!) {
 }
 
 mutation fetchChapterList($mangaId: Int!) {
-  fetchChapters(input: { mangaId: $mangaId }) {
+  fetchMangaAndChapters(input: {id: $mangaId, fetchChapters: true, fetchManga: false}) {
     chapters {
       url
       chapterNumber
-        sourceOrder
+      sourceOrder
       mangaId
       name
       uploadDate
@@ -89,7 +89,7 @@ mutation fetchChapterList($mangaId: Int!) {
 }
 
 mutation FetchManga($id: Int!) {
-  fetchManga(input: {id: $id}) {
+  fetchMangaAndChapters(input: {id: $id, fetchManga: true, fetchChapters: false}) {
     manga {
       author
       thumbnailUrl
@@ -101,7 +101,7 @@ mutation FetchManga($id: Int!) {
       chapters {
         nodes {
           chapterNumber
-            sourceOrder
+          sourceOrder
         }
       }
       source {
@@ -109,7 +109,7 @@ mutation FetchManga($id: Int!) {
         id
         iconUrl
         isConfigurable
-        isNsfw
+        contentWarning
         lang
         name
         supportsLatest

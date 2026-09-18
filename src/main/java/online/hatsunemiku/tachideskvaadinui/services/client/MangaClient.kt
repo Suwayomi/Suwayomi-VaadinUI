@@ -7,6 +7,7 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Source
 import online.hatsunemiku.tachideskvaadinui.exceptions.AndroidOnlyException
 import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.*
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.type.ContentWarning
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService
 import online.hatsunemiku.tachideskvaadinui.services.client.exception.InvalidResponseException
 import org.springframework.stereotype.Component
@@ -25,7 +26,7 @@ class MangaClient(private val clientService: WebClientService) {
                 }
 
                 val data = response.data ?: throw RuntimeException("Error while adding manga to categories: No data")
-                val newCategoryIds = data.updateMangaCategories.manga.categories.nodes.map { it.id }
+                val newCategoryIds = data.updateMangaCategories?.manga?.categories?.nodes?.map { it.id } ?: emptyList()
 
                 categoryIds.all { newCategoryIds.contains(it) }
             } catch (e: Exception) {
@@ -45,7 +46,7 @@ class MangaClient(private val clientService: WebClientService) {
                 }
 
                 val data = response.data ?: throw RuntimeException("Error while removing manga from categories: No data")
-                val newCategoryIds = data.updateMangaCategories.manga.categories.nodes.map { it.id }
+                val newCategoryIds = data.updateMangaCategories?.manga?.categories?.nodes?.map { it.id } ?: emptyList()
 
                 categoryIds.none { newCategoryIds.contains(it) }
             } catch (e: Exception) {
@@ -99,7 +100,7 @@ class MangaClient(private val clientService: WebClientService) {
                     throw InvalidResponseException("Invalid response from server for manga $mangaId", null)
                 }
 
-                response.data?.fetchChapters?.chapters?.map { mapToChapter(it) } ?: emptyList()
+                response.data?.fetchMangaAndChapters?.chapters?.map { mapToChapter(it) } ?: emptyList()
             } catch (e: Exception) {
                 throw RuntimeException("Error while fetching chapter list", e)
             }
@@ -155,7 +156,7 @@ class MangaClient(private val clientService: WebClientService) {
                     throw RuntimeException("Error while fetching manga $mangaId: " + response.errors)
                 }
 
-                response.data?.fetchManga?.manga?.let { mapToManga(it) }
+                response.data?.fetchMangaAndChapters?.manga?.let { mapToManga(it) }
             } catch (e: Exception) {
                 throw RuntimeException("Error while fetching manga $mangaId", e)
             }
@@ -293,7 +294,8 @@ class MangaClient(private val clientService: WebClientService) {
                     iconUrl = sNode.iconUrl
                     isSupportsLatest = sNode.supportsLatest == true
                     isConfigurable = sNode.isConfigurable == true
-                    isNsfw = sNode.isNsfw == true
+                    contentWarning = sNode.contentWarning.rawValue
+                    isNsfw = sNode.contentWarning == ContentWarning.NSFW
                 }
             }
 

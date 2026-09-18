@@ -5,6 +5,7 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Extension
 import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.GetExtensionsMutation
 import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.InstallExtensionMutation
 import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.UpdateExtensionMutation
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.type.ContentWarning
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService
 import org.springframework.stereotype.Component
 
@@ -22,7 +23,7 @@ class ExtensionClient(private val clientService: WebClientService) {
                 }
 
                 val data = response.data ?: throw RuntimeException("Error while updating extension: No data")
-                val extension = data.updateExtension.extension ?: throw RuntimeException("Error while updating extension: Null extension")
+                val extension = data.updateExtension?.extension ?: throw RuntimeException("Error while updating extension: Null extension")
                 
                 extension.hasUpdate == false
             } catch (e: Exception) {
@@ -55,7 +56,8 @@ class ExtensionClient(private val clientService: WebClientService) {
                         pkgName = node.pkgName
                         apkName = node.apkName
                         isInstalled = node.isInstalled == true
-                        isNsfw = node.isNsfw == true
+                        contentWarning = node.contentWarning.rawValue
+                        isNsfw = node.contentWarning == ContentWarning.NSFW
                         isObsolete = node.isObsolete == true
                         lang = node.lang
                         name = node.name
@@ -102,7 +104,7 @@ class ExtensionClient(private val clientService: WebClientService) {
                 }
 
                 val data = response.data ?: throw RuntimeException("Error while updating extension install status: No data")
-                val extension = data.updateExtension.extension ?: throw RuntimeException("Error while updating extension install status: Null extension")
+                val extension = data.updateExtension?.extension ?: throw RuntimeException("Error while updating extension install status: Null extension")
 
                 extension.isInstalled == true
             } catch (e: Exception) {

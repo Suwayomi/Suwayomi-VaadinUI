@@ -31,7 +31,7 @@ class DownloadClient(private val clientService: WebClientService) {
                 }
 
                 val data = response.data ?: throw RuntimeException("Error while downloading chapters: No data")
-                val downloadStatus = data.enqueueChapterDownloads.downloadStatus ?: throw RuntimeException("Error while downloading chapters: Null status")
+                val downloadStatus = data.enqueueChapterDownloads?.downloadStatus ?: throw RuntimeException("Error while downloading chapters: Null status")
 
                 val newChapterIds = downloadStatus.queue.map { it.chapter.id }
 
@@ -60,7 +60,7 @@ class DownloadClient(private val clientService: WebClientService) {
                 }
 
                 val data = response.data ?: throw RuntimeException("Error while deleting chapter: No data")
-                val deletionFail = data.deleteDownloadedChapter.chapters.isDownloaded
+                val deletionFail = data.deleteDownloadedChapter?.chapters?.isDownloaded
 
                 deletionFail != true
             } catch (e: Exception) {
@@ -83,13 +83,29 @@ class DownloadClient(private val clientService: WebClientService) {
                                 return@collect
                             }
                             val data = response.data ?: return@collect
-                            sink.next(data.downloadChanged.queue.map { node ->
-                                DownloadChangeEvent(
-                                    node.progress.toFloat(),
-                                    node.state.toString(),
-                                    EnqueuedChapter(node.chapter.id)
+                            val events = mutableListOf<DownloadChangeEvent>()
+                            data.downloadStatusChanged.initial?.forEach { node ->
+                                events.add(
+                                    DownloadChangeEvent(
+                                        node.progress.toFloat(),
+                                        node.state.toString(),
+                                        EnqueuedChapter(node.chapter.id)
+                                    )
                                 )
-                            })
+                            }
+                            data.downloadStatusChanged.updates.forEach { update ->
+                                val node = update.download
+                                events.add(
+                                    DownloadChangeEvent(
+                                        node.progress.toFloat(),
+                                        node.state.toString(),
+                                        EnqueuedChapter(node.chapter.id)
+                                    )
+                                )
+                            }
+                            if (events.isNotEmpty()) {
+                                sink.next(events)
+                            }
                         }
                 } catch (e: Exception) {
                     sink.error(e)

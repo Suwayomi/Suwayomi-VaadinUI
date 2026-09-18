@@ -23,6 +23,8 @@ class Extension {
     @set:JsonProperty("isNsfw")
     var isNsfw: Boolean = false
 
+    var contentWarning: String? = null
+
     var pkgName: String? = null
     var name: String? = null
 

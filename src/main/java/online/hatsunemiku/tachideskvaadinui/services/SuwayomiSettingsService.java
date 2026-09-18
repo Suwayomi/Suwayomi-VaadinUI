@@ -9,12 +9,15 @@ package online.hatsunemiku.tachideskvaadinui.services;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.settings.FlareSolverrSettings;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.ExtensionRepo;
 import online.hatsunemiku.tachideskvaadinui.services.client.suwayomi.SuwayomiSettingsClient;
+import online.hatsunemiku.tachideskvaadinui.utils.ExtensionRepoUrlResolver;
 import org.apache.commons.validator.routines.UrlValidator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,6 +30,7 @@ import org.springframework.stereotype.Service;
 public class SuwayomiSettingsService {
 
   private final SuwayomiSettingsClient client;
+  private final ExtensionRepoUrlResolver urlResolver;
 
   /**
    * Creates a new instance of the {@link SuwayomiSettingsService} class.
@@ -35,13 +39,27 @@ public class SuwayomiSettingsService {
    *     Server.
    */
   public SuwayomiSettingsService(SuwayomiSettingsClient client) {
+    this(client, new ExtensionRepoUrlResolver());
+  }
+
+  @Autowired
+  public SuwayomiSettingsService(
+      SuwayomiSettingsClient client, ExtensionRepoUrlResolver urlResolver) {
     this.client = client;
+    this.urlResolver = urlResolver;
+  }
+
+  public Optional<String> resolveExtensionRepoUrl(String extensionRepoUrl) {
+    return urlResolver.resolve(extensionRepoUrl);
   }
 
   public boolean addExtensionRepo(String extensionRepoUrl) {
+    String resolvedUrl = resolveExtensionRepoUrl(extensionRepoUrl).orElse(extensionRepoUrl);
     var extensionRepos = getExtensionRepos();
-    var extensionRepo = new ExtensionRepo(extensionRepoUrl);
-    extensionRepos.add(extensionRepo);
+    var extensionRepo = new ExtensionRepo(resolvedUrl);
+    if (!extensionRepos.contains(extensionRepo)) {
+      extensionRepos.add(extensionRepo);
+    }
 
     var repos = extensionRepos.stream().map(ExtensionRepo::getUrl).toList();
 
@@ -51,7 +69,10 @@ public class SuwayomiSettingsService {
   public boolean removeExtensionRepo(String extensionRepoUrl) {
     var extensionRepos = getExtensionRepos();
     var extensionRepo = new ExtensionRepo(extensionRepoUrl);
-    extensionRepos.remove(extensionRepo);
+    if (!extensionRepos.remove(extensionRepo)) {
+      String resolved = resolveExtensionRepoUrl(extensionRepoUrl).orElse(extensionRepoUrl);
+      extensionRepos.remove(new ExtensionRepo(resolved));
+    }
 
     var repos = extensionRepos.stream().map(ExtensionRepo::getUrl).toList();
     return client.updateExtensionRepos(repos);

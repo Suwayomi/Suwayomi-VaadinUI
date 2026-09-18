@@ -12,6 +12,7 @@ import online.hatsunemiku.tachideskvaadinui.data.tachidesk.event.MangaUpdateEven
 import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.HasSkippedQuery
 import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.TrackMangaUpdateSubscription
 import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.UpdateLibraryMangaMutation
+import online.hatsunemiku.tachideskvaadinui.graphql.suwayomi.type.MangaJobStatus
 import online.hatsunemiku.tachideskvaadinui.services.WebClientService
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
@@ -47,18 +48,18 @@ class LibUpdateClient(
                 }
 
                 val data = response.data ?: throw RuntimeException("Error while updating library: No data")
-                var isRunning = data.updateLibraryManga.updateStatus.isRunning
+                var isRunning = data.updateLibraryManga?.updateStatus?.isRunning == true
 
-                if (isRunning != true) {
+                if (!isRunning) {
                     val skippedResponse = apolloClient.query(HasSkippedQuery()).execute()
                     if (skippedResponse.hasErrors()) {
                         throw RuntimeException("Error while checking skipped jobs: " + skippedResponse.errors)
                     }
                     val skippedData = skippedResponse.data ?: throw RuntimeException("Error while updating library: No skipped data")
-                    isRunning = skippedData.updateStatus.skippedJobs.mangas.nodes.isNotEmpty()
+                    isRunning = skippedData.libraryUpdateStatus.jobsInfo.skippedMangasCount > 0
                 }
 
-                isRunning == true
+                isRunning
             } catch (e: Exception) {
                 throw RuntimeException("Error while updating library", e)
             }
@@ -79,14 +80,16 @@ class LibUpdateClient(
                         }
                         val data = response.data ?: throw RuntimeException("Couldn't retrieve update run status")
 
-                        val completedManga = data.updateStatusChanged.completeJobs.mangas.nodes.map { node ->
-                            Manga().apply {
-                                id = node.id
-                                title = node.title
+                        val completedManga = data.libraryUpdateStatusChanged.mangaUpdates
+                            .filter { it.status == MangaJobStatus.COMPLETE }
+                            .map { update ->
+                                Manga().apply {
+                                    id = update.manga.id
+                                    title = update.manga.title
+                                }
                             }
-                        }
 
-                        val event = MangaUpdateEvent(data.updateStatusChanged.isRunning == true, completedManga)
+                        val event = MangaUpdateEvent(data.libraryUpdateStatusChanged.jobsInfo.isRunning, completedManga)
                         if (!event.isRunning) {
                             eventPublisher.publishEvent(event)
                         }

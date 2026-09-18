@@ -27,7 +27,7 @@ class SuwayomiMetaClient(private val webClientService: WebClientService) {
                 }
 
                 val data = response.data ?: throw RuntimeException("Failed to retrieve server version: No data")
-                ServerVersion(data.aboutServer.version, data.aboutServer.revision)
+                ServerVersion(data.aboutServer.version)
             } catch (e: Exception) {
                 throw RuntimeException("Failed to retrieve server version", e)
             }

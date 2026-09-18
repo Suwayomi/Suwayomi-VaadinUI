@@ -26,6 +26,10 @@ public class ServerVersion {
    * @param version the version of the server
    * @param revision the revision of the server
    */
+  public ServerVersion(String version) {
+    this(version, null);
+  }
+
   @JsonCreator
   public ServerVersion(String version, String revision) {
     this.version = version;
@@ -70,12 +74,19 @@ public class ServerVersion {
 
   /**
    * Gets the revision number of the server. For example if the revision is r1234, this method will
-   * return 1234.
+   * return 1234. In Suwayomi v2.3+, the revision number is the patch version (e.g. 2243 in v2.3.2243).
    *
    * @return the revision number of the server
    */
   public int getRevisionNumber() {
-    String revisionNumber = revision.substring(1);
-    return Integer.parseInt(revisionNumber);
+    if (revision != null && !revision.isEmpty()) {
+      try {
+        String revisionNumber = revision.startsWith("r") ? revision.substring(1) : revision;
+        return Integer.parseInt(revisionNumber);
+      } catch (NumberFormatException ignored) {
+        // fall back to patch version
+      }
+    }
+    return getPatchVersion();
   }
 }

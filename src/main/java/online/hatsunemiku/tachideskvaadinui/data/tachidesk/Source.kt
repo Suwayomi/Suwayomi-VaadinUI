@@ -15,4 +15,5 @@ class Source {
     var isSupportsLatest: Boolean = false
     var isConfigurable: Boolean = false
     var isNsfw: Boolean = false
+    var contentWarning: String? = null
 }
