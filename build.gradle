@@ -174,9 +174,9 @@ class InstallTask extends JPackageTask {
         group = 'installers'
         enabled = true
 
-        aboutUrl = "https://github.com/aless2003/Tachidesk-VaadinUI"
-        appDescription = "A simple Web UI for Tachidesk written in Java with Vaadin"
-        appName = "Tachidesk Vaadin UI"
+        aboutUrl = "https://github.com/Suwayomi/Suwayomi-VaadinUI"
+        appDescription = "A simple Web UI for Suwayomi written in Java with Vaadin"
+        appName = "Suwayomi VaadinUI"
         appVersion = "${project.version}"
         icon = "package/icons/icon.ico"
         licenseFile = "LICENSE"
@@ -201,13 +201,13 @@ class WindowsInstallTask extends InstallTask {
 
         //winConsole = true //enable only for debugging
         winDirChooser = true
-        winHelpUrl = "https://github.com/aless2003/Tachidesk-VaadinUI"
+        winHelpUrl = "https://github.com/Suwayomi/Suwayomi-VaadinUI"
         winMenu = true
         winMenuGroup = "DiamondMiku"
         winPerUserInstall = true
         winShortcut = true
         winShortcutPrompt = true
-        winUpdateUrl = "https://github.com/aless2003/Tachidesk-VaadinUI"
+        winUpdateUrl = "https://github.com/Suwayomi/Suwayomi-VaadinUI"
         winUpgradeUuid = "1fd89884-c606-4304-b9f0-f82c47ff7676"
     }
 }
@@ -226,7 +226,7 @@ class LinuxInstallTask extends InstallTask {
         linuxAppCategory = "Utility"
         linuxDebMaintainer = "Alessandro.Schwaiger12@gmail.com"
         linuxMenuGroup = "DiamondMiku"
-        linuxPackageName = "tachidesk-vaaui"
+        linuxPackageName = "suwayomi-vaaui"
         linuxRpmLicenseType = "MPLv2.0"
         linuxShortcut = true
     }
@@ -243,6 +243,6 @@ class MacInstallTask extends InstallTask {
         macAppCategory = "public.app-category.books"
         macAppStore = false
         macPackageIdentifier = "online.hatsunemiku.tachideskvaadinui"
-        macPackageName = "Tachidesk-VaadinUI"
+        macPackageName = "Suwayomi-VaadinUI"
     }
 }

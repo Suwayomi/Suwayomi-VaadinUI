@@ -329,12 +329,18 @@ public class SettingsView extends StandardLayout {
     try {
       var vaauiDir = getVaaUIDir();
 
-      var exeFile = new File(vaauiDir, "Tachidesk Vaadin UI.exe");
+      var exeFile = new File(vaauiDir, "Suwayomi VaadinUI.exe");
+      if (!exeFile.exists()) {
+        var legacyExe = new File(vaauiDir, "Tachidesk Vaadin UI.exe");
+        if (legacyExe.exists()) {
+          exeFile = legacyExe;
+        }
+      }
       log.debug("Exe file: {}", exeFile);
 
       if (!exeFile.exists()) {
-        log.error("Tachidesk Vaadin UI.exe not found");
-        Notification notification = new Notification("Tachidesk Vaadin UI.exe not found", 3000);
+        log.error("Suwayomi VaadinUI.exe not found");
+        Notification notification = new Notification("Suwayomi VaadinUI.exe not found", 3000);
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
         notification.open();
         return;
