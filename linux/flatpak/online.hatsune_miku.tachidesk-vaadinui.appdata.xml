@@ -42,10 +42,11 @@
         </screenshot>
     </screenshots>
     <releases>
-        <release date="2026-7-14" version="2.0.0">
+        <release date="2026-9-19" version="2.0.0">
             <description>
                 <p>Entirely new UI</p>
                 <p>New Backend</p>
+                <p>Compatibility with Suwayomi 2.3</p>
             </description>
         </release>
     </releases>

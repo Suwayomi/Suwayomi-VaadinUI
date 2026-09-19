@@ -14,8 +14,68 @@
 
 .search-result-manga-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(17.5rem, 1fr));
+  gap: 1.3rem;
+}
+
+@media (max-width: 1920px), (max-height: 1080px) {
+  .search-result-manga-list {
+    grid-template-columns: repeat(auto-fill, minmax(13.75rem, 1fr));
+    gap: 1.1rem;
+  }
+
+  .search-content .search-inputs-container {
+    margin: 1.5rem 0 2rem;
+    gap: 1.5rem;
+    padding: 0 1.25rem;
+  }
+}
+
+@media (max-width: 1600px), (max-height: 920px) {
+  .search-result-manga-list {
+    grid-template-columns: repeat(auto-fill, minmax(11.75rem, 1fr));
+    gap: 1rem;
+  }
+
+  .search-content .search-inputs-container {
+    margin: 1.25rem 0 1.75rem;
+    gap: 1.25rem;
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 1280px), (max-height: 760px) {
+  .search-result-manga-list {
+    grid-template-columns: repeat(auto-fill, minmax(10.25rem, 1fr));
+    gap: 0.85rem;
+  }
+
+  .search-content .search-inputs-container {
+    margin: 1rem 0 1.25rem;
+    gap: 1rem;
+    padding: 0 0.5rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .search-result-manga-list {
+    grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .search-result-manga-list {
+    grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+    gap: 0.65rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .search-result-manga-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
 }
 
 .search-content .loading-div svg {
