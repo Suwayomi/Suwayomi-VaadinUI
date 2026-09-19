@@ -4,19 +4,116 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+#container.library-screen.source-explore-screen {
+  background: #0b0d10 !important;
+  background-size: auto !important;
+  animation: none !important;
+}
+
 .source-explore-container {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
   width: 100%;
+  min-height: 0;
+  height: 100%;
+  gap: 1.1rem;
+  padding: 0 3.2rem 0.6rem;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid rgba(var(--obsidian-accent-rgb), 0.08);
+  background: var(--obsidian-bg-alt);
+}
+
+.source-explore-container > * {
+  position: relative;
+}
+
+.source-explore-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  padding: 0;
+  margin-top: 0.35rem;
+}
+
+.source-explore-hero-left h2 {
+  margin: 0;
+  font-size: clamp(2rem, 3vw, 3rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--obsidian-accent);
+}
+
+.source-explore-subtitle {
+  display: block;
+  margin-top: 0.55rem;
+  color: var(--obsidian-text-dim);
+  font-size: 1.05rem;
+  line-height: 1.35;
 }
 
 .source-explore-buttons {
   display: flex;
   flex-direction: row;
-  margin-bottom: 1rem;
-  width: 100vw;
-  justify-content: center;
+  gap: 0.3rem;
+  background: rgba(var(--obsidian-accent-rgb), 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(var(--obsidian-accent-rgb), 0.1);
+  padding: 0.22rem;
+  margin-bottom: 0.18rem;
 }
 
-.source-explore-buttons vaadin-button {
-  margin: 0.5rem;
+.source-explore-mode {
+  border-radius: 6px;
+  border: 1px solid transparent;
+  color: var(--obsidian-text-dim);
+  background: transparent;
+  font-size: 0.9rem;
+  font-weight: 700;
+  min-width: 78px;
+  min-height: 30px;
+  padding-inline: 0.7rem;
+  transition: all 0.2s ease;
+}
+
+.source-explore-mode:hover {
+  background: rgba(var(--obsidian-accent-rgb), 0.1);
+  color: var(--obsidian-text);
+}
+
+.source-explore-mode.active {
+  color: var(--obsidian-bg);
+  background: var(--obsidian-accent);
+  border-color: var(--obsidian-accent);
+}
+
+.source-explore-scroller-host {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 760px) {
+  .source-explore-container {
+    padding-inline: 1.8rem;
+  }
+
+  .source-explore-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 0.25rem;
+  }
+
+  .source-explore-buttons {
+    margin-top: 0.4rem;
+  }
+
+  .source-explore-subtitle {
+    font-size: 0.92rem;
+  }
 }

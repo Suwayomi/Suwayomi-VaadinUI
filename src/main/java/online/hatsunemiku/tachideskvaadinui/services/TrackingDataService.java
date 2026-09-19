@@ -6,11 +6,6 @@
 
 package online.hatsunemiku.tachideskvaadinui.services;
 
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.core.exc.StreamWriteException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DatabindException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PreDestroy;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,6 +18,11 @@ import online.hatsunemiku.tachideskvaadinui.data.tracking.TrackerTokens;
 import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.exc.StreamWriteException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * This class is responsible for managing tracking data. It handles the serialization and
@@ -38,7 +38,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class TrackingDataService {
 
-  private final ObjectMapper mapper;
+  private final JsonMapper mapper;
   private final Path tokenFile;
   private final Path trackerFile;
   private final HashMap<Long, Tracker> mangaTrackers = new HashMap<>();
@@ -47,10 +47,10 @@ public class TrackingDataService {
   /**
    * Creates a new {@link TrackingDataService} instance.
    *
-   * @param mapper The {@link ObjectMapper} used to serialize and deserialize the tracking data.
+   * @param mapper The {@link JsonMapper} used to serialize and deserialize the tracking data.
    * @param env The {@link Environment} used to get the project directory.
    */
-  public TrackingDataService(ObjectMapper mapper, Environment env) {
+  public TrackingDataService(JsonMapper mapper, Environment env) {
     this.mapper = mapper;
 
     Path projectDirPath = PathUtils.getResolvedProjectPath(env);
@@ -63,7 +63,7 @@ public class TrackingDataService {
   }
 
   private void deserializeTokens() {
-    if (!Files.exists(tokenFile)) {
+    if (!Files.exists(tokenFile) || tokenFile.toFile().length() == 0) {
       tokens = new TrackerTokens();
       serializeTokens();
       return;
@@ -81,14 +81,17 @@ public class TrackingDataService {
         serializeTokens();
       }
     } catch (StreamReadException e) {
-      log.error("Failed to deserialize tokens, because the stream was already closed", e);
-      throw new RuntimeException(e);
+      log.warn("Invalid content in tokens.json, returning default TrackerTokens", e);
+      tokens = new TrackerTokens();
+      serializeTokens();
     } catch (DatabindException e) {
-      log.error("Failed to deserialize tokens, because the data binding failed", e);
-      throw new RuntimeException(e);
-    } catch (IOException e) {
-      log.error("Failed to deserialize tokens", e);
-      throw new RuntimeException(e);
+      log.warn("Failed to deserialize tokens, because the data binding failed, returning default TrackerTokens", e);
+      tokens = new TrackerTokens();
+      serializeTokens();
+    } catch (Exception e) {
+      log.warn("Failed to deserialize tokens, returning default TrackerTokens", e);
+      tokens = new TrackerTokens();
+      serializeTokens();
     }
   }
 
@@ -130,7 +133,7 @@ public class TrackingDataService {
   }
 
   private void deserializeTrackers() {
-    if (!Files.exists(trackerFile)) {
+    if (!Files.exists(trackerFile) || trackerFile.toFile().length() == 0) {
       return;
     }
 
@@ -149,14 +152,11 @@ public class TrackingDataService {
       }
       mangaTrackers.putAll(tempTrackers);
     } catch (StreamReadException e) {
-      log.error("Failed to deserialize trackers, because the stream was already closed", e);
-      throw new RuntimeException(e);
+      log.warn("Invalid content in trackers.json, returning empty trackers", e);
     } catch (DatabindException e) {
-      log.error("Failed to deserialize trackers, because the data binding failed", e);
-      throw new RuntimeException(e);
-    } catch (IOException e) {
-      log.error("Failed to deserialize trackers", e);
-      throw new RuntimeException(e);
+      log.warn("Failed to deserialize trackers, because the data binding failed, returning empty trackers", e);
+    } catch (Exception e) {
+      log.warn("Failed to deserialize trackers, returning empty trackers", e);
     }
   }
 

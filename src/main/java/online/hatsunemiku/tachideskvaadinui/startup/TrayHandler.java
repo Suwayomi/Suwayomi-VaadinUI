@@ -73,13 +73,13 @@ public class TrayHandler {
         var url = ResourceUtils.getURL("classpath:icon/icon.png");
         Image icon = Toolkit.getDefaultToolkit().getImage(url);
 
-        TrayIcon trayIcon = new TrayIcon(icon, "Tachidesk Vaadin UI", menu);
+        TrayIcon trayIcon = new TrayIcon(icon, "Suwayomi VaadinUI", menu);
 
         trayIcon.setImageAutoSize(true);
 
         tray.add(trayIcon);
 
-        String caption = "Tachidesk Vaadin UI";
+        String caption = "Suwayomi VaadinUI";
         String text =
             """
                 Click here or open the browser and enter localhost:3901 - You can also click the icon in the system tray with the right mouse button and select "Open in browser"
@@ -139,7 +139,7 @@ public class TrayHandler {
       return;
     }
 
-    String title = "Tachidesk VaadinUI started";
+    String title = "Suwayomi VaadinUI started";
     String message =
         """
             Please visit http://localhost:3901 to use the UI.

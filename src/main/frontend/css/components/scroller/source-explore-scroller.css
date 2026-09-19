@@ -6,36 +6,52 @@
 
 .explore-scroller-manga-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  grid-gap: var(--miku-grid-gap);
-  width: 95%;
-  margin-right: 0;
-  justify-self: center;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.95rem;
+  width: 100%;
+  padding: 0 0.8rem;
+  box-sizing: border-box;
 }
 
+.explore-scroller-manga-grid > .card {
+  border-radius: 0.68rem;
+}
+
+.explore-scroller-manga-grid > .card .card-title {
+  font-size: 0.93rem;
+  padding: 0.58rem 0.64rem 0.7rem;
+}
+
+@media (max-width: 1600px) {
+  .explore-scroller-manga-grid {
+    grid-template-columns: repeat(auto-fill, minmax(11.5rem, 1fr));
+  }
+}
 
 @media (max-width: 720px) {
   .explore-scroller-manga-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
   }
 }
 
 @media (max-width: 500px) {
   .explore-scroller-manga-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
   }
 }
 
 @media (max-width: 300px) {
   .explore-scroller-manga-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 .explore-scroller {
-  display: grid;
+  min-width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
+  height: 100%;
   overflow-x: hidden;
-  min-height: 80vh;
-  max-height: 88vh;
+  overflow-y: auto;
 }

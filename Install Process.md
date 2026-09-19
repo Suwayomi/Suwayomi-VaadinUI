@@ -12,7 +12,7 @@ Just double click either the EXE or the MSI and follow the instructions of it un
 
 ### Mac
 
-On Mac just double click the downloaded DMG file and drag the Tachidesk Vaadin UI icon onto the Applications folder
+On Mac just double click the downloaded DMG file and drag the Suwayomi VaadinUI icon onto the Applications folder
 
 ### Linux
 

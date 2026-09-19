@@ -6,7 +6,7 @@
 
 package online.hatsunemiku.tachideskvaadinui.component.card;
 
-import dev.katsute.mal4j.manga.Manga;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.mal.MALManga;
 
 /** Represents a {@link Card} component for displaying Manga information from MyAnimeList. */
 public class MalMediaCard extends Card {
@@ -14,11 +14,11 @@ public class MalMediaCard extends Card {
   /**
    * Creates a new instance of the {@link MalMediaCard} class.
    *
-   * @param manga the {@link Manga} object to create a card component for.
+   * @param manga the {@link MALManga} object to create a card component for.
    */
-  public MalMediaCard(Manga manga) {
-    super(manga.getTitle(), manga.getMainPicture().getLargeURL());
+  public MalMediaCard(MALManga manga) {
+    super(manga.title(), manga.mainPicture().largeURL());
 
-    setHref("/search/" + manga.getTitle());
+    setHref("/search/" + manga.title());
   }
 }

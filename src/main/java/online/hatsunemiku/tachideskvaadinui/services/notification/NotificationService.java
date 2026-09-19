@@ -6,12 +6,8 @@
 
 package online.hatsunemiku.tachideskvaadinui.services.notification;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.flow.server.VaadinService;
 import jakarta.annotation.PreDestroy;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.MangaChapterCount;
 import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
@@ -21,6 +17,11 @@ import online.hatsunemiku.tachideskvaadinui.utils.PathUtils;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.json.JsonMapper;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 
 /**
  * Service responsible for processing events that might require a notification to be sent.
@@ -34,7 +35,7 @@ public class NotificationService {
 
   private final String MANGA_SAVE_FILE = "mangaChapterState.json";
   private final Path projectDir;
-  private final ObjectMapper mapper;
+  private final JsonMapper mapper;
   private final WebPushService webPushService;
   private MangaChapterCount mangaChapterCount;
 
@@ -42,10 +43,10 @@ public class NotificationService {
    * Creates a new {@link NotificationService} instance.
    *
    * @param env The {@link Environment} used to get the project directory
-   * @param mapper The {@link ObjectMapper} used to read and write the notification data
+   * @param mapper The {@link JsonMapper} used to read and write the notification data
    * @param webPushService The {@link WebPushService} used to send notifications
    */
-  public NotificationService(Environment env, ObjectMapper mapper, WebPushService webPushService) {
+  public NotificationService(Environment env, JsonMapper mapper, WebPushService webPushService) {
     projectDir = PathUtils.getResolvedProjectPath(env);
     this.mapper = mapper;
     this.webPushService = webPushService;

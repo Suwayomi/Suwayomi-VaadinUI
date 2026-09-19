@@ -6,8 +6,6 @@
 
 package online.hatsunemiku.tachideskvaadinui.api;
 
-import elemental.json.Json;
-import elemental.json.JsonObject;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.OAuthResponse;
@@ -23,6 +21,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /** Handles authentication and token validation for various services. */
 @RestController
@@ -33,6 +35,7 @@ public class AuthAPI {
   private final TrackingDataService dataService;
   private final SuwayomiTrackingService suwayomiTrackingService;
   private final MyAnimeListAPIService malAPI;
+  private final JsonMapper mapper;
 
   /**
    * Creates a new instance of the {@link AuthAPI} class.
@@ -41,14 +44,17 @@ public class AuthAPI {
    * @param suwayomiTrackingService the {@link SuwayomiTrackingService} instance used to
    *     authenticate with Suwayomi.
    * @param malAPI the {@link MyAnimeListAPIService} instance used to authenticate with MyAnimeList.
+   * @param mapper the {@link JsonMapper} instance used to parse JSON data.
    */
   public AuthAPI(
       TrackingDataService dataService,
       SuwayomiTrackingService suwayomiTrackingService,
-      MyAnimeListAPIService malAPI) {
+      MyAnimeListAPIService malAPI,
+      JsonMapper mapper) {
     this.dataService = dataService;
     this.suwayomiTrackingService = suwayomiTrackingService;
     this.malAPI = malAPI;
+    this.mapper = mapper;
   }
 
   /**
@@ -130,11 +136,15 @@ public class AuthAPI {
       HttpServletRequest request, @RequestParam("state") String json) {
     String url = request.getRequestURL() + "?" + request.getQueryString();
 
-    JsonObject state = Json.parse(json);
+    try {
+      JsonNode state = mapper.readTree(json);
 
-    int trackerId = (int) state.getNumber("trackerId");
+      int trackerId = state.get("trackerId").asInt();
 
-    suwayomiTrackingService.loginSuwayomi(url, trackerId);
+      suwayomiTrackingService.loginSuwayomi(url, trackerId);
+    } catch (JacksonException e) {
+      log.error("Error parsing state JSON", e);
+    }
 
     return new RedirectView("/");
   }
@@ -168,20 +178,20 @@ public class AuthAPI {
   // mal = http://localhost:3901/validate/mal?code={code}
   @GetMapping("mal")
   public RedirectView validateMALToken(
-      @RequestParam("code") String code, @RequestParam("state") MALTokenState state) {
+      @RequestParam("code") String code, @RequestParam("state") String json) {
     log.info("Validating MAL token");
 
     log.info("Code: {}", code);
-    log.info("state: {}", state);
+    log.info("state: {}", json);
 
-    malAPI.exchangeCodeForTokens(code, state.pkceId());
+    try {
+      JsonNode state = mapper.readTree(json);
+      String pkceId = state.get("pkceId").asText();
+      malAPI.exchangeCodeForTokens(code, pkceId);
+    } catch (JacksonException e) {
+      log.error("Error parsing MAL state JSON", e);
+    }
 
     return new RedirectView("/");
   }
-
-  /**
-   * Represents the state parameter of a MAL token response. Contains the PKCE (Proof Key for Code
-   * Exchange) ID to be used in the token exchange.
-   */
-  public record MALTokenState(String pkceId) {}
 }

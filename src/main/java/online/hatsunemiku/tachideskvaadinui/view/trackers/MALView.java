@@ -9,10 +9,10 @@ package online.hatsunemiku.tachideskvaadinui.view.trackers;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.router.Route;
-import dev.katsute.mal4j.manga.Manga;
-import dev.katsute.mal4j.manga.property.MangaStatus;
 import java.util.List;
 import online.hatsunemiku.tachideskvaadinui.component.card.MalMediaCard;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.mal.MALManga;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.mal.MALMangaStatus;
 import online.hatsunemiku.tachideskvaadinui.services.tracker.MyAnimeListAPIService;
 import online.hatsunemiku.tachideskvaadinui.view.layout.TrackingLayout;
 import org.slf4j.Logger;
@@ -32,6 +32,8 @@ public class MALView extends TrackingLayout {
    */
   public MALView(MyAnimeListAPIService malAPI) {
     super("MyAnimeList");
+
+    addClassName("mal-view");
 
     this.malAPI = malAPI;
 
@@ -58,7 +60,7 @@ public class MALView extends TrackingLayout {
 
   @Override
   public Div getReadingSection() {
-    var list = malAPI.getMangaWithStatus(MangaStatus.Reading);
+    var list = malAPI.getMangaWithStatus(MALMangaStatus.Reading);
 
     var cards = getCards(list);
 
@@ -67,7 +69,7 @@ public class MALView extends TrackingLayout {
 
   @Override
   public Div getPlanToReadSection() {
-    var list = malAPI.getMangaWithStatus(MangaStatus.PlanToRead);
+    var list = malAPI.getMangaWithStatus(MALMangaStatus.PlanToRead);
 
     var cards = getCards(list);
 
@@ -76,7 +78,7 @@ public class MALView extends TrackingLayout {
 
   @Override
   public Div getCompletedSection() {
-    var list = malAPI.getMangaWithStatus(MangaStatus.Completed);
+    var list = malAPI.getMangaWithStatus(MALMangaStatus.Completed);
 
     var cards = getCards(list);
 
@@ -85,7 +87,7 @@ public class MALView extends TrackingLayout {
 
   @Override
   public Div getOnHoldSection() {
-    var list = malAPI.getMangaWithStatus(MangaStatus.OnHold);
+    var list = malAPI.getMangaWithStatus(MALMangaStatus.OnHold);
 
     var cards = getCards(list);
 
@@ -94,7 +96,7 @@ public class MALView extends TrackingLayout {
 
   @Override
   public Div getDroppedSection() {
-    var list = malAPI.getMangaWithStatus(MangaStatus.Dropped);
+    var list = malAPI.getMangaWithStatus(MALMangaStatus.Dropped);
 
     var cards = getCards(list);
 
@@ -102,13 +104,13 @@ public class MALView extends TrackingLayout {
   }
 
   /**
-   * Retrieves a list of {@link MalMediaCard} objects based on the given list of {@link Manga}
+   * Retrieves a list of {@link MalMediaCard} objects based on the given list of {@link MALManga}
    * objects.
    *
-   * @param media the list of {@link Manga} objects from which to create the cards.
+   * @param media the list of {@link MALManga} objects from which to create the cards.
    * @return a list of {@link MalMediaCard} objects.
    */
-  private List<MalMediaCard> getCards(List<Manga> media) {
+  private List<MalMediaCard> getCards(List<MALManga> media) {
     return media.stream().map(MalMediaCard::new).toList();
   }
 }

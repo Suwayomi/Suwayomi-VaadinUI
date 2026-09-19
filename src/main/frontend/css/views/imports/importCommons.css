@@ -1,33 +1,106 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+.import-sections-container {
+    width: 100%;
+    max-width: 80vw;
+    margin: 0 auto;
+    padding: 1.5rem 1.25rem;
+}
+
+.import-hero {
+    margin-bottom: 2.5rem;
+    padding: 1rem 0.8rem;
+}
+
+.import-hero h2 {
+    margin: 0 0 0.5rem;
+    color: var(--obsidian-text);
+    font-size: 2.5rem;
+    font-weight: 700;
+    font-family: "Space Grotesk", sans-serif;
+}
+
+.import-hero-subtitle {
+    color: var(--obsidian-text-dim);
+    font-size: 1.05rem;
+}
+
 .import-title-section {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  background-color: var(--miku-unselected-color);
-  color: var(--miku-main-color);
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 0.6rem;
-  padding: 0.2rem;
-  border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    color: var(--obsidian-accent);
+    font-size: 1.75rem;
+    font-weight: 700;
+    font-family: "Space Grotesk", sans-serif;
+    margin-bottom: 1.25rem;
+    padding: 0 0.8rem;
+    letter-spacing: -0.01em;
 }
 
 .import-content {
-  width: 100%;
-  padding: 0.6rem;
-  border: 2px solid var(--miku-main-color);
-  border-radius: 0.5rem;
+    width: 100%;
+    margin-bottom: 3.5rem;
 }
 
 .import-content-grid {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(200px, 1fr));
-  grid-gap: 1rem;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 0.95rem;
+    width: 100%;
+    padding: 0 0.8rem;
+    box-sizing: border-box;
+}
+
+.import-content-grid > .card {
+    border-radius: 0.68rem;
+}
+
+.import-content-grid > .card .card-title {
+    font-size: 0.93rem;
+    padding: 0.58rem 0.64rem 0.7rem;
+}
+
+@media (max-width: 1600px) {
+    .import-content-grid {
+        grid-template-columns: repeat(auto-fill, minmax(11.5rem, 1fr));
+    }
+}
+
+@media (max-width: 720px) {
+    .import-content-grid {
+        grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+    }
+}
+
+@media (max-width: 500px) {
+    .import-content-grid {
+        grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+    }
+}
+
+@media (max-width: 300px) {
+    .import-content-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 .import-button-container {
-  display: flex;
-  /*grow horizontally*/
-  width: 100%;
-  justify-content: center;
-  margin-top: 1rem;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    padding: 4rem 1rem;
+}
+
+.import-button-container vaadin-button {
+    background: var(--obsidian-accent);
+    color: var(--obsidian-bg);
+    font-weight: 600;
+    border-radius: 12px;
+    height: 3.2rem;
+    padding: 0 2rem;
 }

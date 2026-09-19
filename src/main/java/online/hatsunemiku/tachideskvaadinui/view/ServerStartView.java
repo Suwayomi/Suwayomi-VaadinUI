@@ -6,9 +6,6 @@
 
 package online.hatsunemiku.tachideskvaadinui.view;
 
-import static com.vaadin.flow.component.notification.NotificationVariant.LUMO_ERROR;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
@@ -21,16 +18,20 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.router.Route;
-import java.time.Instant;
-import java.util.Optional;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
 import online.hatsunemiku.tachideskvaadinui.startup.SuwayomiMaintainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
+
+import java.time.Instant;
+import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
+import static com.vaadin.flow.component.notification.NotificationVariant.LUMO_ERROR;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
  * The {@code ServerStartView} class represents the UI displayed while waiting for the server to
@@ -42,7 +43,7 @@ import org.springframework.web.client.RestTemplate;
 public class ServerStartView extends VerticalLayout {
 
   private static final Logger logger = LoggerFactory.getLogger(ServerStartView.class);
-  private final RestTemplate client;
+  private final RestClient client;
   private final SuwayomiMaintainer maintainer;
   private final SettingsService settingsService;
   private final Div updateNotice;
@@ -52,9 +53,7 @@ public class ServerStartView extends VerticalLayout {
   private Instant countdown;
   private boolean hasSentNotification = false;
 
-  public ServerStartView(
-      RestTemplate client, SuwayomiMaintainer maintainer, SettingsService settingsService) {
-
+  public ServerStartView(RestClient client, SuwayomiMaintainer maintainer, SettingsService settingsService) {
     this.client = client;
     this.settingsService = settingsService;
     this.executor = Executors.newSingleThreadScheduledExecutor();
@@ -168,7 +167,10 @@ public class ServerStartView extends VerticalLayout {
     String url = settingsService.getSettings().getUrl() + "/api/v1/settings/about";
 
     try {
-      var response = client.getForEntity(url, Void.class);
+      var response = client.get()
+              .uri(url)
+              .retrieve()
+              .toBodilessEntity();
 
       if (response.getStatusCode().is2xxSuccessful()) {
 

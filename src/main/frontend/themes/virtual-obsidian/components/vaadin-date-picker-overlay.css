@@ -1,0 +1,31 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+:host {
+  --lumo-body-text-color: var(--obsidian-text) !important;
+  --lumo-secondary-text-color: var(--obsidian-text-dim) !important;
+  --lumo-tertiary-text-color: rgba(var(--obsidian-accent-rgb), 0.4) !important;
+  --lumo-header-text-color: var(--obsidian-highlight) !important;
+  --lumo-primary-contrast-color: var(--obsidian-bg) !important;
+}
+
+[part="overlay"] {
+  background-color: #0d1218 !important;
+  background-image: none !important;
+  border: 1px solid rgba(var(--obsidian-accent-rgb), 0.4) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8) !important;
+  border-radius: 4px !important;
+}
+
+[part="content"] {
+  padding: 2px !important;
+}
+
+/* Style buttons inside date-picker overlay */
+[part="today-button"],
+[part="cancel-button"] {
+  color: var(--obsidian-accent) !important;
+}

@@ -9,122 +9,125 @@ package online.hatsunemiku.tachideskvaadinui.component.scroller.source;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.orderedlayout.Scroller;
-import com.vaadin.flow.dom.DomEvent;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import lombok.Getter;
+import online.hatsunemiku.tachideskvaadinui.component.card.MangaCard;
+import online.hatsunemiku.tachideskvaadinui.component.scroller.EndScroller;
+import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
+import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
+import online.hatsunemiku.tachideskvaadinui.exceptions.CloudflareException;
+import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
+import online.hatsunemiku.tachideskvaadinui.services.SourceService;
+
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
-import lombok.Getter;
-import online.hatsunemiku.tachideskvaadinui.component.card.MangaCard;
-import online.hatsunemiku.tachideskvaadinui.data.settings.Settings;
-import online.hatsunemiku.tachideskvaadinui.data.tachidesk.Manga;
-import online.hatsunemiku.tachideskvaadinui.services.SettingsService;
-import online.hatsunemiku.tachideskvaadinui.services.SourceService;
 
-@CssImport("./css/components/scroller/source-explore-scroller.css")
-public class SourceExploreScroller extends Scroller {
+public class SourceExploreScroller extends EndScroller {
 
-  private final SourceService sourceService;
-  private int currentPage;
-  @Getter private final ExploreType type;
-  private final String sourceId;
-  private final Div content = new Div();
-  private final SettingsService settingsService;
-  private final ExecutorService pageLoader = Executors.newFixedThreadPool(1);
+    private final SourceService sourceService;
+    private int currentPage;
+    @Getter
+    private final ExploreType type;
+    private final String sourceId;
+    private final Div content = new Div();
+    private final SettingsService settingsService;
+    private final ExecutorService pageLoader = Executors.newFixedThreadPool(1);
 
-  public SourceExploreScroller(
-      SourceService sourceService,
-      ExploreType type,
-      String sourceId,
-      SettingsService settingsService) {
-    super();
-    this.sourceService = sourceService;
-    this.settingsService = settingsService;
-    this.currentPage = 1;
-    this.type = type;
-    this.sourceId = sourceId;
+    public SourceExploreScroller(
+            SourceService sourceService,
+            ExploreType type,
+            String sourceId,
+            SettingsService settingsService) {
+        super();
+        this.sourceService = sourceService;
+        this.settingsService = settingsService;
+        this.currentPage = 1;
+        this.type = type;
+        this.sourceId = sourceId;
 
-    setClassName("explore-scroller");
+        setClassName("explore-scroller");
 
-    var reg =
-        this.getElement()
-            .addEventListener(
-                "scroll",
-                (DomEvent e) -> {
-                  ThreadPoolExecutor executor = (ThreadPoolExecutor) pageLoader;
+        content.setClassName("explore-scroller-manga-grid");
+        try {
+            loadNextPage();
+        } catch (CloudflareException e) {
+            var ui = getUI().orElse(UI.getCurrent());
+            ui.access(() -> {
+                Notification notification = new Notification(e.getMessage());
+                notification.setPosition(Notification.Position.MIDDLE);
+                notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                notification.setDuration(10000);
+                notification.open();
+            });
+        }
 
-                  if (executor.getActiveCount() > 0) {
-                    return;
-                  }
+        setContent(content);
 
-                  double scrollTop = e.getEventData().getNumber("event.target.scrollTop");
-                  double scrollHeight = e.getEventData().getNumber("event.target.scrollHeight");
-                  double offsetHeight = e.getEventData().getNumber("event.target.offsetHeight");
-
-                  if (scrollHeight == 0 || scrollTop == 0) {
-                    return;
-                  }
-
-                  double percentage = scrollTop / (scrollHeight - offsetHeight) * 100;
-
-                  if (percentage > 75) {
+        addScrollToEndListener(
+                e -> {
+                    ThreadPoolExecutor executor = (ThreadPoolExecutor) pageLoader;
+                    if (executor.getActiveCount() > 0) {
+                        return;
+                    }
                     pageLoader.submit(this::loadNextPage);
-                  }
                 });
-
-    reg.addEventData("event.target.scrollTop");
-    reg.addEventData("event.target.scrollHeight");
-    reg.addEventData("event.target.offsetHeight");
-
-    content.setClassName("explore-scroller-manga-grid");
-    loadNextPage();
-    setContent(content);
-  }
-
-  private void loadNextPage() {
-    var manga =
-        switch (type) {
-          case POPULAR -> loadPopularPage();
-          case LATEST -> loadLatestPage();
-        };
-
-    if (manga.isEmpty()) {
-      return;
     }
 
-    currentPage++;
+    /**
+     * Loads the next Page of Manga and adds it to the UI.
+     */
+    private void loadNextPage() {
+        List<Manga> manga;
+        try {
+            manga = switch (type) {
+                case POPULAR -> loadPopularPage();
+                case LATEST -> loadLatestPage();
+            };
+        } catch (CloudflareException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            return;
+        }
 
-    Settings settings = settingsService.getSettings();
+        if (manga.isEmpty()) {
+            return;
+        }
 
-    var optUi = getUI();
+        currentPage++;
 
-    UI ui;
+        Settings settings = settingsService.getSettings();
 
-    if (optUi.isEmpty()) {
-      if (UI.getCurrent() == null) {
-        return;
-      }
+        var optUi = getUI();
 
-      ui = UI.getCurrent();
-    } else {
-      ui = optUi.get();
+        UI ui;
+
+        if (optUi.isEmpty()) {
+            if (UI.getCurrent() == null) {
+                return;
+            }
+
+            ui = UI.getCurrent();
+        } else {
+            ui = optUi.get();
+        }
+
+        for (Manga m : manga) {
+            ui.access(
+                    () -> {
+                        MangaCard card = new MangaCard(settings, m);
+                        content.add(card);
+                    });
+        }
     }
 
-    for (Manga m : manga) {
-      ui.access(
-          () -> {
-            MangaCard card = new MangaCard(settings, m);
-            content.add(card);
-          });
+    private List<Manga> loadPopularPage() {
+        return sourceService.getPopularManga(sourceId, currentPage).getMangaList();
     }
-  }
 
-  private List<Manga> loadPopularPage() {
-    return sourceService.getPopularManga(sourceId, currentPage).getMangaList();
-  }
-
-  private List<Manga> loadLatestPage() {
-    return sourceService.getLatestManga(sourceId, currentPage).getMangaList();
-  }
+    private List<Manga> loadLatestPage() {
+        return sourceService.getLatestManga(sourceId, currentPage).getMangaList();
+    }
 }

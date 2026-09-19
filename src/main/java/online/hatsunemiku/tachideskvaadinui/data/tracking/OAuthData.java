@@ -10,11 +10,10 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import dev.katsute.mal4j.AccessToken;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import javax.annotation.Nullable;
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a data object that contains the necessary information for OAuth authentication.
@@ -62,26 +61,6 @@ public class OAuthData {
   }
 
   /**
-   * Constructs an {@link OAuthData} object from an {@link AccessToken} object.
-   *
-   * @param token the {@link AccessToken} object used to construct the OAuthData. It contains the
-   *     necessary data, such as the access token, refresh token, and expiry information.
-   */
-  public OAuthData(AccessToken token) {
-    String access_token = token.getToken();
-    String token_type = "Bearer";
-    String refresh_token = token.getRefreshToken();
-
-    Instant expiry = Instant.ofEpochSecond(token.getExpiryEpochSeconds());
-    String expires = expiry.toString();
-
-    this.accessToken = access_token;
-    this.tokenType = token_type;
-    this.expires = expires;
-    this.refreshToken = refresh_token;
-  }
-
-  /**
    * Constructs an {@link OAuthData} object. Only used for deserialization purposes.
    *
    * @param accessToken the access token for OAuth authentication.
@@ -91,11 +70,11 @@ public class OAuthData {
    * @param refreshToken the refresh token for OAuth authentication. May be null.
    */
   @JsonCreator
-  private OAuthData(
-      String accessToken,
-      String tokenType,
+  public OAuthData(
+      @JsonProperty("access_token") String accessToken,
+      @JsonProperty("token_type") String tokenType,
       @JsonAlias("expires_in") @JsonProperty("expires") String expires,
-      @Nullable String refreshToken) {
+      @Nullable @JsonProperty("refresh_token") String refreshToken) {
     this.accessToken = accessToken;
     this.tokenType = tokenType;
 

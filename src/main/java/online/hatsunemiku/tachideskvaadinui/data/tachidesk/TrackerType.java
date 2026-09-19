@@ -6,8 +6,9 @@
 
 package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Arrays;
-import javax.annotation.Nullable;
 
 /** An enumeration representing different types of trackers. */
 public enum TrackerType {

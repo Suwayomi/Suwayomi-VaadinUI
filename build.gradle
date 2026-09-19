@@ -6,23 +6,43 @@ import org.springframework.boot.gradle.tasks.run.BootRun
 plugins {
     id 'java'
     id 'idea'
-    id 'org.springframework.boot' version '3.5.6'
+    id 'org.jetbrains.kotlin.jvm' version '2.3.21'
+    id "io.freefair.lombok" version "8.12.2"
+    id 'org.springframework.boot' version '4.0.6'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.vaadin' version "$vaadinVersion"
+    id "com.apollographql.apollo" version "5.0.0"
 
     //Jpackage for building native installers
     id("org.panteleyev.jpackageplugin") version "1.6.0"
+    id "org.jetbrains.kotlin.plugin.spring" version '2.3.21'
+}
+
+apollo {
+    service("suwayomi") {
+        srcDir("src/main/graphql/online/hatsunemiku/tachideskvaadinui/graphql/suwayomi")
+        packageName.set("online.hatsunemiku.tachideskvaadinui.graphql.suwayomi")
+        mapScalarToUpload("Upload")
+    }
+    service("anilist") {
+        srcDir("src/main/graphql/online/hatsunemiku/tachideskvaadinui/graphql/anilist")
+        packageName.set("online.hatsunemiku.tachideskvaadinui.graphql.anilist")
+    }
 }
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
-        vendor = JvmVendorSpec.BELLSOFT
+        vendor = JvmVendorSpec.ADOPTIUM
     }
 }
 
+kotlin {
+    jvmToolchain(21)
+}
+
 group = 'online.hatsunemiku'
-version = '1.14.0'
+version = '2.0.0'
 sourceCompatibility = JavaVersion.VERSION_21
 targetCompatibility = JavaVersion.VERSION_21
 
@@ -46,45 +66,50 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-graphql'
     implementation('com.vaadin:vaadin-spring-boot-starter')
-    //databind
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.20.0'
-    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.20.0'
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.20.0'
 
     implementation 'org.jetbrains:annotations:24.0.0'
     implementation 'com.github.ben-manes.caffeine:caffeine:3.1.5'
 
-    //MAL API
-    implementation 'dev.katsute:mal4j:3.4.2'
-
     //GraphQL
-    implementation "com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter"
+    implementation("com.apollographql.apollo:apollo-runtime:5.0.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.10.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.10.1")
 
     //Apache Commons codec -> used for URL encoding
     implementation 'commons-codec:commons-codec:1.16.1'
 
-
-    implementation 'com.squareup.okhttp3:okhttp:4.11.0'
     implementation 'commons-validator:commons-validator:1.7'
 
 
     compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
     developmentOnly 'io.projectreactor:reactor-tools'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     //vaadin official addons
     implementation 'com.vaadin:flow-webpush'
-    implementation 'pl.unforgiven:superfields:0.19.4'
-    implementation 'org.vaadin.addons.online.hatsunemiku.diamond:FlowSwiper:1.4.0'
+    developmentOnly('com.vaadin:vaadin-dev')
+    implementation 'pl.unforgiven:superfields:0.20.2'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+}
+
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
 }
 
 dependencyManagement {
     imports {
         mavenBom "com.vaadin:vaadin-bom:$vaadinVersion"
-        mavenBom "com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:9.0.0"
     }
+}
+
+vaadin {
+    frontendHotdeploy = true //Needed for the gradle plugin *DO NOT REMOVE*
 }
 
 tasks.named('test') {
@@ -92,9 +117,6 @@ tasks.named('test') {
 }
 
 tasks.register('runDebug', BootRun) {
-
-    dependsOn('vaadinBuildFrontend')
-
     group = 'application'
     systemProperty 'spring.profiles.active', 'dev'
     mainClass = 'online.hatsunemiku.tachideskvaadinui.TachideskVaadinUiApplication'
@@ -105,18 +127,16 @@ tasks.register('runDebug', BootRun) {
 //new task to build bootJar
 tasks.register('buildReleaseJar', BootJar) {
     group = 'build'
-
-    dependsOn('vaadinBuildFrontend')
     enabled = true
-    vaadin.productionMode = true
     archiveFileName = "Tachidesk-VaadinUI-${version}.jar"
+    destinationDirectory = file("build/libs/release")
     mainClass = 'online.hatsunemiku.tachideskvaadinui.TachideskVaadinUiApplication'
     setTargetJavaVersion(targetCompatibility)
 
     //fat jar
     classpath(sourceSets.main.runtimeClasspath)
 
-    launchScript()
+//    launchScript()
 }
 
 tasks.register('buildWindowsMsi', WindowsInstallTask) {
@@ -143,6 +163,10 @@ tasks.register('buildMacPkg', MacInstallTask) {
     type = ImageType.PKG
 }
 
+tasks.register('buildDebugWindowsMsi', WindowsDebugInstallTask) {
+    type = ImageType.MSI
+}
+
 class InstallTask extends JPackageTask {
     InstallTask() {
         super()
@@ -150,18 +174,22 @@ class InstallTask extends JPackageTask {
         group = 'installers'
         enabled = true
 
-        aboutUrl = "https://github.com/aless2003/Tachidesk-VaadinUI"
-        appDescription = "A simple Web UI for Tachidesk written in Java with Vaadin"
-        appName = "Tachidesk Vaadin UI"
+        aboutUrl = "https://github.com/Suwayomi/Suwayomi-VaadinUI"
+        appDescription = "A simple Web UI for Suwayomi written in Java with Vaadin"
+        appName = "Suwayomi VaadinUI"
         appVersion = "${project.version}"
         icon = "package/icons/icon.ico"
         licenseFile = "LICENSE"
         mainClass = "org.springframework.boot.loader.launch.JarLauncher"
         mainJar = "Tachidesk-VaadinUI-${project.version}.jar"
         vendor = "Aless2003"
-        verbose = false
-        input = "build/libs"
+        verbose = true
+        input = "build/libs/release"
         destination = "build/installer"
+        javaOptions = [
+                "-Djava.net.preferIPv4Stack=true",
+                "-Dio.netty.resolver.dns.useSystemNameResolver=true"
+        ]
     }
 }
 
@@ -173,14 +201,22 @@ class WindowsInstallTask extends InstallTask {
 
         //winConsole = true //enable only for debugging
         winDirChooser = true
-        winHelpUrl = "https://github.com/aless2003/Tachidesk-VaadinUI"
+        winHelpUrl = "https://github.com/Suwayomi/Suwayomi-VaadinUI"
         winMenu = true
         winMenuGroup = "DiamondMiku"
         winPerUserInstall = true
         winShortcut = true
         winShortcutPrompt = true
-        winUpdateUrl = "https://github.com/aless2003/Tachidesk-VaadinUI"
+        winUpdateUrl = "https://github.com/Suwayomi/Suwayomi-VaadinUI"
         winUpgradeUuid = "1fd89884-c606-4304-b9f0-f82c47ff7676"
+    }
+}
+
+class WindowsDebugInstallTask extends WindowsInstallTask {
+    WindowsDebugInstallTask() {
+        super()
+
+        winConsole = true
     }
 }
 
@@ -190,7 +226,7 @@ class LinuxInstallTask extends InstallTask {
         linuxAppCategory = "Utility"
         linuxDebMaintainer = "Alessandro.Schwaiger12@gmail.com"
         linuxMenuGroup = "DiamondMiku"
-        linuxPackageName = "tachidesk-vaaui"
+        linuxPackageName = "suwayomi-vaaui"
         linuxRpmLicenseType = "MPLv2.0"
         linuxShortcut = true
     }
@@ -207,6 +243,6 @@ class MacInstallTask extends InstallTask {
         macAppCategory = "public.app-category.books"
         macAppStore = false
         macPackageIdentifier = "online.hatsunemiku.tachideskvaadinui"
-        macPackageName = "Tachidesk-VaadinUI"
+        macPackageName = "Suwayomi-VaadinUI"
     }
 }

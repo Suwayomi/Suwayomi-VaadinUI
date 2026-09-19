@@ -37,7 +37,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 /**
  * This class is responsible for keeping the Suwayomi Server up to date and running. It checks for
@@ -49,7 +49,7 @@ public class SuwayomiMaintainer {
 
   private static final Logger logger = LoggerFactory.getLogger(SuwayomiMaintainer.class);
   private static File serverDir;
-  private final RestTemplate client;
+  private final RestClient client;
   private final SuwayomiStarter starter;
   private final SettingsService settingsService;
   private final File projectDir;
@@ -59,13 +59,13 @@ public class SuwayomiMaintainer {
   /**
    * Creates a new {@link SuwayomiMaintainer} instance.
    *
-   * @param client The {@link RestTemplate} used for making HTTP requests.
+   * @param client The {@link RestClient} used for making HTTP requests.
    * @param starter The {@link SuwayomiStarter} used for starting and stopping the server.
    * @param settingsService The {@link SettingsService} used for getting the current settings.
    * @param env The {@link Environment} used for getting the project directory.
    */
   public SuwayomiMaintainer(
-      RestTemplate client,
+      RestClient client,
       SuwayomiStarter starter,
       SettingsService settingsService,
       Environment env) {
@@ -265,25 +265,27 @@ public class SuwayomiMaintainer {
   private void downloadServerFile(String jarUrl, File serverFile) throws IOException {
     updating = true;
 
-    URL url;
-
     try {
-      url = new URI(jarUrl).toURL();
-    } catch (URISyntaxException e) {
-      log.error("Failed to create URL from URI", e);
-      throw new RuntimeException(e);
-    }
+      URL url;
+      try {
+        url = new URI(jarUrl).toURL();
+      } catch (URISyntaxException e) {
+        log.error("Failed to create URL from URI", e);
+        throw new RuntimeException(e);
+      }
 
-    URLConnection connection = url.openConnection();
-    int size = connection.getContentLength();
+      URLConnection connection = url.openConnection();
+      int size = connection.getContentLength();
 
-    ReadableByteChannel rbc = Channels.newChannel(url.openStream());
-    var progressChannel =
-        new ReadableProgressByteChannel(rbc, read -> this.progress = (double) read / size);
-    try (FileOutputStream fos = new FileOutputStream(serverFile)) {
-      fos.getChannel().transferFrom(progressChannel, 0, Long.MAX_VALUE);
+      try (ReadableByteChannel rbc = Channels.newChannel(url.openStream());
+          var progressChannel =
+              new ReadableProgressByteChannel(rbc, read -> this.progress = (double) read / size);
+          FileOutputStream fos = new FileOutputStream(serverFile)) {
+        fos.getChannel().transferFrom(progressChannel, 0, Long.MAX_VALUE);
+      }
+    } finally {
+      updating = false;
     }
-    updating = false;
   }
 
   /**
@@ -342,6 +344,11 @@ public class SuwayomiMaintainer {
 
     if (!serverFile.exists()) {
       logger.warn("Server file not found");
+      return false;
+    }
+
+    if (!TachideskUtils.isValidJar(serverFile)) {
+      logger.warn("Server file is invalid or corrupt: {}", serverFile.getPath());
       return false;
     }
 

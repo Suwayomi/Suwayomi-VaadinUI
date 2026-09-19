@@ -6,7 +6,6 @@
 
 package online.hatsunemiku.tachideskvaadinui.view;
 
-import com.vaadin.flow.component.Svg;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -21,7 +20,6 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,8 +41,6 @@ import online.hatsunemiku.tachideskvaadinui.view.layout.StandardLayout;
 import online.hatsunemiku.tachideskvaadinui.view.trackers.AniListView;
 import online.hatsunemiku.tachideskvaadinui.view.trackers.MALView;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.web.client.ResourceAccessException;
 import org.vaadin.miki.shared.text.TextInputMode;
 import org.vaadin.miki.superfields.text.SuperTextField;
@@ -53,14 +49,16 @@ import org.vaadin.miki.superfields.text.SuperTextField;
  * SearchView is a view used for searching sources for manga. It allows the user to search for manga
  * across all sources with a language filter to narrow down the search results.
  */
-@CssImport("./css/views/search-view.css")
 @Slf4j
 @Route("search")
+@CssImport("./css/components/spinner.css")
+@CssImport("./css/views/search-view.css")
 public class SearchView extends StandardLayout implements HasUrlParameter<String> {
 
   private final Div searchResults;
   private final ComboBox<String> langFilter;
   private final SuperTextField searchField;
+  private final Div searchSpinnerContainer;
   private final SourceService sourceService;
   private final SearchService searchService;
   private final SettingsService settingsService;
@@ -81,6 +79,15 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     this.settingsService = settingsService;
     searchResults = new Div();
 
+    searchSpinnerContainer = new Div();
+    searchSpinnerContainer.setClassName("search-spinner-container");
+    searchSpinnerContainer.setVisible(false);
+
+    Div spinner = new Div();
+    spinner.addClassName("obsidian-spinner");
+    spinner.add(new Div(), new Div(), new Div());
+    searchSpinnerContainer.add(spinner);
+
     SuperTextField searchField = createSearchField();
     var langFilter = createLanguageComboBox(sourceService);
 
@@ -98,10 +105,13 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     Div content = new Div();
     content.setClassName("search-content");
 
+    Div inputsContainer = new Div(searchField, langFilter);
+    inputsContainer.setClassName("search-inputs-container");
+
     content.add(btnContainer);
-    content.add(searchField);
-    content.add(langFilter);
+    content.add(inputsContainer);
     content.add(searchResults);
+    content.add(searchSpinnerContainer);
 
     setContent(content);
   }
@@ -236,50 +246,45 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
     searchField.setReadOnly(true);
     langFilter.setReadOnly(true);
     searchResults.removeAll();
+    searchSpinnerContainer.setVisible(true);
 
     CompletableFuture<?> future = CompletableFuture.runAsync(() -> search(searchField.getValue()));
 
-    future
-        .thenRun(
-            () -> {
-              var ui = getUI();
+    future.whenComplete(
+        (res, ex) -> {
+          if (ex != null) {
+            log.error("Error searching", ex);
+          }
+          var ui = getUI();
 
-              if (ui.isEmpty()) {
-                log.error("UI is not present");
-                return;
-              }
+          if (ui.isEmpty()) {
+            log.error("UI is not present");
+            return;
+          }
 
-              if (!ui.get().isAttached()) {
-                log.debug("UI is not attached anymore");
-                return;
-              }
+          if (!ui.get().isAttached()) {
+            log.debug("UI is not attached anymore");
+            return;
+          }
 
-              ui.get()
-                  .access(
-                      () -> {
-                        searchField.setSuffixComponent(null);
-                        searchField.setReadOnly(false);
-                        langFilter.setReadOnly(false);
-                      });
-            })
-        .exceptionally(
-            ex -> {
-              log.error("Error searching", ex);
-              return null;
-            });
+          ui.get()
+              .access(
+                  () -> {
+                    searchField.setSuffixComponent(null);
+                    searchField.setReadOnly(false);
+                    langFilter.setReadOnly(false);
+                    searchSpinnerContainer.setVisible(false);
+                  });
+        });
   }
 
   private Div getLoadingDiv() {
     Div loadingDiv = new Div();
     loadingDiv.setClassName("loading-div");
 
-    Resource loadingSvgResource = new ClassPathResource("images/loading.svg");
-    try {
-      Svg loadingSvg = new Svg(loadingSvgResource.getInputStream());
-      loadingDiv.add(loadingSvg);
-    } catch (IOException e) {
-      log.error("Error loading loading.svg", e);
-    }
+    Div pulse = new Div();
+    pulse.setClassName("search-pulse");
+    loadingDiv.add(pulse);
 
     return loadingDiv;
   }
@@ -450,6 +455,15 @@ public class SearchView extends StandardLayout implements HasUrlParameter<String
   public void setParameter(BeforeEvent event, @OptionalParameter String query) {
     if (query == null) {
       return;
+    }
+
+    try {
+      // URLDecoder.decode converts '+' to ' '.
+      // In URL path segments, '+' is a literal plus sign, so we escape it to '%2B' before decoding.
+      query = java.net.URLDecoder.decode(query.replace("+", "%2B"),
+          java.nio.charset.StandardCharsets.UTF_8);
+    } catch (IllegalArgumentException e) {
+      log.warn("Failed to decode search query: {}", query, e);
     }
 
     searchField.setValue(query);

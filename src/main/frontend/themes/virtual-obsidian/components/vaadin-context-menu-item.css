@@ -1,0 +1,42 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+:host {
+  color: var(--obsidian-text);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 2px;
+  padding: 8px 12px;
+  background-image: none !important;
+  transition: none;
+  cursor: pointer;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  outline: none !important;
+}
+
+:host([focus-ring]),
+:host([focused]),
+:host(:focus),
+:host(:focus-visible) {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+:host(:hover) {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: var(--obsidian-accent) !important;
+}
+
+:host([active]) {
+  background-color: rgba(var(--obsidian-accent-rgb), 0.1) !important;
+}
+
+[part="checkmark"]::before {
+  color: var(--obsidian-accent);
+}

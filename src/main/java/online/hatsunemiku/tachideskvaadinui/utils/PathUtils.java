@@ -30,16 +30,15 @@ public class PathUtils {
    * @return The project directory specified as a {@link Path} object.
    */
   public static Path getProjectDir() {
-    String os = System.getProperty("os.name").toLowerCase();
 
     Path appdata;
 
-    if (os.contains("win")) {
+    if (PlatformUtils.isWindows()) {
       // On Windows, the Local AppData directory is used
       appdata = Path.of(System.getenv("LOCALAPPDATA"));
     } else {
       String userHome = System.getProperty("user.home");
-      if (os.contains("mac")) {
+      if (PlatformUtils.isMac()) {
         // On Mac, the Application Support directory is used
         appdata = Path.of(userHome, "Library", "Application Support");
       } else {
@@ -50,7 +49,7 @@ public class PathUtils {
 
     Path projectDir;
     // check for linux
-    if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
+    if (PlatformUtils.isLinux()) {
       projectDir = appdata.resolve(".TachideskVaadinUI");
     } else {
       projectDir = appdata.resolve("TachideskVaadinUI");

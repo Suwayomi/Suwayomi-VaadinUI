@@ -1,0 +1,51 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+:host {
+    color: var(--obsidian-accent);
+    background-color: transparent;
+    border: 1px solid var(--obsidian-accent);
+    border-radius: 0.55rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+}
+
+:host([theme~="primary"]) {
+    background-color: var(--obsidian-accent);
+    color: var(--obsidian-bg);
+}
+
+:host(:hover) {
+    background-color: rgba(var(--obsidian-accent-rgb), 0.1);
+}
+
+:host([theme~="primary"]:hover) {
+    background-color: #fff;
+    color: var(--obsidian-bg);
+}
+
+:host([disabled]) {
+    color: var(--obsidian-text-dim);
+    border-color: var(--obsidian-text-dim);
+}
+
+:host([disabled]) {
+    background: rgba(150, 150, 150, 0.16) !important;
+    color: rgba(220, 220, 220, 0.42) !important;
+    border-color: rgba(180, 180, 180, 0.18) !important;
+    box-shadow: none !important;
+    opacity: 0.65;
+    cursor: not-allowed !important;
+    filter: grayscale(1);
+}
+
+:host([disabled]:hover) {
+    background: rgba(150, 150, 150, 0.16) !important;
+    color: rgba(220, 220, 220, 0.42) !important;
+    border-color: rgba(180, 180, 180, 0.18) !important;
+    box-shadow: none !important;
+    transform: none !important;
+}

@@ -67,3 +67,15 @@ target/
 meta.json
 settings.json
 secrets.json
+/devDir/
+/src/main/frontend/generated/
+/src/main/bundles/
+/conductor/
+/logs/
+/temp_extract/
+.ai
+.kotlin
+.idea
+.antigravitycli
+.gemini
+java_pid*.hprof

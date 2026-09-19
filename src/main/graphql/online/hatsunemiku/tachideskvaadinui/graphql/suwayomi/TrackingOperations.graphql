@@ -1,0 +1,145 @@
+query IsTrackerLoggedIn($id: Int!) {
+  tracker(id: $id) {
+    isLoggedIn
+    isTokenExpired
+  }
+}
+
+query GetTrackerAuthUrl($id: Int!) {
+  tracker(id: $id) {
+    authUrl
+  }
+}
+
+mutation LoginTracker($url: String!, $trackerId: Int!) {
+  loginTrackerOAuth(input: {callbackUrl: $url, trackerId: $trackerId}) {
+    isLoggedIn
+  }
+}
+
+query searchTracker($query: String!, $id: Int!) {
+  searchTracker(input: {query: $query, trackerId: $id}) {
+    trackSearches {
+      coverUrl
+      id
+      publishingStatus
+      publishingType
+      remoteId
+      startDate
+      summary
+      title
+      totalChapters
+      trackingUrl
+    }
+  }
+}
+
+mutation TrackManga($mangaId: Int!, $remoteId: LongString!, $trackerId: Int!) {
+  bindTrack(input: {mangaId: $mangaId, remoteId: $remoteId, trackerId: $trackerId}) {
+    trackRecord {
+      id
+      trackerId
+      mangaId
+    }
+  }
+}
+
+mutation TrackProgressOnTrackers($mangaId: Int!) {
+  trackProgress(input: {mangaId: $mangaId}) {
+    trackRecords {
+      id
+    }
+  }
+}
+
+query IsMangaTracked($mangaId: Int!) {
+  manga(id: $mangaId) {
+    trackRecords {
+      nodes {
+        trackerId
+      }
+    }
+  }
+}
+
+query GetMangaTrackRecords($mangaId: Int!) {
+  manga(id: $mangaId) {
+    trackRecords {
+      nodes {
+        id
+        libraryId
+        mangaId
+        remoteId
+        trackerId
+        remoteUrl
+        title
+        lastChapterRead
+        totalChapters
+        displayScore
+        finishDate
+        startDate
+        score
+        status
+      }
+    }
+  }
+}
+
+mutation AllTheStuffForSuwayomiTracking(
+  $recordId: Int!
+  $finishDate: LongString!
+  $lastChapterRead: Float!
+  $startDate: LongString!
+  $status: Int!
+) {
+  updateTrack(
+    input: {
+      recordId: $recordId
+      finishDate: $finishDate
+      lastChapterRead: $lastChapterRead
+      startDate: $startDate
+      status: $status
+    }
+  ) {
+    trackRecord {
+      id
+      finishDate
+      lastChapterRead
+      startDate
+      status
+    }
+  }
+}
+
+query GetStatuses($trackRecordId: Int!) {
+  tracker(id: $trackRecordId) {
+    statuses {
+      name
+      value
+    }
+  }
+}
+
+mutation StopTrackingNew($recordId: Int!, $deleteRemote: Boolean!) {
+  unbindTrack(input: { recordId: $recordId, deleteRemoteTrack: $deleteRemote }) {
+    trackRecord {
+      id
+    }
+  }
+}
+
+query GetTrackingScores($recordId: Int!) {
+  trackRecord(id: $recordId) {
+    tracker {
+      scores
+    }
+  }
+}
+
+mutation updateScore($score: String!, $recordId: Int!) {
+  updateTrack(input: {scoreString: $score, recordId: $recordId}) {
+    trackRecord {
+      score
+    }
+  }
+}

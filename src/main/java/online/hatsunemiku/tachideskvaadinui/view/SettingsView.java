@@ -25,6 +25,8 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.data.binder.Binder;
@@ -32,12 +34,12 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.streams.TemporaryFileUploadHandler;
 import com.vaadin.flow.server.streams.UploadHandler;
-import com.vaadin.open.OSUtils;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import online.hatsunemiku.tachideskvaadinui.utils.PlatformUtils;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +59,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.ResourceAccessException;
-import org.vaadin.miki.superfields.checkbox.SuperCheckbox;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import org.vaadin.miki.superfields.text.SuperTextField;
 
 /**
@@ -101,22 +103,21 @@ public class SettingsView extends StandardLayout {
 
     VerticalLayout content = new VerticalLayout();
     content.setClassName("settings-content");
+    content.setPadding(false);
+    content.setSpacing(false);
+    content.setAlignItems(Alignment.CENTER);
 
     Section generalSettings = getGeneralSettingsSection(settingsService, sourceService);
     Section flareSolverrSettings = createFlareSolverrSection();
-    Div separator = getSeparator();
     Section extensionSettings = getExtensionSettingsSection();
     Section notificationSettings = createNotificationSettingsSection();
     Section backupSection = getBackupSection(settingsService);
+    
     content.add(
         generalSettings,
-        getSeparator(),
         flareSolverrSettings,
-        separator,
         extensionSettings,
-        getSeparator(),
         notificationSettings,
-        getSeparator(),
         backupSection);
 
     setContent(content);
@@ -145,7 +146,7 @@ public class SettingsView extends StandardLayout {
 
   /** Removes the batch file in the Windows startup folder that starts the Vaadin UI on startup. */
   private static void removeWindowsStartup() {
-    if (!OSUtils.isWindows()) {
+    if (!PlatformUtils.isWindows()) {
       Notification notification =
           new Notification("Startup with Windows is only available on Windows", 3000);
       notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -262,14 +263,15 @@ public class SettingsView extends StandardLayout {
     Div checkboxContainer = new Div();
     checkboxContainer.addClassName("checkbox-container");
 
-    SuperCheckbox checkbox = new SuperCheckbox().withLabel("Startup Popup").withId("start-popup");
+    Checkbox checkbox = new Checkbox("Startup Popup");
+    checkbox.setId("start-popup");
 
     checkbox.addClassName("settings-checkbox");
     checkbox.setValue(settingsService.getSettings().isStartPopup());
     binder.forField(checkbox).bind(Settings::isStartPopup, Settings::setStartPopup);
     checkboxContainer.add(checkbox);
 
-    if (OSUtils.isWindows()) {
+    if (PlatformUtils.isWindows()) {
       var startupWithWindowsCheckbox = getStartupWithWindowsCheckbox(settingsService, binder);
       checkboxContainer.add(startupWithWindowsCheckbox);
     }
@@ -290,12 +292,13 @@ public class SettingsView extends StandardLayout {
    * @param settingsService The service to retrieve settings from.
    * @param binder The binder to bind the checkbox to the startWithWindows property of the Settings
    *     object.
-   * @return The configured {@link SuperCheckbox} element.
+   * @return The configured {@link Checkbox} element.
    */
-  private @NotNull SuperCheckbox getStartupWithWindowsCheckbox(
+  private @NotNull Checkbox getStartupWithWindowsCheckbox(
       SettingsService settingsService, Binder<Settings> binder) {
-    SuperCheckbox startupWithWindowsCheckbox =
-        new SuperCheckbox().withLabel("Start with Windows").withId("start-with-windows");
+    Checkbox startupWithWindowsCheckbox =
+        new Checkbox("Start with Windows");
+    startupWithWindowsCheckbox.setId("start-with-windows");
     startupWithWindowsCheckbox.setValue(settingsService.getSettings().isStartWithWindows());
     startupWithWindowsCheckbox.addClassName("settings-checkbox");
     startupWithWindowsCheckbox.addValueChangeListener(
@@ -315,7 +318,7 @@ public class SettingsView extends StandardLayout {
 
   /** Creates a batch file in the Windows startup folder to start the Vaadin UI on startup. */
   private void createWindowsStartup() {
-    if (!OSUtils.isWindows()) {
+    if (!PlatformUtils.isWindows()) {
       Notification notification =
           new Notification("Startup with Windows is only available on Windows", 3000);
       notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -326,12 +329,18 @@ public class SettingsView extends StandardLayout {
     try {
       var vaauiDir = getVaaUIDir();
 
-      var exeFile = new File(vaauiDir, "Tachidesk Vaadin UI.exe");
+      var exeFile = new File(vaauiDir, "Suwayomi VaadinUI.exe");
+      if (!exeFile.exists()) {
+        var legacyExe = new File(vaauiDir, "Tachidesk Vaadin UI.exe");
+        if (legacyExe.exists()) {
+          exeFile = legacyExe;
+        }
+      }
       log.debug("Exe file: {}", exeFile);
 
       if (!exeFile.exists()) {
-        log.error("Tachidesk Vaadin UI.exe not found");
-        Notification notification = new Notification("Tachidesk Vaadin UI.exe not found", 3000);
+        log.error("Suwayomi VaadinUI.exe not found");
+        Notification notification = new Notification("Suwayomi VaadinUI.exe not found", 3000);
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
         notification.open();
         return;
@@ -462,12 +471,6 @@ public class SettingsView extends StandardLayout {
     return extensionSettings;
   }
 
-  private Div getSeparator() {
-    Div separator = new Div();
-    separator.addClassName("separator");
-    return separator;
-  }
-
   private Grid<ExtensionRepo> createExtensionReposList() {
     Grid<ExtensionRepo> repoGrid = new Grid<>();
     Binder<ExtensionRepo> binder = new Binder<>(ExtensionRepo.class);
@@ -476,7 +479,6 @@ public class SettingsView extends StandardLayout {
     editor.setBuffered(true);
 
     TextField extensionRepoUrlField = new TextField("Extension Repo URL");
-    extensionRepoUrlField.getStyle().set("width", "90%");
 
     var url = repoGrid.addColumn(ExtensionRepo::getUrl).setHeader("Extension Repos");
     url.setEditorComponent(extensionRepoUrlField);
@@ -555,6 +557,10 @@ public class SettingsView extends StandardLayout {
 
     Dialog dialog = new Dialog();
     SuperTextField addRepoUrlField = new SuperTextField("Extension Repo URL");
+    addRepoUrlField.setPlaceholder("e.g. https://github.com/keiyoushi/extensions");
+    addRepoUrlField.setHelperText(
+        "GitHub repository links are automatically resolved to the index file");
+    addRepoUrlField.setWidth("400px");
     dialog.add(addRepoUrlField);
     Div dialogButtons = getDialogButtons(dialog, addRepoUrlField, repoGrid);
     dialog.add(dialogButtons);
@@ -625,18 +631,51 @@ public class SettingsView extends StandardLayout {
           }
 
           if (!newRepoUrl.startsWith("http") && !newRepoUrl.startsWith("https")) {
+            Notification notification =
+                new Notification("URL must start with http:// or https://", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.open();
             return;
           }
 
           UrlValidator urlValidator = new UrlValidator();
 
           if (!urlValidator.isValid(newRepoUrl)) {
+            Notification notification = new Notification("URL is not valid", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.open();
             return;
           }
 
-          suwayomiSettingsService.addExtensionRepo(newRepoUrl);
-          dialog.close();
-          reloadGrid(repoGrid);
+          var resolvedOpt = suwayomiSettingsService.resolveExtensionRepoUrl(newRepoUrl);
+          if (resolvedOpt.isEmpty()) {
+            Notification notification =
+                new Notification(
+                    "Could not find a valid extension index (index.min.json / index.pb) for this URL",
+                    4000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.open();
+            return;
+          }
+
+          String resolvedUrl = resolvedOpt.get();
+          if (!resolvedUrl.equalsIgnoreCase(newRepoUrl.trim())) {
+            Notification notification =
+                new Notification("Resolved repository to: " + resolvedUrl, 4000);
+            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            notification.open();
+          }
+
+          boolean success = suwayomiSettingsService.addExtensionRepo(resolvedUrl);
+          if (success) {
+            dialog.close();
+            reloadGrid(repoGrid);
+          } else {
+            Notification notification =
+                new Notification("Failed to add extension repository to Suwayomi Server", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.open();
+          }
         });
 
     addRepoUrlField.addKeyPressListener(Key.ENTER, event -> addButton.click());
@@ -903,17 +942,40 @@ public class SettingsView extends StandardLayout {
   private @NotNull Section getBackupSection(SettingsService service) {
     Section section = new Section();
     section.addClassName("backup-settings");
+    section.setId("backup-settings-section");
 
     Div content = new Div();
     content.setId("backup-settings-content");
-    var header = new H2("Backup");
-    header.setId("backup-settings-header");
+    content.getStyle().set("width", "100%");
 
-    Div buttons = new Div();
-    buttons.setId("backup-settings-buttons");
+    var header = new H2("Backup & Restore");
+    header.addClassName("settings-header");
+
+    Span description = new Span("Create a backup of your data or restore from a previously created backup file.");
+    description.setId("backup-settings-description");
+    description.getStyle().set("color", "var(--obsidian-text-dim)");
+    description.getStyle().set("font-weight", "500");
+    description.getStyle().set("padding-bottom", "1rem");
+    description.getStyle().set("display", "block");
+    description.getStyle().set("text-align", "center");
+
+    HorizontalLayout cardsLayout = new HorizontalLayout();
+    cardsLayout.setWidthFull();
+    cardsLayout.setJustifyContentMode(com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER);
+    cardsLayout.setSpacing(true);
+    cardsLayout.setPadding(true);
+
+    // Create Backup Card
+    VerticalLayout createCard = new VerticalLayout();
+    createCard.addClassName("backup-card");
+    createCard.setAlignItems(Alignment.CENTER);
+
+    H2 createHeader = new H2("Export");
+    Span createDesc = new Span("Download a backup file to your computer.");
 
     var settings = service.getSettings();
-    Button backupButton = new Button("Create Backup");
+    Button backupButton = new Button("Create Backup", VaadinIcon.DOWNLOAD.create());
+    backupButton.addClassName("backup-action-btn");
     backupButton.addClickListener(
         event -> {
           try {
@@ -929,6 +991,28 @@ public class SettingsView extends StandardLayout {
             notification.open();
           }
         });
+    
+    VerticalLayout createHeaderGroup = new VerticalLayout(createHeader, createDesc);
+    createHeaderGroup.setAlignItems(Alignment.CENTER);
+    createHeaderGroup.setPadding(false);
+    createHeaderGroup.setSpacing(false);
+    createHeaderGroup.setWidthFull();
+
+    createCard.add(createHeaderGroup, backupButton);
+
+    // Restore Backup Card
+    VerticalLayout restoreCard = new VerticalLayout();
+    restoreCard.addClassName("backup-card");
+    restoreCard.setAlignItems(Alignment.CENTER);
+
+    H2 restoreHeader = new H2("Import");
+    Span restoreDesc = new Span("Upload a backup file to restore your data.");
+
+    VerticalLayout restoreHeaderGroup = new VerticalLayout(restoreHeader, restoreDesc);
+    restoreHeaderGroup.setAlignItems(Alignment.CENTER);
+    restoreHeaderGroup.setPadding(false);
+    restoreHeaderGroup.setSpacing(false);
+    restoreHeaderGroup.setWidthFull();
 
     AtomicReference<Path> backupFile = new AtomicReference<>();
     UploadHandler uploadHandler =
@@ -940,8 +1024,11 @@ public class SettingsView extends StandardLayout {
     Upload upload = new Upload(uploadHandler);
     upload.setAutoUpload(true);
     upload.setMaxFiles(1);
+    upload.setDropAllowed(true);
+    upload.addClassName("backup-upload");
 
-    Button restore = new Button("Restore Backup");
+    Button restore = new Button("Restore Backup", VaadinIcon.UPLOAD.create());
+    restore.addClassName("backup-action-btn");
     restore.addClickListener(
         e -> {
           log.info("Restoring backup");
@@ -965,14 +1052,11 @@ public class SettingsView extends StandardLayout {
           notification.open();
         });
 
-    Div restorePart = new Div();
-    restorePart.setId("backup-restore");
-    restorePart.add(upload, restore);
+    restoreCard.add(restoreHeaderGroup, upload, restore);
 
-    buttons.add(backupButton, restorePart);
+    cardsLayout.add(createCard, restoreCard);
 
-    content.add(header, buttons);
-
+    content.add(header, description, cardsLayout);
     section.add(content);
 
     return section;

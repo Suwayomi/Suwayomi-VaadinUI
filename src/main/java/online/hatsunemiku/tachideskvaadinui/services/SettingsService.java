@@ -6,14 +6,6 @@
 
 package online.hatsunemiku.tachideskvaadinui.services;
 
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.WRITE;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.EOFException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +18,15 @@ import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.json.JsonMapper;
+
+import java.io.EOFException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.WRITE;
 
 /**
  * Service for managing the application settings. <br>
@@ -43,11 +44,11 @@ public class SettingsService {
   @Getter @NotNull private final Settings settings;
 
   @Getter(AccessLevel.NONE)
-  private final ObjectMapper mapper;
+  private final JsonMapper mapper;
 
   private final Environment env;
 
-  public SettingsService(ObjectMapper mapper, Environment env) {
+  public SettingsService(JsonMapper mapper, Environment env) {
     this.mapper = mapper;
     this.env = env;
     settings = deserialize();
@@ -92,8 +93,6 @@ public class SettingsService {
 
   /** Serializes the settings to disk. */
   private void serialize() {
-    ObjectMapper mapper = new ObjectMapper();
-
     Path projectDirPath = PathUtils.getResolvedProjectPath(env);
 
     Path settingsFile = projectDirPath.resolve("settings.json");

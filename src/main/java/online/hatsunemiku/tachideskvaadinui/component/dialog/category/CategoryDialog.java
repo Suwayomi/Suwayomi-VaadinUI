@@ -9,9 +9,13 @@ package online.hatsunemiku.tachideskvaadinui.component.dialog.category;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import java.util.Comparator;
@@ -28,18 +32,33 @@ public class CategoryDialog extends Dialog {
   private final CategoryService categoryService;
 
   public CategoryDialog(CategoryService categoryService) {
+    addClassName("category-dialog");
+    setWidth("400px");
+
     setHeaderTitle("Create Category");
 
     this.categoryService = categoryService;
 
     CategoryNameDTO categoryNameDTO = new CategoryNameDTO();
 
-    TextField nameInput = new TextField();
+    VerticalLayout contentLayout = new VerticalLayout();
+    contentLayout.setPadding(false);
+    contentLayout.setSpacing(true);
+    contentLayout.setAlignItems(VerticalLayout.Alignment.STRETCH);
+    contentLayout.addClassName("category-dialog-content");
 
-    nameInput.setLabel("Name");
-    nameInput.setPlaceholder("Type a name");
+    Div description = new Div();
+    description.setText("Organize your library by grouping manga into custom categories.");
+    description.addClassName("category-dialog-description");
+
+    TextField nameInput = new TextField();
+    nameInput.setLabel("Category Name");
+    nameInput.setPlaceholder("e.g. Action, Completed, To Read");
     nameInput.setRequired(true);
     nameInput.setAutofocus(true);
+    nameInput.setWidthFull();
+    nameInput.setPrefixComponent(VaadinIcon.TAG.create());
+    nameInput.addClassName("category-dialog-input");
 
     binder.setBean(categoryNameDTO);
     binder
@@ -47,14 +66,20 @@ public class CategoryDialog extends Dialog {
         .withValidator(name -> !name.isEmpty(), "Name cannot be empty")
         .bind(CategoryNameDTO::getName, CategoryNameDTO::setName);
 
+    contentLayout.add(description, nameInput);
+    add(contentLayout);
+
     Button cancelButton = new Button("Cancel");
+    cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
     cancelButton.addClickListener(e -> close());
+    cancelButton.addClassName("category-dialog-cancel-button");
 
     Button createButton = new Button("Create");
+    createButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+    createButton.setIcon(VaadinIcon.PLUS.create());
     createButton.addClickListener(e -> createCategory(nameInput.getValue()));
     createButton.addClickShortcut(Key.ENTER);
-
-    add(nameInput);
+    createButton.addClassName("category-dialog-create-button");
 
     getFooter().add(cancelButton, createButton);
   }

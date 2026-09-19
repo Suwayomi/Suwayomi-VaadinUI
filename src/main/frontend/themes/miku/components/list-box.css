@@ -15,10 +15,6 @@ vaadin-list-box {
   width: 100%;
 }
 
-vaadin-item:hover {
-  background-color: var(--miku-highlight-color);
-}
-
 vaadin-item::part(checkmark)::before {
   visibility: hidden;
 }

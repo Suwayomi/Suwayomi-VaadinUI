@@ -1,0 +1,73 @@
+query GetServerVersion {
+  aboutServer {
+    version
+  }
+}
+
+mutation AddExtensionStore($indexUrl: String!) {
+  addExtensionStore(input: {indexUrl: $indexUrl}) {
+    extensionStore {
+      indexUrl
+      name
+    }
+  }
+}
+
+mutation RemoveExtensionStore($indexUrl: String!) {
+  removeExtensionStore(input: {indexUrl: $indexUrl}) {
+    extensionStore {
+      indexUrl
+    }
+  }
+}
+
+query GetExtensionStores {
+  extensionStores {
+    nodes {
+      indexUrl
+      name
+    }
+  }
+}
+
+query GetFlareSolverrSettings {
+  settings {
+    flareSolverrEnabled
+    flareSolverrSessionName
+    flareSolverrSessionTtl
+    flareSolverrTimeout
+    flareSolverrUrl
+  }
+}
+
+mutation UpdateFlareSolverrUrl($url: String!) {
+  setSettings(input: {settings: {flareSolverrUrl: $url}}) {
+    settings {
+      flareSolverrUrl
+    }
+  }
+}
+
+mutation UpdateFlareSolverrEnabledStatus($enabled: Boolean!) {
+  setSettings(input: {settings: {flareSolverrEnabled: $enabled}}) {
+    settings {
+      flareSolverrEnabled
+    }
+  }
+}
+
+mutation createBackup {
+  createBackup(input: {flags: {includeCategories: true, includeChapters: true}}) {
+    url
+  }
+}
+
+mutation RestoreBackup($backup: Upload!) {
+  restoreBackup(input: {backup: $backup}) {
+    status {
+      totalManga
+      state
+      mangaProgress
+    }
+  }
+}

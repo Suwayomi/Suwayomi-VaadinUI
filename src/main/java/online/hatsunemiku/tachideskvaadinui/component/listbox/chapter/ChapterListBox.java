@@ -18,6 +18,6 @@ public class ChapterListBox extends ListBox<Chapter> {
   public ChapterListBox(List<Chapter> chapters, MangaService mangaService) {
     super();
     setItems(chapters);
-    setRenderer(new ChapterRenderer(mangaService));
+    setRenderer(new ChapterRenderer(mangaService, this));
   }
 }

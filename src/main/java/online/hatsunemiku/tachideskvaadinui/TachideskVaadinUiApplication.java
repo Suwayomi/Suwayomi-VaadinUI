@@ -35,8 +35,10 @@ public class TachideskVaadinUiApplication {
    * @param args The command line arguments
    */
   public static void main(String[] args) {
-    boolean headless = Boolean.parseBoolean(System.getProperty("vaaui.headless"));
+    System.setProperty("java.net.preferIPv4Stack", "true");
+    System.setProperty("io.netty.resolver.dns.useSystemNameResolver", "true");
 
+    boolean headless = Boolean.parseBoolean(System.getProperty("vaaui.headless"));
     if (isRunningAlready()) {
       log.warn("Application is already running.");
       runAlreadyRunningTasks(headless);

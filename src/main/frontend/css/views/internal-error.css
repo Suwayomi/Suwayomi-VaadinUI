@@ -1,0 +1,163 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+.internal-error-view {
+  background: #101417;
+  font-family: 'Space Grotesk', sans-serif;
+  color: #D2EDF4;
+  height: 100%;
+}
+
+/* --- Main Content --- */
+.internal-error-view .error-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  position: relative;
+  width: 100%; /* Force full width */
+  height: 100%; /* Force full height */
+  flex: 1;
+}
+
+.error-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(162, 234, 231, 0.08);
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  max-width: 600px;
+  width: 90%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+  z-index: 1;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.status-icon-wrapper {
+  background: rgba(162, 234, 231, 0.05);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+  border: 1px solid rgba(162, 234, 231, 0.1);
+  flex-shrink: 0;
+}
+
+.status-icon {
+  font-size: 2.5rem;
+  color: #a2eae7;
+}
+
+.error-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #F0F8FF;
+  margin: 0;
+  letter-spacing: -0.02em;
+  width: 100%;
+}
+
+.error-badge {
+  background: rgba(225, 40, 133, 0.1);
+  color: #ffb0cb;
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  border: 1px solid rgba(225, 40, 133, 0.2);
+  max-width: 100%;
+  white-space: normal;
+}
+
+.error-description {
+  font-family: 'Manrope', sans-serif;
+  color: #889392;
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 100%;
+  margin-bottom: 1rem;
+  word-break: break-word;
+}
+
+/* --- Buttons --- */
+.button-group {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.stitch-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  color: #a2eae7;
+  border: 1px solid rgba(162, 234, 231, 0.5);
+}
+
+.btn-primary:hover {
+  background: rgba(162, 234, 231, 0.15);
+  border-color: #a2eae7;
+  box-shadow: 0 0 20px rgba(162, 234, 231, 0.1);
+}
+
+.btn-secondary {
+  color: #889392;
+  border: 1px solid rgba(136, 147, 146, 0.3);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: #889392;
+  color: #D2EDF4;
+}
+
+/* --- Footer --- */
+.error-footer-info {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: rgba(136, 147, 146, 0.2);
+  letter-spacing: 0.2em;
+  pointer-events: none;
+}
+
+.glitch-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.05) 50%);
+  background-size: 100% 4px;
+  opacity: 0.3;
+}

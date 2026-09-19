@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @Push
-@Theme("miku")
+@Theme("virtual-obsidian")
 @PWA(name = "Suwayomi VaadinUI", shortName = "VaadinUI")
 public class VaadinConfig implements AppShellConfigurator {
 

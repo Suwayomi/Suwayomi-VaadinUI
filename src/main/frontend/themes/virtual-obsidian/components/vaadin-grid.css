@@ -1,0 +1,25 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+:host {
+    background-color: transparent;
+    --vaadin-grid-cell-background: transparent;
+    --vaadin-grid-row-border-color: rgba(var(--obsidian-accent-rgb), 0.08);
+}
+
+[part~="cell"] {
+    color: var(--obsidian-text);
+}
+
+[part~="header-cell"] {
+    background-color: rgba(16, 20, 23, 0.88);
+    color: var(--obsidian-accent);
+    font-weight: 700;
+}
+
+[part~="even-row"] {
+    background-color: rgba(255, 255, 255, 0.02);
+}

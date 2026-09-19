@@ -9,37 +9,83 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  background-color: var(--miku-frosted-glass);
-  min-height: 5vh;
-  border: 1px solid var(--miku-unselected-color);
-  border-radius: 1rem;
+  background-color: #2d4f58;
+  min-height: 2.2rem;
+  border: 0;
+  border-bottom: 1px solid #355964;
+  border-radius: 0;
+  padding: 0 0.3rem;
 }
 
 .extension-icon {
-  margin: 1rem;
+  margin: 0 0.5rem 0 0.1rem;
 }
 
 .extension-icon-image {
-  width: 3rem;
-  height: 3rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 3px;
 }
 
 .extension-name {
-
+  color: #172f46;
+  font-size: 0.65rem;
+  font-weight: 500;
 }
 
 .extension-version {
-  margin-right: 1rem;
+  margin-right: 0.4rem;
+  color: #4a6378;
+  font-size: 0.58rem;
+  min-width: 4.5rem;
+  text-align: right;
 }
 
 .extension-install-btn {
-  margin-right: 1rem;
+  margin-right: 0.45rem;
+  min-width: 6.2rem;
+  border-radius: 2px;
+  border: 1px solid #8399a8;
+  background: rgba(0, 0, 0, 0.08);
+  color: #dbeff8;
+  font-size: 0.58rem;
+  font-weight: 600;
+  padding: 0.05rem 0.25rem;
+  height: 1.05rem;
 }
 
 .extension-data {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
-  width: 18%;
+  justify-content: flex-start;
+  width: auto;
+  min-width: 15rem;
+}
+
+.extension-uninstall-btn {
+  min-width: 4.2rem;
+  border-radius: 2px;
+  border: 1px solid #8ea3b1;
+  background: rgba(0, 0, 0, 0.08);
+  color: #dbeff8;
+  font-size: 0.55rem;
+  font-weight: 600;
+  padding: 0.05rem 0.25rem;
+  height: 1.05rem;
+}
+
+.extension-installed-btn {
+  opacity: 0.42;
+  color: #8ca5b2;
+}
+
+.extension-buttons {
+  gap: 0.25rem;
+  min-width: auto;
+  justify-content: flex-end;
+}
+
+.extension-item:hover {
+  background-color: #335c66;
 }

@@ -1,0 +1,85 @@
+query GetViewerId {
+  Viewer {
+    id
+  }
+}
+
+query GetMediaList($mangaId: Int, $userId: Int) {
+  MediaList(mediaId: $mangaId, userId: $userId) {
+    status
+    progress
+    score
+    startedAt {
+      year
+      month
+      day
+    }
+    completedAt {
+      year
+      month
+      day
+    }
+  }
+}
+
+mutation SaveMediaListEntry($mangaId: Int, $progress: Int, $status: MediaListStatus, $score: Float, $completedAt: FuzzyDateInput, $private: Boolean) {
+  SaveMediaListEntry(mediaId: $mangaId, progress: $progress, status: $status, score: $score, completedAt: $completedAt, private: $private) {
+    id
+    status
+    progress
+    score
+    private
+    completedAt {
+      year
+      month
+      day
+    }
+  }
+}
+
+query GetMediaListCollection($userId: Int) {
+  MediaListCollection(userId: $userId, type: MANGA) {
+    lists {
+      entries {
+        id
+        mediaId
+        status
+        progress
+        score
+        startedAt {
+          year
+          month
+          day
+        }
+        completedAt {
+          year
+          month
+          day
+        }
+        media {
+          title {
+            romaji
+            english
+            native
+          }
+          coverImage {
+            large
+            medium
+          }
+        }
+      }
+    }
+  }
+}
+
+query GetMediaListEntryId($mangaId: Int, $userId: Int) {
+  MediaList(mediaId: $mangaId, userId: $userId) {
+    id
+  }
+}
+
+mutation DeleteMediaListEntry($entryId: Int) {
+  DeleteMediaListEntry(id: $entryId) {
+    deleted
+  }
+}

@@ -8,35 +8,33 @@ package online.hatsunemiku.tachideskvaadinui.services.tracker;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import dev.katsute.mal4j.AccessToken;
-import dev.katsute.mal4j.Authorization;
-import dev.katsute.mal4j.MyAnimeList;
-import dev.katsute.mal4j.MyAnimeListAuthenticator;
-import dev.katsute.mal4j.PaginatedIterator;
-import dev.katsute.mal4j.manga.Manga;
-import dev.katsute.mal4j.manga.MangaListStatus;
-import dev.katsute.mal4j.manga.property.MangaSort;
-import dev.katsute.mal4j.manga.property.MangaStatus;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nullable;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.OAuthData;
 import online.hatsunemiku.tachideskvaadinui.data.tracking.anilist.common.MediaDate;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.mal.MALManga;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.mal.MALMangaListEntry;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.mal.MALMangaListResponse;
+import online.hatsunemiku.tachideskvaadinui.data.tracking.mal.MALMangaStatus;
 import online.hatsunemiku.tachideskvaadinui.services.TrackingDataService;
+import online.hatsunemiku.tachideskvaadinui.utils.PKCEUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
@@ -49,11 +47,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class MyAnimeListAPIService {
 
   private static final Logger log = LoggerFactory.getLogger(MyAnimeListAPIService.class);
+  private static final String MAL_API_URL = "https://api.myanimelist.net/v2";
   private final String CLIENT_ID = "a039c56fb609cd33ebd59381a6e9b460";
   private final TrackingDataService tds;
   private final WebClient webClient;
   private final Cache<UUID, String> pkceCache;
-  @Nullable private MyAnimeList mal;
+  @Nullable
+  private String accessToken;
 
   /**
    * Initializes an instance of the MyAnimeListAPIService class.
@@ -73,10 +73,14 @@ public class MyAnimeListAPIService {
     OAuthData data = tds.getTokens().getMalToken();
 
     if (data.getExpiresAsInstant().isBefore(Instant.now())) {
-      var newData = refreshToken(data.getRefreshToken());
-      tds.getTokens().setMalToken(newData);
-
-      data = newData;
+      try {
+        var newData = refreshToken(data.getRefreshToken());
+        tds.getTokens().setMalToken(newData);
+        data = newData;
+      } catch (Exception e) {
+        log.error("Failed to refresh MAL token", e);
+        return;
+      }
     }
 
     authenticateMALWithToken(data);
@@ -84,18 +88,15 @@ public class MyAnimeListAPIService {
 
   /**
    * Authenticates the MAL API with the provided {@link OAuthData} object containing the access
-   * token. The resulting {@link MyAnimeList} object is stored in {@link #mal}
+   * token.
    *
    * @param data The {@link OAuthData} object containing the access token.
    */
   private void authenticateMALWithToken(OAuthData data) {
-    var accessToken = data.getAccessToken();
-
-    if (!accessToken.startsWith("Bearer")) {
-      accessToken = "Bearer " + accessToken;
+    this.accessToken = data.getAccessToken();
+    if (this.accessToken != null && !this.accessToken.startsWith("Bearer")) {
+      this.accessToken = "Bearer " + this.accessToken;
     }
-
-    mal = MyAnimeList.withToken(accessToken);
   }
 
   /**
@@ -108,18 +109,17 @@ public class MyAnimeListAPIService {
   public String getAuthUrl() {
     String baseUrl = "https://myanimelist.net/v1/oauth2/authorize";
     String responseType = "code";
-    String codeChallenge = MyAnimeListAuthenticator.generatePKCE(128);
+    String codeChallenge = PKCEUtils.generateCodeVerifier(128);
 
     UUID pkceId = UUID.randomUUID();
-
     pkceCache.put(pkceId, codeChallenge);
 
-    String stateParam = "{\"pkceId\"=\"%s\"}";
+    String stateParam = "{\"pkceId\":\"%s\"}";
     stateParam = URLEncoder.encode(stateParam.formatted(pkceId), StandardCharsets.UTF_8);
 
     String params = "response_type=%s&client_id=%s&code_challenge=%s&state=%s";
     params =
-        params.formatted(responseType, CLIENT_ID, codeChallenge, pkceId.toString(), stateParam);
+        params.formatted(responseType, CLIENT_ID, codeChallenge, stateParam);
 
     return "%s?%s".formatted(baseUrl, params);
   }
@@ -147,15 +147,26 @@ public class MyAnimeListAPIService {
       throw new IllegalArgumentException("Invalid PKCE ID");
     }
 
-    Authorization auth = new Authorization(CLIENT_ID, null, code, pkce);
+    MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+    body.add("client_id", CLIENT_ID);
+    body.add("grant_type", "authorization_code");
+    body.add("code", code);
+    body.add("code_verifier", pkce);
 
-    MyAnimeListAuthenticator oauth = new MyAnimeListAuthenticator(auth);
-    AccessToken token = oauth.getAccessToken();
+    OAuthData data = webClient
+        .post()
+        .uri("https://myanimelist.net/v1/oauth2/token")
+        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+        .body(BodyInserters.fromFormData(body))
+        .retrieve()
+        .bodyToMono(OAuthData.class)
+        .block();
 
-    OAuthData data = new OAuthData(token);
+    if (data == null) {
+      throw new RuntimeException("Failed to exchange code for tokens");
+    }
 
     tds.getTokens().setMalToken(data);
-
     authenticateMALWithToken(data);
   }
 
@@ -167,47 +178,54 @@ public class MyAnimeListAPIService {
    */
   private OAuthData refreshToken(String refreshToken) {
     MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+    body.add("client_id", CLIENT_ID);
     body.add("grant_type", "refresh_token");
     body.add("refresh_token", refreshToken);
 
     return webClient
         .post()
         .uri("https://myanimelist.net/v1/oauth2/token")
-        .headers(headers -> headers.setBasicAuth(CLIENT_ID, ""))
-        .bodyValue(body)
+        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+        .body(BodyInserters.fromFormData(body))
         .retrieve()
         .bodyToMono(OAuthData.class)
         .block();
   }
 
   /**
-   * Retrieves a list of {@link Manga} objects with the specified status.
+   * Retrieves a list of {@link MALManga} objects with the specified status.
    *
-   * @param status The {@link MangaStatus} enum value representing the status of the manga.
-   * @return A List of {@link Manga} objects with the specified status.
+   * @param status The {@link MALMangaStatus} enum value representing the status of the manga.
+   * @return A List of {@link MALManga} objects with the specified status.
    * @throws IllegalStateException If not authenticated with MyAnimeList (MAL).
    */
-  public List<Manga> getMangaWithStatus(MangaStatus status) {
-    if (mal == null) {
+  public List<MALManga> getMangaWithStatus(MALMangaStatus status) {
+    if (accessToken == null) {
       throw new IllegalStateException("Not authenticated with MAL");
     }
 
-    PaginatedIterator<MangaListStatus> iter =
-        mal.getUserMangaListing()
-            .withStatus(status)
-            .sortBy(MangaSort.Title)
-            .includeNSFW()
-            .searchAll();
+    List<MALManga> allManga = new ArrayList<>();
+    String nextUrl = MAL_API_URL + "/users/@me/mangalist?status=" + status.getApiValue() + "&limit=1000&fields=main_picture";
 
-    var list = new ArrayList<MangaListStatus>();
+    while (nextUrl != null) {
+      MALMangaListResponse response = webClient
+          .get()
+          .uri(nextUrl)
+          .header("Authorization", accessToken)
+          .retrieve()
+          .bodyToMono(MALMangaListResponse.class)
+          .block();
 
-    while (iter.hasNext()) {
-      list.add(iter.next());
+      if (response != null && response.data() != null) {
+        allManga.addAll(response.data().stream().map(MALMangaListEntry::manga).toList());
+        nextUrl = response.paging() != null ? response.paging().next() : null;
+      } else {
+        nextUrl = null;
+      }
     }
 
-    log.debug("Got {} manga with status {}", list.size(), status.name());
-
-    return list.stream().map(MangaListStatus::getManga).toList();
+    log.debug("Got {} manga with status {}", allManga.size(), status.name());
+    return allManga;
   }
 
   /**
@@ -216,12 +234,23 @@ public class MyAnimeListAPIService {
    * @param id The MyAnimeList ID of the manga.
    * @param status The new status to be used.
    */
-  public void updateMangaListStatus(int id, MangaStatus status) {
-    if (mal == null) {
+  public void updateMangaListStatus(int id, MALMangaStatus status) {
+    if (accessToken == null) {
       throw new IllegalStateException("Not authenticated with MAL");
     }
 
-    mal.updateMangaListing(id).status(status).update();
+    MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+    body.add("status", status.getApiValue());
+
+    webClient
+        .put()
+        .uri(MAL_API_URL + "/manga/" + id + "/my_list_status")
+        .header("Authorization", accessToken)
+        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+        .body(BodyInserters.fromFormData(body))
+        .retrieve()
+        .toBodilessEntity()
+        .block();
   }
 
   /**
@@ -231,13 +260,22 @@ public class MyAnimeListAPIService {
    * @param score The new score of the manga.
    */
   public void updateMangaListScore(int id, double score) {
-    if (mal == null) {
+    if (accessToken == null) {
       throw new IllegalStateException("Not authenticated with MAL");
     }
 
-    int scoreInt = (int) score;
+    MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+    body.add("score", String.valueOf((int) score));
 
-    mal.updateMangaListing(id).score(scoreInt).update();
+    webClient
+        .put()
+        .uri(MAL_API_URL + "/manga/" + id + "/my_list_status")
+        .header("Authorization", accessToken)
+        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+        .body(BodyInserters.fromFormData(body))
+        .retrieve()
+        .toBodilessEntity()
+        .block();
   }
 
   /**
@@ -247,7 +285,7 @@ public class MyAnimeListAPIService {
    * @param date The new end date of the manga.
    */
   public void updateMangaListEndDate(int malId, MediaDate date) {
-    if (mal == null) {
+    if (accessToken == null) {
       throw new IllegalStateException("Not authenticated with MAL");
     }
 
@@ -255,14 +293,21 @@ public class MyAnimeListAPIService {
       return;
     }
 
-    Instant instant =
-        LocalDate.of(date.year(), date.month(), date.day())
-            .atStartOfDay()
-            .atZone(ZoneId.systemDefault())
-            .toInstant();
-    Date endDate = Date.from(instant);
+    String formattedDate = LocalDate.of(date.year(), date.month(), date.day())
+        .format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-    mal.updateMangaListing(malId).finishDate(endDate).update();
+    MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+    body.add("finish_date", formattedDate);
+
+    webClient
+        .put()
+        .uri(MAL_API_URL + "/manga/" + malId + "/my_list_status")
+        .header("Authorization", accessToken)
+        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+        .body(BodyInserters.fromFormData(body))
+        .retrieve()
+        .toBodilessEntity()
+        .block();
   }
 
   /**
@@ -271,10 +316,16 @@ public class MyAnimeListAPIService {
    * @param malId The MyAnimeList ID of the manga to remove.
    */
   public void removeMangaFromList(int malId) {
-    if (mal == null) {
+    if (accessToken == null) {
       throw new IllegalStateException("Not authenticated with MAL");
     }
 
-    mal.deleteMangaListing(malId);
+    webClient
+        .delete()
+        .uri(MAL_API_URL + "/manga/" + malId + "/my_list_status")
+        .header("Authorization", accessToken)
+        .retrieve()
+        .toBodilessEntity()
+        .block();
   }
 }

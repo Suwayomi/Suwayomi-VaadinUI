@@ -9,11 +9,16 @@ package online.hatsunemiku.tachideskvaadinui.view.layout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 import online.hatsunemiku.tachideskvaadinui.component.card.Card;
 
 /** TrackingLayout is a layout/base for displaying tracking information to import. */
+@Slf4j
 @CssImport("./css/views/imports/importCommons.css")
 public abstract class TrackingLayout extends StandardLayout {
 
@@ -25,7 +30,7 @@ public abstract class TrackingLayout extends StandardLayout {
   protected TrackingLayout(String title) {
     super(title);
 
-    addClassName("tracking-layout");
+    addClassNames("tracking-layout", "library-screen");
   }
 
   /**
@@ -46,17 +51,46 @@ public abstract class TrackingLayout extends StandardLayout {
       return;
     }
 
-    var reading = getReadingSection();
-    var planToRead = getPlanToReadSection();
-    var completed = getCompletedSection();
-    var onHold = getOnHoldSection();
-    var dropped = getDroppedSection();
+    Div reading;
+    Div planToRead;
+    Div completed;
+    Div onHold;
+    Div dropped;
+    try {
+      reading = getReadingSection();
+      planToRead = getPlanToReadSection();
+      completed = getCompletedSection();
+      onHold = getOnHoldSection();
+      dropped = getDroppedSection();
+    } catch (Exception e) {
+      log.error("Failed to init tracking sections", e);
+      throw new RuntimeException(e);
+    }
 
-    VerticalLayout content = new VerticalLayout();
+    Div content = new Div();
+    content.addClassName("import-sections-container");
 
-    content.add(reading, planToRead, completed, onHold, dropped);
+    Div hero = new Div();
+    hero.addClassName("import-hero");
+    Div heroLeft = new Div();
+    heroLeft.addClassName("import-hero-left");
+    H2 heroTitle = new H2(getTitle());
+    Span heroSubtitle = new Span("Import and sync your manga list from external trackers.");
+    heroSubtitle.addClassName("import-hero-subtitle");
+    heroLeft.add(heroTitle, heroSubtitle);
+    hero.add(heroLeft);
+
+    content.add(hero, reading, planToRead, completed, onHold, dropped);
 
     setContent(content);
+  }
+
+  private String getTitle() {
+    return switch (getClass().getSimpleName()) {
+      case "AniListView" -> "AniList";
+      case "MALView" -> "MyAnimeList";
+      default -> "Tracker";
+    };
   }
 
   /**

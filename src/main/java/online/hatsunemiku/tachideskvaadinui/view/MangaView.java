@@ -10,14 +10,19 @@ import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
+import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.NotFoundException;
@@ -51,6 +56,8 @@ import org.jetbrains.annotations.NotNull;
 @CssImport("./css/manga.css")
 public class MangaView extends StandardLayout implements BeforeEnterObserver {
 
+  private static final String EMPTY_VALUE = "-";
+
   private final MangaService mangaService;
   private final SettingsService settingsService;
   private final AniListAPIService aniListAPIService;
@@ -58,6 +65,11 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
   private final SuwayomiTrackingService suwayomiTrackingService;
   private final MyAnimeListAPIService malAPI;
   private final SuwayomiService suwayomiService;
+
+  private List<Chapter> chapters;
+  private ListBox<Chapter> chapterListBox;
+  private Span countBadge;
+  private boolean filterDuplicates = false;
 
   /**
    * Creates a MangaView object.
@@ -78,6 +90,9 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
       MyAnimeListAPIService malAPI,
       SuwayomiService suwayomiService) {
     super("Manga");
+    fullScreenNoHide();
+    removeClassName("library-screen");
+    addClassName("manga-screen");
     this.mangaService = mangaService;
     this.settingsService = settingsService;
     this.aniListAPIService = aniListAPIService;
@@ -90,16 +105,14 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
   @Override
   public void beforeEnter(BeforeEnterEvent event) {
     Optional<String> idParam = event.getRouteParameters().get("id");
-    Settings settings = settingsService.getSettings();
 
     if (idParam.isEmpty()) {
       event.rerouteToError(NotFoundException.class, "Manga not found");
       return;
     }
 
-    String id = idParam.get();
-
-    int mangaId = Integer.parseInt(id);
+    int mangaId = Integer.parseInt(idParam.get());
+    Settings settings = settingsService.getSettings();
 
     Manga manga;
     try {
@@ -109,78 +122,246 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
       return;
     }
 
-    VerticalLayout container = new VerticalLayout();
-    container.addClassName("manga-container");
-
-    Image image = new Image();
-
-    String url = settings.getUrl() + manga.getThumbnailUrl();
-
-    Div imageContainer = new Div();
-
-    image.setSrc(url);
-    image.addClassName("manga-image");
-
-    imageContainer.addClassName("manga-image-container");
-    imageContainer.add(image);
-
-    List<Chapter> chapters = mangaService.getChapterList(mangaId);
-
-    if (chapters.isEmpty()) {
-      chapters = mangaService.fetchChapterList(mangaId);
+    this.filterDuplicates = false;
+    this.chapters = new ArrayList<>(mangaService.getChapterList(mangaId));
+    if (this.chapters.isEmpty()) {
+      this.chapters = new ArrayList<>(mangaService.fetchChapterList(mangaId));
     }
+    Collections.reverse(this.chapters);
 
-    Collections.reverse(chapters);
-
-    ListBox<Chapter> chapterListBox = new ChapterListBox(chapters, mangaService);
-
-    Div buttons = getButtons(manga, chapters);
-
-    H1 mangaTitle = new H1(manga.getTitle());
-    mangaTitle.addClassName("manga-title");
-
-    container.add(mangaTitle, imageContainer, buttons, chapterListBox);
-    setContent(container);
+    setContent(buildMangaView(settings, manga, this.chapters));
   }
 
-  /**
-   * Retrieves and constructs the buttons needed for functionality for a manga.
-   *
-   * @param manga The {@link Manga} object for which to retrieve the buttons.
-   * @param chapters The list of {@link Chapter} objects available for the manga.
-   * @return The constructed {@link Div} element containing the buttons.
-   */
   @NotNull
-  private Div getButtons(Manga manga, List<Chapter> chapters) {
-    Div buttons = new Div();
-    buttons.addClassName("manga-buttons");
+  private Div buildMangaView(Settings settings, Manga manga, List<Chapter> chapters) {
+    Div viewContainer = new Div();
+    viewContainer.addClassName("manga-view-container");
 
-    Button libraryBtn = getLibraryBtn(manga);
-    libraryBtn.addClassName("manga-btn");
+    Div contentGrid = new Div();
+    contentGrid.addClassName("manga-content-grid");
 
-    Button downloadBtn = getDownloadBtn(chapters);
+    Div infoColumn = buildInfoColumn(manga, chapters);
+    Div chaptersColumn = buildChapterColumn(manga, chapters);
 
-    Button trackBtn = new Button("Tracking", LumoIcon.RELOAD.create());
-    trackBtn.addClassName("manga-btn");
+    contentGrid.add(infoColumn, chaptersColumn);
 
-    trackBtn.addClickListener(
-        e -> {
-          var dialog =
-              new TrackingDialog(
-                  dataService,
-                  manga,
-                  aniListAPIService,
-                  suwayomiTrackingService,
-                  malAPI,
-                  suwayomiService,
-                  mangaService);
-          dialog.open();
-        });
+    viewContainer.add(buildHeroSection(settings, manga, chapters), contentGrid);
+    return viewContainer;
+  }
+
+  @NotNull
+  private Div buildHeroSection(Settings settings, Manga manga, List<Chapter> chapters) {
+    Div heroSection = new Div();
+    heroSection.addClassName("manga-hero-section");
+
+    Div heroContent = new Div();
+    heroContent.addClassName("manga-hero-content");
+
+    Image coverImage = new Image(settings.getUrl() + manga.getThumbnailUrl(), manga.getTitle());
+    coverImage.addClassName("manga-hero-cover-image");
+
+    Div coverContainer = new Div(coverImage);
+    coverContainer.addClassName("manga-hero-cover-container");
+
+    Div heroText = new Div();
+    heroText.addClassName("manga-hero-text");
+
+    H1 title = new H1(safe(manga.getTitle()));
+    title.addClassName("manga-hero-title");
+
+    Div genreContainer = new Div();
+    genreContainer.addClassName("manga-hero-genres");
+    if (manga.getGenre() != null) {
+      for (String genre : manga.getGenre()) {
+        Span genreTag = new Span(genre);
+        genreTag.addClassName("manga-genre-tag");
+        genreContainer.add(genreTag);
+      }
+    }
+
+    Div metaContainer = new Div();
+    metaContainer.addClassName("manga-hero-meta");
+    metaContainer.add(createHeroMetaItem(VaadinIcon.USER, "Author: " + safe(manga.getAuthor())));
+    metaContainer.add(
+        createHeroMetaItem(VaadinIcon.REFRESH, "Status: " + manga.getFormattedStatus()));
+    metaContainer.add(createHeroMetaItem(VaadinIcon.HASH, "Source: " + manga.getSource().getDisplayName()));
+
+    Div actions = new Div();
+    actions.addClassName("manga-hero-actions");
 
     Button resumeBtn = getResumeButton(manga, chapters);
+    resumeBtn.addClassName("btn-resume");
 
-    buttons.add(libraryBtn, resumeBtn, downloadBtn, trackBtn);
-    return buttons;
+    Button downloadBtn = getDownloadBtn(chapters);
+    downloadBtn.addClassName("btn-glass");
+
+    Button trackBtn = new Button("Tracking", VaadinIcon.BOOKMARK.create());
+    trackBtn.addClassName("btn-glass");
+    trackBtn.addClickListener(e -> openTrackingDialog(manga));
+
+    Button libraryBtn = getLibraryBtn(manga);
+    libraryBtn.addClassName("btn-glass");
+
+    actions.add(resumeBtn, downloadBtn, trackBtn, libraryBtn);
+    heroText.add(title, genreContainer, metaContainer, actions);
+    heroContent.add(coverContainer, heroText);
+    heroSection.add(heroContent);
+    return heroSection;
+  }
+
+  @NotNull
+  private Div buildInfoColumn(Manga manga, List<Chapter> chapters) {
+    Div infoColumn = new Div();
+    infoColumn.addClassName("manga-info-column");
+
+    Div synopsisCard = new Div();
+    synopsisCard.addClassNames("glass-card", "manga-section-card");
+
+    H3 synopsisTitle = new H3("Synopsis");
+    synopsisTitle.addClassName("manga-section-title");
+
+    Paragraph synopsisText =
+        new Paragraph(
+            manga.getDescription() == null || manga.getDescription().isBlank()
+                ? "No description available."
+                : manga.getDescription());
+    synopsisText.addClassName("manga-synopsis-text");
+    synopsisCard.add(synopsisTitle, synopsisText);
+
+    if (manga.getDescription() != null && manga.getDescription().length() > 200) {
+      synopsisText.addClassName("clamped");
+      Button readMoreBtn = new Button("Read More");
+      readMoreBtn.addClassName("btn-read-more");
+      readMoreBtn.addClickListener(
+          e -> {
+            if (synopsisText.getClassNames().contains("clamped")) {
+              synopsisText.removeClassName("clamped");
+              readMoreBtn.setText("Show Less");
+            } else {
+              synopsisText.addClassName("clamped");
+              readMoreBtn.setText("Read More");
+            }
+          });
+      synopsisCard.add(readMoreBtn);
+    }
+
+    Div detailsCard = new Div();
+    detailsCard.addClassNames("glass-card", "manga-section-card");
+
+    H3 detailsTitle = new H3("Details");
+    detailsTitle.addClassName("manga-section-title");
+
+    long readChapters = chapters.stream().filter(Chapter::isRead).count();
+
+    Div detailsList = new Div();
+    detailsList.addClassName("manga-details-list");
+    detailsList.add(createDetailItem("SOURCE", String.valueOf(manga.getSource().getDisplayName())));
+    detailsList.add(createDetailItem("STATUS", manga.getFormattedStatus()));
+    detailsList.add(createDetailItem("CHAPTERS", String.valueOf(manga.getChapterCount())));
+    detailsList.add(createDetailItem("READ", readChapters + " / " + chapters.size()));
+
+    detailsCard.add(detailsTitle, detailsList);
+    infoColumn.add(synopsisCard, detailsCard);
+    return infoColumn;
+  }
+
+  @NotNull
+  private Div buildChapterColumn(Manga manga, List<Chapter> chapters) {
+    Div chaptersColumn = new Div();
+    chaptersColumn.addClassName("manga-chapters-column");
+
+    Div chaptersHeader = new Div();
+    chaptersHeader.addClassName("chapters-header");
+
+    Div titleGroup = new Div();
+    titleGroup.addClassName("chapters-title-group");
+
+    H3 chaptersTitle = new H3("Chapters");
+    chaptersTitle.addClassName("chapters-title");
+
+    this.countBadge = new Span(chapters.size() + " TOTAL");
+    this.countBadge.addClassName("chapters-count-badge");
+
+    Button chapterFilterBtn = new Button(VaadinIcon.FILTER.create());
+    chapterFilterBtn.addClassName("chapters-filter-button");
+    chapterFilterBtn.setAriaLabel("Filter chapters");
+
+    ContextMenu contextMenu = new ContextMenu();
+    contextMenu.setTarget(chapterFilterBtn);
+    contextMenu.setOpenOnClick(true);
+    MenuItem filterDuplicatesItem = contextMenu.addItem("Filter duplicate chapters");
+    filterDuplicatesItem.setCheckable(true);
+    filterDuplicatesItem.setChecked(filterDuplicates);
+    filterDuplicatesItem.addClickListener(e -> {
+      filterDuplicates = filterDuplicatesItem.isChecked();
+      updateChaptersList();
+    });
+
+    titleGroup.add(chaptersTitle, this.countBadge);
+    chaptersHeader.add(titleGroup, chapterFilterBtn);
+
+    Div chaptersContainer = new Div();
+    chaptersContainer.addClassName("manga-chapters-container");
+
+    this.chapterListBox = new ChapterListBox(chapters, mangaService);
+    this.chapterListBox.addClassNames("manga-chapters-listbox", "chapter-list-box");
+
+    chaptersContainer.add(this.chapterListBox);
+    chaptersColumn.add(chaptersHeader, chaptersContainer);
+    return chaptersColumn;
+  }
+
+  private void updateChaptersList() {
+    List<Chapter> filtered;
+    if (filterDuplicates) {
+      filtered = new ArrayList<>();
+      java.util.Set<Float> seen = new java.util.HashSet<>();
+      for (Chapter c : chapters) {
+        if (seen.add(c.getChapterNumber())) {
+          filtered.add(c);
+        }
+      }
+    } else {
+      filtered = chapters;
+    }
+    chapterListBox.setItems(filtered);
+    countBadge.setText(filtered.size() + " TOTAL");
+  }
+
+  private void openTrackingDialog(Manga manga) {
+    var dialog =
+        new TrackingDialog(
+            dataService,
+            manga,
+            aniListAPIService,
+            suwayomiTrackingService,
+            malAPI,
+            suwayomiService,
+            mangaService);
+    dialog.open();
+  }
+
+  @NotNull
+  private Div createHeroMetaItem(VaadinIcon icon, String text) {
+    Div item = new Div();
+    item.addClassName("manga-hero-meta-item");
+    item.add(icon.create(), new Span(text));
+    return item;
+  }
+
+  @NotNull
+  private Div createDetailItem(String label, String value) {
+    Div item = new Div();
+    item.addClassName("manga-detail-item");
+
+    Span labelSpan = new Span(label);
+    labelSpan.addClassName("manga-detail-label");
+
+    Span valueSpan = new Span(value);
+    valueSpan.addClassName("manga-detail-value");
+
+    item.add(labelSpan, valueSpan);
+    return item;
   }
 
   @NotNull
@@ -228,55 +409,81 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
             return;
           }
 
+          // Use a sorted copy (oldest to newest) to avoid ambiguity with list ordering
+          List<Chapter> sorted = new ArrayList<>(chapters);
+          sorted.sort(Chapter::compareTo);
+
           Chapter nextChapter = null;
-
           var lastChapter = manga.getLastChapterRead();
-          if (lastChapter == null) {
 
-            var reversed = new ArrayList<>(chapters);
-            Collections.reverse(reversed);
-
-            for (Chapter chapter : reversed) {
-              if (chapter.isRead()) {
-                continue;
-              }
-
-              nextChapter = chapter;
-              break;
-            }
-
-            if (nextChapter == null) {
-              nextChapter = chapters.getFirst();
-            }
-
-          } else {
-            int id = lastChapter.getId();
-
-            int index = 0;
-
-            for (Chapter chapter : chapters) {
-              if (chapter.getId() == id) {
+          if (lastChapter != null) {
+            int lastId = lastChapter.getId();
+            int index = -1;
+            for (int i = 0; i < sorted.size(); i++) {
+              if (sorted.get(i).getId() == lastId) {
+                index = i;
                 break;
               }
-
-              index++;
             }
 
-            if (index == chapters.size() - 1) {
-              Notification notification = new Notification("No more chapters available", 3000);
-              notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
-              notification.setPosition(Notification.Position.MIDDLE);
-              notification.open();
-              return;
+            if (index != -1) {
+              Chapter currentInList = sorted.get(index);
+              if (!currentInList.isRead()) {
+                // If there are unread chapters before the last opened one, resume from the first of those.
+                // We consider a chapter unread if isRead is false and no duplicate with the same chapter number is read.
+                java.util.Set<Float> readChapterNumbers = new java.util.HashSet<>();
+                for (Chapter c : sorted) {
+                  if (c.isRead()) {
+                    readChapterNumbers.add(c.getChapterNumber());
+                  }
+                }
+
+                Chapter firstUnreadBefore = null;
+                for (int i = 0; i < index; i++) {
+                  Chapter prev = sorted.get(i);
+                  if (!prev.isRead() && !readChapterNumbers.contains(prev.getChapterNumber())) {
+                    firstUnreadBefore = prev;
+                    break;
+                  }
+                }
+
+                if (firstUnreadBefore != null) {
+                  nextChapter = firstUnreadBefore;
+                } else {
+                  nextChapter = currentInList;
+                }
+              } else {
+                // Find the first unread chapter after the last read one
+                for (int i = index + 1; i < sorted.size(); i++) {
+                  if (!sorted.get(i).isRead()) {
+                    nextChapter = sorted.get(i);
+                    break;
+                  }
+                }
+              }
             }
+          }
 
-            Collections.reverse(chapters);
+          if (nextChapter == null) {
+            // Not found in history or no history, find the first unread chapter overall
+            for (Chapter chapter : sorted) {
+              if (!chapter.isRead()) {
+                nextChapter = chapter;
+                break;
+              }
+            }
+          }
 
-            nextChapter = chapters.get(index);
+          if (nextChapter == null) {
+            // Everything is read
+            Notification notification = new Notification("No more chapters available", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+            notification.setPosition(Notification.Position.MIDDLE);
+            notification.open();
+            return;
           }
 
           UI ui = UI.getCurrent();
-
           RouteUtils.routeToReadingView(ui, manga.getId(), nextChapter.getId());
         });
     return resumeBtn;
@@ -285,6 +492,8 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
   @NotNull
   private Button getLibraryBtn(Manga manga) {
     Button libraryBtn = new Button();
+    updateLibraryButtonText(libraryBtn, manga.isInLibrary());
+
     libraryBtn.addClickListener(
         e -> {
           if (manga.isInLibrary()) {
@@ -299,7 +508,6 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
               return;
             }
 
-            libraryBtn.setText("Add to library");
             manga.setInLibrary(false);
           } else {
             boolean success = mangaService.addMangaToLibrary(manga.getId());
@@ -312,17 +520,29 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
               return;
             }
 
-            libraryBtn.setText("Remove from library");
             manga.setInLibrary(true);
           }
+
+          updateLibraryButtonText(libraryBtn, manga.isInLibrary());
         });
 
-    if (manga.isInLibrary()) {
+    return libraryBtn;
+  }
+
+  private void updateLibraryButtonText(Button libraryBtn, boolean isInLibrary) {
+    if (isInLibrary) {
       libraryBtn.setText("Remove from library");
     } else {
       libraryBtn.setText("Add to library");
     }
-    return libraryBtn;
+  }
+
+  @NotNull
+  private String safe(String value) {
+    if (value == null || value.isBlank()) {
+      return EMPTY_VALUE;
+    }
+    return value;
   }
 
   public static class DownloadAllChapterEvent extends ComponentEvent<MangaView> {
@@ -333,7 +553,7 @@ public class MangaView extends StandardLayout implements BeforeEnterObserver {
      *
      * @param source the source component
      * @param fromClient <code>true</code> if the event originated from the client side, <code>false
-     *                   </code> otherwise
+     *     </code> otherwise
      */
     public DownloadAllChapterEvent(MangaView source, boolean fromClient) {
       super(source, fromClient);
