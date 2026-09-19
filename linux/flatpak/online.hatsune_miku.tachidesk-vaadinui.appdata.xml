@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
     <id>online.hatsune_miku.tachidesk-vaadinui</id>
-    <name>Tachidesk-VaadinUI</name>
+    <name>Suwayomi-VaadinUI</name>
     <project_license>MPL-2.0</project_license>
     <developer_name>aless2003</developer_name>
     <summary>Desktop client for Tachidesk</summary>
     <description>
         <p>
-            Tachidesk-VaadinUI is a Manga reader using Suwayomi.
+            Suwayomi-VaadinUI is a Manga reader using Suwayomi.
         </p>
     </description>
     <launchable type="desktop-id">online.hatsune_miku.tachidesk-vaadinui.desktop</launchable>
     <content_rating type="oars-1.1"/>
     <metadata_license>CC0-1.0</metadata_license>
-    <url type="bugtracker">https://github.com/Suwayomi/Tachidesk-VaadinUI/issues</url>
-    <url type="homepage">https://github.com/Suwayomi/Tachidesk-VaadinUI</url>
+    <url type="bugtracker">https://github.com/Suwayomi/Suwayomi-VaadinUI/issues</url>
+    <url type="homepage">https://github.com/Suwayomi/Suwayomi-VaadinUI</url>
     <screenshots>
         <screenshot type="default">
             <caption>Homepage</caption>
             <image type="source" width="1600" height="900">
-                https://raw.githubusercontent.com/Suwayomi/Tachidesk-VaadinUI/ab0b546503e17e43f311aaa774c091b38e9177df/screenshots/HomeView.jpg
+                https://raw.githubusercontent.com/Suwayomi/Suwayomi-VaadinUI/7962b22260bcc7feaedbca31ceb0f4154ec649f2/screenshots/HomeView.jpg
             </image>
         </screenshot>
         <screenshot>
             <caption>Extensions View</caption>
             <image type="source" width="1600" height="900">
-                https://raw.githubusercontent.com/Suwayomi/Tachidesk-VaadinUI/ab0b546503e17e43f311aaa774c091b38e9177df/screenshots/ExtensionView.jpeg
+                https://raw.githubusercontent.com/Suwayomi/Suwayomi-VaadinUI/7962b22260bcc7feaedbca31ceb0f4154ec649f2/screenshots/ExtensionView.jpeg
             </image>
         </screenshot>
         <screenshot>
             <caption>Search View</caption>
             <image type="source" width="1600" height="900">
-                https://raw.githubusercontent.com/Suwayomi/Tachidesk-VaadinUI/ab0b546503e17e43f311aaa774c091b38e9177df/screenshots/SearchView.jpg
+                https://raw.githubusercontent.com/Suwayomi/Suwayomi-VaadinUI/7962b22260bcc7feaedbca31ceb0f4154ec649f2/screenshots/SearchView.jpg
             </image>
         </screenshot>
         <screenshot>
             <caption>Sources View</caption>
             <image type="source" width="1600" height="900">
-                https://raw.githubusercontent.com/Suwayomi/Tachidesk-VaadinUI/ab0b546503e17e43f311aaa774c091b38e9177df/screenshots/SourcesView.jpeg
+                https://raw.githubusercontent.com/Suwayomi/Suwayomi-VaadinUI/7962b22260bcc7feaedbca31ceb0f4154ec649f2/screenshots/SourcesView.jpeg
             </image>
         </screenshot>
     </screenshots>
