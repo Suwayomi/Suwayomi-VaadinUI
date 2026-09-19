@@ -48,6 +48,7 @@ public class SuwayomiStarter {
   private final SuwayomiService suwayomiApi;
   private final ApplicationContext applicationContext;
   private final AtomicInteger checkCount = new AtomicInteger(0);
+  private final Object serverCheckMonitor = new Object();
   private volatile Process serverProcess;
   private volatile ScheduledExecutorService startChecker;
 
@@ -174,7 +175,7 @@ public class SuwayomiStarter {
    * frequently and events are published promptly when the server is detected to be operational.
    */
   private void startServerCheck() {
-    synchronized (this) {
+    synchronized (serverCheckMonitor) {
       stopServerCheck();
       checkCount.set(0);
       startChecker = Executors.newSingleThreadScheduledExecutor();
@@ -277,10 +278,12 @@ public class SuwayomiStarter {
     stopServerCheck();
   }
 
-  private synchronized void stopServerCheck() {
-    if (startChecker != null) {
-      startChecker.shutdownNow();
-      startChecker = null;
+  private void stopServerCheck() {
+    synchronized (serverCheckMonitor) {
+      if (startChecker != null) {
+        startChecker.shutdownNow();
+        startChecker = null;
+      }
     }
   }
 

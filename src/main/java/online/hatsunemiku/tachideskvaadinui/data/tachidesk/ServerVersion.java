@@ -7,33 +7,34 @@
 package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-/** Represents the version of the Suwayomi Server. */
-@Getter
-@lombok.NoArgsConstructor(force = true)
-public class ServerVersion {
-
-  /** The version of the server. Format: vX.Y.Z */
-  private final String version;
-
-  /** The revision of the server. Format: r1234 */
-  private final String revision;
+/**
+ * Represents the version of the Suwayomi Server.
+ *
+ * @param version  The version of the server. Format: vX.Y.Z
+ * @param revision The revision of the server. Format: r1234
+ */
+@NoArgsConstructor(force = true)
+public record ServerVersion(String version, String revision) {
 
   /**
    * Creates a new instance of the {@link ServerVersion} class.
    *
    * @param version the version of the server
-   * @param revision the revision of the server
    */
   public ServerVersion(String version) {
     this(version, null);
   }
 
+  /**
+   * Creates a new instance of the {@link ServerVersion} class with revision.
+   *
+   * @param version  the version of the server
+   * @param revision the revision of the server
+   */
   @JsonCreator
-  public ServerVersion(String version, String revision) {
-    this.version = version;
-    this.revision = revision;
+  public ServerVersion {
   }
 
   /**
@@ -74,7 +75,8 @@ public class ServerVersion {
 
   /**
    * Gets the revision number of the server. For example if the revision is r1234, this method will
-   * return 1234. In Suwayomi v2.3+, the revision number is the patch version (e.g. 2243 in v2.3.2243).
+   * return 1234. In Suwayomi v2.3+, the revision number is the patch version (e.g. 2243 in
+   * v2.3.2243).
    *
    * @return the revision number of the server
    */

@@ -344,7 +344,8 @@ public class MangaService {
    * Adds a listener to the download change event tracker.
    *
    * @param chapterId The id of the chapter to listen for
-   * @param callback The callback to run when the chapter is downloaded
+   * @param progressCallback The callback to run when progress updates occur
+   * @param completionCallback The callback to run when the chapter is downloaded
    */
   public void addDownloadTrackListener(
       int chapterId,
