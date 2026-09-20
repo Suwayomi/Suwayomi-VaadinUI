@@ -7,7 +7,6 @@
 package online.hatsunemiku.tachideskvaadinui.data.tachidesk;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import lombok.NoArgsConstructor;
 
 /**
  * Represents the version of the Suwayomi Server.
@@ -15,8 +14,14 @@ import lombok.NoArgsConstructor;
  * @param version  The version of the server. Format: vX.Y.Z
  * @param revision The revision of the server. Format: r1234
  */
-@NoArgsConstructor(force = true)
 public record ServerVersion(String version, String revision) {
+
+  /**
+   * Default constructor.
+   */
+  public ServerVersion() {
+    this(null, null);
+  }
 
   /**
    * Creates a new instance of the {@link ServerVersion} class.
