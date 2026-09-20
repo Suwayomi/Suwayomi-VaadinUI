@@ -1,14 +1,52 @@
-  on:
-    release:
-      types: [published]
-  jobs:
-    publish:
-      runs-on: windows-latest
-      steps:
-        - name: Winget Releaser
-          uses: vedantmgoyal2009/winget-releaser@v2
-          with:
-            identifier: Suwayomi.Tachidesk-VaadinUI
-            installers-regex: '\.msi$'
-            token: ${{ secrets.WINGET_TOKEN }}
-            fork-user: aless2003
+name: Publish to WinGet
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to publish (leave empty for latest release)'
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    steps:
+      - name: Determine release tag
+        id: get-tag
+        shell: pwsh
+        run: |
+          $tag = "${{ inputs.tag }}"
+          if ([string]::IsNullOrWhiteSpace($tag)) {
+            if ("${{ github.event_name }}" -eq "release") {
+              $tag = "${{ github.event.release.tag_name }}"
+            } else {
+              $headers = @{ "Authorization" = "Bearer ${{ secrets.GITHUB_TOKEN }}" }
+              $latest = Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/releases/latest" -Headers $headers
+              $tag = $latest.tag_name
+            }
+          }
+          Write-Host "Publishing WinGet for release tag: $tag"
+          Write-Output "tag=$tag" >> $env:GITHUB_OUTPUT
+
+      - name: Sync WinGet fork
+        shell: pwsh
+        run: |
+          gh repo sync aless2003/winget-pkgs --force
+        env:
+          GH_TOKEN: ${{ secrets.WINGET_TOKEN }}
+
+      - name: Winget Releaser
+        uses: vedantmgoyal2009/winget-releaser@v2
+        with:
+          identifier: Suwayomi.Tachidesk-VaadinUI
+          installers-regex: '\.msi$'
+          token: ${{ secrets.WINGET_TOKEN }}
+          fork-user: aless2003
+          release-tag: ${{ steps.get-tag.outputs.tag }}
