@@ -23,7 +23,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @Push
 @Theme("virtual-obsidian")
-@PWA(name = "Suwayomi VaadinUI", shortName = "VaadinUI")
+@PWA(name = "Suwayomi VaadinUI", shortName = "VaadinUI", offline = false)
 public class VaadinConfig implements AppShellConfigurator {
 
   @Override

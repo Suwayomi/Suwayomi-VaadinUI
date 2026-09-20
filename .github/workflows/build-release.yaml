@@ -16,6 +16,7 @@ permissions:
 jobs:
   BuildRelease:
     strategy:
+      fail-fast: false
       matrix:
         TASK: [ buildWindowsExe, buildWindowsMsi, buildLinuxDeb, buildLinuxRpm, buildMacPkg, buildMacDmg ]
         include:
@@ -53,10 +54,13 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: gradle
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y rpm fontconfig libfreetype6
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build Release
-        run: ./gradlew ${{ matrix.TASK }} --info
+        run: ./gradlew ${{ matrix.TASK }} --info --no-build-cache
       - name: List files
         run: ls -R ${{ github.workspace }}/build/installer
       - name: Upload Release
@@ -83,7 +87,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build Release Jar
-        run: ./gradlew buildReleaseJar
+        run: ./gradlew buildReleaseJar --no-build-cache
       - name: List files
         run: ls -R ${{ github.workspace }}/build/libs
       - name: Upload Jar
