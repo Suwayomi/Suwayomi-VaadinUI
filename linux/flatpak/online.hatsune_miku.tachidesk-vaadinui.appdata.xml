@@ -42,11 +42,10 @@
         </screenshot>
     </screenshots>
     <releases>
-        <release date="2026-9-19" version="2.0.0">
+        <release date="2026-9-30" version="2.0.1">
             <description>
-                <p>Entirely new UI</p>
-                <p>New Backend</p>
-                <p>Compatibility with Suwayomi 2.3</p>
+                <p>Support isDefaultCategory for Suwayomi user accounts</p>
+                <p>Compatibility updates for Suwayomi Server</p>
             </description>
         </release>
     </releases>
