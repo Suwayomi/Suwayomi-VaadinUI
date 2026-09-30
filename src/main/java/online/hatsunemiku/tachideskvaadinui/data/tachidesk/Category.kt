@@ -12,6 +12,7 @@ data class Category(
     var id: Int = 0,
     var order: Int = 0,
     var name: String? = null,
-    @JsonAlias("default")
-    var isDef: Boolean = false
+    @param:JsonAlias("default")
+    var isDef: Boolean = false,
+    var isDefaultCategory: Boolean = id == 0
 )

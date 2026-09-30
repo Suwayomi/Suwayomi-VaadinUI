@@ -53,7 +53,7 @@ public class CategoryTab extends Tab implements DropTarget<Tab> {
             Manga manga = data.manga();
             Category oldCategory = data.category();
 
-            if (category.getId() == 0) {
+            if (category.isDefaultCategory()) {
               Notification notification = new Notification("Cannot move to Default", 3000);
               notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
               notification.open();

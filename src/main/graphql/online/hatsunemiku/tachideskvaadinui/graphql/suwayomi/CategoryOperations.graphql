@@ -19,6 +19,7 @@ query GetCategories {
     nodes {
       default
       id
+      isDefaultCategory
       name
       order
     }

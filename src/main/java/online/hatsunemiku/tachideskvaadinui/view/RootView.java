@@ -84,7 +84,7 @@ public class RootView extends StandardLayout implements BeforeEnterObserver {
     Div grid = createMangaGrid(settings, c);
     tab.setGrid(grid);
 
-    if (c.getId() != 0) {
+    if (!c.isDefaultCategory()) {
       Button deleteButton = createCategoryDeleteButton(c, tab);
       tab.add(deleteButton);
     }

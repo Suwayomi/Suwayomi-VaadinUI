@@ -30,8 +30,29 @@ type AboutServerPayload {
   discord: String!
   github: String!
   name: String!
+  platformInfo: PlatformInfo!
   revision: String! @deprecated(reason: "The version includes the revision as the patch number")
   version: String!
+}
+
+type JvmInfo {
+  javaVersion: String!
+  vmName: String!
+  vmVendor: String!
+  vmVersion: String!
+}
+
+type OSInfo {
+  build: String
+  name: String!
+  version: String!
+}
+
+type PlatformInfo {
+  arch: String!
+  headless: Boolean!
+  jvm: JvmInfo!
+  os: OSInfo!
 }
 
 type AboutWebUI {
@@ -182,6 +203,7 @@ type CategoryType {
   id: Int!
   includeInDownload: IncludeOrExclude!
   includeInUpdate: IncludeOrExclude!
+  isDefaultCategory: Boolean!
   name: String!
   order: Int!
   mangas: MangaNodeList!
@@ -335,6 +357,14 @@ type ClearCachedImagesPayload {
   cachedThumbnails: Boolean
   clientMutationId: String
   downloadedThumbnails: Boolean
+}
+
+input ClearCookiesAndCacheInput {
+  clientMutationId: String
+}
+
+type ClearCookiesAndCachePayload {
+  clientMutationId: String
 }
 
 input ClearDownloaderInput {
@@ -1422,6 +1452,7 @@ type Mutation {
   enqueueChapterDownload(input: EnqueueChapterDownloadInput!): EnqueueChapterDownloadPayload
   enqueueChapterDownloads(input: EnqueueChapterDownloadsInput!): EnqueueChapterDownloadsPayload
   reorderChapterDownload(input: ReorderChapterDownloadInput!): ReorderChapterDownloadPayload
+  reorderChapterDownloads(input: ReorderChapterDownloadsInput!): ReorderChapterDownloadPayload
   startDownloader(input: StartDownloaderInput!): StartDownloaderPayload
   stopDownloader(input: StopDownloaderInput!): StopDownloaderPayload
   fetchExtensions(input: FetchExtensionsInput!): FetchExtensionsPayload
@@ -1431,6 +1462,7 @@ type Mutation {
   addExtensionStore(input: AddExtensionStoreInput!): AddExtensionStorePayload
   removeExtensionStore(input: RemoveExtensionStoreInput!): RemoveExtensionStorePayload
   clearCachedImages(input: ClearCachedImagesInput!): ClearCachedImagesPayload!
+  clearCookiesAndCache(input: ClearCookiesAndCacheInput): ClearCookiesAndCachePayload!
   resetWebUIUpdateStatus: WebUIUpdateStatus
   updateWebUI(input: WebUIUpdateInput!): WebUIUpdatePayload
   connectKoSyncAccount(input: ConnectKoSyncAccountInput!): KoSyncConnectPayload!
@@ -1793,6 +1825,16 @@ input ReorderChapterDownloadInput {
 type ReorderChapterDownloadPayload {
   clientMutationId: String
   downloadStatus: DownloadStatus!
+}
+
+input ChapterDownloadReorderInput {
+  chapterId: Int!
+  to: Int!
+}
+
+input ReorderChapterDownloadsInput {
+  clientMutationId: String
+  reorders: [ChapterDownloadReorderInput!]!
 }
 
 input ResetSettingsInput {
