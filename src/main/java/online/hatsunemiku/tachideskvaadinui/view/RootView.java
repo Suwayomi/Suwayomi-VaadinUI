@@ -43,7 +43,6 @@ import online.hatsunemiku.tachideskvaadinui.view.trackers.AniListView;
 import online.hatsunemiku.tachideskvaadinui.view.trackers.MALView;
 import org.jetbrains.annotations.NotNull;
 
-
 @Route("/")
 @CssImport("./css/root.css")
 public class RootView extends StandardLayout implements BeforeEnterObserver {
@@ -84,7 +83,7 @@ public class RootView extends StandardLayout implements BeforeEnterObserver {
     Div grid = createMangaGrid(settings, c);
     tab.setGrid(grid);
 
-    if (c.getId() != 0) {
+    if (!c.isDefaultCategory()) {
       Button deleteButton = createCategoryDeleteButton(c, tab);
       tab.add(deleteButton);
     }
@@ -201,7 +200,6 @@ public class RootView extends StandardLayout implements BeforeEnterObserver {
     setContent(container);
   }
 
-
   private void updateCategoryHeader(Category category) {
     activeCategoryLabel.setText(category.getName());
     Integer count = categoryMangaCounts.getOrDefault(category, 0);
@@ -315,4 +313,3 @@ public class RootView extends StandardLayout implements BeforeEnterObserver {
     return importBtn;
   }
 }
-

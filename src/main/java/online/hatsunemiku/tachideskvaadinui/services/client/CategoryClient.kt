@@ -95,7 +95,8 @@ class CategoryClient(private val clientService: WebClientService) {
                         id = node.id,
                         name = node.name,
                         order = node.order,
-                        isDef = node.default
+                        isDef = node.default,
+                        isDefaultCategory = node.isDefaultCategory
                     )
                 }.toMutableList()
 
