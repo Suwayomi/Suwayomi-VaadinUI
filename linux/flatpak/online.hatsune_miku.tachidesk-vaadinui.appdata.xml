@@ -42,6 +42,12 @@
         </screenshot>
     </screenshots>
     <releases>
+        <release date="2026-10-15" version="2.0.2">
+            <description>
+                <p>Fix DNS resolution on Linux systems</p>
+                <p>Improve log file storage and consistency</p>
+            </description>
+        </release>
         <release date="2026-9-30" version="2.0.1">
             <description>
                 <p>Support isDefaultCategory for Suwayomi user accounts</p>
