@@ -152,7 +152,11 @@ public class SuwayomiStarter {
     log.info("Starting jar with data dir: {}", dataDirFile.getAbsolutePath());
     ProcessBuilder processBuilder = new ProcessBuilder("java", dataDirArg, "-jar", jarLocation);
 
-    File logFile = new File(projectDir, "server.log");
+    File logsDir = new File(projectDir, "logs");
+    if (!logsDir.exists()) {
+      logsDir.mkdirs();
+    }
+    File logFile = new File(logsDir, "server.log");
 
     processBuilder.redirectErrorStream(true);
     processBuilder.redirectOutput(logFile);

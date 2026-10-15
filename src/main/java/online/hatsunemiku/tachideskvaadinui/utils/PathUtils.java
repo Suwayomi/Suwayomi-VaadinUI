@@ -35,7 +35,12 @@ public class PathUtils {
 
     if (PlatformUtils.isWindows()) {
       // On Windows, the Local AppData directory is used
-      appdata = Path.of(System.getenv("LOCALAPPDATA"));
+      String localAppData = System.getenv("LOCALAPPDATA");
+      if (localAppData != null && !localAppData.isBlank()) {
+        appdata = Path.of(localAppData);
+      } else {
+        appdata = Path.of(System.getProperty("user.home"), "AppData", "Local");
+      }
     } else {
       String userHome = System.getProperty("user.home");
       if (PlatformUtils.isMac()) {
@@ -54,8 +59,6 @@ public class PathUtils {
     } else {
       projectDir = appdata.resolve("TachideskVaadinUI");
     }
-
-    log.debug("Project Dir: {}", projectDir);
 
     return projectDir;
   }
@@ -82,6 +85,21 @@ public class PathUtils {
   }
 
   /**
+   * Retrieves the resolved project path without an Environment.
+   *
+   * @return The resolved project path specified as a {@link Path} object.
+   */
+  public static @NotNull Path getResolvedProjectPath() {
+    Path projectDirPath;
+    if (ProfileUtils.isDev()) {
+      projectDirPath = PathUtils.getDevDir();
+    } else {
+      projectDirPath = PathUtils.getProjectDir();
+    }
+    return projectDirPath;
+  }
+
+  /**
    * Retrieves the resolved project path. e.g. either the project directory or a development
    * directory depending on the environment.
    *
@@ -96,5 +114,40 @@ public class PathUtils {
       projectDirPath = PathUtils.getProjectDir();
     }
     return projectDirPath;
+  }
+
+  /**
+   * Retrieves the logs directory inside the resolved project path and ensures it exists.
+   *
+   * @return The logs directory specified as a {@link Path} object.
+   */
+  public static @NotNull Path getLogsDir() {
+    Path logsDir = getResolvedProjectPath().resolve("logs");
+    if (Files.notExists(logsDir)) {
+      try {
+        Files.createDirectories(logsDir);
+      } catch (IOException e) {
+        log.error("Failed to create logs directory", e);
+      }
+    }
+    return logsDir;
+  }
+
+  /**
+   * Retrieves the logs directory inside the resolved project path and ensures it exists.
+   *
+   * @param env The {@link Environment} object used to determine the appropriate path.
+   * @return The logs directory specified as a {@link Path} object.
+   */
+  public static @NotNull Path getLogsDir(Environment env) {
+    Path logsDir = getResolvedProjectPath(env).resolve("logs");
+    if (Files.notExists(logsDir)) {
+      try {
+        Files.createDirectories(logsDir);
+      } catch (IOException e) {
+        log.error("Failed to create logs directory", e);
+      }
+    }
+    return logsDir;
   }
 }
