@@ -36,7 +36,6 @@ public class TachideskVaadinUiApplication {
    */
   public static void main(String[] args) {
     System.setProperty("java.net.preferIPv4Stack", "true");
-    System.setProperty("io.netty.resolver.dns.useSystemNameResolver", "true");
 
     boolean headless = Boolean.parseBoolean(System.getProperty("vaaui.headless"));
     if (isRunningAlready()) {

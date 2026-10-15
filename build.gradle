@@ -187,8 +187,7 @@ class InstallTask extends JPackageTask {
         input = "build/libs/release"
         destination = "build/installer"
         javaOptions = [
-                "-Djava.net.preferIPv4Stack=true",
-                "-Dio.netty.resolver.dns.useSystemNameResolver=true"
+                "-Djava.net.preferIPv4Stack=true"
         ]
     }
 }
