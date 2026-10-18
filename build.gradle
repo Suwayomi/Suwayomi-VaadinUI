@@ -178,7 +178,6 @@ class InstallTask extends JPackageTask {
         appDescription = "A simple Web UI for Suwayomi written in Java with Vaadin"
         appName = "Suwayomi VaadinUI"
         appVersion = "${project.version}"
-        icon = "package/icons/icon.ico"
         licenseFile = "LICENSE"
         mainClass = "org.springframework.boot.loader.launch.JarLauncher"
         mainJar = "Tachidesk-VaadinUI-${project.version}.jar"
@@ -198,6 +197,7 @@ class WindowsInstallTask extends InstallTask {
     WindowsInstallTask() {
         super()
 
+        icon = "package/icons/icon.ico"
         //winConsole = true //enable only for debugging
         winDirChooser = true
         winHelpUrl = "https://github.com/Suwayomi/Suwayomi-VaadinUI"
@@ -222,6 +222,7 @@ class WindowsDebugInstallTask extends WindowsInstallTask {
 class LinuxInstallTask extends InstallTask {
     LinuxInstallTask() {
         super()
+        icon = "package/icons/icon.png"
         linuxAppCategory = "Utility"
         linuxDebMaintainer = "Alessandro.Schwaiger12@gmail.com"
         linuxMenuGroup = "DiamondMiku"
