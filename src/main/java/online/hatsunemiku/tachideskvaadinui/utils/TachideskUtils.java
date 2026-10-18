@@ -27,6 +27,8 @@ public class TachideskUtils {
   private static final Pattern JAR_PATTERN =
       Pattern.compile(
           "https://github\\.com/Suwayomi/Suwayomi-Server/releases/download/(v\\d+\\.\\d+\\.\\d+(-r\\d+)?)/(Suwayomi-Server-v\\d+\\.\\d+\\.(\\d+)\\.jar)");
+  private static final Pattern JAVA_VERSION_PATTERN =
+      Pattern.compile("version\\s+[\"']?([0-9]+[^\"'\\s]*)[\"']?", Pattern.CASE_INSENSITIVE);
 
   public static String getNewestJarUrl(RestClient client) {
     String githubApi = "https://api.github.com/repos/Suwayomi/Suwayomi-Server/releases/latest";
@@ -91,5 +93,49 @@ public class TachideskUtils {
       logger.warn("Jar validation failed for file {}: {}", file.getPath(), e.getMessage());
       return false;
     }
+  }
+
+  /**
+   * Parses the Java major version from the output of {@code java -version}.
+   *
+   * @param output the standard output/error produced by {@code java -version}
+   * @return an {@link Optional} containing the major version if successfully parsed, or {@link Optional#empty()}
+   */
+  public static Optional<Integer> parseJavaMajorVersion(String output) {
+    if (output == null || output.isBlank()) {
+      return Optional.empty();
+    }
+
+    Matcher matcher = JAVA_VERSION_PATTERN.matcher(output);
+    if (!matcher.find()) {
+      return Optional.empty();
+    }
+
+    String rawVersion = matcher.group(1);
+    if (rawVersion.startsWith("1.")) {
+      String[] parts = rawVersion.split("\\.");
+      if (parts.length > 1) {
+        try {
+          return Optional.of(Integer.parseInt(parts[1]));
+        } catch (NumberFormatException ignored) {
+          // fall through to further attempts
+        }
+      }
+    }
+
+    try {
+      return Optional.of(Runtime.Version.parse(rawVersion).feature());
+    } catch (IllegalArgumentException ignored) {
+      Matcher digitMatcher = Pattern.compile("^(\\d+)").matcher(rawVersion);
+      if (digitMatcher.find()) {
+        try {
+          return Optional.of(Integer.parseInt(digitMatcher.group(1)));
+        } catch (NumberFormatException ignoredFallback) {
+          // fall through
+        }
+      }
+    }
+
+    return Optional.empty();
   }
 }

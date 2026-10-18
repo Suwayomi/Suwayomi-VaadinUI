@@ -10,6 +10,8 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -42,6 +44,7 @@ public class SuwayomiStarter {
 
   private static final Logger logger = LoggerFactory.getLogger(SuwayomiStarter.class);
   private static final int MAX_STARTUP_CHECK_ATTEMPTS = 24; // 2 minutes (24 * 5s)
+  static final int MIN_JAVA_VERSION = 25;
 
   private final SettingsService settingsService;
   private final ServerEventPublisher serverEventPublisher;
@@ -121,22 +124,7 @@ public class SuwayomiStarter {
     String dataDirFormat = "-Dsuwayomi.tachidesk.config.server.rootDir=%s";
     String dataDirArg = String.format(dataDirFormat, dataDirFile.getAbsolutePath());
 
-    log.info("Checking for java installation...");
-    boolean isJavaInstalled;
-    try {
-      Process process = new ProcessBuilder("java", "-version").start();
-      process.getInputStream().transferTo(java.io.OutputStream.nullOutputStream());
-      process.getErrorStream().transferTo(java.io.OutputStream.nullOutputStream());
-      isJavaInstalled = process.waitFor(5, TimeUnit.SECONDS) && process.exitValue() == 0;
-    } catch (IOException | InterruptedException e) {
-      log.error("Failed to check if java is installed", e);
-      isJavaInstalled = false;
-      if (e instanceof InterruptedException) {
-        Thread.currentThread().interrupt();
-      }
-    }
-
-    if (!isJavaInstalled) {
+    if (!isJavaInstalledAndSupported()) {
       String url =
           "https://github.com/aless2003/Tachidesk-VaadinUI/blob/master/Install%20Process.md#when-starting-its-stuck-on-waiting-for-server-to-start";
       try {
@@ -321,6 +309,62 @@ public class SuwayomiStarter {
       return true;
     } catch (Exception e) {
       logger.info("Server not running", e);
+      return false;
+    }
+  }
+
+  /**
+   * Checks whether Java is installed and meets the minimum required major version.
+   *
+   * @return {@code true} if a supported Java version is available, {@code false} otherwise.
+   */
+  boolean isJavaInstalledAndSupported() {
+    log.info("Checking for java installation (minimum version {})...", MIN_JAVA_VERSION);
+    try {
+      Process process =
+          new ProcessBuilder("java", "-version")
+              .redirectErrorStream(true)
+              .start();
+
+      String output;
+      try (InputStream in = process.getInputStream()) {
+        output = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+      }
+
+      boolean completed = process.waitFor(5, TimeUnit.SECONDS);
+      if (!completed) {
+        process.destroyForcibly();
+        log.error("Java check process timed out");
+        return false;
+      }
+
+      if (process.exitValue() != 0) {
+        log.error("Java check process exited with code: {}", process.exitValue());
+        return false;
+      }
+
+      java.util.Optional<Integer> majorVersion = TachideskUtils.parseJavaMajorVersion(output);
+      if (majorVersion.isEmpty()) {
+        log.error("Failed to parse Java version from output: {}", output);
+        return false;
+      }
+
+      int version = majorVersion.get();
+      log.info("Detected Java major version: {}", version);
+      if (version < MIN_JAVA_VERSION) {
+        log.error(
+            "Installed Java version ({}) is lower than the minimum required version ({}).",
+            version,
+            MIN_JAVA_VERSION);
+        return false;
+      }
+
+      return true;
+    } catch (IOException | InterruptedException e) {
+      log.error("Failed to check if java is installed", e);
+      if (e instanceof InterruptedException) {
+        Thread.currentThread().interrupt();
+      }
       return false;
     }
   }

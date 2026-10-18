@@ -7,7 +7,7 @@ plugins {
     id 'java'
     id 'idea'
     id 'org.jetbrains.kotlin.jvm' version '2.3.21'
-    id "io.freefair.lombok" version "8.12.2"
+    id "io.freefair.lombok" version "9.8.2"
     id 'org.springframework.boot' version '4.0.6'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.vaadin' version "$vaadinVersion"
@@ -32,19 +32,19 @@ apollo {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
         vendor = JvmVendorSpec.ADOPTIUM
     }
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(25)
 }
 
 group = 'online.hatsunemiku'
 version = '2.0.2'
-sourceCompatibility = JavaVersion.VERSION_21
-targetCompatibility = JavaVersion.VERSION_21
+sourceCompatibility = JavaVersion.toVersion(25)
+targetCompatibility = JavaVersion.toVersion(25)
 
 configurations {
     compileOnly {
@@ -82,9 +82,9 @@ dependencies {
     implementation 'commons-validator:commons-validator:1.7'
 
 
-    compileOnly 'org.projectlombok:lombok'
+    compileOnly 'org.projectlombok:lombok:1.18.48'
     developmentOnly 'io.projectreactor:reactor-tools'
-    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok:1.18.48'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     //vaadin official addons
