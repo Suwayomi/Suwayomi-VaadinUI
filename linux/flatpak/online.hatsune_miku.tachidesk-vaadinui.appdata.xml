@@ -42,6 +42,11 @@
         </screenshot>
     </screenshots>
     <releases>
+        <release date="2026-10-18" version="2.0.3">
+            <description>
+                <p>Migrate project to Java 25 and add Java version verification on startup</p>
+            </description>
+        </release>
         <release date="2026-10-15" version="2.0.2">
             <description>
                 <p>Fix DNS resolution on Linux systems</p>
